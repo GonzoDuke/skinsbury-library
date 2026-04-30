@@ -28,8 +28,14 @@ interface DetectionResponse {
 }
 
 export async function detectSpines(file: File): Promise<DetectionResponse['detections']> {
+  // Pass A only draws bounding boxes — it doesn't need full source resolution.
+  // Phone photos can be 8–15 MB and would blow Vercel's 4.5 MB serverless body
+  // limit. Downscale to ~1800px long edge (~300–700 KB JPEG) before upload.
+  // The original full-res File stays in memory and is what cropSpine reads
+  // for the per-spine OCR crops, so OCR quality is unaffected.
+  const compressed = await downscaleForUpload(file, 1800, 0.85);
   const fd = new FormData();
-  fd.append('image', file);
+  fd.append('image', compressed, file.name);
   const res = await fetch('/api/process-photo', { method: 'POST', body: fd });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -37,6 +43,25 @@ export async function detectSpines(file: File): Promise<DetectionResponse['detec
   }
   const data = (await res.json()) as DetectionResponse;
   return data.detections ?? [];
+}
+
+async function downscaleForUpload(file: File, maxLongEdge: number, quality: number): Promise<Blob> {
+  const { img, width, height } = await loadImage(file);
+  // Don't upscale; if the source is already small enough, just send the original.
+  const longEdge = Math.max(width, height);
+  if (longEdge <= maxLongEdge) return file;
+  const scale = maxLongEdge / longEdge;
+  const w = Math.round(width * scale);
+  const h = Math.round(height * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return file;
+  ctx.drawImage(img, 0, 0, w, h);
+  return await new Promise<Blob>((resolve) => {
+    canvas.toBlob((blob) => resolve(blob ?? file), 'image/jpeg', quality);
+  });
 }
 
 interface ReadSpineResponse {
