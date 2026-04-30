@@ -13,9 +13,25 @@ interface BookCardProps {
 }
 
 export function BookCard({ book }: BookCardProps) {
-  const { updateBook } = useStore();
+  const { updateBook, rereadBook } = useStore();
   const [showReasoning, setShowReasoning] = useState(false);
   const [picker, setPicker] = useState<'genre' | 'form' | null>(null);
+  const [rereadOpen, setRereadOpen] = useState(false);
+  const [hint, setHint] = useState('');
+  const [rereadError, setRereadError] = useState<string | null>(null);
+
+  async function doReread(useHint: boolean) {
+    setRereadError(null);
+    const result = useHint
+      ? await rereadBook(book.id, { hint: { title: hint.trim(), author: book.author } })
+      : await rereadBook(book.id, {});
+    if (!result.ok) {
+      setRereadError(result.error ?? 'Reread failed.');
+      return;
+    }
+    setRereadOpen(false);
+    setHint('');
+  }
 
   const borderClass =
     book.status === 'approved'
@@ -259,10 +275,22 @@ export function BookCard({ book }: BookCardProps) {
               : 'No match'}
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 relative">
+          <button
+            onClick={() => {
+              setRereadOpen((v) => !v);
+              setRereadError(null);
+            }}
+            disabled={book.rereading}
+            className="text-xs px-3 py-1.5 rounded-md border border-cream-300 dark:border-ink-soft hover:border-accent hover:text-accent disabled:opacity-50 transition"
+            title="Re-run the AI on this spine"
+          >
+            {book.rereading ? '⟳ Rereading…' : '↻ Reread'}
+          </button>
           <button
             onClick={() => setStatus('rejected')}
-            className={`text-xs px-3 py-1.5 rounded-md border transition ${
+            disabled={book.rereading}
+            className={`text-xs px-3 py-1.5 rounded-md border transition disabled:opacity-50 ${
               book.status === 'rejected'
                 ? 'bg-red-100 dark:bg-red-900/40 border-red-300 dark:border-red-800 text-red-800 dark:text-red-200'
                 : 'border-cream-300 dark:border-ink-soft hover:border-red-400 hover:text-red-700 dark:hover:text-red-400'
@@ -272,7 +300,8 @@ export function BookCard({ book }: BookCardProps) {
           </button>
           <button
             onClick={() => setStatus('approved')}
-            className={`text-xs px-3 py-1.5 rounded-md border transition ${
+            disabled={book.rereading}
+            className={`text-xs px-3 py-1.5 rounded-md border transition disabled:opacity-50 ${
               book.status === 'approved'
                 ? 'bg-green-100 dark:bg-green-900/40 border-green-400 dark:border-green-700 text-green-800 dark:text-green-200'
                 : 'border-cream-300 dark:border-ink-soft hover:border-green-500 hover:text-green-700 dark:hover:text-green-400'
@@ -280,6 +309,58 @@ export function BookCard({ book }: BookCardProps) {
           >
             {book.status === 'approved' ? '✓ Approved' : 'Approve'}
           </button>
+
+          {rereadOpen && !book.rereading && (
+            <div className="absolute right-0 bottom-full mb-2 w-80 bg-cream-50 dark:bg-ink-soft border border-cream-300 dark:border-ink-soft rounded-lg shadow-lg p-3 z-20 space-y-2">
+              <div className="text-[11px] uppercase tracking-wider text-ink/50 dark:text-cream-300/50 font-semibold">
+                Reread this spine
+              </div>
+              <button
+                onClick={() => doReread(false)}
+                disabled={!book.ocrImage}
+                className="w-full text-left text-xs px-3 py-2 rounded border border-cream-300 dark:border-ink-soft hover:border-accent hover:text-accent disabled:opacity-50 transition"
+                title={
+                  book.ocrImage
+                    ? 'Send the same crop to the model again. Pass B is non-deterministic — a fresh attempt often reads better.'
+                    : 'The OCR-quality crop wasn’t preserved (likely from before this feature shipped). Use the typed hint instead.'
+                }
+              >
+                <div className="font-medium">Try again with AI</div>
+                <div className="text-[10px] text-ink/50 dark:text-cream-300/50 mt-0.5">
+                  {book.ocrImage
+                    ? 'Re-runs the read on the same crop. ~5–15 seconds.'
+                    : 'Unavailable — high-res crop wasn’t preserved.'}
+                </div>
+              </button>
+              <div className="text-[10px] text-center text-ink/40 dark:text-cream-300/40 uppercase tracking-wider">
+                or
+              </div>
+              <div>
+                <input
+                  value={hint}
+                  onChange={(e) => setHint(e.target.value)}
+                  placeholder="Type the actual title…"
+                  className="w-full px-2 py-1.5 text-xs bg-cream-100 dark:bg-ink rounded border border-cream-300 dark:border-ink-soft focus:outline-none focus:ring-1 focus:ring-accent"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && hint.trim()) doReread(true);
+                    if (e.key === 'Escape') setRereadOpen(false);
+                  }}
+                />
+                <button
+                  onClick={() => doReread(true)}
+                  disabled={!hint.trim()}
+                  className="mt-2 w-full text-xs px-3 py-1.5 rounded bg-accent text-cream-50 hover:bg-accent-deep disabled:opacity-50 transition"
+                >
+                  Look up &amp; retag with this title
+                </button>
+              </div>
+              {rereadError && (
+                <div className="text-[11px] text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded px-2 py-1.5">
+                  {rereadError}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </article>

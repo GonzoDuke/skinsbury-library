@@ -16,6 +16,8 @@ import {
   dedupeBooks,
   detectSpines,
   loadImage,
+  rereadBook as runReread,
+  type RereadOptions,
 } from './pipeline';
 
 export interface ProcessingState {
@@ -123,6 +125,9 @@ interface StoreApi {
 
   /** Run detect → read → lookup → ground → dedup over every queued batch. */
   processQueue: () => Promise<void>;
+
+  /** Re-run the per-book pipeline. Optional hint skips Pass B and uses the typed title/author. */
+  rereadBook: (id: string, options: RereadOptions) => Promise<{ ok: boolean; error?: string }>;
 }
 
 const StoreCtx = createContext<StoreApi | null>(null);
@@ -152,10 +157,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      // Don't persist thumbnails or processing state.
+      // Don't persist large data URIs (batch thumbnail, spine thumbnails,
+      // OCR crops) or processing state.
       const slim = {
-        batches: state.batches.map((b) => ({ ...b, thumbnail: '' })),
-        allBooks: state.allBooks,
+        batches: state.batches.map((b) => ({
+          ...b,
+          thumbnail: '',
+          books: b.books.map((bk) => ({ ...bk, spineThumbnail: '', ocrImage: undefined })),
+        })),
+        allBooks: state.allBooks.map((bk) => ({
+          ...bk,
+          spineThumbnail: '',
+          ocrImage: undefined,
+        })),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
     } catch {
@@ -312,6 +326,42 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const rereadBook = useCallback(
+    async (id: string, options: RereadOptions) => {
+      const current = stateRef.current.allBooks.find((b) => b.id === id);
+      if (!current) return { ok: false, error: 'Book not found.' };
+
+      dispatch({ type: 'UPDATE_BOOK', id, patch: { rereading: true } });
+      try {
+        const result = await runReread(current, options);
+        if (!result.ok) {
+          dispatch({
+            type: 'UPDATE_BOOK',
+            id,
+            patch: {
+              rereading: false,
+              warnings: [
+                ...(current.warnings ?? []),
+                `Reread failed: ${result.error ?? 'unknown error'}`,
+              ],
+            },
+          });
+          return { ok: false, error: result.error };
+        }
+        dispatch({
+          type: 'UPDATE_BOOK',
+          id,
+          patch: { ...result.patch, rereading: false },
+        });
+        return { ok: true };
+      } catch (err: any) {
+        dispatch({ type: 'UPDATE_BOOK', id, patch: { rereading: false } });
+        return { ok: false, error: err?.message ?? String(err) };
+      }
+    },
+    []
+  );
+
   const api = useMemo<StoreApi>(
     () => ({
       state,
@@ -335,8 +385,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       },
       hasPendingFile: (batchId) => pendingFiles.current.has(batchId),
       processQueue,
+      rereadBook,
     }),
-    [state, processQueue]
+    [state, processQueue, rereadBook]
   );
 
   return <StoreCtx.Provider value={api}>{children}</StoreCtx.Provider>;

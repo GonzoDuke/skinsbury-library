@@ -489,6 +489,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     lookupSource: lookup.source,
     lccSource,
     spineThumbnail,
+    ocrImage: ocrCrop,
     original: {
       title: read.title,
       author: read.author,
@@ -500,6 +501,169 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
   };
 
   return { book, kept: grounded.keep };
+}
+
+// ----- Reread an existing book -----
+
+export interface RereadOptions {
+  /** Optional hint from the user: a known title (and maybe author) to skip Pass B entirely. */
+  hint?: { title: string; author?: string };
+  /** When no hint is provided, the existing OCR-quality crop is required. */
+  ocrImage?: string;
+}
+
+export interface RereadResult {
+  ok: boolean;
+  /** Patch to merge into the BookRecord via updateBook. */
+  patch?: Partial<BookRecord>;
+  error?: string;
+}
+
+/**
+ * Re-run the per-book pipeline and return a patch.
+ *
+ * Two modes:
+ *   - **Hint mode** (user typed a title): skip Pass B entirely, treat hint
+ *     as ground truth, then run lookup + tag inference.
+ *   - **AI retry mode** (no hint): re-run /api/read-spine on the stored
+ *     OCR crop. Pass B is non-deterministic, so a fresh attempt frequently
+ *     reads better than the first try.
+ */
+export async function rereadBook(
+  current: BookRecord,
+  options: RereadOptions
+): Promise<RereadResult> {
+  let title = '';
+  let author = '';
+  let confidence: 'HIGH' | 'MEDIUM' | 'LOW' = current.confidence;
+  let publisher = current.publisher;
+  let lccFromSpine = '';
+
+  if (options.hint?.title) {
+    title = options.hint.title.trim();
+    author = (options.hint.author ?? current.author ?? '').trim();
+    // User-supplied → trust as HIGH; we'll demote later if lookup fails.
+    confidence = 'HIGH';
+  } else {
+    // AI retry — needs the OCR crop.
+    const img = options.ocrImage ?? current.ocrImage;
+    if (!img) {
+      return {
+        ok: false,
+        error:
+          'Cannot rerun the AI read — the high-resolution crop was not preserved (re-upload the photo to recover this).',
+      };
+    }
+    const { base64, mediaType } = ((): { base64: string; mediaType: string } => {
+      const m = img.match(/^data:([^;]+);base64,(.*)$/);
+      if (!m) return { base64: img, mediaType: 'image/jpeg' };
+      return { mediaType: m[1], base64: m[2] };
+    })();
+    const read = await readSpine({
+      imageBase64: base64,
+      mediaType,
+      position: current.spineRead.position,
+    });
+    title = read.title;
+    author = read.author;
+    publisher = read.publisher || current.publisher;
+    confidence = read.confidence;
+    lccFromSpine = read.lcc || '';
+  }
+
+  // Lookup
+  let lookup: BookLookupResult = {
+    isbn: '',
+    publisher,
+    publicationYear: 0,
+    lcc: '',
+    source: 'none',
+  };
+  if (title) {
+    try {
+      const r = await lookupBookClient(title, author);
+      lookup = { ...r, publisher: r.publisher || publisher };
+    } catch {
+      // ignore
+    }
+  }
+
+  const grounded = groundSpineRead(
+    { title, author, lcc: lccFromSpine, confidence },
+    lookup
+  );
+
+  if (!grounded.keep) {
+    // The reread produced something the filter would drop. Don't replace
+    // the existing record with a worse one — surface the warnings instead.
+    return {
+      ok: false,
+      error: grounded.warnings[0] ?? 'Reread did not produce a usable result.',
+    };
+  }
+
+  const finalLcc = lccFromSpine || lookup.lcc;
+  const lccSource: 'spine' | 'lookup' | 'none' = lccFromSpine
+    ? 'spine'
+    : lookup.lcc
+      ? 'lookup'
+      : 'none';
+
+  // Tag inference
+  let tags: InferTagsResult = {
+    genreTags: [],
+    formTags: [],
+    confidence: 'LOW',
+    reasoning: '',
+  };
+  try {
+    tags = await inferTagsClient({
+      title,
+      author,
+      isbn: lookup.isbn,
+      publisher: lookup.publisher,
+      publicationYear: lookup.publicationYear,
+      lcc: finalLcc,
+      subjectHeadings: lookup.subjects,
+    });
+  } catch {
+    grounded.warnings.push('Tag inference failed.');
+  }
+
+  const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
+  const combinedConfidence =
+    order[grounded.confidence] <= order[tags.confidence]
+      ? grounded.confidence
+      : tags.confidence;
+
+  return {
+    ok: true,
+    patch: {
+      title,
+      author,
+      authorLF: toAuthorLastFirst(author),
+      isbn: lookup.isbn,
+      publisher: lookup.publisher,
+      publicationYear: lookup.publicationYear,
+      lcc: finalLcc,
+      genreTags: tags.genreTags,
+      formTags: tags.formTags,
+      confidence: combinedConfidence,
+      reasoning: tags.reasoning,
+      warnings: grounded.warnings,
+      lookupSource: lookup.source,
+      lccSource,
+      // Reset the "modified" baseline so the dots reflect changes from the new read.
+      original: {
+        title,
+        author,
+        isbn: lookup.isbn,
+        publisher: lookup.publisher,
+        publicationYear: lookup.publicationYear,
+        lcc: finalLcc,
+      },
+    },
+  };
 }
 
 /**
