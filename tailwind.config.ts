@@ -20,9 +20,9 @@ const config: Config = {
           300: '#EDE8D7',
         },
         accent: {
-          DEFAULT: '#534AB7',
-          soft: '#EEEDFE',
-          deep: '#3C3489',
+          DEFAULT: '#C85A12', // Princeton orange, a touch darker
+          soft: '#FCEBDA',
+          deep: '#A04610',
         },
         // Domain colors
         philosophy: { bg: '#EEEDFE', fg: '#3C3489' },

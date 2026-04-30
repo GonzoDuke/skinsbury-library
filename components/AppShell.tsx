@@ -36,7 +36,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               S
             </div>
             <div>
-              <div className="font-serif text-xl leading-tight">Skinsbury Library</div>
+              <div className="font-serif text-xl leading-tight">The T.L. Skinsbury Library</div>
               <div className="text-sm text-ink/50 dark:text-cream-300/50">
                 Personal catalog
               </div>
@@ -97,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 lg:px-12 py-10">{children}</main>
       <footer className="border-t border-cream-300 dark:border-ink-soft py-5 text-sm text-center text-ink/40 dark:text-cream-300/40">
-        Skinsbury Library — personal use · No data leaves your machine without your approval
+        The T.L. Skinsbury Library — personal use · No data leaves your machine without your approval
       </footer>
     </div>
   );

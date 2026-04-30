@@ -4,7 +4,7 @@ import { StoreProvider } from '@/lib/store';
 import { AppShell } from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Skinsbury Library',
+  title: 'The T.L. Skinsbury Library',
   description: 'Personal home library cataloging tool',
 };
 
