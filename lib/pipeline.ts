@@ -698,15 +698,15 @@ export async function rereadBook(
       ? 'lookup'
       : 'none';
 
-  // Tag inference — skip when lookup completely failed (same rationale as
-  // first-pass: noisy tags from title-alone aren't worth the call).
-  let tags: InferTagsResult = {
-    genreTags: [],
-    formTags: [],
-    confidence: 'LOW',
-    reasoning: '',
-  };
-  if (lookup.source !== 'none') {
+  // Tag inference: ONLY when the user's current tag list is empty.
+  // Otherwise their manual tag curation is authoritative — a reread is for
+  // metadata fill-in, not retagging. (User can clear tags and reread to
+  // force fresh inference.)
+  const userHasNoTags =
+    (current.genreTags?.length ?? 0) === 0 && (current.formTags?.length ?? 0) === 0;
+
+  let tags: InferTagsResult | null = null;
+  if (userHasNoTags) {
     try {
       tags = await inferTagsClient({
         title,
@@ -723,41 +723,43 @@ export async function rereadBook(
   }
 
   const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
-  const combinedConfidence =
-    order[grounded.confidence] <= order[tags.confidence]
+  // If we ran tag inference, factor it in; otherwise use the grounded
+  // confidence directly (don't penalize the user just because we skipped
+  // tagging).
+  const combinedConfidence = tags
+    ? order[grounded.confidence] <= order[tags.confidence]
       ? grounded.confidence
-      : tags.confidence;
+      : tags.confidence
+    : grounded.confidence;
 
   const titleCased = toTitleCase(title);
 
-  return {
-    ok: true,
-    patch: {
-      title: titleCased,
-      author,
-      authorLF: toAuthorLastFirst(author),
-      isbn: lookup.isbn,
-      publisher: lookup.publisher,
-      publicationYear: lookup.publicationYear,
-      lcc: finalLcc,
-      genreTags: tags.genreTags,
-      formTags: tags.formTags,
-      confidence: combinedConfidence,
-      reasoning: tags.reasoning,
-      warnings: grounded.warnings,
-      lookupSource: lookup.source,
-      lccSource,
-      // Reset the "modified" baseline so the dots reflect changes from the new read.
-      original: {
-        title: titleCased,
-        author,
-        isbn: lookup.isbn,
-        publisher: lookup.publisher,
-        publicationYear: lookup.publicationYear,
-        lcc: finalLcc,
-      },
-    },
+  // Build the patch surgically: include tag fields ONLY when we actually
+  // ran fresh inference. Do NOT touch the `original` snapshot — that's the
+  // baseline the BookCard's "edited" detection compares against, and
+  // resetting it causes user edits to be lost on subsequent rereads (the
+  // edit no longer differs from the new "original", so the next reread
+  // overwrites it with the AI's stale read).
+  const patch: Partial<BookRecord> = {
+    title: titleCased,
+    author,
+    authorLF: toAuthorLastFirst(author),
+    isbn: lookup.isbn,
+    publisher: lookup.publisher,
+    publicationYear: lookup.publicationYear,
+    lcc: finalLcc,
+    confidence: combinedConfidence,
+    warnings: grounded.warnings,
+    lookupSource: lookup.source,
+    lccSource,
   };
+  if (tags) {
+    patch.genreTags = tags.genreTags;
+    patch.formTags = tags.formTags;
+    patch.reasoning = tags.reasoning;
+  }
+
+  return { ok: true, patch };
 }
 
 /**
