@@ -7,8 +7,28 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from 'react';
 import type { BookRecord, PhotoBatch } from './types';
+import {
+  buildBookFromCrop,
+  cropSpine,
+  dedupeBooks,
+  detectSpines,
+  loadImage,
+} from './pipeline';
+
+export interface ProcessingState {
+  /** True from "process all" click until the loop returns. */
+  isActive: boolean;
+  photoDone: number;
+  photoTotal: number;
+  bookDone: number;
+  bookTotal: number;
+  currentLabel: string;
+  /** Set when the loop finishes — UI can show a "view results" CTA. */
+  finishedAt?: number;
+}
 
 type Action =
   | { type: 'ADD_BATCH'; batch: PhotoBatch }
@@ -16,14 +36,18 @@ type Action =
   | { type: 'REMOVE_BATCH'; id: string }
   | { type: 'ADD_BOOK'; batchId: string; book: BookRecord }
   | { type: 'UPDATE_BOOK'; id: string; patch: Partial<BookRecord> }
+  | { type: 'SET_PROCESSING'; processing: ProcessingState | null }
+  | { type: 'PATCH_PROCESSING'; patch: Partial<ProcessingState> }
   | { type: 'CLEAR' };
 
 interface State {
   batches: PhotoBatch[];
   allBooks: BookRecord[];
+  /** Processing state lives in the global store so it survives navigation. */
+  processing: ProcessingState | null;
 }
 
-const initialState: State = { batches: [], allBooks: [] };
+const initialState: State = { batches: [], allBooks: [], processing: null };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -40,6 +64,7 @@ function reducer(state: State, action: Action): State {
       const batch = state.batches.find((b) => b.id === action.id);
       const removedIds = new Set(batch?.books.map((b) => b.id));
       return {
+        ...state,
         batches: state.batches.filter((b) => b.id !== action.id),
         allBooks: state.allBooks.filter((b) => !removedIds.has(b.id)),
       };
@@ -60,6 +85,7 @@ function reducer(state: State, action: Action): State {
       };
     case 'UPDATE_BOOK':
       return {
+        ...state,
         batches: state.batches.map((b) => ({
           ...b,
           books: b.books.map((bk) =>
@@ -70,6 +96,12 @@ function reducer(state: State, action: Action): State {
           bk.id === action.id ? { ...bk, ...action.patch } : bk
         ),
       };
+    case 'SET_PROCESSING':
+      return { ...state, processing: action.processing };
+    case 'PATCH_PROCESSING':
+      return state.processing
+        ? { ...state, processing: { ...state.processing, ...action.patch } }
+        : state;
     case 'CLEAR':
       return initialState;
   }
@@ -83,6 +115,14 @@ interface StoreApi {
   addBook: (batchId: string, book: BookRecord) => void;
   updateBook: (id: string, patch: Partial<BookRecord>) => void;
   clear: () => void;
+
+  /** Register a File against a queued batch so the orchestrator can read it later. */
+  setPendingFile: (batchId: string, file: File) => void;
+  removePendingFile: (batchId: string) => void;
+  hasPendingFile: (batchId: string) => boolean;
+
+  /** Run detect → read → lookup → ground → dedup over every queued batch. */
+  processQueue: () => Promise<void>;
 }
 
 const StoreCtx = createContext<StoreApi | null>(null);
@@ -95,14 +135,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return init;
-      const parsed = JSON.parse(raw) as State;
-      // Strip any in-flight processing state
-      const batches = parsed.batches.map((b) =>
+      const parsed = JSON.parse(raw) as Partial<State>;
+      // Strip any in-flight processing state on cold load — Files don't survive
+      // a page refresh, so anything that was processing is no longer recoverable.
+      const batches = (parsed.batches ?? []).map((b) =>
         b.status === 'processing' || b.status === 'queued'
           ? { ...b, status: 'done' as const }
           : b
       );
-      return { batches, allBooks: parsed.allBooks ?? [] };
+      return { batches, allBooks: parsed.allBooks ?? [], processing: null };
     } catch {
       return init;
     }
@@ -111,7 +152,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      // Don't persist thumbnails (large data URIs) — keep payload small
+      // Don't persist thumbnails or processing state.
       const slim = {
         batches: state.batches.map((b) => ({ ...b, thumbnail: '' })),
         allBooks: state.allBooks,
@@ -120,19 +161,182 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore quota errors
     }
-  }, [state]);
+  }, [state.batches, state.allBooks]);
+
+  // Pending files live in a ref — they can't be serialized and don't need to
+  // trigger renders. The provider mounts in app/layout.tsx and never unmounts,
+  // so this Map survives navigation between /upload, /review, /export.
+  const pendingFiles = useRef<Map<string, File>>(new Map());
+
+  // Guard against the user clicking "Process all" twice.
+  const isRunning = useRef(false);
+
+  // Always-fresh references so processQueue's loop doesn't capture stale state.
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const processQueue = useCallback(async () => {
+    if (isRunning.current) return;
+    isRunning.current = true;
+
+    const queued = stateRef.current.batches.filter((b) => b.status === 'queued');
+    if (queued.length === 0) {
+      isRunning.current = false;
+      return;
+    }
+
+    const totalPhotos = queued.length;
+    let photoDone = 0;
+    let bookTotal = 0;
+    let bookDone = 0;
+
+    dispatch({
+      type: 'SET_PROCESSING',
+      processing: {
+        isActive: true,
+        photoDone: 0,
+        photoTotal: totalPhotos,
+        bookDone: 0,
+        bookTotal: 0,
+        currentLabel: 'Starting…',
+      },
+    });
+
+    try {
+      for (const batch of queued) {
+        const file = pendingFiles.current.get(batch.id);
+        if (!file) {
+          dispatch({
+            type: 'UPDATE_BATCH',
+            id: batch.id,
+            patch: { status: 'error', error: 'File not in memory' },
+          });
+          photoDone += 1;
+          continue;
+        }
+
+        dispatch({ type: 'UPDATE_BATCH', id: batch.id, patch: { status: 'processing' } });
+        dispatch({
+          type: 'PATCH_PROCESSING',
+          patch: { currentLabel: `Detecting spines in ${batch.filename}…` },
+        });
+
+        try {
+          const detections = await detectSpines(file);
+          dispatch({
+            type: 'UPDATE_BATCH',
+            id: batch.id,
+            patch: { spinesDetected: detections.length },
+          });
+          bookTotal += detections.length;
+          dispatch({
+            type: 'PATCH_PROCESSING',
+            patch: {
+              bookTotal,
+              currentLabel: `Found ${detections.length} spines — reading them…`,
+            },
+          });
+
+          const loaded = await loadImage(file);
+          const keptBooks: BookRecord[] = [];
+
+          for (let i = 0; i < detections.length; i++) {
+            const det = detections[i];
+            const bbox = { x: det.x, y: det.y, width: det.width, height: det.height };
+            const ocrCrop = cropSpine(loaded, bbox, { paddingPct: 10, maxLongEdge: 1600 });
+            const spineThumbnail = cropSpine(loaded, bbox, {
+              paddingPct: 5,
+              maxLongEdge: 220,
+              quality: 0.8,
+            });
+
+            dispatch({
+              type: 'PATCH_PROCESSING',
+              patch: { currentLabel: `Reading spine ${i + 1} of ${detections.length}…` },
+            });
+
+            const { book, kept } = await buildBookFromCrop({
+              position: det.position ?? i + 1,
+              bbox,
+              spineThumbnail,
+              ocrCrop,
+              sourcePhoto: batch.filename,
+            });
+
+            bookDone += 1;
+            if (kept) keptBooks.push(book);
+
+            dispatch({
+              type: 'PATCH_PROCESSING',
+              patch: {
+                bookDone,
+                currentLabel: kept
+                  ? book.title
+                    ? `Identified: ${book.title}`
+                    : `Spine #${det.position} — verify`
+                  : `Skipped illegible spine #${det.position}`,
+              },
+            });
+          }
+
+          const finalBooks = dedupeBooks(keptBooks);
+          for (const book of finalBooks) {
+            dispatch({ type: 'ADD_BOOK', batchId: batch.id, book });
+          }
+
+          dispatch({ type: 'UPDATE_BATCH', id: batch.id, patch: { status: 'done' } });
+        } catch (err: any) {
+          dispatch({
+            type: 'UPDATE_BATCH',
+            id: batch.id,
+            patch: { status: 'error', error: err?.message ?? 'Unknown error' },
+          });
+        }
+
+        // Done with this photo — drop its File handle to free memory.
+        pendingFiles.current.delete(batch.id);
+        photoDone += 1;
+        dispatch({ type: 'PATCH_PROCESSING', patch: { photoDone } });
+      }
+
+      dispatch({
+        type: 'PATCH_PROCESSING',
+        patch: {
+          isActive: false,
+          currentLabel: 'Done. View your results in Review.',
+          finishedAt: Date.now(),
+        },
+      });
+    } finally {
+      isRunning.current = false;
+    }
+  }, []);
 
   const api = useMemo<StoreApi>(
     () => ({
       state,
       addBatch: (batch) => dispatch({ type: 'ADD_BATCH', batch }),
       updateBatch: (id, patch) => dispatch({ type: 'UPDATE_BATCH', id, patch }),
-      removeBatch: (id) => dispatch({ type: 'REMOVE_BATCH', id }),
+      removeBatch: (id) => {
+        pendingFiles.current.delete(id);
+        dispatch({ type: 'REMOVE_BATCH', id });
+      },
       addBook: (batchId, book) => dispatch({ type: 'ADD_BOOK', batchId, book }),
       updateBook: (id, patch) => dispatch({ type: 'UPDATE_BOOK', id, patch }),
-      clear: () => dispatch({ type: 'CLEAR' }),
+      clear: () => {
+        pendingFiles.current.clear();
+        dispatch({ type: 'CLEAR' });
+      },
+      setPendingFile: (batchId, file) => {
+        pendingFiles.current.set(batchId, file);
+      },
+      removePendingFile: (batchId) => {
+        pendingFiles.current.delete(batchId);
+      },
+      hasPendingFile: (batchId) => pendingFiles.current.has(batchId),
+      processQueue,
     }),
-    [state]
+    [state, processQueue]
   );
 
   return <StoreCtx.Provider value={api}>{children}</StoreCtx.Provider>;

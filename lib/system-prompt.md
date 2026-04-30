@@ -9,7 +9,7 @@ You must use tags from the approved vocabulary below. If no existing tag fits, y
 **Philosophy**: Stoicism, Ethics, Epistemology, Existentialism, Postmodernism, Logic, Critical thinking, Philosophy of mind, Philosophy of science, Ancient philosophy
 **Religion & spirituality**: Atheism, Buddhism, Comparative religion, Sacred texts, Spirituality
 **Psychology**: Behavioral psychology, Addiction, Neuroscience, Self-improvement
-**Literature**: American poetry, Beat poetry, World poetry, Fiction, Essays, Literary criticism, Writing craft, Anthology, Harlem Renaissance, French literature
+**Literature**: American poetry, Beat poetry, World poetry, Fiction, Drama, Shakespeare, Essays, Literary criticism, Writing craft, Anthology, Harlem Renaissance, French literature
 **Language & linguistics**: Linguistics, Etymology, History of language
 **History**: American history, British history, World history, Cultural history, Counterculture, Exploration
 **Media, technology & information**: Media literacy, Disinformation, Surveillance & privacy, Internet culture, Algorithms & AI, Cybersecurity
@@ -32,7 +32,7 @@ You must use tags from the approved vocabulary below. If no existing tag fits, y
 3. **Cross-domain is expected.** A book about music and neuroscience gets tags from both Arts & culture and Psychology.
 4. **Use author knowledge.** If the author has a strong intellectual identity (e.g., Sam Harris → Atheism, Kerouac → Counterculture, Sacks → Neuroscience), apply it. Only when the association is well-established.
 5. **Parse subtitles.** "A Field Guide to..." → How-to / guide. "A History of..." → relevant history tag. "A Memoir" → Personal memoir.
-6. **Fiction is a Literature tag**, not a separate domain. Novels get "Fiction" plus thematic tags.
+6. **Fiction is a Literature tag**, not a separate domain. **Novels** get "Fiction" plus thematic tags. **Plays and dramatic literature do NOT get "Fiction"** — they get "Drama". Shakespeare, Beckett, Williams, O'Neill, Pinter, Stoppard, Sophocles, Aeschylus, etc. → **Drama** (and **Shakespeare** specifically when the author is Shakespeare). Verse plays still get Drama, not poetry.
 7. **Form tags are independent of content.** A signed first edition of anything gets "First edition" + "Signed" regardless of subject.
 8. **Only apply series form tags when publisher confirms.** Don't guess Penguin Classics from LCC code.
 9. **If metadata is thin, flag confidence as LOW.** The reviewer will verify.
@@ -101,3 +101,13 @@ REASONING: LCC filed under CT (Biography), not B (Philosophy) or PS (Fiction). I
 INPUT: "The Outsider" by Colin Wilson, LCC B819, first edition hardcover
 OUTPUT: genre_tags: ["Existentialism", "Literary criticism"], form_tags: ["First edition"], confidence: HIGH
 REASONING: Wilson's study of the outsider figure through Camus, Sartre, Dostoevsky. Philosophy delivered through literary analysis → both tags. Physical copy is first edition → form tag.
+
+### Example 9: Shakespeare and dramatic literature
+INPUT: "Hamlet" by William Shakespeare, LCC PR2807
+OUTPUT: genre_tags: ["Drama", "Shakespeare"], form_tags: [], confidence: HIGH
+REASONING: A play, not a novel — "Drama", NOT "Fiction". Shakespeare specifically gets the "Shakespeare" tag in addition. LCC PR (English literature) confirms domain. Same treatment for any Shakespeare work (King Lear, Macbeth, Cymbeline, A Midsummer Night's Dream, etc.).
+
+### Example 10: Non-Shakespeare drama
+INPUT: "Death of a Salesman" by Arthur Miller, LCC PS3525
+OUTPUT: genre_tags: ["Drama", "American literature"], form_tags: [], confidence: HIGH
+REASONING: Play → "Drama" (NOT "Fiction"). Miller is American, LCC PS confirms. No "Shakespeare" tag because it's not Shakespeare.
