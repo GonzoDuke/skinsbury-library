@@ -48,6 +48,10 @@ export interface BookRecord {
   sourcePhoto: string;
   /** Optional location label (e.g., "Shelf 3") inherited from the parent PhotoBatch. */
   batchLabel?: string;
+  /** Free-form notes set at upload time and inherited by every book in the batch. */
+  batchNotes?: string;
+  /** Free-form per-book notes editable on the BookCard. Goes into LT's COMMENTS column. */
+  notes?: string;
   lookupSource: 'openlibrary' | 'googlebooks' | 'none';
   /** Where the LCC came from. 'spine' wins over 'lookup'. */
   lccSource: 'spine' | 'lookup' | 'none';
@@ -80,6 +84,8 @@ export interface PhotoBatch {
   books: BookRecord[];
   /** Optional location label set at upload time (e.g., "Shelf 3"). */
   batchLabel?: string;
+  /** Free-form notes set at upload time, inherited by every book in this batch. */
+  batchNotes?: string;
 }
 
 export interface AppState {

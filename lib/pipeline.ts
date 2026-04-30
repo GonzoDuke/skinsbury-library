@@ -407,6 +407,8 @@ export interface BuildBookOptions {
   ocrCrop: string;
   /** Optional location label inherited from the parent PhotoBatch. */
   batchLabel?: string;
+  /** Free-form notes inherited from the parent PhotoBatch. */
+  batchNotes?: string;
 }
 
 export interface BuiltBook {
@@ -416,7 +418,7 @@ export interface BuiltBook {
 }
 
 export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBook> {
-  const { position, bbox, spineThumbnail, sourcePhoto, ocrCrop, batchLabel } = opts;
+  const { position, bbox, spineThumbnail, sourcePhoto, ocrCrop, batchLabel, batchNotes } = opts;
   const { base64, mediaType } = dataUriToBase64Parts(ocrCrop);
 
   // Pass B — read the spine with Opus. (Sonnet was tried as a cheaper
@@ -531,6 +533,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     warnings: grounded.warnings,
     sourcePhoto,
     batchLabel,
+    batchNotes,
     lookupSource: lookup.source,
     lccSource,
     spineThumbnail,

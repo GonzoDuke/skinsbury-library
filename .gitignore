@@ -8,11 +8,10 @@ out/
 next-env.d.ts
 .vercel
 
-# Local test photos (never commit shelf photos)
-test*.jpeg
-test*.jpg
-WhatsApp*.jpeg
-WhatsApp*.jpg
+# Local test photos at the repo root (never commit shelf photos).
+# Leading slash anchors to root, so /public/some-asset.jpg etc. stays trackable.
+/*.jpeg
+/*.jpg
 
 # Claude / IDE working files
 .claude/

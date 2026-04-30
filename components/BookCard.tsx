@@ -246,6 +246,25 @@ export function BookCard({ book }: BookCardProps) {
         </div>
       </div>
 
+      {/* Notes — per-book free-form, batch notes shown read-only above */}
+      <div className="mt-4">
+        {book.batchNotes && (
+          <div className="mb-1.5 text-[11px] text-ink/50 dark:text-cream-300/50 italic">
+            <span className="uppercase tracking-wider not-italic font-semibold mr-1">
+              Batch:
+            </span>
+            {book.batchNotes}
+          </div>
+        )}
+        <textarea
+          value={book.notes ?? ''}
+          onChange={(e) => updateBook(book.id, { notes: e.target.value })}
+          placeholder="Add a note for this book (signed, dedication, condition, etc.)…"
+          rows={book.notes ? 2 : 1}
+          className="w-full px-2 py-1.5 text-xs bg-cream-100/50 dark:bg-ink/40 rounded border border-cream-300 dark:border-ink-soft focus:outline-none focus:ring-1 focus:ring-accent resize-y placeholder:italic placeholder:text-ink/35 dark:placeholder:text-cream-300/35"
+        />
+      </div>
+
       {/* Reasoning */}
       {book.reasoning && (
         <div className="mt-3">

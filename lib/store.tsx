@@ -288,6 +288,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
                 ocrCrop,
                 sourcePhoto: batch.filename,
                 batchLabel: batch.batchLabel,
+                batchNotes: batch.batchNotes,
               });
               bookDone += 1;
               if (kept) keptBooks.push(book);
