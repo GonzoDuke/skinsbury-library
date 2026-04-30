@@ -16,7 +16,6 @@ export function BookCard({ book }: BookCardProps) {
   const { updateBook } = useStore();
   const [showReasoning, setShowReasoning] = useState(false);
   const [picker, setPicker] = useState<'genre' | 'form' | null>(null);
-  const [editing, setEditing] = useState<null | 'title' | 'author' | 'isbn' | 'publisher' | 'year' | 'lcc'>(null);
 
   const borderClass =
     book.status === 'approved'
@@ -48,39 +47,38 @@ export function BookCard({ book }: BookCardProps) {
   const hasWarnings = book.warnings.length > 0;
   const lowConfidence = book.confidence === 'LOW';
 
+  const titleModified = book.title !== book.original.title;
+  const yearStr = book.publicationYear ? String(book.publicationYear) : '';
+  const yearOriginalStr = book.original.publicationYear ? String(book.original.publicationYear) : '';
+
   return (
     <article
       className={`relative bg-cream-50 dark:bg-ink-soft/60 border ${borderClass} rounded-lg p-5 shadow-sm transition-all duration-200 ease-gentle`}
     >
       {/* Header */}
       <div className="flex items-start gap-3">
+        {book.spineThumbnail && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={book.spineThumbnail}
+            alt={`Spine read for ${book.title || 'unknown book'}`}
+            className="w-12 h-32 object-cover rounded border border-cream-300 dark:border-ink-soft flex-shrink-0 bg-cream-100 dark:bg-ink"
+            title="What the model saw on the shelf"
+          />
+        )}
         <div className="flex-1 min-w-0">
-          {editing === 'title' ? (
-            <input
-              autoFocus
-              defaultValue={book.title}
-              onBlur={(e) => {
-                updateBook(book.id, { title: e.target.value });
-                setEditing(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-                if (e.key === 'Escape') setEditing(null);
-              }}
-              className="font-serif text-xl font-medium w-full bg-transparent border-b border-accent focus:outline-none"
-            />
-          ) : (
-            <h2
-              className="font-serif text-xl font-medium leading-tight cursor-text"
-              onClick={() => setEditing('title')}
-              title="Click to edit title"
-            >
-              {book.title || <span className="italic opacity-60">Untitled spine</span>}
-            </h2>
-          )}
+          <EditableTitle
+            value={book.title}
+            modified={titleModified}
+            original={book.original.title}
+            onSave={(v) => updateBook(book.id, { title: v })}
+          />
           <div className="text-xs text-ink/60 dark:text-cream-300/60 mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
             <EditableField
+              label="Author"
               value={book.author}
+              original={book.original.author}
+              modified={book.author !== book.original.author}
               onSave={(v) =>
                 updateBook(book.id, {
                   author: v,
@@ -90,38 +88,32 @@ export function BookCard({ book }: BookCardProps) {
               placeholder="Unknown author"
               fontFamily="sans"
             />
-            {book.isbn && (
-              <>
-                <span>·</span>
-                <EditableField
-                  value={book.isbn}
-                  onSave={(v) => updateBook(book.id, { isbn: v })}
-                  placeholder="No ISBN"
-                  fontFamily="mono"
-                />
-              </>
-            )}
-            {!book.isbn && (
-              <>
-                <span>·</span>
-                <EditableField
-                  value=""
-                  onSave={(v) => updateBook(book.id, { isbn: v })}
-                  placeholder="No ISBN"
-                  fontFamily="mono"
-                />
-              </>
-            )}
             <span>·</span>
             <EditableField
+              label="ISBN"
+              value={book.isbn}
+              original={book.original.isbn}
+              modified={book.isbn !== book.original.isbn}
+              onSave={(v) => updateBook(book.id, { isbn: v.replace(/[^\dxX]/g, '') })}
+              placeholder="No ISBN"
+              fontFamily="mono"
+            />
+            <span>·</span>
+            <EditableField
+              label="Publisher"
               value={book.publisher}
+              original={book.original.publisher}
+              modified={book.publisher !== book.original.publisher}
               onSave={(v) => updateBook(book.id, { publisher: v })}
               placeholder="No publisher"
               fontFamily="sans"
             />
             <span>·</span>
             <EditableField
-              value={book.publicationYear ? String(book.publicationYear) : ''}
+              label="Year"
+              value={yearStr}
+              original={yearOriginalStr}
+              modified={yearStr !== yearOriginalStr}
               onSave={(v) =>
                 updateBook(book.id, { publicationYear: parseInt(v, 10) || 0 })
               }
@@ -130,7 +122,10 @@ export function BookCard({ book }: BookCardProps) {
             />
             <span>·</span>
             <EditableField
+              label="LCC"
               value={book.lcc}
+              original={book.original.lcc}
+              modified={book.lcc !== book.original.lcc}
               onSave={(v) => updateBook(book.id, { lcc: v })}
               placeholder="No LCC"
               fontFamily="mono"
@@ -233,8 +228,28 @@ export function BookCard({ book }: BookCardProps) {
 
       {/* Action buttons */}
       <div className="mt-4 flex justify-between items-center">
-        <div className="text-[10px] text-ink/40 dark:text-cream-300/40">
-          From <span className="font-mono">{book.sourcePhoto}</span> · spine #{book.spineRead.position}
+        <div className="text-[10px] text-ink/40 dark:text-cream-300/40 flex items-center gap-2">
+          <span>
+            From <span className="font-mono">{book.sourcePhoto}</span> · spine #
+            {book.spineRead.position}
+          </span>
+          <span aria-hidden>·</span>
+          <span
+            className={`px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-wider ${
+              book.lookupSource === 'openlibrary'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                : book.lookupSource === 'googlebooks'
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+            }`}
+            title="Where the metadata came from"
+          >
+            {book.lookupSource === 'openlibrary'
+              ? 'Open Library'
+              : book.lookupSource === 'googlebooks'
+              ? 'Google Books'
+              : 'No match'}
+          </span>
         </div>
         <div className="flex gap-2">
           <button
@@ -263,46 +278,118 @@ export function BookCard({ book }: BookCardProps) {
   );
 }
 
-function EditableField({
+function ModifiedDot({ original }: { original: string }) {
+  return (
+    <span
+      className="inline-block w-1.5 h-1.5 rounded-full bg-accent ml-1 align-middle"
+      title={original ? `Edited (was: ${original})` : 'Edited (was empty)'}
+    />
+  );
+}
+
+function EditableTitle({
   value,
+  original,
+  modified,
   onSave,
-  placeholder,
-  fontFamily,
 }: {
   value: string;
+  original: string;
+  modified: boolean;
   onSave: (v: string) => void;
-  placeholder: string;
-  fontFamily: 'sans' | 'mono';
 }) {
   const [editing, setEditing] = useState(false);
-  const fontClass = fontFamily === 'mono' ? 'font-mono' : 'font-sans';
+  const cancelRef = { current: false };
+
   if (editing) {
     return (
       <input
         autoFocus
         defaultValue={value}
         onBlur={(e) => {
-          onSave(e.target.value);
+          if (!cancelRef.current) onSave(e.target.value);
           setEditing(false);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-          if (e.key === 'Escape') setEditing(false);
+          if (e.key === 'Escape') {
+            cancelRef.current = true;
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        className="font-serif text-xl font-medium w-full bg-transparent border-b border-accent focus:outline-none"
+      />
+    );
+  }
+  return (
+    <h2
+      className={`font-serif text-xl font-medium leading-tight cursor-text inline-flex items-center ${
+        modified ? 'text-accent dark:text-accent' : ''
+      }`}
+      onClick={() => setEditing(true)}
+      title="Click to edit title"
+    >
+      {value || <span className="italic opacity-60">Untitled spine</span>}
+      {modified && <ModifiedDot original={original} />}
+    </h2>
+  );
+}
+
+function EditableField({
+  label,
+  value,
+  original,
+  modified,
+  onSave,
+  placeholder,
+  fontFamily,
+}: {
+  label: string;
+  value: string;
+  original: string;
+  modified: boolean;
+  onSave: (v: string) => void;
+  placeholder: string;
+  fontFamily: 'sans' | 'mono';
+}) {
+  const [editing, setEditing] = useState(false);
+  const fontClass = fontFamily === 'mono' ? 'font-mono' : 'font-sans';
+  // Per-edit cancel flag — using an object to share between handlers, since
+  // setEditing(false) on Escape will trigger blur which would otherwise save.
+  const cancelRef = { current: false };
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        defaultValue={value}
+        onBlur={(e) => {
+          if (!cancelRef.current) onSave(e.target.value);
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+          if (e.key === 'Escape') {
+            cancelRef.current = true;
+            (e.target as HTMLInputElement).blur();
+          }
         }}
         className={`${fontClass} bg-transparent border-b border-accent focus:outline-none px-0.5 min-w-0`}
         size={Math.max(value.length, placeholder.length, 6)}
+        aria-label={label}
       />
     );
   }
   return (
     <span
-      className={`${fontClass} cursor-text hover:text-accent transition ${
+      className={`${fontClass} cursor-text hover:text-accent transition inline-flex items-center ${
         !value ? 'italic opacity-60' : ''
-      }`}
+      } ${modified ? 'text-accent dark:text-accent font-medium' : ''}`}
       onClick={() => setEditing(true)}
-      title="Click to edit"
+      title={modified ? `Edited (was: ${original || 'empty'})` : `Click to edit ${label.toLowerCase()}`}
     >
       {value || placeholder}
+      {modified && <ModifiedDot original={original} />}
     </span>
   );
 }

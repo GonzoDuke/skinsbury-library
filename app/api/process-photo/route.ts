@@ -1,35 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import type { SpineRead } from '@/lib/types';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-const SPINE_PROMPT = `Look at this photo of a bookshelf. For each visible book spine, reading left to right, extract:
-1. Title (as printed on the spine)
-2. Author (as printed on the spine)
-3. Publisher (if visible)
-4. Any other identifiers (edition info, series branding)
+const DETECT_PROMPT = `Look at this photo of a bookshelf. Your ONLY job is to locate book spines — do NOT read titles or authors yet.
 
-For each spine, rate your confidence:
-- HIGH: title and author are clearly legible
-- MEDIUM: partially readable, some guessing involved
-- LOW: very difficult to read, substantial uncertainty
+For each visible book spine, working left to right:
+1. Output a bounding box in percentages of the image dimensions: x (left edge), y (top edge), width, height.
+2. Coordinates are 0–100. (0,0) is the top-left of the image.
+3. Include some padding around the spine so text near the edges is not cut off.
 
-If a spine is completely unreadable, include it with confidence LOW and describe its physical appearance (color, size, position) so the reviewer can identify it.
+STRICT RULES:
+- Only include actual book spines that are upright and clearly visible.
+- Do NOT include: magazines, journals, newspapers, CDs, DVDs, records, or items lying flat / showing a cover instead of a spine. (Magazines often have a glossy finish, a cover image rather than text-only spine, and a date/issue number.)
+- Do NOT include partially-visible spines where you can't see the full top-to-bottom extent.
+- A single physical spine is ONE entry — even if the spine shows the author name and the title stacked vertically, that's one book, not two.
+- Better to skip a borderline item than include something that isn't a book.
 
-Return ONLY a JSON array (no prose, no markdown fences) of objects with fields: position (1-indexed integer), title (string), author (string), publisher (string or empty), confidence ("HIGH"|"MEDIUM"|"LOW"), note (string, optional — only when confidence is LOW or there is something unusual).`;
+Return ONLY a JSON array (no prose, no markdown fences) of objects:
+{ "position": <1-indexed integer>, "x": <number>, "y": <number>, "width": <number>, "height": <number>, "note": <optional string> }`;
+
+interface BboxDetection {
+  position: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  note?: string;
+}
 
 function extractJsonArray(text: string): unknown {
-  // Strip markdown fences if present
   let t = text.trim();
   const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fence) t = fence[1].trim();
-  // Find the first [ ... ]
   const start = t.indexOf('[');
   const end = t.lastIndexOf(']');
   if (start === -1 || end === -1) throw new Error('No JSON array in model response');
   return JSON.parse(t.slice(start, end + 1));
+}
+
+function clampPct(n: unknown, fallback: number): number {
+  const v = typeof n === 'number' ? n : parseFloat(String(n));
+  if (!Number.isFinite(v)) return fallback;
+  return Math.max(0, Math.min(100, v));
 }
 
 export async function POST(req: NextRequest) {
@@ -68,6 +82,7 @@ export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey });
 
   try {
+    const t0 = Date.now();
     const resp = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
@@ -79,7 +94,7 @@ export async function POST(req: NextRequest) {
               type: 'image',
               source: { type: 'base64', media_type: mediaType, data: imageBase64 },
             },
-            { type: 'text', text: SPINE_PROMPT },
+            { type: 'text', text: DETECT_PROMPT },
           ],
         },
       ],
@@ -99,7 +114,6 @@ export async function POST(req: NextRequest) {
         { status: 502 }
       );
     }
-
     if (!Array.isArray(raw)) {
       return NextResponse.json(
         { error: 'Model did not return an array' },
@@ -107,29 +121,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const spines: SpineRead[] = raw.map((r: any, i: number) => {
-      const title = String(r.title ?? '').trim();
-      const author = String(r.author ?? '').trim();
-      const publisher = String(r.publisher ?? '').trim();
-      const confidence =
-        r.confidence === 'HIGH' || r.confidence === 'MEDIUM' || r.confidence === 'LOW'
-          ? r.confidence
-          : 'LOW';
-      const note = r.note ? String(r.note) : undefined;
-      const position = Number.isFinite(r.position) ? Number(r.position) : i + 1;
-      const rawText = [title, author].filter(Boolean).join(' — ') || (note ?? '');
-      return {
-        position,
-        rawText,
-        title,
-        author,
-        publisher,
-        confidence,
-        note,
-      };
-    });
+    const detections: BboxDetection[] = raw
+      .map((r: any, i: number): BboxDetection => ({
+        position: Number.isFinite(r.position) ? Number(r.position) : i + 1,
+        x: clampPct(r.x, 0),
+        y: clampPct(r.y, 0),
+        width: clampPct(r.width, 0),
+        height: clampPct(r.height, 100),
+        note: r.note ? String(r.note) : undefined,
+      }))
+      .filter((d) => d.width > 0 && d.height > 0);
 
-    return NextResponse.json({ spines });
+    console.log(`[process-photo] detected ${detections.length} spines (${Date.now() - t0}ms)`);
+    return NextResponse.json({ detections });
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Vision API error', details: err?.message ?? String(err) },

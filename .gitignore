@@ -7,3 +7,13 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# Local test photos (never commit shelf photos)
+test*.jpeg
+test*.jpg
+WhatsApp*.jpeg
+WhatsApp*.jpg
+
+# Claude / IDE working files
+.claude/
+cc-update-batch.md

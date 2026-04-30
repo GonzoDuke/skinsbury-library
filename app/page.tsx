@@ -8,18 +8,24 @@ import { BatchProgress } from '@/components/BatchProgress';
 import { useStore } from '@/lib/store';
 import type { PhotoBatch } from '@/lib/types';
 import {
-  buildBookFromSpine,
+  buildBookFromCrop,
   createThumbnail,
+  cropSpine,
+  dedupeBooks,
+  detectSpines,
+  loadImage,
   makeId,
-  processPhoto,
 } from '@/lib/pipeline';
+import type { BookRecord } from '@/lib/types';
+
+const MIN_IMAGE_WIDTH = 1500;
 
 export default function UploadPage() {
   const router = useRouter();
   const { state, addBatch, updateBatch, removeBatch, addBook } = useStore();
   const [pendingFiles, setPendingFiles] = useState<Map<string, File>>(new Map());
   const [isProcessing, setProcessing] = useState(false);
-  const [progressStep, setProgressStep] = useState<{
+  const [progress, setProgress] = useState<{
     photoDone: number;
     photoTotal: number;
     bookDone: number;
@@ -35,23 +41,38 @@ export default function UploadPage() {
   async function handleFiles(files: File[]) {
     for (const file of files) {
       const id = makeId();
-      const thumbnail = await createThumbnail(file);
+      let thumbnail = '';
+      let lowRes = false;
+      try {
+        const loaded = await loadImage(file);
+        if (loaded.width < MIN_IMAGE_WIDTH) {
+          lowRes = true;
+        }
+        thumbnail = await createThumbnail(file);
+      } catch {
+        // ignore — will surface as an error in processing
+      }
       const batch: PhotoBatch = {
         id,
         filename: file.name,
         fileSize: file.size,
         thumbnail,
-        status: 'queued',
+        status: lowRes ? 'error' : 'queued',
+        error: lowRes
+          ? `Image too small (< ${MIN_IMAGE_WIDTH}px wide). Please re-shoot at higher resolution.`
+          : undefined,
         spinesDetected: 0,
         booksIdentified: 0,
         books: [],
       };
       addBatch(batch);
-      setPendingFiles((prev) => {
-        const next = new Map(prev);
-        next.set(id, file);
-        return next;
-      });
+      if (!lowRes) {
+        setPendingFiles((prev) => {
+          const next = new Map(prev);
+          next.set(id, file);
+          return next;
+        });
+      }
     }
   }
 
@@ -62,7 +83,7 @@ export default function UploadPage() {
     let photoDone = 0;
     let aggregateBookTotal = 0;
     let aggregateBookDone = 0;
-    setProgressStep({
+    setProgress({
       photoDone: 0,
       photoTotal: total,
       bookDone: 0,
@@ -79,39 +100,82 @@ export default function UploadPage() {
       }
 
       updateBatch(batch.id, { status: 'processing' });
-      setProgressStep({
+      setProgress({
         photoDone,
         photoTotal: total,
         bookDone: aggregateBookDone,
         bookTotal: aggregateBookTotal,
-        currentLabel: `Reading spines from ${batch.filename}…`,
+        currentLabel: `Detecting spines in ${batch.filename}…`,
       });
 
       try {
-        const spines = await processPhoto(file);
-        updateBatch(batch.id, { spinesDetected: spines.length });
-        aggregateBookTotal += spines.length;
-        setProgressStep({
+        // PASS A — Detection
+        const detections = await detectSpines(file);
+        updateBatch(batch.id, { spinesDetected: detections.length });
+        aggregateBookTotal += detections.length;
+        setProgress({
           photoDone,
           photoTotal: total,
           bookDone: aggregateBookDone,
           bookTotal: aggregateBookTotal,
-          currentLabel: `Looking up ${spines.length} books from ${batch.filename}…`,
+          currentLabel: `Found ${detections.length} spines — reading them…`,
         });
 
-        for (const spine of spines) {
-          const book = await buildBookFromSpine(spine, batch.filename);
-          addBook(batch.id, book);
-          aggregateBookDone += 1;
-          setProgressStep({
+        // Load full-resolution image once for client-side cropping
+        const loaded = await loadImage(file);
+
+        // PASS B + lookup + tag inference, per spine. Collect kept books and
+        // dedupe at the end (Pass A occasionally splits one spine into two
+        // adjacent bboxes; we collapse those before exposing them in Review).
+        const keptBooks: BookRecord[] = [];
+
+        for (let i = 0; i < detections.length; i++) {
+          const det = detections[i];
+          const bbox = { x: det.x, y: det.y, width: det.width, height: det.height };
+          const ocrCrop = cropSpine(loaded, bbox, { paddingPct: 10, maxLongEdge: 1600 });
+          const spineThumbnail = cropSpine(loaded, bbox, {
+            paddingPct: 5,
+            maxLongEdge: 220,
+            quality: 0.8,
+          });
+
+          setProgress({
             photoDone,
             photoTotal: total,
             bookDone: aggregateBookDone,
             bookTotal: aggregateBookTotal,
-            currentLabel: book.title
-              ? `Identified: ${book.title}`
-              : `Spine #${spine.position} — unreadable`,
+            currentLabel: `Reading spine ${i + 1} of ${detections.length}…`,
           });
+
+          const { book, kept } = await buildBookFromCrop({
+            position: det.position ?? i + 1,
+            bbox,
+            spineThumbnail,
+            ocrCrop,
+            sourcePhoto: batch.filename,
+          });
+
+          aggregateBookDone += 1;
+          if (kept) {
+            keptBooks.push(book);
+          }
+
+          setProgress({
+            photoDone,
+            photoTotal: total,
+            bookDone: aggregateBookDone,
+            bookTotal: aggregateBookTotal,
+            currentLabel: kept
+              ? book.title
+                ? `Identified: ${book.title}`
+                : `Spine #${det.position} — verify`
+              : `Skipped illegible spine #${det.position}`,
+          });
+        }
+
+        const finalBooks = dedupeBooks(keptBooks);
+        for (const book of finalBooks) {
+          addBook(batch.id, book);
         }
 
         updateBatch(batch.id, { status: 'done' });
@@ -126,7 +190,7 @@ export default function UploadPage() {
 
     setPendingFiles(new Map());
     setProcessing(false);
-    setProgressStep(null);
+    setProgress(null);
     router.push('/review');
   }
 
@@ -146,9 +210,10 @@ export default function UploadPage() {
       <div>
         <h1 className="font-serif text-3xl mb-2">Upload bookshelf photos</h1>
         <p className="text-sm text-ink/60 dark:text-cream-300/60 max-w-2xl">
-          Drop one or more photos of a bookshelf. We&apos;ll read each spine, look up its
-          metadata, infer tags, and let you review every result before any export.
-          Nothing leaves your machine for LibraryThing without your explicit approval.
+          Drop one or more photos of a bookshelf. We&apos;ll locate each spine, read it,
+          look up its metadata, infer tags, and let you review every result before any
+          export. Nothing leaves your machine for LibraryThing without your explicit
+          approval.
         </p>
       </div>
 
@@ -156,22 +221,22 @@ export default function UploadPage() {
 
       <ProcessingQueue batches={state.batches} onRemove={handleRemove} />
 
-      {progressStep && (
+      {progress && (
         <div className="space-y-3">
           <BatchProgress
-            total={progressStep.photoTotal}
-            done={progressStep.photoDone}
+            total={progress.photoTotal}
+            done={progress.photoDone}
             label="Photos processed"
           />
-          {progressStep.bookTotal > 0 && (
+          {progress.bookTotal > 0 && (
             <BatchProgress
-              total={progressStep.bookTotal}
-              done={progressStep.bookDone}
-              label="Books identified"
+              total={progress.bookTotal}
+              done={progress.bookDone}
+              label="Spines read"
             />
           )}
           <div className="text-xs text-ink/60 dark:text-cream-300/60 italic">
-            {progressStep.currentLabel}
+            {progress.currentLabel}
           </div>
         </div>
       )}
@@ -189,8 +254,8 @@ export default function UploadPage() {
           {isProcessing
             ? 'Processing…'
             : queuedBatches.length === 0
-            ? 'Process all'
-            : `Process all (${queuedBatches.length})`}
+              ? 'Process all'
+              : `Process all (${queuedBatches.length})`}
         </button>
       </div>
     </div>

@@ -1,5 +1,12 @@
 export type Confidence = 'HIGH' | 'MEDIUM' | 'LOW';
 
+export interface SpineBbox {
+  x: number; // 0–100, percent of image width
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface SpineRead {
   position: number;
   rawText: string;
@@ -8,6 +15,7 @@ export interface SpineRead {
   publisher?: string;
   confidence: Confidence;
   note?: string;
+  bbox?: SpineBbox;
 }
 
 export interface BookLookupResult {
@@ -36,6 +44,18 @@ export interface BookRecord {
   status: 'pending' | 'approved' | 'rejected';
   warnings: string[];
   sourcePhoto: string;
+  lookupSource: 'openlibrary' | 'googlebooks' | 'none';
+  /** Cropped image of just this spine, as a data URI. Lets the reviewer see what the model saw. */
+  spineThumbnail?: string;
+  /** Snapshot of metadata as it came from spine read + lookup, before any user edits. */
+  original: {
+    title: string;
+    author: string;
+    isbn: string;
+    publisher: string;
+    publicationYear: number;
+    lcc: string;
+  };
 }
 
 export interface PhotoBatch {
