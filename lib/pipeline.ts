@@ -492,7 +492,11 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     confidence: 'LOW',
     reasoning: '',
   };
-  if (grounded.keep && read.title && lookup.source !== 'none') {
+  if (grounded.keep && read.title) {
+    // Run tag inference even when lookup missed — the model can still
+    // produce useful tags from title + author + general knowledge. The
+    // system prompt already flags LOW confidence when LCC is missing,
+    // and the user can re-trigger via the Reread button.
     try {
       tags = await inferTagsClient({
         title: read.title,

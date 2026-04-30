@@ -124,17 +124,91 @@ function normalize(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
+/**
+ * Strip editor / translator / introducer markers from an author string
+ * before sending it to a metadata API. The display author keeps the prefix
+ * (so the reviewer sees "ed. Barney Hoskyns"); only the lookup query is
+ * cleaned ("Barney Hoskyns").
+ */
+export function cleanAuthorForQuery(author: string): string {
+  if (!author) return '';
+  let a = author.trim();
+  // Repeatedly strip leading editor/translator markers + ampersand junk.
+  for (let i = 0; i < 5; i++) {
+    const before = a;
+    a = a
+      .replace(/^(?:edited\s+by|translated\s+by|trans(?:lated)?\.|intro(?:duction)?\s+by|foreword\s+by|preface\s+by|edited|eds?\.)\s+/i, '')
+      .replace(/^(?:and|&|,)\s+/i, '')
+      .trim();
+    if (a === before) break;
+  }
+  return a;
+}
+
+/**
+ * Return everything before the first " : " or ": " in the title — i.e., drop
+ * the subtitle. "Foolproof: Why Misinformation Infects…" → "Foolproof".
+ * Leaves the original alone if there's no colon at a word boundary
+ * (avoids stripping ratios like "1:1" or "Part 2: A New Hope" where the
+ * colon is meaningful).
+ */
+export function stripSubtitle(title: string): string {
+  if (!title) return '';
+  const m = title.match(/^([^:]+?)\s*:\s+\S/);
+  return m ? m[1].trim() : title.trim();
+}
+
 function titleExactMatch(query: string, candidate?: string): boolean {
   if (!candidate) return false;
   return normalize(query) === normalize(candidate);
 }
 
+/**
+ * Bidirectional substring match. The candidate matches the query if either
+ * is contained in the other (with word-boundary alignment). Lets short
+ * canonical titles ("Foolproof") match long subtitle queries
+ * ("Foolproof: Why Misinformation…") and vice versa.
+ */
 function titleSubstringMatch(query: string, candidate?: string): boolean {
   if (!candidate) return false;
   const q = normalize(query);
   const c = normalize(candidate);
   if (!q || !c) return false;
-  return c === q || c.startsWith(q + ' ') || c.endsWith(' ' + q) || c.includes(' ' + q + ' ');
+  if (q === c) return true;
+  // q ⊂ c
+  if (c.startsWith(q + ' ') || c.endsWith(' ' + q) || c.includes(' ' + q + ' ')) return true;
+  // c ⊂ q
+  if (q.startsWith(c + ' ') || q.endsWith(' ' + c) || q.includes(' ' + c + ' ')) return true;
+  return false;
+}
+
+const AUTHOR_TOKEN_STOPWORDS = new Set([
+  'mr', 'mrs', 'ms', 'dr', 'sr', 'jr', 'phd', 'md',
+  'ed', 'eds', 'trans', 'translated', 'edited', 'intro', 'introduction',
+  'foreword', 'preface', 'and', 'with', 'by',
+]);
+
+function authorTokens(s: string): string[] {
+  // Tokenize, lowercase, drop honorifics/role-markers and single-letter
+  // initials (which spineread may or may not include).
+  return normalize(s)
+    .split(' ')
+    .filter((t) => t.length >= 2)
+    .filter((t) => !AUTHOR_TOKEN_STOPWORDS.has(t));
+}
+
+/**
+ * Every non-stopword, multi-letter token of the queried author must appear
+ * somewhere in at least one of the candidate's author_name strings.
+ * "Sander van der Linden" requires {sander, van, der, linden} all present
+ * — prevents matching some other Linden's book.
+ */
+function authorMatches(query: string, candidates?: string[]): boolean {
+  if (!query || !candidates || candidates.length === 0) return false;
+  const qTokens = authorTokens(query);
+  if (qTokens.length === 0) return false;
+  const candidateBlob = candidates.map((c) => normalize(c)).join(' ');
+  return qTokens.every((t) => new RegExp(`(?:^|\\s)${t}(?:\\s|$)`).test(candidateBlob));
 }
 
 function lastName(full: string): string {
@@ -142,6 +216,7 @@ function lastName(full: string): string {
   return parts.length === 0 ? '' : parts[parts.length - 1];
 }
 
+/** Kept for the score function — coarse signal alongside authorMatches. */
 function authorLastNameMatch(query: string, candidates?: string[]): boolean {
   if (!query || !candidates || candidates.length === 0) return false;
   const ql = normalize(lastName(query));
@@ -169,7 +244,10 @@ function scoreDoc(d: OpenLibraryDoc, title: string, author: string): number {
   if (d.publisher && d.publisher.length > 0) s += 1;
   if (d.first_publish_year) s += 1;
   if (titleExactMatch(title, d.title)) s += 2;
-  if (authorLastNameMatch(author, d.author_name)) s += 2;
+  // Full-token author match is the strong signal; last-name match is a
+  // coarser fallback worth a smaller bump.
+  if (authorMatches(author, d.author_name)) s += 3;
+  else if (authorLastNameMatch(author, d.author_name)) s += 1;
   // KDP/self-published penalty
   if (d.isbn && d.isbn.some((i) => i.replace(/[^\d]/g, '').startsWith('9798'))) s -= 3;
   return s;
@@ -186,12 +264,12 @@ function pickBestDoc(
   const candidates = docs.filter((d) => !isStudyGuide(d));
   if (candidates.length === 0) return undefined;
 
-  // Restrict to docs whose title or author at least partially matches —
-  // protects against off-target relevance hits.
+  // Restrict to docs whose title or author plausibly matches — protects
+  // against off-target relevance hits.
   const relevant = candidates.filter(
     (d) =>
       titleSubstringMatch(title, d.title) ||
-      (author && authorLastNameMatch(author, d.author_name))
+      (author && authorMatches(author, d.author_name))
   );
   const pool = relevant.length > 0 ? relevant : candidates;
 
@@ -367,9 +445,11 @@ export async function lookupSpecificEdition(
   // 2) Year-scoped search (with publisher tie-breaker).
   if (title && hints.year) {
     try {
+      const cleanedAuthor = cleanAuthorForQuery(author);
+      const shortTitle = stripSubtitle(title);
       const params = new URLSearchParams();
-      params.set('title', title);
-      if (author) params.set('author', author);
+      params.set('title', shortTitle);
+      if (cleanedAuthor) params.set('author', cleanedAuthor);
       params.set('publish_year', String(hints.year));
       params.set('limit', '5');
       params.set(
@@ -386,10 +466,11 @@ export async function lookupSpecificEdition(
         const docs = data.docs ?? [];
         // Prefer publisher match if hint provided.
         const publisherHint = (hints.publisher ?? '').toLowerCase().trim();
+        const cleanedAuthorForScore = cleanAuthorForQuery(author);
         const ranked = docs
           .filter((d) => !isStudyGuide(d))
           .map((d) => {
-            let score = scoreDoc(d, title, author);
+            let score = scoreDoc(d, title, cleanedAuthorForScore);
             if (publisherHint && d.publisher) {
               const pubMatch = d.publisher.some((p) =>
                 p.toLowerCase().includes(publisherHint) ||
@@ -433,13 +514,70 @@ export async function lookupSpecificEdition(
   return lookupBook(title, author);
 }
 
+const OL_FIELDS =
+  'key,title,author_name,isbn,publisher,first_publish_year,publish_year,publish_date,lcc,lc_classifications,subject';
+
+/**
+ * Run one Open Library search.json query, score & pick the best matching
+ * doc against the (cleaned) title + author, and convert it to a
+ * BookLookupResult. Returns null on no match / no usable identifiers /
+ * network error — the caller falls through to the next tier.
+ */
+async function tryOpenLibrary(
+  params: URLSearchParams,
+  matchTitle: string,
+  matchAuthor: string
+): Promise<BookLookupResult | null> {
+  try {
+    params.set('limit', '10');
+    params.set('fields', OL_FIELDS);
+    const url = `https://openlibrary.org/search.json?${params.toString()}`;
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(12000),
+      cache: 'no-store',
+      headers: DEFAULT_HEADERS,
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { docs?: OpenLibraryDoc[] };
+    const best = pickBestDoc(data.docs ?? [], matchTitle, matchAuthor);
+    if (!best) return null;
+    const isbn = pickIsbn(best.isbn);
+    const publisher = best.publisher?.[0] ?? '';
+    const publicationYear =
+      best.first_publish_year ||
+      parsePublishDateYear(best.publish_date) ||
+      (best.publish_year && best.publish_year[0]) ||
+      0;
+    let lcc =
+      (best.lcc && best.lcc[0]) ??
+      (best.lc_classifications && best.lc_classifications[0]) ??
+      '';
+    if (!lcc && best.key) lcc = await fetchWorkLcc(best.key);
+    if (!isbn && !publisher && !lcc && !publicationYear) return null;
+    return {
+      isbn,
+      publisher,
+      publicationYear,
+      lcc,
+      subjects: best.subject?.slice(0, 10),
+      source: 'openlibrary',
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function lookupBook(
   title: string,
   author: string
-): Promise<BookLookupResult> {
+): Promise<BookLookupResult & { tier?: string }> {
   if (!title) {
     return { isbn: '', publisher: '', publicationYear: 0, lcc: '', source: 'none' };
   }
+
+  const cleanedAuthor = cleanAuthorForQuery(author);
+  const shortTitle = stripSubtitle(title);
+  const hadSubtitle = shortTitle !== title.trim();
 
   let result: BookLookupResult = {
     isbn: '',
@@ -448,60 +586,55 @@ export async function lookupBook(
     lcc: '',
     source: 'none',
   };
+  let tier = '';
 
-  // 1) Open Library
-  try {
-    const params = new URLSearchParams();
-    params.set('title', title);
-    if (author) params.set('author', author);
-    params.set('limit', '10');
-    // Ask for the fields we actually need; default search.json omits isbn/publisher/lcc.
-    params.set(
-      'fields',
-      'key,title,author_name,isbn,publisher,first_publish_year,publish_year,publish_date,lcc,lc_classifications,subject'
-    );
-    const url = `https://openlibrary.org/search.json?${params.toString()}`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(12000), cache: 'no-store', headers: DEFAULT_HEADERS });
-    if (res.ok) {
-      const data = (await res.json()) as { docs?: OpenLibraryDoc[] };
-      const best = pickBestDoc(data.docs ?? [], title, author);
-      if (best) {
-        const isbn = pickIsbn(best.isbn);
-        const publisher = best.publisher?.[0] ?? '';
-        // Prefer first_publish_year (work-level original), fall back to publish_date earliest, then publish_year.
-        const publicationYear =
-          best.first_publish_year ||
-          parsePublishDateYear(best.publish_date) ||
-          (best.publish_year && best.publish_year[0]) ||
-          0;
-        let lcc =
-          (best.lcc && best.lcc[0]) ??
-          (best.lc_classifications && best.lc_classifications[0]) ??
-          '';
-        // 2d. If LCC missing, try the work-level endpoint.
-        if (!lcc && best.key) {
-          lcc = await fetchWorkLcc(best.key);
-        }
-        if (isbn || publisher || lcc || publicationYear) {
-          result = {
-            isbn,
-            publisher,
-            publicationYear,
-            lcc,
-            subjects: best.subject?.slice(0, 10),
-            source: 'openlibrary',
-          };
-        }
-      }
+  // Tier 1: full title + cleaned author
+  {
+    const p = new URLSearchParams();
+    p.set('title', title);
+    if (cleanedAuthor) p.set('author', cleanedAuthor);
+    const r = await tryOpenLibrary(p, title, cleanedAuthor);
+    if (r) {
+      result = r;
+      tier = 'ol-t1';
     }
-  } catch {
-    // fall through to Google Books
+  }
+  // Tier 2: short title (subtitle stripped) + cleaned author
+  if (result.source === 'none' && hadSubtitle && cleanedAuthor) {
+    const p = new URLSearchParams();
+    p.set('title', shortTitle);
+    p.set('author', cleanedAuthor);
+    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor);
+    if (r) {
+      result = r;
+      tier = 'ol-t2';
+    }
+  }
+  // Tier 3: short title only (no author — catches OL author-index quirks)
+  if (result.source === 'none') {
+    const p = new URLSearchParams();
+    p.set('title', shortTitle);
+    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor);
+    if (r) {
+      result = r;
+      tier = 'ol-t3';
+    }
+  }
+  // Tier 4: full-text q= (most lenient OL tier)
+  if (result.source === 'none') {
+    const p = new URLSearchParams();
+    p.set('q', `${shortTitle} ${cleanedAuthor}`.trim());
+    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor);
+    if (r) {
+      result = r;
+      tier = 'ol-t4';
+    }
   }
 
-  // 2) Google Books fallback (only if Open Library didn't yield a usable result)
+  // 5) Google Books fallback (only if Open Library didn't yield a usable result)
   if (result.source === 'none') try {
-    const q = `intitle:${encodeURIComponent(title)}${
-      author ? `+inauthor:${encodeURIComponent(author)}` : ''
+    const q = `intitle:${encodeURIComponent(shortTitle)}${
+      cleanedAuthor ? `+inauthor:${encodeURIComponent(cleanedAuthor)}` : ''
     }`;
     const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
     const baseUrl = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3`;
@@ -555,13 +688,14 @@ export async function lookupBook(
           subjects: vi.categories ?? [],
           source: 'googlebooks',
         };
+        tier = 'gb';
       }
     }
   } catch {
     // ignore
   }
 
-  // 3) Final post-processing: canonicalize LCC + LoC SRU fallback when the
+  // Final post-processing: canonicalize LCC + LoC SRU fallback when the
   // primary path didn't already enrich (i.e., the Open Library branch).
   result.lcc = normalizeLcc(result.lcc);
   if (result.isbn && !result.lcc) {
@@ -569,5 +703,5 @@ export async function lookupBook(
     if (sruLcc) result.lcc = normalizeLcc(sruLcc);
   }
 
-  return result;
+  return Object.assign(result, { tier: tier || 'none' });
 }

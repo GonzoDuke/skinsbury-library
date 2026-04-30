@@ -39,8 +39,10 @@ export async function POST(req: NextRequest) {
       })
     : await lookupBook(title, author);
   const ms = Date.now() - t0;
+  const tier = (result as { tier?: string }).tier;
   console.log(
     `[lookup-book${body.matchEdition ? ' edition' : ''}] "${title}"${author ? ` / ${author}` : ''} → ${result.source}` +
+      `${tier && tier !== 'none' ? ` ${tier}` : ''}` +
       `${result.isbn ? ` isbn=${result.isbn}` : ''}` +
       `${result.lcc ? ` lcc=${result.lcc}` : ''}` +
       ` (${ms}ms)`
