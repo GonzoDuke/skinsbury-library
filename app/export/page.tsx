@@ -316,8 +316,8 @@ export default function ExportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-5xl mb-3 text-ink dark:text-limestone" style={{ letterSpacing: '0.5px' }}>Export to LibraryThing</h1>
-        <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed">
+        <h1 className="typo-page-title">Export to LibraryThing</h1>
+        <p className="typo-page-desc max-w-3xl">
           Download a LibraryThing-compatible CSV. Only{' '}
           <span className="font-semibold">approved</span> books will be included.
         </p>

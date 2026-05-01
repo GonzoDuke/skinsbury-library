@@ -125,14 +125,12 @@ export default function ReviewPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-baseline gap-4 flex-wrap">
-          <h1 className="font-display text-5xl text-ink dark:text-limestone" style={{ letterSpacing: '0.5px' }}>
-            Review &amp; approve
-          </h1>
+          <h1 className="typo-page-title">Review &amp; approve</h1>
           <span className="text-base text-ink/50 dark:text-cream-300/50 font-mono">
             {counts.total} {counts.total === 1 ? 'book' : 'books'}
           </span>
         </div>
-        <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed mt-2">
+        <p className="typo-page-desc max-w-3xl">
           Verify each book&apos;s metadata and tags. Edit fields by clicking them. Only
           approved books make it into the export.
         </p>

@@ -75,6 +75,63 @@ body {
 }
 .animate-toast { animation: toast 2s ease-out forwards; }
 
+/* Typography hierarchy — five levels.
+   Centralized so page headers and card titles stay consistent across the
+   app instead of drifting per-screen. Apply via class names on the element
+   you want to style.
+
+   Level 1 — Page titles (Cormorant 32px / 500, accent green / limestone)
+   Level 2 — Page descriptions (Inter 15px / 400, muted)
+   Level 3 — Card titles (Source Serif 18px / 600)
+   Level 4 — Card metadata (Inter 13px / 400, muted)
+   Level 5 — Labels / helper (Inter 11px, all-caps for labels) */
+.typo-page-title {
+  font-family: 'Cormorant Garamond', 'Source Serif 4', Georgia, serif;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  color: #1E3A2F;             /* library green */
+  margin-bottom: 4px;
+}
+.dark .typo-page-title { color: #E8E2D4; }  /* limestone */
+
+.typo-page-desc {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: #6B6A65;
+  margin-bottom: 24px;
+}
+.dark .typo-page-desc { color: #9A9890; }
+
+.typo-card-title {
+  font-family: '"Source Serif 4"', '"Lora"', Georgia, serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.typo-card-meta {
+  font-size: 13px;
+  font-weight: 400;
+  color: #9A9890;
+}
+.dark .typo-card-meta { color: #9A9890; }
+
+.typo-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #B4A99A;
+}
+.typo-helper {
+  font-size: 11px;
+  font-weight: 400;
+  color: #B4A99A;
+}
+
 /* Camera modal — gentle ease-in/out scaffolding for the in-app camera.
    Mount: scaled slightly down + transparent → settle; unmount mirrors it.
    Used by the camera capture experience in PhotoUploader.tsx. */

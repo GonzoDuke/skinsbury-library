@@ -154,7 +154,7 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
             original={book.original.title}
             onSave={(v) => updateBook(book.id, { title: toTitleCase(v) })}
           />
-          <div className="text-xs text-ink/60 dark:text-cream-300/60 mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
+          <div className="typo-card-meta mt-0.5 flex flex-wrap gap-x-1.5 gap-y-0.5">
             <EditableField
               label="Author"
               value={book.author}
@@ -685,13 +685,13 @@ function EditableTitle({
             (e.target as HTMLInputElement).blur();
           }
         }}
-        className="font-serif text-xl font-medium w-full bg-transparent border-b border-accent focus:outline-none"
+        className="typo-card-title w-full bg-transparent border-b border-accent focus:outline-none"
       />
     );
   }
   return (
     <h2
-      className={`font-serif text-xl font-medium leading-tight cursor-text inline-flex items-center ${
+      className={`typo-card-title cursor-text inline-flex items-center ${
         modified ? 'text-accent dark:text-accent' : ''
       }`}
       onClick={() => setEditing(true)}

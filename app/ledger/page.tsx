@@ -83,13 +83,8 @@ export default function LedgerPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1
-          className="font-display text-5xl mb-3 text-ink dark:text-limestone"
-          style={{ letterSpacing: '0.5px' }}
-        >
-          Export Ledger
-        </h1>
-        <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed">
+        <h1 className="typo-page-title">Export Ledger</h1>
+        <p className="typo-page-desc max-w-3xl">
           These are the books Carnegie remembers exporting. New scans that
           match an entry here are auto-rejected as duplicates on the Review
           screen. Delete a batch if you re-photograph the same shelf and
