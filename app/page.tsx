@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PhotoUploader } from '@/components/PhotoUploader';
 import { ProcessingQueue } from '@/components/ProcessingQueue';
 import { BatchProgress } from '@/components/BatchProgress';
-import { useStore } from '@/lib/store';
+import { useDarkMode, useStore } from '@/lib/store';
 import type { PhotoBatch } from '@/lib/types';
 import { createThumbnail, loadImage, makeId } from '@/lib/pipeline';
 
@@ -23,6 +23,15 @@ export default function UploadPage() {
 
   const [batchLabel, setBatchLabel] = useState('');
   const [batchNotes, setBatchNotes] = useState('');
+
+  // Dark-mode toggle moved to a small text link below the queue summary.
+  // Mirrors the document.documentElement class so the label stays accurate
+  // after a page-load preference apply.
+  const { setDark } = useDarkMode();
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+  }, []);
 
   const queuedBatches = useMemo(
     () => state.batches.filter((b) => b.status === 'queued'),
@@ -206,10 +215,24 @@ export default function UploadPage() {
         </div>
       )}
 
-      <div className="flex justify-between items-center pt-4 border-t border-cream-300 dark:border-ink-soft">
-        <div className="text-sm text-ink/50 dark:text-cream-300/50">
-          {state.batches.length} photo{state.batches.length !== 1 ? 's' : ''} ·{' '}
-          {state.allBooks.length} book{state.allBooks.length !== 1 ? 's' : ''} identified
+      <div className="flex justify-between items-start pt-4 border-t border-cream-300 dark:border-ink-soft">
+        <div>
+          <div className="text-sm text-ink/50 dark:text-cream-300/50">
+            {state.batches.length} photo{state.batches.length !== 1 ? 's' : ''} ·{' '}
+            {state.allBooks.length} book{state.allBooks.length !== 1 ? 's' : ''} identified
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !isDark;
+              setDark(next);
+              setIsDark(next);
+            }}
+            className="mt-1.5 text-xs text-ink/40 dark:text-cream-300/40 hover:text-accent dark:hover:text-brass underline-offset-2 hover:underline transition"
+            aria-label="Toggle dark mode"
+          >
+            {isDark ? '☀ Switch to light mode' : '☾ Switch to dark mode'}
+          </button>
         </div>
         <button
           onClick={() => processQueue()}

@@ -2,24 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { useDarkMode } from '@/lib/store';
 
 const NAV = [
   { href: '/', label: 'Upload' },
   { href: '/review', label: 'Review' },
   { href: '/export', label: 'Export' },
-  { href: '/ledger', label: 'Ledger' },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { setDark } = useDarkMode();
-  const [isDark, setIsDark] = useState(false);
+  // Mount the dark-mode hook here for its initialization side-effect — it
+  // applies the stored preference regardless of which route the user lands
+  // on. The actual toggle UI lives on the upload page.
+  useDarkMode();
 
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-  }, []);
+  const ledgerActive = pathname === '/ledger';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -77,19 +75,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          {/* Right anchor — light/dark toggle. Bumped slightly so it doesn't
-              get dwarfed by the new nav rail. */}
-          <button
-            onClick={() => {
-              const next = !isDark;
-              setDark(next);
-              setIsDark(next);
-            }}
-            className="justify-self-end flex-shrink-0 text-sm px-4 py-2 rounded-md border border-limestone/40 text-limestone bg-fern/40 hover:bg-fern transition"
-            aria-label="Toggle dark mode"
+          {/* Right anchor — Ledger link, styled as a standalone button so
+              it sits apart from the primary three-step flow in the nav rail. */}
+          <Link
+            href="/ledger"
+            aria-label="Open the export ledger"
+            className={`justify-self-end flex-shrink-0 text-sm px-4 py-2 rounded-md border transition ${
+              ledgerActive
+                ? 'bg-brass text-accent-deep border-brass font-medium'
+                : 'border-limestone/40 text-limestone bg-fern/40 hover:bg-fern'
+            }`}
           >
-            {isDark ? '☀ Light' : '☾ Dark'}
-          </button>
+            Ledger
+          </Link>
         </div>
       </header>
       <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 lg:px-12 py-10">{children}</main>
