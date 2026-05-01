@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { StoreProvider } from '@/lib/store';
 import { AppShell } from '@/components/AppShell';
@@ -6,6 +6,23 @@ import { AppShell } from '@/components/AppShell';
 export const metadata: Metadata = {
   title: 'Carnegie',
   description: 'Personal home library cataloging tool',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: 'Carnegie',
+    statusBarStyle: 'default',
+  },
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
+};
+
+// Next 14 routes themeColor through the viewport export (separate from metadata).
+// The library-green matches the AppShell header so the mobile status bar /
+// PWA chrome blends with the app surface in standalone mode.
+export const viewport: Viewport = {
+  themeColor: '#1E3A2F',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +42,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             // user has explicitly chosen it via the toggle (stored under
             // 'carnegie:dark' === '1'). We don't read prefers-color-scheme.
             __html: `(function(){try{if(localStorage.getItem('carnegie:dark')==='1')document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
+        <script
+          // Register the service worker so the browser surfaces the
+          // "Add to Home Screen" prompt. The SW is intentionally a no-op
+          // (network-only) — we just need its presence for installability.
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}`,
           }}
         />
       </head>

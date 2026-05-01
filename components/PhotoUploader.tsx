@@ -9,6 +9,11 @@ interface PhotoUploaderProps {
 
 export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // Separate input for the rear-camera capture path. Using a distinct
+  // element avoids toggling the `capture` attribute at runtime (which
+  // some mobile browsers handle inconsistently) and keeps the gallery
+  // picker available alongside the camera shortcut.
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [isDragging, setDragging] = useState(false);
 
   const handleFiles = useCallback(
@@ -52,6 +57,17 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
+      {/* Mobile rear-camera capture. capture="environment" opens the back
+          camera directly on iOS / Android. On desktop the attribute is
+          ignored and the input behaves like the regular file picker. */}
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => handleFiles(e.target.files)}
+      />
 
       <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 dark:bg-accent/30 flex items-center justify-center mb-4">
         <svg
@@ -73,17 +89,35 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
       <p className="text-[11px] uppercase tracking-wider text-ink/50 dark:text-cream-300/50 mb-5">
         Landscape · fill the frame · 2–3 feet away · flash off
       </p>
-      <button
-        type="button"
-        className="inline-flex items-center text-sm px-5 py-2 rounded-md bg-accent text-limestone hover:bg-accent-deep transition disabled:opacity-50"
-        disabled={disabled}
-        onClick={(e) => {
-          e.stopPropagation();
-          inputRef.current?.click();
-        }}
-      >
-        Choose photos
-      </button>
+      <div className="inline-flex flex-wrap justify-center gap-2">
+        <button
+          type="button"
+          className="inline-flex items-center text-sm px-5 py-2 rounded-md bg-accent text-limestone hover:bg-accent-deep transition disabled:opacity-50"
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            inputRef.current?.click();
+          }}
+        >
+          Choose photos
+        </button>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 text-sm px-5 py-2 rounded-md border border-accent text-accent dark:text-brass dark:border-brass hover:bg-accent hover:text-limestone dark:hover:bg-brass dark:hover:text-accent-deep transition disabled:opacity-50"
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            cameraRef.current?.click();
+          }}
+          title="Open the rear camera (mobile) or your default capture device (desktop)"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          Take photo
+        </button>
+      </div>
     </div>
   );
 }

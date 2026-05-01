@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Carnegie home-screen icon. Library-green background, brass C in serif.
+       Designed as a maskable icon: the C sits within the inner 80% safe zone
+       so OS-level rounded-square / circle masks don't clip it. -->
+  <rect width="512" height="512" fill="#1E3A2F"/>
+  <text
+    x="50%"
+    y="50%"
+    font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif"
+    font-size="380"
+    font-weight="500"
+    fill="#C9A96E"
+    text-anchor="middle"
+    dominant-baseline="central"
+    letter-spacing="0">C</text>
+</svg>

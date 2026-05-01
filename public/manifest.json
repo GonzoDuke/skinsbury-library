@@ -1,0 +1,19 @@
+{
+  "name": "Carnegie",
+  "short_name": "Carnegie",
+  "description": "Personal home library cataloging tool",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F2EB",
+  "theme_color": "#1E3A2F",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
