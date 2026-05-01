@@ -78,23 +78,19 @@ export default function UploadPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-serif text-5xl mb-3 tracking-tight">Upload bookshelf photos</h1>
-        <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed">
-          Drop one or more photos of a bookshelf. We&apos;ll locate each spine, read it,
-          look up its metadata, infer tags, and let you review every result before any
-          export. Nothing leaves your machine for LibraryThing without your explicit
-          approval.
-        </p>
+      <div className="text-center py-4">
+        <h1 className="font-display text-4xl md:text-5xl text-ink dark:text-limestone" style={{ letterSpacing: '0.5px' }}>
+          Photograph your shelves. We&apos;ll handle the rest.
+        </h1>
       </div>
 
-      <div className="bg-cream-50 dark:bg-ink-soft/60 border border-cream-300 dark:border-ink-soft rounded-lg p-4 space-y-4">
+      <div className="bg-cream-50 dark:bg-ink-soft/60 rounded-lg p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label
             htmlFor="batch-label"
-            className="block text-xs uppercase tracking-wider font-semibold text-ink/60 dark:text-cream-300/60 mb-1.5"
+            className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-ink/55 dark:text-cream-300/55 mb-2"
           >
-            Batch label <span className="text-ink/40 dark:text-cream-300/40 normal-case font-normal">— optional</span>
+            Batch label <span className="text-ink/35 dark:text-cream-300/35 normal-case font-normal tracking-normal">— optional</span>
           </label>
           <input
             id="batch-label"
@@ -103,23 +99,21 @@ export default function UploadPage() {
             onChange={(e) => setBatchLabel(e.target.value)}
             placeholder='e.g. "Shelf 3", "Box 4", "Upstairs hallway"'
             disabled={isProcessing}
-            className="w-full px-3 py-2 text-base bg-cream-100 dark:bg-ink rounded border border-cream-300 dark:border-ink-soft focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50"
+            className="w-full px-1 py-2 text-base bg-transparent border-0 border-b-2 border-brass/50 focus:outline-none focus:border-brass disabled:opacity-50 transition"
           />
           <p className="mt-2 text-xs text-ink/50 dark:text-cream-300/50 leading-relaxed">
-            Photos uploaded while this is set will be tagged as that location.
-            Books group by label in Review and can be exported as a LibraryThing
-            Collection or as a <span className="font-mono">location:Shelf 3</span>{' '}
-            tag — your choice on the Export screen. Change the label between
-            uploads to start a new batch.
+            Group photos by physical location. On Export you&apos;ll choose
+            whether the label rides into LibraryThing as a Collection, a
+            tag, both, or neither.
           </p>
         </div>
 
         <div>
           <label
             htmlFor="batch-notes"
-            className="block text-xs uppercase tracking-wider font-semibold text-ink/60 dark:text-cream-300/60 mb-1.5"
+            className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-ink/55 dark:text-cream-300/55 mb-2"
           >
-            Batch notes <span className="text-ink/40 dark:text-cream-300/40 normal-case font-normal">— optional</span>
+            Batch notes <span className="text-ink/35 dark:text-cream-300/35 normal-case font-normal tracking-normal">— optional</span>
           </label>
           <textarea
             id="batch-notes"
@@ -128,12 +122,11 @@ export default function UploadPage() {
             placeholder='e.g. "All first editions, signed by author"'
             disabled={isProcessing}
             rows={2}
-            className="w-full px-3 py-2 text-base bg-cream-100 dark:bg-ink rounded border border-cream-300 dark:border-ink-soft focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50 resize-y"
+            className="w-full px-1 py-2 text-base bg-transparent border-0 border-b-2 border-brass/50 focus:outline-none focus:border-brass disabled:opacity-50 resize-y transition"
           />
           <p className="mt-2 text-xs text-ink/50 dark:text-cream-300/50 leading-relaxed">
-            Free-form notes that apply to every book in this batch. Land in
-            LibraryThing&apos;s <span className="font-mono">COMMENTS</span> column
-            on export. You can also add per-book notes in Review.
+            Free-form notes applied to every book in this batch. Lands in
+            LibraryThing&apos;s <span className="font-mono">COMMENTS</span> column.
           </p>
         </div>
       </div>
@@ -154,8 +147,8 @@ export default function UploadPage() {
             {isProcessing ? (
               <>
                 <span className="relative flex h-3 w-3">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 animate-pulse-dot" />
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-accent" />
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-brass opacity-60 animate-pulse-dot" />
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-brass" />
                 </span>
                 <h2 className="font-serif text-2xl text-ink dark:text-cream-100">
                   Processing your shelf

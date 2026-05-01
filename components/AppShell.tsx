@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useStore, useDarkMode } from '@/lib/store';
+import { useDarkMode } from '@/lib/store';
 
 const NAV = [
   { href: '/', label: 'Upload' },
@@ -13,7 +13,6 @@ const NAV = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { state } = useStore();
   const { setDark } = useDarkMode();
   const [isDark, setIsDark] = useState(false);
 
@@ -21,25 +20,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setIsDark(document.documentElement.classList.contains('dark'));
   }, []);
 
-  const counts = {
-    photos: state.batches.length,
-    books: state.allBooks.length,
-    approved: state.allBooks.filter((b) => b.status === 'approved').length,
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b border-cream-300 dark:border-ink-soft bg-cream-50/80 dark:bg-ink/80 backdrop-blur sticky top-0 z-10">
+      <header className="bg-accent dark:bg-fern sticky top-0 z-10 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-8 lg:px-12 py-5 flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-md bg-accent flex items-center justify-center text-cream-50 font-serif text-2xl">
-              S
+          <div className="flex flex-col">
+            <div
+              className="font-display text-2xl leading-tight text-limestone"
+              style={{ letterSpacing: '2px' }}
+            >
+              The T.L. Skinsbury Library
             </div>
-            <div>
-              <div className="font-serif text-xl leading-tight">The T.L. Skinsbury Library</div>
-              <div className="text-sm text-ink/50 dark:text-cream-300/50">
-                Personal catalog
-              </div>
+            <div className="text-xs text-brass tracking-wide mt-0.5">
+              Personal catalog
             </div>
           </div>
 
@@ -52,29 +45,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   href={item.href}
                   className={`px-5 py-2.5 rounded-md text-base transition-all duration-200 ease-gentle ${
                     active
-                      ? 'bg-accent text-cream-50 shadow-sm'
-                      : 'text-ink/70 dark:text-cream-300/70 hover:bg-accent-soft dark:hover:bg-ink-soft'
+                      ? 'bg-brass text-accent-deep font-medium shadow-sm'
+                      : 'text-limestone/85 hover:bg-fern hover:text-limestone'
                   }`}
                 >
                   {item.label}
-                  {item.href === '/review' && state.allBooks.length > 0 && (
-                    <span
-                      className={`ml-2 text-sm ${
-                        active ? 'text-cream-50/80' : 'text-accent'
-                      }`}
-                    >
-                      {state.allBooks.length}
-                    </span>
-                  )}
-                  {item.href === '/export' && counts.approved > 0 && (
-                    <span
-                      className={`ml-2 text-sm ${
-                        active ? 'text-cream-50/80' : 'text-accent'
-                      }`}
-                    >
-                      {counts.approved}
-                    </span>
-                  )}
                 </Link>
               );
             })}
@@ -88,7 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               setDark(next);
               setIsDark(next);
             }}
-            className="text-base px-4 py-2 rounded-md border border-cream-300 dark:border-ink-soft hover:bg-accent-soft dark:hover:bg-ink-soft transition"
+            className="text-base px-4 py-2 rounded-md border border-limestone/30 text-limestone hover:bg-fern transition"
             aria-label="Toggle dark mode"
           >
             {isDark ? 'Light' : 'Dark'}

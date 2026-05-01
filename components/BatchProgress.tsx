@@ -15,12 +15,12 @@ export function BatchProgress({ total, done, label, active = true }: Props) {
         <span className="text-ink/80 dark:text-cream-300/80 font-medium">{label}</span>
         <span className="font-mono text-ink/70 dark:text-cream-300/70">
           {done} / {total} <span className="text-ink/40 dark:text-cream-300/40">·</span>{' '}
-          <span className="text-accent font-semibold">{pct}%</span>
+          <span className="text-brass-deep dark:text-brass font-semibold">{pct}%</span>
         </span>
       </div>
-      <div className="relative h-3 bg-cream-200 dark:bg-ink rounded-full overflow-hidden">
+      <div className="relative h-3 bg-limestone dark:bg-ink rounded-full overflow-hidden">
         <div
-          className="absolute inset-y-0 left-0 bg-accent transition-all duration-500 ease-gentle rounded-full"
+          className="absolute inset-y-0 left-0 bg-brass transition-all duration-500 ease-gentle rounded-full"
           style={{ width: `${pct}%` }}
         />
         {active && pct < 100 && (

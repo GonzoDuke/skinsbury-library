@@ -19,11 +19,11 @@ export function ExportPreview({
   }
 
   return (
-    <div className="border border-cream-300 dark:border-ink-soft rounded-lg overflow-hidden bg-cream-50 dark:bg-ink-soft/60">
+    <div className="border border-cream-300 dark:border-ink-soft rounded-lg overflow-hidden bg-limestone dark:bg-ink-soft/60">
       <div className="overflow-x-auto">
         <table className="text-xs font-mono w-full">
           <thead>
-            <tr className="bg-cream-200 dark:bg-ink-soft text-ink/70 dark:text-cream-300/70">
+            <tr className="bg-brass-soft dark:bg-ink-soft text-ink/70 dark:text-cream-300/70">
               {CSV_HEADERS.map((h) => (
                 <th
                   key={h}

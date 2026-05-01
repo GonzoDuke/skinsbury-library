@@ -12,7 +12,7 @@ html {
 }
 
 body {
-  background-color: #FAFAF7;
+  background-color: #F5F2EB; /* marble */
   color: #1A1A18;
   transition: background-color 200ms ease, color 200ms ease;
   line-height: 1.55;
@@ -20,18 +20,18 @@ body {
 
 .dark body {
   background-color: #1A1A18;
-  color: #EDE8D7;
+  color: #E8E2D4; /* limestone — better contrast than the old EDE8D7 */
 }
 
-/* Subtle paper texture for the upload zone */
+/* Subtle paper texture for the upload zone — Carnegie green + brass tint */
 .bookshelf-bg {
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(200, 90, 18, 0.06), transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(217, 112, 70, 0.05), transparent 40%),
+    radial-gradient(circle at 20% 30%, rgba(30, 58, 47, 0.05), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(201, 169, 110, 0.06), transparent 40%),
     repeating-linear-gradient(
       90deg,
-      rgba(200, 90, 18, 0.04) 0px,
-      rgba(200, 90, 18, 0.04) 1px,
+      rgba(30, 58, 47, 0.035) 0px,
+      rgba(30, 58, 47, 0.035) 1px,
       transparent 1px,
       transparent 14px
     );
@@ -39,8 +39,8 @@ body {
 
 .dark .bookshelf-bg {
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(167, 159, 232, 0.10), transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(217, 112, 70, 0.08), transparent 40%),
+    radial-gradient(circle at 20% 30%, rgba(45, 90, 74, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(201, 169, 110, 0.10), transparent 40%),
     repeating-linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.03) 0px,
@@ -67,5 +67,5 @@ body {
 /* Scrollbar polish */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(200, 90, 18, 0.3); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(200, 90, 18, 0.5); }
+::-webkit-scrollbar-thumb { background: rgba(30, 58, 47, 0.3); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(30, 58, 47, 0.5); }

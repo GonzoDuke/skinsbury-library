@@ -132,7 +132,7 @@ export default function ExportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-5xl mb-3 tracking-tight">Export to LibraryThing</h1>
+        <h1 className="font-display text-5xl mb-3 text-ink dark:text-limestone" style={{ letterSpacing: '0.5px' }}>Export to LibraryThing</h1>
         <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed">
           Download a LibraryThing-compatible CSV. Only{' '}
           <span className="font-semibold">approved</span> books will be included.

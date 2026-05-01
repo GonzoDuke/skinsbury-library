@@ -79,8 +79,15 @@ export default function ReviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-5xl mb-3 tracking-tight">Review &amp; approve</h1>
-        <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed">
+        <div className="flex items-baseline gap-4 flex-wrap">
+          <h1 className="font-display text-5xl text-ink dark:text-limestone" style={{ letterSpacing: '0.5px' }}>
+            Review &amp; approve
+          </h1>
+          <span className="text-base text-ink/50 dark:text-cream-300/50 font-mono">
+            {counts.total} {counts.total === 1 ? 'book' : 'books'}
+          </span>
+        </div>
+        <p className="text-base text-ink/70 dark:text-cream-300/70 max-w-3xl leading-relaxed mt-2">
           Verify each book&apos;s metadata and tags. Edit fields by clicking them. Only
           approved books make it into the export.
         </p>
@@ -89,10 +96,10 @@ export default function ReviewPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         <Stat label="Total" value={counts.total} />
-        <Stat label="Pending" value={counts.pending} tone="amber" />
+        <Stat label="Pending" value={counts.pending} tone="brass" />
         <Stat label="Approved" value={counts.approved} tone="green" />
         <Stat label="Rejected" value={counts.rejected} tone="red" />
-        <Stat label="Low confidence" value={counts.low} tone="amber" />
+        <Stat label="Low confidence" value={counts.low} tone="mahogany" />
       </div>
 
       {/* Filter + sort row + bulk actions */}
@@ -136,7 +143,7 @@ export default function ReviewPage() {
         <div className="flex-1" />
         <button
           onClick={approveAllHigh}
-          className="text-xs px-3 py-1.5 rounded-md border border-green-400/70 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition"
+          className="text-xs px-3 py-1.5 rounded-md bg-brass-soft text-brass-deep hover:bg-brass hover:text-accent-deep transition font-medium"
         >
           Approve all HIGH confidence
         </button>
@@ -231,7 +238,7 @@ export default function ReviewPage() {
         <div className="sticky bottom-4 flex justify-center">
           <button
             onClick={approveRemaining}
-            className="text-sm px-5 py-2.5 rounded-full bg-accent text-cream-50 shadow-md hover:bg-accent-deep transition"
+            className="text-sm px-5 py-2.5 rounded-full bg-brass text-accent-deep font-medium shadow-md hover:bg-brass-deep hover:text-limestone transition"
           >
             Approve remaining ({counts.pending})
           </button>
@@ -266,22 +273,24 @@ function Stat({
 }: {
   label: string;
   value: number;
-  tone?: 'amber' | 'green' | 'red';
+  tone?: 'brass' | 'green' | 'red' | 'mahogany';
 }) {
   const toneClass =
-    tone === 'amber'
-      ? 'text-amber-700 dark:text-amber-400'
+    tone === 'brass'
+      ? 'text-brass-deep dark:text-brass'
       : tone === 'green'
       ? 'text-green-700 dark:text-green-400'
       : tone === 'red'
       ? 'text-red-700 dark:text-red-400'
+      : tone === 'mahogany'
+      ? 'text-mahogany dark:text-orange-200'
       : 'text-ink dark:text-cream-100';
   return (
-    <div className="bg-cream-50 dark:bg-ink-soft/60 border border-cream-300 dark:border-ink-soft rounded-lg p-3">
-      <div className="text-[10px] uppercase tracking-wider text-ink/50 dark:text-cream-300/50 mb-1">
+    <div className="bg-cream-50 dark:bg-ink-soft/60 border border-cream-300 dark:border-ink-soft rounded-xl p-4">
+      <div className="text-[10px] uppercase tracking-[0.18em] text-ink/50 dark:text-cream-300/50 mb-1.5">
         {label}
       </div>
-      <div className={`text-2xl font-serif ${toneClass}`}>{value}</div>
+      <div className={`text-3xl font-display ${toneClass}`}>{value}</div>
     </div>
   );
 }

@@ -1,4 +1,7 @@
-# Skinsbury Home Library — Cataloging Pipeline
+# Carnegie
+
+> **Project codename / dev-facing:** `carnegie`
+> **User-facing brand:** *The T.L. Skinsbury Library*
 
 ## Overview
 

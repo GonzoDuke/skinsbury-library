@@ -11,19 +11,31 @@ const config: Config = {
       colors: {
         ink: {
           DEFAULT: '#1A1A18',
-          soft: '#2A2A26',
+          soft: '#242422',
         },
+        // Cream tokens kept for backward compatibility, retuned to Carnegie
+        // limestone/marble palette so widespread `bg-cream-50` etc. picks up
+        // the rebrand automatically.
         cream: {
-          50: '#FDFBF5',
-          100: '#FAFAF7',
-          200: '#F5F2E8',
-          300: '#EDE8D7',
+          50: '#E8E2D4',  // limestone — card surfaces
+          100: '#F0EBDD', // mid-tone for inputs and hover
+          200: '#DCD4C2', // deeper for table headers
+          300: '#C9BEA6', // borders
         },
         accent: {
-          DEFAULT: '#C85A12', // Princeton orange, a touch darker
-          soft: '#FCEBDA',
-          deep: '#A04610',
+          DEFAULT: '#1E3A2F', // library green
+          soft: '#DCE7DF',    // pale green tint for soft backgrounds
+          deep: '#16302A',    // darker green for active / hover-darken
         },
+        brass: {
+          DEFAULT: '#C9A96E',
+          soft: '#F1E8D5',
+          deep: '#A88B54',
+        },
+        fern: '#2D5A4A',           // hover, secondary buttons, dark-mode accent
+        mahogany: '#8B4513',       // warnings, low-confidence badges
+        marble: '#F5F2EB',         // page background (light)
+        limestone: '#E8E2D4',      // card surfaces (light)
         // Domain colors
         philosophy: { bg: '#EEEDFE', fg: '#3C3489' },
         religion: { bg: '#E1F5EE', fg: '#085041' },
@@ -41,6 +53,8 @@ const config: Config = {
       },
       fontFamily: {
         serif: ['"Source Serif 4"', '"Lora"', 'Georgia', 'serif'],
+        // Display / wordmark / page headings — institutional, slightly letterspaced
+        display: ['"Cormorant Garamond"', '"Source Serif 4"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },

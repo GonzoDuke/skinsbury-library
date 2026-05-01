@@ -91,7 +91,7 @@ export function BookCard({ book }: BookCardProps) {
           <img
             src={book.spineThumbnail}
             alt={`Spine read for ${book.title || 'unknown book'}`}
-            className="w-12 h-32 object-cover rounded border border-cream-300 dark:border-ink-soft flex-shrink-0 bg-cream-100 dark:bg-ink"
+            className="w-12 h-32 object-cover rounded-md ring-1 ring-cream-300/70 dark:ring-ink-soft/70 flex-shrink-0 bg-cream-100 dark:bg-ink shadow-sm"
             title="What the model saw on the shelf"
           />
         )}
@@ -161,7 +161,7 @@ export function BookCard({ book }: BookCardProps) {
             />
             {book.lccSource === 'spine' && (
               <span
-                className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-soft dark:bg-accent/30 text-accent dark:text-accent-soft font-semibold"
+                className="text-[9px] uppercase tracking-[0.16em] px-1.5 py-0.5 rounded bg-brass-soft dark:bg-brass/20 text-brass-deep dark:text-brass font-semibold"
                 title="LCC was read directly off the physical spine — authoritative for this edition"
               >
                 from spine
@@ -177,8 +177,8 @@ export function BookCard({ book }: BookCardProps) {
         <div
           className={`mt-3 px-3 py-2 rounded text-xs ${
             lowConfidence
-              ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-900/40'
-              : 'bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-900/40'
+              ? 'bg-mahogany/10 dark:bg-mahogany/25 text-mahogany dark:text-orange-100 border border-mahogany/30'
+              : 'bg-brass-soft/60 dark:bg-brass/20 text-brass-deep dark:text-brass border border-brass/40'
           }`}
         >
           {book.warnings.length > 0 ? (
@@ -336,8 +336,8 @@ export function BookCard({ book }: BookCardProps) {
             disabled={book.rereading}
             className={`text-xs px-3 py-1.5 rounded-md border transition disabled:opacity-50 ${
               book.status === 'rejected'
-                ? 'bg-red-100 dark:bg-red-900/40 border-red-300 dark:border-red-800 text-red-800 dark:text-red-200'
-                : 'border-cream-300 dark:border-ink-soft hover:border-red-400 hover:text-red-700 dark:hover:text-red-400'
+                ? 'bg-mahogany/15 dark:bg-mahogany/35 border-mahogany/50 text-mahogany dark:text-orange-100'
+                : 'border-cream-300 dark:border-ink-soft hover:border-mahogany hover:text-mahogany'
             }`}
           >
             {book.status === 'rejected' ? '✓ Rejected' : 'Reject'}
@@ -347,8 +347,8 @@ export function BookCard({ book }: BookCardProps) {
             disabled={book.rereading}
             className={`text-xs px-3 py-1.5 rounded-md border transition disabled:opacity-50 ${
               book.status === 'approved'
-                ? 'bg-green-100 dark:bg-green-900/40 border-green-400 dark:border-green-700 text-green-800 dark:text-green-200'
-                : 'border-cream-300 dark:border-ink-soft hover:border-green-500 hover:text-green-700 dark:hover:text-green-400'
+                ? 'bg-brass/30 dark:bg-brass/40 border-brass text-accent-deep dark:text-brass-soft font-medium'
+                : 'border-cream-300 dark:border-ink-soft hover:bg-brass-soft hover:border-brass hover:text-accent-deep'
             }`}
           >
             {book.status === 'approved' ? '✓ Approved' : 'Approve'}

@@ -40,7 +40,7 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
       className={`bookshelf-bg relative rounded-2xl border-2 border-dashed transition-all duration-200 ease-gentle p-12 text-center cursor-pointer ${
         isDragging
           ? 'border-accent bg-accent-soft/60 dark:bg-accent/20 scale-[1.01]'
-          : 'border-cream-300 dark:border-ink-soft hover:border-accent/70'
+          : 'border-cream-300 dark:border-ink-soft hover:border-accent'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={() => !disabled && inputRef.current?.click()}
     >
@@ -69,13 +69,13 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
         </svg>
       </div>
 
-      <h2 className="font-serif text-xl mb-2">Drop bookshelf photos here</h2>
-      <p className="text-sm text-ink/60 dark:text-cream-300/60 mb-4">
-        Or click to browse. JPG, PNG, HEIC. Multiple files welcome.
+      <h2 className="font-serif text-xl mb-1">Drop bookshelf photos here</h2>
+      <p className="text-[11px] uppercase tracking-wider text-ink/50 dark:text-cream-300/50 mb-5">
+        Landscape · fill the frame · 2–3 feet away · flash off
       </p>
       <button
         type="button"
-        className="inline-flex items-center text-sm px-4 py-2 rounded-md bg-accent text-cream-50 hover:bg-accent-deep transition disabled:opacity-50"
+        className="inline-flex items-center text-sm px-5 py-2 rounded-md bg-accent text-limestone hover:bg-accent-deep transition disabled:opacity-50"
         disabled={disabled}
         onClick={(e) => {
           e.stopPropagation();
@@ -84,16 +84,6 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
       >
         Choose photos
       </button>
-
-      <div className="mt-6 text-[11px] text-ink/50 dark:text-cream-300/50 max-w-md mx-auto leading-relaxed text-center">
-        <strong className="text-ink/70 dark:text-cream-300/70">Tips for accurate reads:</strong>
-        <ul className="mt-1 space-y-0.5">
-          <li>Shoot in landscape, fill the frame with the shelf.</li>
-          <li>Get within 2–3 feet so each spine has plenty of pixel detail.</li>
-          <li>Even lighting — avoid glare on glossy spines.</li>
-          <li>3000 px or wider is ideal. Tiny photos will be rejected.</li>
-        </ul>
-      </div>
     </div>
   );
 }
