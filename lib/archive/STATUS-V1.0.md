@@ -1,7 +1,7 @@
 # The T.L. Skinsbury Library — v1.0 Status & Architecture
 
 **Tagged at commit:** `4cabd8c` · *Reread: stop clobbering user edits and manual tags*
-**Repo:** https://github.com/GonzoDuke/skinsbury-library
+**Repo:** https://github.com/GonzoDuke/carnegie
 **Live:** Vercel (auto-deploys from `main`)
 
 This document is meant to be self-contained: hand it to another Claude
@@ -58,7 +58,7 @@ The pipeline has a hard stop at the Review screen.
 ## 3. Repository layout
 
 ```
-skinsbury-library/
+carnegie/
 ├─ app/
 │  ├─ layout.tsx                    # Root layout — fonts, dark-mode flash-prevent, StoreProvider, AppShell
 │  ├─ page.tsx                      # /upload — file dropzone, batch-label/notes inputs, processing panel
@@ -132,7 +132,7 @@ Everything lives under `app/layout.tsx`, which wraps the app in `<StoreProvider>
 - Stat tiles (Approved / Pending excluded / Rejected excluded).
 - When more than one batch label exists: a **batch checklist** + radio (one combined CSV vs. separate CSV per batch) + two checkboxes for routing the batch label (As a Collection / As a tag).
 - WYSIWYG CSV preview that updates live as toggles change.
-- Download button. Per-batch mode triggers sequential downloads with distinct filenames (`skinsbury-lt-import-2026-04-30-shelf-3-12books.csv`).
+- Download button. Per-batch mode triggers sequential downloads with distinct filenames (`carnegie-lt-import-2026-04-30-shelf-3-12books.csv`).
 
 ### BookCard (`components/BookCard.tsx`)
 
@@ -360,7 +360,7 @@ Each book contributes one row. Tags column joins genre + form tags with `, `. Wh
 
 Filename:
 ```
-skinsbury-lt-import-{YYYY-MM-DD}[-{batch-slug}]-Nbooks.csv
+carnegie-lt-import-{YYYY-MM-DD}[-{batch-slug}]-Nbooks.csv
 ```
 
 ---
@@ -450,8 +450,8 @@ LoC SRU and Open Library require no key.
 ## 17. Quick run instructions
 
 ```bash
-git clone https://github.com/GonzoDuke/skinsbury-library
-cd skinsbury-library
+git clone https://github.com/GonzoDuke/carnegie
+cd carnegie
 npm install
 echo 'ANTHROPIC_API_KEY=sk-ant-...' > .env.local
 npm run dev
