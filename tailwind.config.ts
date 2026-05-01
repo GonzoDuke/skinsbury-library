@@ -10,9 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          DEFAULT: '#2A1F18',  // aged mahogany — body background in dark mode
-          soft: '#3A2C20',     // cognac — card surfaces in dark mode
-          elevated: '#4A3A2C', // brass-rubbed wood — hover / active surfaces in dark mode
+          DEFAULT: '#4A3F35',  // warm medium walnut — body in dark mode (workable, not gloomy)
+          soft: '#5C4E42',     // polished oak — card surfaces, clearly elevated above body
+          elevated: '#6E5E50', // lighter oak — hover / active surfaces
         },
         // Cream tokens kept for backward compatibility, retuned to Carnegie
         // limestone/marble palette so widespread `bg-cream-50` etc. picks up
