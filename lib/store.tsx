@@ -20,6 +20,7 @@ import {
   retagBook as runRetag,
   type RereadOptions,
 } from './pipeline';
+import { toTitleCase } from './csv-export';
 
 export interface ProcessingState {
   /** True from "process all" click until the loop returns. */
@@ -149,12 +150,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const parsed = JSON.parse(raw) as Partial<State>;
       // Strip any in-flight processing state on cold load — Files don't survive
       // a page refresh, so anything that was processing is no longer recoverable.
-      const batches = (parsed.batches ?? []).map((b) =>
-        b.status === 'processing' || b.status === 'queued'
-          ? { ...b, status: 'done' as const }
-          : b
-      );
-      return { batches, allBooks: parsed.allBooks ?? [], processing: null };
+      // Also re-Title-Case existing book titles so any older records that were
+      // saved with broken casing (random ALL-CAPS words from the prior bug)
+      // get cleaned up retroactively.
+      const fixBookTitle = <T extends { title?: string; original?: { title?: string } }>(book: T): T => ({
+        ...book,
+        title: book.title ? toTitleCase(book.title) : book.title,
+        original: book.original
+          ? { ...book.original, title: book.original.title ? toTitleCase(book.original.title) : book.original.title }
+          : book.original,
+      });
+      const batches = (parsed.batches ?? []).map((b) => ({
+        ...b,
+        status:
+          b.status === 'processing' || b.status === 'queued'
+            ? ('done' as const)
+            : b.status,
+        books: (b.books ?? []).map(fixBookTitle),
+      }));
+      const allBooks = (parsed.allBooks ?? []).map(fixBookTitle);
+      return { batches, allBooks, processing: null };
     } catch {
       return init;
     }

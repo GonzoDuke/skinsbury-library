@@ -22,22 +22,47 @@ const TITLE_CASE_STOPWORDS = new Set([
   'up', 'vs', 'with', 'yet',
 ]);
 
-const ROMAN_NUMERAL_RE = /^[IVXLCDM]+$/;
+// Strict Roman numeral pattern — matches valid LCM-decomposable strings
+// like IV, VII, XL, MCM. Crucially does NOT match "civic", "did", "mid",
+// or other ordinary words whose letters happen to all be drawn from
+// [IVXLCDM]. The previous loose check was producing CIVIC / DID / MID
+// in titles, which is exactly the bug we're fixing.
+const STRICT_ROMAN_RE = /^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
 
 // Dotted initialisms: U.S.A., F.B.I., T.S., B.C., U.S., etc.
-// Requires at least two letter+dot pairs; an optional trailing letter
-// catches things like "T.S" (no final dot). Case-insensitive on the way
-// in; we always emit uppercase.
 const DOTTED_INITIALISM_RE = /^([A-Za-z]\.){2,}[A-Za-z]?\.?$/;
+
+// Tight allow-list of well-known acronyms. Anything not in here gets
+// title-cased even if the input was ALL CAPS — most short uppercase
+// words on book covers are stylized typography ("PINK", "JOY", "WAR"),
+// not real acronyms.
+const ACRONYM_WHITELIST = new Set([
+  'USA', 'US', 'UK', 'EU', 'UN', 'NYC', 'LA', 'DC', 'NY',
+  'AI', 'IT', 'OS', 'PC', 'TV', 'FM', 'AM', 'PM', 'IQ', 'EQ', 'GPS',
+  'NBC', 'ABC', 'CBS', 'PBS', 'NPR', 'BBC', 'CNN', 'HBO', 'MTV', 'ESPN',
+  'FBI', 'CIA', 'NSA', 'KGB', 'NASA', 'NATO', 'UNESCO', 'OECD',
+  'DNA', 'RNA', 'AIDS', 'HIV', 'COVID', 'PTSD',
+  'JFK', 'FDR', 'MLK', 'LBJ', 'FDR',
+  'IBM', 'GM', 'BMW', 'NFL', 'NBA', 'MLB', 'NHL', 'FIFA',
+  'WWI', 'WWII', 'NYT', 'WSJ',
+]);
 
 function capitalizeWord(word: string): string {
   if (!word) return word;
   // Dotted initialism — preserve uppercase regardless of input casing.
   if (DOTTED_INITIALISM_RE.test(word)) return word.toUpperCase();
-  // All-caps acronyms / Roman numerals — leave as-is when 2–4 letters.
-  if (/^[A-Z]+$/.test(word) && word.length >= 2 && word.length <= 4) return word;
-  if (ROMAN_NUMERAL_RE.test(word.toUpperCase()) && word.length <= 5) {
-    return word.toUpperCase();
+  // Whitelisted acronym — case-insensitive lookup, emit uppercase.
+  if (ACRONYM_WHITELIST.has(word.toUpperCase())) return word.toUpperCase();
+  // Roman numeral — only if the input was already uppercase AND matches
+  // the strict valid-Roman pattern, AND length ≥ 2 (single letters fall
+  // through to default capitalization to preserve e.g. "I am Legend").
+  if (
+    word === word.toUpperCase() &&
+    word.length >= 2 &&
+    word.length <= 5 &&
+    STRICT_ROMAN_RE.test(word)
+  ) {
+    return word;
   }
   // Hyphenated word: capitalize each segment ("Twenty-Twenty", "Self-Made").
   if (word.includes('-')) {

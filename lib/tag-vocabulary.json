@@ -1,12 +1,18 @@
 {
   "schema_version": "1.0",
-  "updated": "2026-04-29",
+  "updated": "2026-05-01",
   "description": "Tag vocabulary and inference rules for Carnegie. Used by the tagging pipeline to auto-generate tags for LibraryThing import.",
-
   "domains": {
     "philosophy": {
       "label": "Philosophy",
-      "lcc_prefixes": ["B1", "B4", "B5", "B8", "BC", "BD"],
+      "lcc_prefixes": [
+        "B1",
+        "B4",
+        "B5",
+        "B8",
+        "BC",
+        "BD"
+      ],
       "tags": [
         "Stoicism",
         "Ethics",
@@ -22,7 +28,17 @@
     },
     "religion": {
       "label": "Religion & spirituality",
-      "lcc_prefixes": ["BL", "BM", "BP", "BQ", "BR", "BS", "BT", "BV", "BX"],
+      "lcc_prefixes": [
+        "BL",
+        "BM",
+        "BP",
+        "BQ",
+        "BR",
+        "BS",
+        "BT",
+        "BV",
+        "BX"
+      ],
       "tags": [
         "Atheism",
         "Buddhism",
@@ -33,7 +49,9 @@
     },
     "psychology": {
       "label": "Psychology",
-      "lcc_prefixes": ["BF"],
+      "lcc_prefixes": [
+        "BF"
+      ],
       "tags": [
         "Behavioral psychology",
         "Addiction",
@@ -43,7 +61,12 @@
     },
     "literature": {
       "label": "Literature",
-      "lcc_prefixes": ["PN", "PQ", "PR", "PS"],
+      "lcc_prefixes": [
+        "PN",
+        "PQ",
+        "PR",
+        "PS"
+      ],
       "tags": [
         "Poetry",
         "American poetry",
@@ -58,12 +81,25 @@
         "Writing craft",
         "Anthology",
         "Harlem Renaissance",
-        "French literature"
+        "French literature",
+        "drugs",
+        "language"
       ]
     },
     "language": {
       "label": "Language & linguistics",
-      "lcc_prefixes": ["P1", "PA", "PE", "PF", "PG", "PH", "PJ", "PK", "PL", "PM"],
+      "lcc_prefixes": [
+        "P1",
+        "PA",
+        "PE",
+        "PF",
+        "PG",
+        "PH",
+        "PJ",
+        "PK",
+        "PL",
+        "PM"
+      ],
       "tags": [
         "Linguistics",
         "Etymology",
@@ -72,7 +108,12 @@
     },
     "history": {
       "label": "History",
-      "lcc_prefixes": ["C", "D", "E", "F"],
+      "lcc_prefixes": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
       "tags": [
         "American history",
         "British history",
@@ -84,7 +125,10 @@
     },
     "media_tech": {
       "label": "Media, technology & information",
-      "lcc_prefixes": ["TK", "T1"],
+      "lcc_prefixes": [
+        "TK",
+        "T1"
+      ],
       "tags": [
         "Media literacy",
         "Disinformation",
@@ -96,7 +140,11 @@
     },
     "social_political": {
       "label": "Social & political",
-      "lcc_prefixes": ["H", "J", "K"],
+      "lcc_prefixes": [
+        "H",
+        "J",
+        "K"
+      ],
       "tags": [
         "Protest & activism",
         "Civil liberties",
@@ -107,7 +155,9 @@
     },
     "science": {
       "label": "Science & mathematics",
-      "lcc_prefixes": ["Q"],
+      "lcc_prefixes": [
+        "Q"
+      ],
       "tags": [
         "Evolution",
         "Mathematics",
@@ -117,7 +167,9 @@
     },
     "biography": {
       "label": "Biography & memoir",
-      "lcc_prefixes": ["CT"],
+      "lcc_prefixes": [
+        "CT"
+      ],
       "tags": [
         "Literary biography",
         "Beat biography",
@@ -129,7 +181,11 @@
     },
     "arts_culture": {
       "label": "Arts & culture",
-      "lcc_prefixes": ["GV", "ML", "N"],
+      "lcc_prefixes": [
+        "GV",
+        "ML",
+        "N"
+      ],
       "tags": [
         "Music",
         "Sports",
@@ -141,7 +197,9 @@
     },
     "books_libraries": {
       "label": "Books & libraries",
-      "lcc_prefixes": ["Z"],
+      "lcc_prefixes": [
+        "Z"
+      ],
       "tags": [
         "Library science",
         "Book culture",
@@ -154,7 +212,6 @@
       "tags": []
     }
   },
-
   "form_tags": {
     "description": "Describe the physical object or series, applied alongside genre tags. These are additive.",
     "content_forms": [
@@ -172,7 +229,6 @@
       "Signed"
     ]
   },
-
   "inference_rules": {
     "lcc_mapping": "The LCC code determines the primary domain. Use the first matching prefix from the domain definitions above. If the LCC prefix doesn't match any domain, infer domain from title keywords and genre tags.",
     "multi_tag": "Most books should receive 2-4 tags. Single-tag assignments are fine for clean cases (e.g., a pure Buddhism introduction). More than 5 tags suggests over-tagging — reconsider.",
@@ -186,7 +242,6 @@
     "publisher_check": "Only apply series form tags (Penguin Classics, Portable Library) when confirmed by publisher data. Do not infer from LCC code or genre.",
     "fallback": "If LCC code is missing and no genre tags exist, rely on title + author + publisher. Flag confidence as LOW in the output."
   },
-
   "confidence_levels": {
     "HIGH": "LCC code matches, multiple metadata signals agree, author is well-known",
     "MEDIUM": "Some metadata signals present but incomplete — e.g., genre tags exist but no LCC, or LCC exists but no subject headings",
