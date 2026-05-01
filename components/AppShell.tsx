@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className="font-display text-2xl leading-tight text-limestone"
               style={{ letterSpacing: '2px' }}
             >
-              The T.L. Skinsbury Library
+              Carnegie
             </div>
             <div className="text-xs text-brass tracking-wide mt-0.5">
               Personal catalog
@@ -72,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="flex-1 max-w-[1600px] w-full mx-auto px-8 lg:px-12 py-10">{children}</main>
       <footer className="border-t border-cream-300 dark:border-ink-soft py-5 text-sm text-center text-ink/40 dark:text-cream-300/40">
-        The T.L. Skinsbury Library — personal use · No data leaves your machine without your approval
+        Carnegie — personal use · No data leaves your machine without your approval
       </footer>
     </div>
   );

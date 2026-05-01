@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "updated": "2026-04-29",
-  "description": "Tag vocabulary and inference rules for the Skinsbury Home Library. Used by the Claude Code tagging pipeline to auto-generate tags for LibraryThing import.",
+  "description": "Tag vocabulary and inference rules for Carnegie. Used by the tagging pipeline to auto-generate tags for LibraryThing import.",
 
   "domains": {
     "philosophy": {

@@ -138,7 +138,7 @@ interface StoreApi {
 
 const StoreCtx = createContext<StoreApi | null>(null);
 
-const STORAGE_KEY = 'skinsbury:state:v1';
+const STORAGE_KEY = 'carnegie:state:v1';
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState, (init) => {
@@ -479,7 +479,7 @@ export function useDarkMode() {
     if (typeof document === 'undefined') return;
     document.documentElement.classList.toggle('dark', on);
     try {
-      localStorage.setItem('skinsbury:dark', on ? '1' : '0');
+      localStorage.setItem('carnegie:dark', on ? '1' : '0');
     } catch {
       // ignore
     }
@@ -488,7 +488,7 @@ export function useDarkMode() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const stored = localStorage.getItem('skinsbury:dark');
+      const stored = localStorage.getItem('carnegie:dark');
       if (stored !== null) {
         apply(stored === '1');
         return;

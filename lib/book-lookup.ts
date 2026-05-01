@@ -1,6 +1,6 @@
 import type { BookLookupResult } from './types';
 
-const UA = 'Skinsbury-Library/1.0 (personal cataloging tool)';
+const UA = 'Carnegie/1.0 (personal cataloging tool)';
 const DEFAULT_HEADERS: Record<string, string> = {
   'User-Agent': UA,
   Accept: 'application/json',

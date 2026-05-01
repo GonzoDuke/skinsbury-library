@@ -1,8 +1,5 @@
 # Carnegie
 
-> **Project codename / dev-facing:** `carnegie`
-> **User-facing brand:** *The T.L. Skinsbury Library*
-
 ## Overview
 
 A Claude Code pipeline that processes spine photos of bookshelves, identifies books, infers genre tags using a controlled vocabulary, and produces LibraryThing-compatible CSV files for import.

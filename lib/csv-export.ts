@@ -152,5 +152,5 @@ export function exportFilename(count: number, date: Date = new Date(), label?: s
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const slug = label ? `-${slugify(label)}` : '';
-  return `skinsbury-lt-import-${yyyy}-${mm}-${dd}${slug}-${count}books.csv`;
+  return `carnegie-lt-import-${yyyy}-${mm}-${dd}${slug}-${count}books.csv`;
 }

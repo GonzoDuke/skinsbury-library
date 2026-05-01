@@ -4,7 +4,7 @@ import { StoreProvider } from '@/lib/store';
 import { AppShell } from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'The T.L. Skinsbury Library',
+  title: 'Carnegie',
   description: 'Personal home library cataloging tool',
 };
 
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           // Prevent dark-mode flash
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('skinsbury:dark');if(s===null){s=window.matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';}if(s==='1')document.documentElement.classList.add('dark');}catch(e){}})();`,
+            __html: `(function(){try{var s=localStorage.getItem('carnegie:dark');if(s===null){s=window.matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';}if(s==='1')document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
       </head>
