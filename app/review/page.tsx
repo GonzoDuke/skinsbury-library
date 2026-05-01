@@ -122,7 +122,7 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <div className="flex items-baseline gap-4 flex-wrap">
           <h1 className="typo-page-title">Review &amp; approve</h1>
@@ -137,7 +137,7 @@ export default function ReviewPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
         <Stat label="Total" value={counts.total} />
         <Stat label="Pending" value={counts.pending} tone="brass" />
         <Stat label="Approved" value={counts.approved} tone="green" />

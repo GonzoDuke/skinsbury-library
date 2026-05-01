@@ -118,7 +118,7 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
 
   return (
     <article
-      className={`relative bg-cream-50 dark:bg-ink-soft/60 border ${borderClass} rounded-lg p-5 shadow-sm transition-all duration-200 ease-gentle ${
+      className={`relative bg-cream-50 dark:bg-ink-soft/60 border ${borderClass} rounded-lg py-5 px-6 shadow-sm transition-all duration-200 ease-gentle ${
         book.retagging ? 'ring-2 ring-brass animate-pulse-dot' : ''
       } ${selected ? 'ring-2 ring-brass' : ''}`}
     >
