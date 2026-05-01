@@ -8,6 +8,7 @@ import { BatchProgress } from '@/components/BatchProgress';
 import { useDarkMode, useStore } from '@/lib/store';
 import type { PhotoBatch } from '@/lib/types';
 import { createThumbnail, loadImage, makeId } from '@/lib/pipeline';
+import { getLedgerBatches, loadLedger } from '@/lib/export-ledger';
 
 const MIN_IMAGE_WIDTH = 1500;
 
@@ -32,6 +33,21 @@ export default function UploadPage() {
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
   }, []);
+
+  // Lifetime stats — read after hydration so we don't render mismatched
+  // numbers on first paint. The ledger is the source of truth for "books
+  // cataloged" because state.allBooks resets when the user clears the
+  // current session.
+  const [lifetimeStats, setLifetimeStats] = useState<{
+    booksCataloged: number;
+    batchesExported: number;
+  } | null>(null);
+  useEffect(() => {
+    setLifetimeStats({
+      booksCataloged: loadLedger().length,
+      batchesExported: getLedgerBatches().length,
+    });
+  }, [state.allBooks.length, state.batches.length]);
 
   const queuedBatches = useMemo(
     () => state.batches.filter((b) => b.status === 'queued'),
@@ -146,6 +162,49 @@ export default function UploadPage() {
 
       <PhotoUploader onFiles={handleFiles} disabled={isProcessing} />
 
+      {/* Empty-state guided welcome — only when the queue is empty.
+          Disappears the moment a photo is queued so it doesn't clutter
+          the active workflow. */}
+      {state.batches.length === 0 && (
+        <div className="bg-cream-50/70 dark:bg-ink-soft/40 border border-cream-300 dark:border-ink-soft rounded-2xl p-8 lg:p-10 space-y-8">
+          <div>
+            <h2 className="font-display text-[18px] font-medium text-accent dark:text-limestone mb-4" style={{ letterSpacing: '0.5px' }}>
+              How it works
+            </h2>
+            <div className="flex items-start gap-3 flex-wrap">
+              <Step n={1} title="Photograph" body="your shelves" />
+              <StepArrow />
+              <Step n={2} title="Review" body="the results" />
+              <StepArrow />
+              <Step n={3} title="Export" body="to LibraryThing" />
+            </div>
+          </div>
+
+          <hr className="border-0 border-t border-[#E8E2D4] dark:border-[#3A3936]" />
+
+          <div>
+            <h3 className="typo-label mb-3">Tips for best results</h3>
+            <ul className="text-[13px] text-ink/65 dark:text-cream-300/65 leading-relaxed space-y-1">
+              <li>· Hold your device in landscape</li>
+              <li>· Fill the frame with one shelf section</li>
+              <li>· Stand 2–3 feet away</li>
+              <li>· Turn off flash</li>
+              <li>· Avoid overhead lighting on plastic covers</li>
+            </ul>
+          </div>
+
+          {lifetimeStats &&
+            (lifetimeStats.booksCataloged > 0 || lifetimeStats.batchesExported > 0) && (
+              <div className="text-[12px] text-ink/45 dark:text-cream-300/45 italic pt-2 border-t border-[#E8E2D4] dark:border-[#3A3936]">
+                <span className="font-medium not-italic">{lifetimeStats.booksCataloged}</span>{' '}
+                {lifetimeStats.booksCataloged === 1 ? 'book' : 'books'} cataloged ·{' '}
+                <span className="font-medium not-italic">{lifetimeStats.batchesExported}</span>{' '}
+                {lifetimeStats.batchesExported === 1 ? 'batch' : 'batches'} exported
+              </div>
+            )}
+        </div>
+      )}
+
       <ProcessingQueue batches={state.batches} onRemove={handleRemove} />
 
       {processing && (
@@ -247,5 +306,32 @@ export default function UploadPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+function Step({ n, title, body }: { n: number; title: string; body: string }) {
+  return (
+    <div className="flex-1 min-w-[140px]">
+      <div className="flex items-baseline gap-2">
+        <span className="font-display text-[20px] font-medium text-brass leading-none">{n}.</span>
+        <span className="font-serif text-[16px] font-semibold text-ink dark:text-cream-100">
+          {title}
+        </span>
+      </div>
+      <div className="text-[13px] text-ink/60 dark:text-cream-300/60 mt-0.5 ml-7 leading-snug">
+        {body}
+      </div>
+    </div>
+  );
+}
+
+function StepArrow() {
+  return (
+    <span
+      aria-hidden
+      className="hidden sm:flex items-center justify-center w-6 mt-1.5 text-brass/60 select-none text-base"
+    >
+      →
+    </span>
   );
 }
