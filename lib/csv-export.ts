@@ -106,7 +106,11 @@ export interface CsvOptions {
 
 export function bookToCsvRow(b: BookRecord, options: CsvOptions = {}): string[] {
   const { collectionsFromBatch = true, tagsFromBatch = true } = options;
-  const tagList = [...b.genreTags, ...b.formTags];
+  // Strip the `[Proposed]` prefix on export — LibraryThing should see clean
+  // tag names. The proposal status is repo-side metadata only.
+  const tagList = [...b.genreTags, ...b.formTags].map((t) =>
+    t.replace(/^\[Proposed\]\s*/i, '')
+  );
   if (tagsFromBatch && b.batchLabel) tagList.push(`location:${b.batchLabel}`);
   const tags = tagList.join(', ');
   const collections = collectionsFromBatch && b.batchLabel ? b.batchLabel : '';

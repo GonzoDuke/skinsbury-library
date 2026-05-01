@@ -5,6 +5,11 @@ import { useMemo, useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { ExportPreview } from '@/components/ExportPreview';
 import { exportFilename, generateCsv, type CsvOptions } from '@/lib/csv-export';
+import {
+  buildChangelogEntries,
+  buildUpdatedVocabularyJson,
+  findProposedTagsToPromote,
+} from '@/lib/vocabulary-update';
 import type { BookRecord } from '@/lib/types';
 
 const UNCATEGORIZED = '__uncategorized__';
@@ -101,6 +106,43 @@ export default function ExportPage() {
     } else {
       downloadOne(booksToExport);
     }
+  }
+
+  // Vocabulary updates — proposed tags from this export set, ready to be
+  // promoted into tag-vocabulary.json.
+  const promotions = useMemo(
+    () => findProposedTagsToPromote(booksToExport),
+    [booksToExport]
+  );
+
+  function downloadVocabularyUpdates() {
+    if (promotions.length === 0) return;
+    const date = new Date();
+    const dateStr = date.toISOString().slice(0, 10);
+
+    // 1) Updated tag-vocabulary.json
+    const json = buildUpdatedVocabularyJson(promotions);
+    const jsonBlob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const jsonUrl = URL.createObjectURL(jsonBlob);
+    const a1 = document.createElement('a');
+    a1.href = jsonUrl;
+    a1.download = 'tag-vocabulary.json';
+    document.body.appendChild(a1);
+    a1.click();
+    document.body.removeChild(a1);
+    URL.revokeObjectURL(jsonUrl);
+
+    // 2) Changelog additions (appendable to vocabulary-changelog.md)
+    const changelog = buildChangelogEntries(promotions, date);
+    const mdBlob = new Blob([changelog], { type: 'text/markdown;charset=utf-8' });
+    const mdUrl = URL.createObjectURL(mdBlob);
+    const a2 = document.createElement('a');
+    a2.href = mdUrl;
+    a2.download = `vocabulary-changelog-additions-${dateStr}.md`;
+    document.body.appendChild(a2);
+    a2.click();
+    document.body.removeChild(a2);
+    URL.revokeObjectURL(mdUrl);
   }
 
   if (state.allBooks.length === 0) {
@@ -298,6 +340,61 @@ export default function ExportPage() {
         />
       </div>
 
+      {/* Vocabulary updates — proposed tags ready to be promoted into the
+          controlled vocabulary. Only shown when the export set has any. */}
+      {promotions.length > 0 && (
+        <div className="bg-brass-soft/40 dark:bg-brass/10 border border-brass/40 rounded-lg p-5 space-y-3">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <h2 className="text-sm uppercase tracking-[0.18em] font-semibold text-brass-deep dark:text-brass">
+              Vocabulary updates
+            </h2>
+            <span className="text-xs text-ink/55 dark:text-cream-300/55">
+              · {promotions.length} new{' '}
+              {promotions.length === 1 ? 'tag' : 'tags'} ready to promote
+            </span>
+          </div>
+          <p className="text-sm text-ink/70 dark:text-cream-300/70 leading-relaxed">
+            These <span className="font-mono">[Proposed]</span> tags from the
+            export set have been auto-assigned to vocabulary domains. Download
+            the updated <span className="font-mono">tag-vocabulary.json</span>{' '}
+            and append the changelog entries to{' '}
+            <span className="font-mono">vocabulary-changelog.md</span>, then
+            commit and push. Future books will get clean tags instead of
+            <span className="font-mono"> [Proposed] </span>versions.
+          </p>
+          <ul className="text-sm space-y-1 font-mono">
+            {promotions.map((p) => (
+              <li
+                key={p.tag}
+                className="flex items-baseline gap-2 text-ink/80 dark:text-cream-300/80"
+              >
+                <span className="text-[10px] uppercase tracking-wider text-ink/40 dark:text-cream-300/40 w-32 flex-shrink-0 not-italic">
+                  {p.domainLabel}
+                </span>
+                <span className="font-semibold">{p.tag}</span>
+                <span className="text-xs text-ink/45 dark:text-cream-300/45 italic font-sans">
+                  — first on &ldquo;{p.sourceBook.title}&rdquo;
+                </span>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={downloadVocabularyUpdates}
+            className="text-sm px-4 py-2 rounded-md bg-brass text-accent-deep hover:bg-brass-deep hover:text-limestone font-medium transition"
+          >
+            Download vocabulary updates ({promotions.length})
+          </button>
+          <div className="text-[11px] text-ink/45 dark:text-cream-300/45 italic">
+            Two files will download: the new{' '}
+            <span className="font-mono">tag-vocabulary.json</span> (replace the
+            one in <span className="font-mono">/lib</span>) and a dated{' '}
+            <span className="font-mono">vocabulary-changelog-additions-*.md</span>{' '}
+            (append to <span className="font-mono">vocabulary-changelog.md</span>).
+            The CSV itself ships without the <span className="font-mono">[Proposed]</span> prefix either way.
+          </div>
+        </div>
+      )}
+
       {/* Download */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-4 border-t border-cream-300 dark:border-ink-soft">
         <div className="text-xs text-ink/60 dark:text-cream-300/60 max-w-md leading-relaxed">
@@ -308,7 +405,7 @@ export default function ExportPage() {
         <button
           onClick={downloadCsv}
           disabled={booksToExport.length === 0}
-          className="px-5 py-2.5 rounded-md bg-accent text-cream-50 hover:bg-accent-deep disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm"
+          className="px-5 py-2.5 rounded-md bg-accent text-limestone hover:bg-accent-deep disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm"
         >
           {splitByBatch && hasMultipleBatches
             ? `Download ${selectedBatches.size} CSV${selectedBatches.size !== 1 ? 's' : ''}`
