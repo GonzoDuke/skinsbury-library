@@ -7,6 +7,31 @@ import type {
 } from './types';
 import { toAuthorLastFirst, toTitleCase } from './csv-export';
 
+/**
+ * Per-spine model selection. The big OCR cost driver is Pass B; Opus is
+ * ~5× the per-token cost of Sonnet. Wide horizontal spines with large
+ * type read fine on Sonnet; narrow vertical spines need Opus to avoid
+ * confident hallucinations (we tried Sonnet-everywhere and reverted —
+ * see commit 6baa0da).
+ *
+ * Heuristic: a spine is "easy" when its bbox area is at least
+ * `easyAreaThreshold` percent of the image AND the aspect ratio is
+ * less than `easyAspectMaxRatio`. Otherwise: hard.
+ */
+export const SPINE_MODEL_CONFIG = {
+  easyAreaThreshold: 2.0, // % of image area
+  easyAspectMaxRatio: 3, // height / width
+};
+
+export function pickSpineModel(bbox: { width: number; height: number }): 's' | 'o' {
+  const area = bbox.width * bbox.height; // bbox is in image-percent already, so this is roughly % of image area × 100
+  const aspect = bbox.height / Math.max(0.0001, bbox.width);
+  const easy =
+    area >= SPINE_MODEL_CONFIG.easyAreaThreshold &&
+    aspect < SPINE_MODEL_CONFIG.easyAspectMaxRatio;
+  return easy ? 's' : 'o';
+}
+
 export function makeId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -77,6 +102,7 @@ export async function readSpine(args: {
   imageBase64: string;
   mediaType: string;
   position: number;
+  model?: 'sonnet' | 'opus';
 }): Promise<ReadSpineResponse> {
   const res = await fetch('/api/read-spine', {
     method: 'POST',
@@ -444,10 +470,31 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
   const { position, bbox, spineThumbnail, sourcePhoto, ocrCrop, batchLabel, batchNotes, manuallyAdded } = opts;
   const { base64, mediaType } = dataUriToBase64Parts(ocrCrop);
 
-  // Pass B — read the spine with Opus. (Sonnet was tried as a cheaper
-  // first tier but produced confident hallucinations on hard spines —
-  // reverted in favor of accuracy.)
-  const read = await readSpine({ imageBase64: base64, mediaType, position });
+  // Pass B — model selection per spine. Wide / large-area spines route
+  // to Sonnet (cheaper); narrow vertical spines that hallucinated under
+  // an earlier all-Sonnet experiment route to Opus. If a Sonnet read
+  // returns LOW confidence we auto-retry with Opus before surfacing it.
+  const initialModel = pickSpineModel(bbox);
+  let read = await readSpine({
+    imageBase64: base64,
+    mediaType,
+    position,
+    model: initialModel === 's' ? 'sonnet' : 'opus',
+  });
+  let ocrModel: 's' | 'o' = initialModel;
+  if (initialModel === 's' && read.confidence === 'LOW') {
+    const opusRead = await readSpine({
+      imageBase64: base64,
+      mediaType,
+      position,
+      model: 'opus',
+    });
+    const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
+    if (order[opusRead.confidence] >= order[read.confidence]) {
+      read = opusRead;
+      ocrModel = 'o';
+    }
+  }
 
   const spineRead: SpineRead = {
     position,
@@ -589,6 +636,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     lccSource,
     spineThumbnail,
     ocrImage: ocrCrop,
+    ocrModel,
     original: {
       title: titleCased,
       author: read.author,
@@ -888,11 +936,30 @@ export async function rereadBook(
       if (!m) return { base64: img, mediaType: 'image/jpeg' };
       return { mediaType: m[1], base64: m[2] };
     })();
-    const read = await readSpine({
+    // Use the same heuristic as initial processing. If we have a bbox
+    // (recorded on the spine read), pick by area+aspect; if not, default
+    // to Opus for safety on a manual reread.
+    const initialModel: 's' | 'o' = current.spineRead.bbox
+      ? pickSpineModel(current.spineRead.bbox)
+      : 'o';
+    let read = await readSpine({
       imageBase64: base64,
       mediaType,
       position: current.spineRead.position,
+      model: initialModel === 's' ? 'sonnet' : 'opus',
     });
+    if (initialModel === 's' && read.confidence === 'LOW') {
+      const opusRead = await readSpine({
+        imageBase64: base64,
+        mediaType,
+        position: current.spineRead.position,
+        model: 'opus',
+      });
+      const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
+      if (order[opusRead.confidence] >= order[read.confidence]) {
+        read = opusRead;
+      }
+    }
     // Merge: user-edited fields always win over Pass B. Field is "edited"
     // if the current value differs from the original snapshot.
     const titleEdited = current.title !== current.original.title;

@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
     imageBase64?: string;
     mediaType?: string;
     position?: number;
+    /** Override the model. Defaults to Opus (back-compat). */
+    model?: 'sonnet' | 'opus';
   };
   try {
     body = await req.json();
@@ -94,10 +96,14 @@ export async function POST(req: NextRequest) {
 
   const client = new Anthropic({ apiKey });
 
+  // Default Opus; orchestrator can route to Sonnet for visually easy spines.
+  const modelId =
+    body.model === 'sonnet' ? 'claude-sonnet-4-20250514' : 'claude-opus-4-7';
+
   try {
     const t0 = Date.now();
     const resp = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: modelId,
       max_tokens: 512,
       messages: [
         {
@@ -141,7 +147,7 @@ export async function POST(req: NextRequest) {
     };
 
     console.log(
-      `[read-spine] #${body.position ?? '?'} → "${result.title}" / "${result.author}"${result.lcc ? ` lcc=${result.lcc}` : ''} (${result.confidence}, ${Date.now() - t0}ms)`
+      `[read-spine ${body.model ?? 'opus'}] #${body.position ?? '?'} → "${result.title}" / "${result.author}"${result.lcc ? ` lcc=${result.lcc}` : ''} (${result.confidence}, ${Date.now() - t0}ms)`
     );
 
     return NextResponse.json(result);

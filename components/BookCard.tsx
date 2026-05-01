@@ -205,7 +205,25 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
             )}
           </div>
         </div>
-        <ConfidenceBadge level={book.confidence} />
+        <div className="flex items-center gap-1.5">
+          {book.ocrModel && (
+            <span
+              className={`text-[9px] uppercase tracking-wider font-mono px-1.5 py-0.5 rounded ${
+                book.ocrModel === 'o'
+                  ? 'bg-cream-200 dark:bg-ink text-ink/55 dark:text-cream-300/55'
+                  : 'bg-cream-200 dark:bg-ink text-ink/45 dark:text-cream-300/45'
+              }`}
+              title={
+                book.ocrModel === 'o'
+                  ? 'Read by Opus (the heavier vision model — used for narrow spines)'
+                  : 'Read by Sonnet (the cheaper model — used for clear horizontal spines)'
+              }
+            >
+              {book.ocrModel === 'o' ? 'O' : 'S'}
+            </span>
+          )}
+          <ConfidenceBadge level={book.confidence} />
+        </div>
       </div>
 
       {/* Warning banner */}

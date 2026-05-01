@@ -70,6 +70,8 @@ export interface BookRecord {
   spineThumbnail?: string;
   /** Higher-resolution OCR-quality crop, used by "Reread spine". Not persisted to localStorage. */
   ocrImage?: string;
+  /** Which model performed Pass B for this spine: 's' (Sonnet) or 'o' (Opus). */
+  ocrModel?: 's' | 'o';
   /** True while a reread is in flight, so the BookCard can disable controls + show a spinner. */
   rereading?: boolean;
   /** True while a bulk re-tag is in flight, so the BookCard can flash on completion. */
