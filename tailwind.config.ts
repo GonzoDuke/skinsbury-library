@@ -10,8 +10,8 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          DEFAULT: '#1A1A18',
-          soft: '#242422',
+          DEFAULT: '#2A2520', // warm walnut — page background in dark mode
+          soft: '#342F2A',    // wood-paneled study — card surfaces in dark mode
         },
         // Cream tokens kept for backward compatibility, retuned to Carnegie
         // limestone/marble palette so widespread `bg-cream-50` etc. picks up

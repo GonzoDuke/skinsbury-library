@@ -19,8 +19,8 @@ body {
 }
 
 .dark body {
-  background-color: #1A1A18;
-  color: #E8E2D4; /* limestone — better contrast than the old EDE8D7 */
+  background-color: #2A2520; /* warm walnut — wood-paneled study, not a void */
+  color: #E8E2D4;            /* limestone */
 }
 
 /* Subtle paper texture for the upload zone — Carnegie green + brass tint */

@@ -84,51 +84,55 @@ export default function UploadPage() {
         </h1>
       </div>
 
-      <div className="bg-cream-50 dark:bg-ink-soft/60 rounded-lg p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label
-            htmlFor="batch-label"
-            className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-ink/55 dark:text-cream-300/55 mb-2"
-          >
-            Batch label <span className="text-ink/35 dark:text-cream-300/35 normal-case font-normal tracking-normal">— optional</span>
-          </label>
-          <input
-            id="batch-label"
-            type="text"
-            value={batchLabel}
-            onChange={(e) => setBatchLabel(e.target.value)}
-            placeholder='e.g. "Shelf 3", "Box 4", "Upstairs hallway"'
-            disabled={isProcessing}
-            className="w-full px-1 py-2 text-base bg-transparent border-0 border-b-2 border-brass/50 focus:outline-none focus:border-brass disabled:opacity-50 transition"
-          />
-          <p className="mt-2 text-xs text-ink/50 dark:text-cream-300/50 leading-relaxed">
-            Group photos by physical location. On Export you&apos;ll choose
-            whether the label rides into LibraryThing as a Collection, a
-            tag, both, or neither.
-          </p>
-        </div>
+      {/* Batch inputs — grid layout with fixed row heights so the labels,
+          fields, and helper paragraphs all share baselines across columns. */}
+      <div
+        className="bg-cream-50 dark:bg-ink-soft/60 rounded-lg p-5 grid grid-cols-1 md:grid-cols-2 gap-x-6"
+        style={{ gridTemplateRows: 'auto auto auto' }}
+      >
+        {/* Row 1 — labels */}
+        <label
+          htmlFor="batch-label"
+          className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-ink/55 dark:text-cream-300/55 mb-2"
+        >
+          Batch label <span className="text-ink/35 dark:text-cream-300/35 normal-case font-normal tracking-normal">— optional</span>
+        </label>
+        <label
+          htmlFor="batch-notes"
+          className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-ink/55 dark:text-cream-300/55 mb-2"
+        >
+          Batch notes <span className="text-ink/35 dark:text-cream-300/35 normal-case font-normal tracking-normal">— optional</span>
+        </label>
 
-        <div>
-          <label
-            htmlFor="batch-notes"
-            className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-ink/55 dark:text-cream-300/55 mb-2"
-          >
-            Batch notes <span className="text-ink/35 dark:text-cream-300/35 normal-case font-normal tracking-normal">— optional</span>
-          </label>
-          <textarea
-            id="batch-notes"
-            value={batchNotes}
-            onChange={(e) => setBatchNotes(e.target.value)}
-            placeholder='e.g. "All first editions, signed by author"'
-            disabled={isProcessing}
-            rows={2}
-            className="w-full px-1 py-2 text-base bg-transparent border-0 border-b-2 border-brass/50 focus:outline-none focus:border-brass disabled:opacity-50 resize-y transition"
-          />
-          <p className="mt-2 text-xs text-ink/50 dark:text-cream-300/50 leading-relaxed">
-            Free-form notes applied to every book in this batch. Lands in
-            LibraryThing&apos;s <span className="font-mono">COMMENTS</span> column.
-          </p>
-        </div>
+        {/* Row 2 — fields, both forced to the same height */}
+        <input
+          id="batch-label"
+          type="text"
+          value={batchLabel}
+          onChange={(e) => setBatchLabel(e.target.value)}
+          placeholder='e.g. "Shelf 3", "Box 4", "Upstairs hallway"'
+          disabled={isProcessing}
+          className="w-full h-12 px-1 text-base bg-transparent border-0 border-b-2 border-brass/50 focus:outline-none focus:border-brass disabled:opacity-50 transition"
+        />
+        <input
+          id="batch-notes"
+          type="text"
+          value={batchNotes}
+          onChange={(e) => setBatchNotes(e.target.value)}
+          placeholder='e.g. "All first editions, signed by author"'
+          disabled={isProcessing}
+          className="w-full h-12 px-1 text-base bg-transparent border-0 border-b-2 border-brass/50 focus:outline-none focus:border-brass disabled:opacity-50 transition"
+        />
+
+        {/* Row 3 — helper text */}
+        <p className="mt-2 text-xs text-ink/50 dark:text-cream-300/50 leading-relaxed">
+          Group photos by physical location. Choose how the label rides into
+          LibraryThing on the Export screen.
+        </p>
+        <p className="mt-2 text-xs text-ink/50 dark:text-cream-300/50 leading-relaxed">
+          Free-form notes applied to every book in this batch. Lands in
+          LibraryThing&apos;s <span className="font-mono">COMMENTS</span> column.
+        </p>
       </div>
 
       <PhotoUploader onFiles={handleFiles} disabled={isProcessing} />

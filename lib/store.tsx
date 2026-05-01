@@ -489,15 +489,14 @@ export function useDarkMode() {
     if (typeof window === 'undefined') return;
     try {
       const stored = localStorage.getItem('carnegie:dark');
-      if (stored !== null) {
-        apply(stored === '1');
-        return;
-      }
+      // Default to LIGHT on first visit. Only flip to dark when the user
+      // has explicitly chosen it via the toggle. The OS-level
+      // prefers-color-scheme is intentionally ignored — light mode is
+      // the warm, airy default and dark is opt-in.
+      apply(stored === '1');
     } catch {
-      // ignore
+      apply(false);
     }
-    const prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    apply(prefers);
   }, [apply]);
 
   return { setDark: apply };

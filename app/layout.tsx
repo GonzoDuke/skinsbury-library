@@ -21,7 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           // Prevent dark-mode flash
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('carnegie:dark');if(s===null){s=window.matchMedia('(prefers-color-scheme: dark)').matches?'1':'0';}if(s==='1')document.documentElement.classList.add('dark');}catch(e){}})();`,
+            // Default to LIGHT on first visit. Only flip to dark when the
+            // user has explicitly chosen it via the toggle (stored under
+            // 'carnegie:dark' === '1'). We don't read prefers-color-scheme.
+            __html: `(function(){try{if(localStorage.getItem('carnegie:dark')==='1')document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
       </head>

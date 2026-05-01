@@ -26,13 +26,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="max-w-[1600px] mx-auto px-8 lg:px-12 py-5 flex items-center gap-8">
           <div className="flex flex-col">
             <div
-              className="font-display text-2xl leading-tight text-limestone"
-              style={{ letterSpacing: '2px' }}
+              className="font-display leading-tight text-limestone"
+              style={{ letterSpacing: '2px', fontSize: '32px' }}
             >
               Carnegie
             </div>
-            <div className="text-xs text-brass tracking-wide mt-0.5">
-              Personal catalog
+            <div className="text-xs text-brass tracking-wider mt-1">
+              Personal Cataloging System
             </div>
           </div>
 
@@ -63,10 +63,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               setDark(next);
               setIsDark(next);
             }}
-            className="text-base px-4 py-2 rounded-md border border-limestone/30 text-limestone hover:bg-fern transition"
+            className="flex-shrink-0 text-base px-4 py-2 rounded-md border border-limestone/40 text-limestone bg-fern/40 hover:bg-fern transition"
             aria-label="Toggle dark mode"
           >
-            {isDark ? 'Light' : 'Dark'}
+            {isDark ? '☀ Light' : '☾ Dark'}
           </button>
         </div>
       </header>
