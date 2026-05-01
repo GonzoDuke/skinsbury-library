@@ -172,10 +172,15 @@ function slugify(s: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function exportFilename(count: number, date: Date = new Date(), label?: string): string {
+export function exportFilename(
+  count: number,
+  date: Date = new Date(),
+  label?: string,
+  extension: 'csv' | 'json' = 'csv'
+): string {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const slug = label ? `-${slugify(label)}` : '';
-  return `carnegie-lt-import-${yyyy}-${mm}-${dd}${slug}-${count}books.csv`;
+  return `carnegie-lt-import-${yyyy}-${mm}-${dd}${slug}-${count}books.${extension}`;
 }

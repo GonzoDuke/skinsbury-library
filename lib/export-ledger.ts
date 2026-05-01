@@ -149,3 +149,73 @@ export function clearLedger(): void {
     // ignore
   }
 }
+
+// ---------------------------------------------------------------------------
+// Batch-level views and mutations — used by the /ledger management screen.
+// ---------------------------------------------------------------------------
+
+export interface LedgerBatch {
+  /**
+   * Undefined when the books were exported with no batch label. The
+   * ledger screen renders this as italic "Unlabeled".
+   */
+  batchLabel: string | undefined;
+  bookCount: number;
+  /** Earliest export date in this batch (YYYY-MM-DD). */
+  earliestDate: string;
+  /**
+   * Most recent export date — differs from earliestDate when some books
+   * were re-exported on a later session (appendToLedger refreshes the
+   * date in place rather than duplicating).
+   */
+  latestDate: string;
+}
+
+/**
+ * Group ledger entries by batchLabel and summarize each group. Sorted
+ * by latestDate descending so the most recently touched batches appear
+ * first on the management screen.
+ */
+export function getLedgerBatches(): LedgerBatch[] {
+  const entries = loadLedger();
+  // Use a sentinel string for the unlabeled bucket — Map can't key on
+  // `undefined` reliably for our equality needs.
+  const UNLABELED = '\0unlabeled\0';
+  const groups = new Map<string, LedgerBatch>();
+  for (const e of entries) {
+    const key = e.batchLabel ?? UNLABELED;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.bookCount += 1;
+      if (e.date < existing.earliestDate) existing.earliestDate = e.date;
+      if (e.date > existing.latestDate) existing.latestDate = e.date;
+    } else {
+      groups.set(key, {
+        batchLabel: e.batchLabel,
+        bookCount: 1,
+        earliestDate: e.date,
+        latestDate: e.date,
+      });
+    }
+  }
+  return Array.from(groups.values()).sort((a, b) => {
+    if (a.latestDate !== b.latestDate) return a.latestDate < b.latestDate ? 1 : -1;
+    // Tiebreak on label so the order is stable across renders.
+    const al = a.batchLabel ?? '';
+    const bl = b.batchLabel ?? '';
+    return al.localeCompare(bl);
+  });
+}
+
+/**
+ * Remove every ledger entry whose batchLabel matches the argument
+ * (pass `undefined` to clear the unlabeled bucket). Persists synchronously.
+ * Returns the number of entries removed so the caller can confirm/log.
+ */
+export function deleteLedgerBatch(batchLabel: string | undefined): number {
+  const before = loadLedger();
+  const after = before.filter((e) => e.batchLabel !== batchLabel);
+  const removed = before.length - after.length;
+  if (removed > 0) saveLedger(after);
+  return removed;
+}

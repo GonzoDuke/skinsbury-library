@@ -5,6 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { ExportPreview } from '@/components/ExportPreview';
 import { exportFilename, generateCsv, type CsvOptions } from '@/lib/csv-export';
+import { generateBackupJson } from '@/lib/json-backup';
 import { appendToLedger } from '@/lib/export-ledger';
 import {
   buildChangelogEntries,
@@ -82,18 +83,44 @@ export default function ExportPage() {
     tagsFromBatch: tagsFromBatch && hasAnyBatchLabel,
   };
 
-  function downloadOne(books: BookRecord[], label?: string) {
-    if (books.length === 0) return;
-    const csv = generateCsv(books, csvOptions);
-    const blob = new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8' });
+  function triggerDownload(blob: Blob, filename: string) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = exportFilename(books.length, new Date(), label);
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  function downloadOne(books: BookRecord[], label?: string) {
+    if (books.length === 0) return;
+    // Share one timestamp between the CSV and JSON so the filename roots
+    // line up exactly — important when split-by-batch writes several pairs
+    // in the same second.
+    const date = new Date();
+
+    const csv = generateCsv(books, csvOptions);
+    const csvName = exportFilename(books.length, date, label, 'csv');
+    triggerDownload(
+      new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8' }),
+      csvName
+    );
+
+    // Companion JSON backup. Same name root, .json extension. Captures the
+    // full BookRecord shape so the user has a permanent record of every
+    // export, independent of localStorage.
+    const jsonName = exportFilename(books.length, date, label, 'json');
+    const json = generateBackupJson(books, {
+      csvCompanion: csvName,
+      batchLabel: label,
+      date,
+    });
+    triggerDownload(
+      new Blob([json], { type: 'application/json;charset=utf-8' }),
+      jsonName
+    );
   }
 
   function downloadCsv() {
