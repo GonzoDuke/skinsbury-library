@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { BookCard } from '@/components/BookCard';
+import { SpineSelector } from '@/components/SpineSelector';
 import { useStore } from '@/lib/store';
+import type { PhotoBatch } from '@/lib/types';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected' | 'low';
 type Sort = 'position' | 'confidence-desc' | 'confidence-asc';
@@ -25,9 +27,10 @@ const SORTS: { id: Sort; label: string; title: string }[] = [
 const CONFIDENCE_RANK = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
 
 export default function ReviewPage() {
-  const { state, updateBook } = useStore();
+  const { state, updateBook, addBook, getPendingFile } = useStore();
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('position');
+  const [addingFor, setAddingFor] = useState<PhotoBatch | null>(null);
 
   const counts = useMemo(() => {
     const c = { total: 0, pending: 0, approved: 0, rejected: 0, low: 0 };
@@ -164,6 +167,13 @@ export default function ReviewPage() {
               const groupBooks = groups.get(key)!;
               const label = key || 'Uncategorized';
               const pendingInGroup = groupBooks.filter((b) => b.status === 'pending');
+              // Photo batches that belong to this label-group. Used by the
+              // "Add missing book" button — we render one per photo so the
+              // user can pick which photo to augment when a label has more
+              // than one.
+              const groupBatches = state.batches.filter(
+                (b) => (b.batchLabel ?? '') === key && (b.status === 'done' || b.status === 'processing')
+              );
               return (
                 <div key={key} className="space-y-3">
                   {!onlyOneGroup && (
@@ -192,6 +202,23 @@ export default function ReviewPage() {
                       <BookCard key={book.id} book={book} />
                     ))}
                   </div>
+                  {groupBatches.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 pt-2">
+                      <span className="text-[11px] uppercase tracking-wider text-ink/40 dark:text-cream-300/40 font-semibold">
+                        Add a missed book:
+                      </span>
+                      {groupBatches.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => setAddingFor(b)}
+                          className="text-xs px-3 py-1.5 rounded-md border border-dashed border-accent/60 text-accent hover:bg-accent-soft dark:hover:bg-accent/20 transition"
+                          title={`Open ${b.filename} and draw / type a missed spine`}
+                        >
+                          + from {b.filename.length > 28 ? b.filename.slice(0, 25) + '…' : b.filename}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             });
@@ -219,6 +246,15 @@ export default function ReviewPage() {
           Continue to export →
         </Link>
       </div>
+
+      {addingFor && (
+        <SpineSelector
+          batch={addingFor}
+          sourceFile={getPendingFile(addingFor.id)}
+          onAdd={(book) => addBook(addingFor.id, book)}
+          onClose={() => setAddingFor(null)}
+        />
+      )}
     </div>
   );
 }

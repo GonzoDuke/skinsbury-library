@@ -409,6 +409,8 @@ export interface BuildBookOptions {
   batchLabel?: string;
   /** Free-form notes inherited from the parent PhotoBatch. */
   batchNotes?: string;
+  /** Stamp `manuallyAdded` on the resulting BookRecord — used by "Add missing book" Path A. */
+  manuallyAdded?: boolean;
 }
 
 export interface BuiltBook {
@@ -418,7 +420,7 @@ export interface BuiltBook {
 }
 
 export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBook> {
-  const { position, bbox, spineThumbnail, sourcePhoto, ocrCrop, batchLabel, batchNotes } = opts;
+  const { position, bbox, spineThumbnail, sourcePhoto, ocrCrop, batchLabel, batchNotes, manuallyAdded } = opts;
   const { base64, mediaType } = dataUriToBase64Parts(ocrCrop);
 
   // Pass B — read the spine with Opus. (Sonnet was tried as a cheaper
@@ -538,6 +540,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     sourcePhoto,
     batchLabel,
     batchNotes,
+    manuallyAdded,
     lookupSource: lookup.source,
     lccSource,
     spineThumbnail,
@@ -553,6 +556,116 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
   };
 
   return { book, kept: grounded.keep };
+}
+
+// ----- Manual add (used by "Add missing book" on Review) -----
+
+export interface AddManualBookOptions {
+  title: string;
+  author: string;
+  isbn?: string;
+  sourcePhoto: string;
+  batchLabel?: string;
+  batchNotes?: string;
+}
+
+/**
+ * Path B of "Add missing book": the user typed title + author (and
+ * optionally an ISBN). Skip Pass B entirely — the user is the source of
+ * truth. Run lookup + tag inference, return a fully-formed BookRecord.
+ */
+export async function addManualBook(opts: AddManualBookOptions): Promise<BookRecord> {
+  const title = opts.title.trim();
+  const author = opts.author.trim();
+  const isbn = opts.isbn?.trim() || '';
+
+  // Lookup: ISBN-scoped if provided, otherwise standard.
+  let lookup: BookLookupResult = {
+    isbn: '',
+    publisher: '',
+    publicationYear: 0,
+    lcc: '',
+    source: 'none',
+  };
+  if (title) {
+    try {
+      lookup = isbn
+        ? await lookupBookClient(title, author, {
+            matchEdition: true,
+            hints: { isbn },
+          })
+        : await lookupBookClient(title, author);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Tag inference (always run — manual entry is a known good title/author).
+  let tags: InferTagsResult = {
+    genreTags: [],
+    formTags: [],
+    confidence: 'LOW',
+    reasoning: '',
+  };
+  try {
+    tags = await inferTagsClient({
+      title,
+      author,
+      isbn: lookup.isbn || isbn,
+      publisher: lookup.publisher,
+      publicationYear: lookup.publicationYear,
+      lcc: lookup.lcc,
+      subjectHeadings: lookup.subjects,
+    });
+  } catch {
+    // ignore
+  }
+
+  const titleCased = toTitleCase(title);
+  const finalIsbn = lookup.isbn || isbn;
+  const finalLcc = lookup.lcc;
+  const lccSource: 'spine' | 'lookup' | 'none' = finalLcc ? 'lookup' : 'none';
+
+  return {
+    id: makeId(),
+    spineRead: {
+      position: 9999, // sort to the end of the batch
+      rawText: `${title}${author ? ' — ' + author : ''}`,
+      title,
+      author,
+      confidence: 'HIGH', // user-supplied
+    },
+    title: titleCased,
+    author,
+    authorLF: toAuthorLastFirst(author),
+    isbn: finalIsbn,
+    publisher: lookup.publisher,
+    publicationYear: lookup.publicationYear,
+    lcc: finalLcc,
+    genreTags: tags.genreTags,
+    formTags: tags.formTags,
+    confidence: lookup.source === 'none' ? 'LOW' : tags.confidence,
+    reasoning: tags.reasoning,
+    status: 'pending',
+    warnings:
+      lookup.source === 'none'
+        ? ['Manual entry — no metadata match. Verify title/author and edition fields.']
+        : [],
+    sourcePhoto: opts.sourcePhoto,
+    batchLabel: opts.batchLabel,
+    batchNotes: opts.batchNotes,
+    lookupSource: lookup.source,
+    lccSource,
+    manuallyAdded: true,
+    original: {
+      title: titleCased,
+      author,
+      isbn: finalIsbn,
+      publisher: lookup.publisher,
+      publicationYear: lookup.publicationYear,
+      lcc: finalLcc,
+    },
+  };
 }
 
 // ----- Reread an existing book -----

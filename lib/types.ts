@@ -52,6 +52,8 @@ export interface BookRecord {
   batchNotes?: string;
   /** Free-form per-book notes editable on the BookCard. Goes into LT's COMMENTS column. */
   notes?: string;
+  /** True when the user added this book via "Add missing book" rather than auto-detection. */
+  manuallyAdded?: boolean;
   lookupSource: 'openlibrary' | 'googlebooks' | 'none';
   /** Where the LCC came from. 'spine' wins over 'lookup'. */
   lccSource: 'spine' | 'lookup' | 'none';

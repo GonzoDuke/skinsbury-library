@@ -122,6 +122,8 @@ interface StoreApi {
   setPendingFile: (batchId: string, file: File) => void;
   removePendingFile: (batchId: string) => void;
   hasPendingFile: (batchId: string) => boolean;
+  /** Look up the source File for a batch — used by "Add missing book" Path A. Null after a hard reload. */
+  getPendingFile: (batchId: string) => File | null;
 
   /** Run detect → read → lookup → ground → dedup over every queued batch. */
   processQueue: () => Promise<void>;
@@ -323,8 +325,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           });
         }
 
-        // Done with this photo — drop its File handle to free memory.
-        pendingFiles.current.delete(batch.id);
+        // Keep the File handle around so the user can use "Add missing book"
+        // (which needs the original full-res image to crop a region).
+        // The map is in-memory only, so it dies on hard reload — that's fine.
         photoDone += 1;
         dispatch({ type: 'PATCH_PROCESSING', patch: { photoDone } });
       }
@@ -400,6 +403,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         pendingFiles.current.delete(batchId);
       },
       hasPendingFile: (batchId) => pendingFiles.current.has(batchId),
+      getPendingFile: (batchId) => pendingFiles.current.get(batchId) ?? null,
       processQueue,
       rereadBook,
     }),

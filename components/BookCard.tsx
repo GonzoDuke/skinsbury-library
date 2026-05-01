@@ -284,11 +284,23 @@ export function BookCard({ book }: BookCardProps) {
 
       {/* Action buttons */}
       <div className="mt-4 flex justify-between items-center">
-        <div className="text-[10px] text-ink/40 dark:text-cream-300/40 flex items-center gap-2">
+        <div className="text-[10px] text-ink/40 dark:text-cream-300/40 flex items-center gap-2 flex-wrap">
           <span>
-            From <span className="font-mono">{book.sourcePhoto}</span> · spine #
-            {book.spineRead.position}
+            From <span className="font-mono">{book.sourcePhoto}</span>
+            {!book.manuallyAdded && <> · spine #{book.spineRead.position}</>}
           </span>
+          {book.manuallyAdded && (
+            <span
+              className="px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-wider bg-accent-soft dark:bg-accent/30 text-accent-deep dark:text-accent-soft font-semibold"
+              title={
+                !book.spineThumbnail
+                  ? 'Manually entered — no spine read'
+                  : 'Added by drawing on the source photo'
+              }
+            >
+              {!book.spineThumbnail ? 'Manual entry' : 'Manually added'}
+            </span>
+          )}
           <span aria-hidden>·</span>
           <span
             className={`px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-wider ${
