@@ -48,6 +48,7 @@ interface DetectionResponse {
     y: number;
     width: number;
     height: number;
+    orientation?: 'vertical' | 'horizontal';
     note?: string;
   }>;
 }

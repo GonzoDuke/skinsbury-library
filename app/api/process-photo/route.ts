@@ -4,22 +4,35 @@ import Anthropic from '@anthropic-ai/sdk';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-const DETECT_PROMPT = `Look at this photo of a bookshelf. Your ONLY job is to locate book spines — do NOT read titles or authors yet.
+const DETECT_PROMPT = `Look at this photo of books. Your ONLY job is to locate book spines — do NOT read titles or authors yet.
 
-For each visible book spine, working left to right:
+A book spine is the narrow text-bearing edge of a book along its binding. Spines appear in two orientations:
+- VERTICAL spines: books standing upright on a shelf. The spine runs top-to-bottom; text is usually rotated 90°.
+- HORIZONTAL spines: books lying flat in a stack, with the spine facing the camera. The spine runs left-to-right; text reads horizontally.
+
+Both orientations are valid. Detect EVERY visible spine, in either orientation.
+
+For each visible spine, in natural reading order (left-to-right for shelves of upright books; top-to-bottom for stacks of books lying flat):
 1. Output a bounding box in percentages of the image dimensions: x (left edge), y (top edge), width, height.
 2. Coordinates are 0–100. (0,0) is the top-left of the image.
 3. Include some padding around the spine so text near the edges is not cut off.
 
-STRICT RULES:
-- Only include actual book spines that are upright and clearly visible.
-- Do NOT include: magazines, journals, newspapers, CDs, DVDs, records, or items lying flat / showing a cover instead of a spine. (Magazines often have a glossy finish, a cover image rather than text-only spine, and a date/issue number.)
-- Do NOT include partially-visible spines where you can't see the full top-to-bottom extent.
-- A single physical spine is ONE entry — even if the spine shows the author name and the title stacked vertically, that's one book, not two.
+WHAT TO INCLUDE:
+- The narrow text-bearing edge of any book — vertical or horizontal — where the title, author, and/or publisher imprint are visible. Spine text is typically plain typography on a relatively narrow rectangle.
+
+WHAT TO EXCLUDE:
+- Items showing their FRONT or BACK COVER instead of a spine. Covers usually have large cover art, photographs, big design elements, or a publisher logo dominating the face. If the face you can see is the cover, skip it.
+- Magazines, journals, newspapers, CDs, DVDs, records. (Magazines tend to have glossy finish, cover imagery rather than text-only spine, and a date or issue number.)
+- Partially-visible spines where one end is cut off so you can't see the full extent of the spine in its long direction (full top-to-bottom for vertical; full left-to-right for horizontal).
+- Anything where you cannot tell whether you're looking at a spine or a cover — when in doubt, skip.
+
+OTHER RULES:
+- A single physical spine is ONE entry — even if the spine shows the author name and the title separated, that's one book, not two.
 - Better to skip a borderline item than include something that isn't a book.
+- The "position" field is the 1-indexed reading-order rank.
 
 Return ONLY a JSON array (no prose, no markdown fences) of objects:
-{ "position": <1-indexed integer>, "x": <number>, "y": <number>, "width": <number>, "height": <number>, "note": <optional string> }`;
+{ "position": <1-indexed integer>, "x": <number>, "y": <number>, "width": <number>, "height": <number>, "orientation": "vertical" | "horizontal", "note": <optional string> }`;
 
 interface BboxDetection {
   position: number;
@@ -27,6 +40,7 @@ interface BboxDetection {
   y: number;
   width: number;
   height: number;
+  orientation?: 'vertical' | 'horizontal';
   note?: string;
 }
 
@@ -102,38 +116,61 @@ export async function POST(req: NextRequest) {
 
     const textBlock = resp.content.find((b) => b.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
-      return NextResponse.json({ error: 'Empty model response' }, { status: 502 });
+      console.warn('[process-photo] empty model response', JSON.stringify(resp.content));
+      return NextResponse.json(
+        { error: 'Empty model response', rawContent: resp.content },
+        { status: 502 }
+      );
     }
+
+    const rawText = textBlock.text;
 
     let raw: unknown;
     try {
-      raw = extractJsonArray(textBlock.text);
+      raw = extractJsonArray(rawText);
     } catch (err) {
+      console.warn('[process-photo] JSON parse failed. raw text:\n' + rawText);
       return NextResponse.json(
-        { error: 'Could not parse JSON from model', text: textBlock.text },
+        { error: 'Could not parse JSON from model', rawText },
         { status: 502 }
       );
     }
     if (!Array.isArray(raw)) {
+      console.warn('[process-photo] non-array. raw text:\n' + rawText);
       return NextResponse.json(
-        { error: 'Model did not return an array' },
+        { error: 'Model did not return an array', rawText },
         { status: 502 }
       );
     }
 
     const detections: BboxDetection[] = raw
-      .map((r: any, i: number): BboxDetection => ({
-        position: Number.isFinite(r.position) ? Number(r.position) : i + 1,
-        x: clampPct(r.x, 0),
-        y: clampPct(r.y, 0),
-        width: clampPct(r.width, 0),
-        height: clampPct(r.height, 100),
-        note: r.note ? String(r.note) : undefined,
-      }))
+      .map((r: any, i: number): BboxDetection => {
+        const w = clampPct(r.width, 0);
+        const h = clampPct(r.height, 100);
+        const declared =
+          r.orientation === 'horizontal' || r.orientation === 'vertical'
+            ? r.orientation
+            : undefined;
+        return {
+          position: Number.isFinite(r.position) ? Number(r.position) : i + 1,
+          x: clampPct(r.x, 0),
+          y: clampPct(r.y, 0),
+          width: w,
+          height: h,
+          // Fall back to bbox shape when the model omits orientation:
+          // wider-than-tall reads as horizontal, taller-than-wide as vertical.
+          orientation: declared ?? (w > h ? 'horizontal' : 'vertical'),
+          note: r.note ? String(r.note) : undefined,
+        };
+      })
       .filter((d) => d.width > 0 && d.height > 0);
 
-    console.log(`[process-photo] detected ${detections.length} spines (${Date.now() - t0}ms)`);
-    return NextResponse.json({ detections });
+    if (detections.length === 0) {
+      console.warn('[process-photo] zero detections. raw text:\n' + rawText);
+    } else {
+      console.log(`[process-photo] detected ${detections.length} spines (${Date.now() - t0}ms)`);
+    }
+    return NextResponse.json({ detections, rawText });
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Vision API error', details: err?.message ?? String(err) },
