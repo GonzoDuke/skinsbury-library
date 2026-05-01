@@ -126,7 +126,7 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
 
   return (
     <article
-      className={`relative bg-cream-50 dark:bg-ink-soft/60 border ${borderClass} rounded-lg py-5 px-6 shadow-sm transition-all duration-200 ease-gentle ${
+      className={`relative bg-cream-50 dark:bg-[#2E2924] border dark:!border-[#4A4540] ${borderClass} rounded-lg py-5 px-6 shadow-sm transition-all duration-200 ease-gentle ${
         book.retagging ? 'ring-2 ring-brass animate-pulse-dot' : ''
       } ${selected ? 'ring-2 ring-brass' : ''} ${
         justApproved ? 'animate-approve-pulse' : ''
@@ -387,8 +387,8 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
         <div
           className={`mt-3 px-3 py-2 rounded text-xs ${
             lowConfidence
-              ? 'bg-mahogany/10 dark:bg-tartan/30 text-mahogany dark:text-orange-100 border border-mahogany/30 dark:border-tartan/50'
-              : 'bg-brass-soft/60 dark:bg-brass/20 text-brass-deep dark:text-brass border border-brass/40'
+              ? 'bg-mahogany/10 dark:bg-[#3D2E1A] text-mahogany dark:text-orange-100 border border-mahogany/30 dark:border-[#5A4428]'
+              : 'bg-brass-soft/60 dark:bg-[#3D2E1A] text-brass-deep dark:text-brass border border-brass/40 dark:border-[#5A4428]'
           }`}
         >
           {hasWarnings ? (
@@ -458,7 +458,7 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
 
       {/* Zone B → Zone C divider. Subtle hairline so the action region reads
           as a distinct shelf below the metadata + tags above. */}
-      <hr className="mt-5 mb-4 border-0 border-t border-[#E8E2D4] dark:border-[#3A3936]" />
+      <hr className="mt-5 mb-4 border-0 border-t border-[#E8E2D4] dark:border-[#3E3A35]" />
 
       {/* Location — editable batch label, controls grouping + LT Collections */}
       <div className="flex items-center gap-2 text-xs">
