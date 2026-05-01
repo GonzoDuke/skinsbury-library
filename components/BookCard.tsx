@@ -201,7 +201,11 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
               placeholder="No year"
               fontFamily="mono"
             />
-            <span>·</span>
+          </div>
+          {/* LCC on its own line with the provenance badge — separates the
+              classification number visually from the bibliographic metadata. */}
+          <div className="typo-card-meta mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="typo-label">LCC</span>
             <EditableField
               label="LCC"
               value={book.lcc}
@@ -442,8 +446,12 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
         </div>
       </div>
 
+      {/* Zone B → Zone C divider. Subtle hairline so the action region reads
+          as a distinct shelf below the metadata + tags above. */}
+      <hr className="mt-5 mb-4 border-0 border-t border-[#E8E2D4] dark:border-[#3A3936]" />
+
       {/* Location — editable batch label, controls grouping + LT Collections */}
-      <div className="mt-3 flex items-center gap-2 text-xs">
+      <div className="flex items-center gap-2 text-xs">
         <span className="text-[10px] uppercase tracking-wider text-ink/45 dark:text-cream-300/45 font-semibold">
           Location
         </span>
