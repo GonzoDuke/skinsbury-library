@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-accent dark:bg-fern sticky top-0 z-10 shadow-sm">
+      <header className="bg-accent dark:bg-green-deep sticky top-0 z-10 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-8 lg:px-12 py-5 flex items-center gap-8">
           <div className="flex flex-col">
             <div

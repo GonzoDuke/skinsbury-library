@@ -10,8 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          DEFAULT: '#2A2520', // warm walnut — page background in dark mode
-          soft: '#342F2A',    // wood-paneled study — card surfaces in dark mode
+          DEFAULT: '#2A1F18',  // aged mahogany — body background in dark mode
+          soft: '#3A2C20',     // cognac — card surfaces in dark mode
+          elevated: '#4A3A2C', // brass-rubbed wood — hover / active surfaces in dark mode
         },
         // Cream tokens kept for backward compatibility, retuned to Carnegie
         // limestone/marble palette so widespread `bg-cream-50` etc. picks up
@@ -32,8 +33,10 @@ const config: Config = {
           soft: '#F1E8D5',
           deep: '#A88B54',
         },
-        fern: '#2D5A4A',           // hover, secondary buttons, dark-mode accent
-        mahogany: '#8B4513',       // warnings, low-confidence badges
+        fern: '#2D5A4A',           // hover, secondary buttons
+        'green-deep': '#1E4534',   // dark-mode header — Scottish racing green
+        mahogany: '#8B4513',       // warnings, low-confidence (light mode)
+        tartan: '#7A2030',         // Scottish-red accent — dark-mode warnings / reject states
         marble: '#F5F2EB',         // page background (light)
         limestone: '#E8E2D4',      // card surfaces (light)
         // Domain colors

@@ -231,7 +231,7 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
         <div
           className={`mt-3 px-3 py-2 rounded text-xs ${
             lowConfidence
-              ? 'bg-mahogany/10 dark:bg-mahogany/25 text-mahogany dark:text-orange-100 border border-mahogany/30'
+              ? 'bg-mahogany/10 dark:bg-tartan/30 text-mahogany dark:text-orange-100 border border-mahogany/30 dark:border-tartan/50'
               : 'bg-brass-soft/60 dark:bg-brass/20 text-brass-deep dark:text-brass border border-brass/40'
           }`}
         >
@@ -390,8 +390,8 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
             disabled={book.rereading}
             className={`text-xs px-3 py-1.5 rounded-md border transition disabled:opacity-50 ${
               book.status === 'rejected'
-                ? 'bg-mahogany/15 dark:bg-mahogany/35 border-mahogany/50 text-mahogany dark:text-orange-100'
-                : 'border-cream-300 dark:border-ink-soft hover:border-mahogany hover:text-mahogany'
+                ? 'bg-mahogany/15 dark:bg-tartan/40 border-mahogany/50 dark:border-tartan/70 text-mahogany dark:text-orange-100'
+                : 'border-cream-300 dark:border-ink-soft hover:border-mahogany dark:hover:border-tartan hover:text-mahogany dark:hover:text-orange-200'
             }`}
           >
             {book.status === 'rejected' ? '✓ Rejected' : 'Reject'}
