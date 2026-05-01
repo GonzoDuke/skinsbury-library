@@ -13,7 +13,7 @@ import type { BookRecord, PhotoBatch } from './types';
 import {
   buildBookFromCrop,
   cropSpine,
-  dedupeBooks,
+  flagDuplicates,
   detectSpines,
   loadImage,
   rereadBook as runReread,
@@ -41,6 +41,9 @@ type Action =
   | { type: 'REMOVE_BATCH'; id: string }
   | { type: 'ADD_BOOK'; batchId: string; book: BookRecord }
   | { type: 'UPDATE_BOOK'; id: string; patch: Partial<BookRecord> }
+  | { type: 'MERGE_DUPLICATES'; winnerId: string; loserIds: string[] }
+  | { type: 'UNMERGE_BOOK'; id: string }
+  | { type: 'KEEP_BOTH_DUPLICATES'; groupId: string }
   | { type: 'SET_PROCESSING'; processing: ProcessingState | null }
   | { type: 'PATCH_PROCESSING'; patch: Partial<ProcessingState> }
   | { type: 'CLEAR' };
@@ -101,6 +104,108 @@ function reducer(state: State, action: Action): State {
           bk.id === action.id ? { ...bk, ...action.patch } : bk
         ),
       };
+    case 'MERGE_DUPLICATES': {
+      // Locate the surviving record + the snapshots we need to fold into it.
+      const winner = state.allBooks.find((b) => b.id === action.winnerId);
+      const losers = state.allBooks.filter((b) => action.loserIds.includes(b.id));
+      if (!winner || losers.length === 0) return state;
+      const winnerPatch: Partial<BookRecord> = {
+        // Snapshots of the losers — kept so Unmerge can restore them later.
+        // We strip the heavy data URIs (spine thumbnails, OCR crops) so the
+        // merged record stays small enough for localStorage.
+        mergedFrom: [
+          ...(winner.mergedFrom ?? []),
+          ...losers.map((l) => ({ ...l, ocrImage: undefined })),
+        ],
+        duplicateResolved: 'merged' as const,
+        duplicateGroup: undefined,
+        duplicateOf: undefined,
+        warnings: winner.warnings.filter((w) => !w.startsWith('Possible duplicate —')),
+      };
+      const loserIdSet = new Set(action.loserIds);
+      return {
+        ...state,
+        batches: state.batches.map((b) => ({
+          ...b,
+          books: b.books
+            .filter((bk) => !loserIdSet.has(bk.id))
+            .map((bk) => (bk.id === action.winnerId ? { ...bk, ...winnerPatch } : bk)),
+        })),
+        allBooks: state.allBooks
+          .filter((bk) => !loserIdSet.has(bk.id))
+          .map((bk) => (bk.id === action.winnerId ? { ...bk, ...winnerPatch } : bk)),
+      };
+    }
+    case 'UNMERGE_BOOK': {
+      const winner = state.allBooks.find((b) => b.id === action.id);
+      if (!winner || !winner.mergedFrom || winner.mergedFrom.length === 0) return state;
+      // Re-flag everyone in the restored group as a duplicate again so the
+      // user can reconsider. New groupId — the old one was discarded at merge.
+      const groupId = `dup-${Math.random().toString(36).slice(2, 10)}`;
+      const restoredCount = winner.mergedFrom.length + 1;
+      const positions = [
+        winner.spineRead.position,
+        ...winner.mergedFrom.map((m) => m.spineRead.position),
+      ].sort((a, b) => a - b);
+      const positionsLabel = positions.map((p) => `#${p}`).join(' and ');
+      const warning = `Possible duplicate — same title found at spine ${positionsLabel}. Merge or keep both?`;
+      const reFlag = (b: BookRecord): BookRecord => ({
+        ...b,
+        duplicateGroup: groupId,
+        duplicateOf: positions.filter((p) => p !== b.spineRead.position),
+        duplicateResolved: undefined,
+        warnings: [
+          ...b.warnings.filter((w) => !w.startsWith('Possible duplicate —')),
+          warning,
+        ],
+      });
+      const restoredWinner = reFlag({
+        ...winner,
+        mergedFrom: undefined,
+      });
+      const restoredSiblings = winner.mergedFrom.map(reFlag);
+
+      // Find the batch the winner lives in — siblings rejoin the same one.
+      const winnerBatchId = state.batches.find((b) =>
+        b.books.some((bk) => bk.id === winner.id)
+      )?.id;
+      void restoredCount;
+
+      return {
+        ...state,
+        batches: state.batches.map((b) => {
+          if (b.id !== winnerBatchId) return b;
+          const otherBooks = b.books.filter((bk) => bk.id !== winner.id);
+          // Re-insert in spine-position order so the queue reads naturally.
+          const next = [...otherBooks, restoredWinner, ...restoredSiblings].sort(
+            (x, y) => x.spineRead.position - y.spineRead.position
+          );
+          return { ...b, books: next };
+        }),
+        allBooks: [
+          ...state.allBooks.filter((bk) => bk.id !== winner.id),
+          restoredWinner,
+          ...restoredSiblings,
+        ],
+      };
+    }
+    case 'KEEP_BOTH_DUPLICATES': {
+      const stripDupWarnings = (warnings: string[]) =>
+        warnings.filter((w) => !w.startsWith('Possible duplicate —'));
+      const patch = (bk: BookRecord): BookRecord =>
+        bk.duplicateGroup === action.groupId
+          ? {
+              ...bk,
+              duplicateResolved: 'kept-both',
+              warnings: stripDupWarnings(bk.warnings),
+            }
+          : bk;
+      return {
+        ...state,
+        batches: state.batches.map((b) => ({ ...b, books: b.books.map(patch) })),
+        allBooks: state.allBooks.map(patch),
+      };
+    }
     case 'SET_PROCESSING':
       return { ...state, processing: action.processing };
     case 'PATCH_PROCESSING':
@@ -136,6 +241,15 @@ interface StoreApi {
 
   /** Re-run tag inference on a batch of books in parallel. Preserves user-edited tags via merge. */
   bulkRetag: (ids: string[]) => Promise<{ done: number; errors: number }>;
+
+  /** Fold the named loser books into `winnerId`. Original entries are stashed
+   *  on the winner as `mergedFrom` so the user can Unmerge later. */
+  mergeDuplicates: (winnerId: string, loserIds: string[]) => void;
+  /** Restore the books stashed on this record's `mergedFrom`. Re-flags the
+   *  group as a pending duplicate so the user can reconsider. */
+  unmergeBook: (id: string) => void;
+  /** Mark every book in this duplicate group as legitimately separate copies. */
+  keepBothDuplicates: (groupId: string) => void;
 }
 
 const StoreCtx = createContext<StoreApi | null>(null);
@@ -180,18 +294,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === 'undefined') return;
     try {
       // Don't persist large data URIs (batch thumbnail, spine thumbnails,
-      // OCR crops) or processing state.
+      // OCR crops) or processing state. Snapshots stashed on `mergedFrom`
+      // get the same treatment so a single merged book can't blow the quota.
+      const slimBook = (bk: BookRecord): BookRecord => ({
+        ...bk,
+        spineThumbnail: '',
+        ocrImage: undefined,
+        mergedFrom: bk.mergedFrom?.map((m) => ({ ...m, spineThumbnail: '', ocrImage: undefined })),
+      });
       const slim = {
         batches: state.batches.map((b) => ({
           ...b,
           thumbnail: '',
-          books: b.books.map((bk) => ({ ...bk, spineThumbnail: '', ocrImage: undefined })),
+          books: b.books.map(slimBook),
         })),
-        allBooks: state.allBooks.map((bk) => ({
-          ...bk,
-          spineThumbnail: '',
-          ocrImage: undefined,
-        })),
+        allBooks: state.allBooks.map(slimBook),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
     } catch {
@@ -331,7 +448,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             Array.from({ length: Math.min(CONCURRENCY, jobs.length) }, runWorker)
           );
 
-          const finalBooks = dedupeBooks(keptBooks);
+          const finalBooks = flagDuplicates(keptBooks);
           // Cross-check each book against the export ledger. Matches get
           // auto-rejected with a warning so the user can spot already-shipped
           // titles immediately. Loaded fresh per batch so the check picks up
@@ -483,6 +600,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       processQueue,
       rereadBook,
       bulkRetag,
+      mergeDuplicates: (winnerId, loserIds) =>
+        dispatch({ type: 'MERGE_DUPLICATES', winnerId, loserIds }),
+      unmergeBook: (id) => dispatch({ type: 'UNMERGE_BOOK', id }),
+      keepBothDuplicates: (groupId) =>
+        dispatch({ type: 'KEEP_BOTH_DUPLICATES', groupId }),
     }),
     [state, processQueue, rereadBook, bulkRetag]
   );

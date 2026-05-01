@@ -1117,15 +1117,18 @@ export async function rereadBook(
 }
 
 /**
- * Deduplicate books from a single photo. Pass A sometimes splits a single
- * spine into 2–3 adjacent bboxes (especially tall spines with author/title
- * stacked vertically), which produces multiple BookRecords for the same book.
+ * Flag possible duplicates within a single photo without dropping any entries.
+ * Pass A sometimes splits one spine into adjacent bboxes (producing two
+ * records for the same book), but the user might also legitimately own two
+ * copies of the same title (paperback + hardcover, gift + personal). We
+ * never silently merge — instead we attach a `duplicateGroup` id and a
+ * warning, and let the BookCard offer Merge / Keep-both actions.
  *
- * Group by normalized (title + author last name + ISBN). Within a group,
- * keep the highest-confidence entry and merge warnings.
+ * Group by normalized (title + author last name + ISBN). Both members of a
+ * pair (and every member of a 3+ group) get the same `duplicateGroup` id
+ * and a list of the other spine positions in the group.
  */
-export function dedupeBooks(books: BookRecord[]): BookRecord[] {
-  const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
+export function flagDuplicates(books: BookRecord[]): BookRecord[] {
   const groups = new Map<string, BookRecord[]>();
 
   for (const b of books) {
@@ -1142,26 +1145,32 @@ export function dedupeBooks(books: BookRecord[]): BookRecord[] {
   const out: BookRecord[] = [];
   for (const group of groups.values()) {
     if (group.length === 1) {
-      out.push(group[0]);
+      // Solo entry — clear any prior duplicate flags so re-runs heal correctly.
+      const b = group[0];
+      const { duplicateGroup, duplicateOf, duplicateResolved, ...rest } = b;
+      void duplicateGroup;
+      void duplicateOf;
+      void duplicateResolved;
+      out.push(rest as BookRecord);
       continue;
     }
-    // Pick the entry with highest confidence; ties broken by spine position.
-    const winner = group.reduce((best, b) => {
-      if (order[b.confidence] > order[best.confidence]) return b;
-      if (
-        order[b.confidence] === order[best.confidence] &&
-        b.spineRead.position < best.spineRead.position
-      )
-        return b;
-      return best;
-    });
-    const mergedWarnings = Array.from(
-      new Set([
-        ...winner.warnings,
-        `Detector returned ${group.length} bounding boxes for this book — duplicates merged.`,
-      ])
-    );
-    out.push({ ...winner, warnings: mergedWarnings });
+    const groupId = `dup-${Math.random().toString(36).slice(2, 10)}`;
+    const positions = group.map((b) => b.spineRead.position).sort((a, b) => a - b);
+    const positionsLabel = positions.map((p) => `#${p}`).join(' and ');
+    for (const b of group) {
+      const others = positions.filter((p) => p !== b.spineRead.position);
+      const warning = `Possible duplicate — same title found at spine ${positionsLabel}. Merge or keep both?`;
+      const filteredWarnings = b.warnings.filter(
+        (w) => !w.startsWith('Possible duplicate —') && !w.startsWith('Detector returned ')
+      );
+      out.push({
+        ...b,
+        duplicateGroup: groupId,
+        duplicateOf: others,
+        duplicateResolved: undefined,
+        warnings: [...filteredWarnings, warning],
+      });
+    }
   }
   return out.sort((a, b) => a.spineRead.position - b.spineRead.position);
 }

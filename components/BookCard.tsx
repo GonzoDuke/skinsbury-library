@@ -17,12 +17,37 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, selectable, selected, onToggleSelected }: BookCardProps) {
-  const { updateBook, rereadBook } = useStore();
+  const { updateBook, rereadBook, state, mergeDuplicates, unmergeBook, keepBothDuplicates } =
+    useStore();
   const [showReasoning, setShowReasoning] = useState(false);
   const [picker, setPicker] = useState<'genre' | 'form' | null>(null);
   const [rereadOpen, setRereadOpen] = useState(false);
   const [hint, setHint] = useState('');
   const [rereadError, setRereadError] = useState<string | null>(null);
+
+  // Duplicate group siblings — used by the duplicate-pending banner so the
+  // Merge button knows which records to fold into this one.
+  const dupSiblings =
+    book.duplicateGroup && !book.duplicateResolved
+      ? state.allBooks.filter(
+          (b) => b.id !== book.id && b.duplicateGroup === book.duplicateGroup
+        )
+      : [];
+
+  function onMergeHere() {
+    // Merging "into" the card the user clicked: this card is the winner and
+    // every sibling becomes a snapshot in mergedFrom.
+    mergeDuplicates(
+      book.id,
+      dupSiblings.map((b) => b.id)
+    );
+  }
+  function onKeepBoth() {
+    if (book.duplicateGroup) keepBothDuplicates(book.duplicateGroup);
+  }
+  function onUnmerge() {
+    unmergeBook(book.id);
+  }
 
   type RereadMode = 'ai' | 'hint' | 'edition';
   async function doReread(mode: RereadMode) {
@@ -77,7 +102,14 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
     }
   }
 
-  const hasWarnings = book.warnings.length > 0;
+  // Filter out duplicate-related warnings: those have their own banners above
+  // and shouldn't double up in the generic warning treatment.
+  const nonDupWarnings = book.warnings.filter(
+    (w) =>
+      !w.startsWith('Possible duplicate —') &&
+      !w.startsWith('Detector returned ')
+  );
+  const hasWarnings = nonDupWarnings.length > 0;
   const lowConfidence = book.confidence === 'LOW';
 
   const titleModified = book.title !== book.original.title;
@@ -260,7 +292,83 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
         </div>
       )}
 
-      {/* Warning banner */}
+      {/* Possible-duplicate banner — only while the group is unresolved.
+          Lists the sibling spine numbers and offers Merge / Keep-both. We
+          never silently merge: paperback + hardcover of the same title are
+          legitimately two separate physical copies. */}
+      {book.duplicateGroup && !book.duplicateResolved && (
+        <div className="mt-3 px-3 py-2 rounded text-xs bg-brass-soft/70 dark:bg-brass/20 text-brass-deep dark:text-brass border border-brass/50 flex flex-wrap items-start gap-x-3 gap-y-2">
+          <span className="font-semibold tracking-wider uppercase text-[10px] mt-0.5">
+            Possible duplicate
+          </span>
+          <span className="leading-relaxed flex-1 min-w-[200px]">
+            Same title found at spine{' '}
+            <span className="font-mono">
+              {(book.duplicateOf ?? []).map((p) => `#${p}`).join(' and ')}
+            </span>
+            . Merge or keep both?
+          </span>
+          <div className="flex items-center gap-2 ml-auto">
+            <button
+              type="button"
+              onClick={onMergeHere}
+              disabled={dupSiblings.length === 0}
+              className="px-3 py-1 rounded-md bg-brass text-accent-deep hover:bg-brass-deep hover:text-limestone text-xs font-medium transition disabled:opacity-50"
+              title="Fold the other copies into this card. You can Unmerge later."
+            >
+              Merge into this
+            </button>
+            <button
+              type="button"
+              onClick={onKeepBoth}
+              className="px-3 py-1 rounded-md border border-brass/60 text-brass-deep dark:text-brass hover:bg-brass/10 text-xs font-medium transition"
+              title="They're legitimately separate copies — keep both."
+            >
+              Keep both
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Merged-state badge with Unmerge — shown after the user merged this
+          card or after a legacy auto-merge run that pre-dates the flag-only
+          flow (those won't have `mergedFrom`, so Unmerge is disabled). */}
+      {(book.duplicateResolved === 'merged' ||
+        book.warnings.some((w) => w.startsWith('Detector returned '))) && (
+        <div className="mt-3 px-3 py-2 rounded text-xs bg-cream-100 dark:bg-ink/60 text-ink/70 dark:text-cream-300/80 border border-cream-300 dark:border-brass/20 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="font-semibold tracking-wider uppercase text-[10px]">Merged</span>
+          <span className="leading-relaxed flex-1 min-w-[160px]">
+            {book.mergedFrom && book.mergedFrom.length > 0
+              ? `${book.mergedFrom.length} other ${
+                  book.mergedFrom.length === 1 ? 'copy was' : 'copies were'
+                } folded into this card.`
+              : 'Auto-merged before separate-copy support — Unmerge unavailable. Re-process the photo to recover the separate entries.'}
+          </span>
+          <button
+            type="button"
+            onClick={onUnmerge}
+            disabled={!book.mergedFrom || book.mergedFrom.length === 0}
+            className="px-3 py-1 rounded-md border border-brass/50 text-brass-deep dark:text-brass hover:bg-brass/10 text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+            title={
+              book.mergedFrom && book.mergedFrom.length > 0
+                ? 'Restore the merged copies as separate cards.'
+                : 'No snapshot available to restore.'
+            }
+          >
+            Unmerge
+          </button>
+        </div>
+      )}
+
+      {/* Kept-both note — small, persistent, non-blocking. */}
+      {book.duplicateResolved === 'kept-both' && (
+        <div className="mt-3 px-3 py-1.5 rounded text-[11px] bg-cream-100 dark:bg-ink/60 text-ink/55 dark:text-cream-300/60 border border-cream-300 dark:border-brass/20">
+          Marked as a separate copy of a duplicate-titled book.
+        </div>
+      )}
+
+      {/* Warning banner — non-duplicate warnings only; the dedup banner above
+          owns its own messaging. */}
       {(lowConfidence || hasWarnings) && !book.previouslyExported && (
         <div
           className={`mt-3 px-3 py-2 rounded text-xs ${
@@ -269,9 +377,9 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
               : 'bg-brass-soft/60 dark:bg-brass/20 text-brass-deep dark:text-brass border border-brass/40'
           }`}
         >
-          {book.warnings.length > 0 ? (
+          {hasWarnings ? (
             <ul className="list-disc list-inside space-y-0.5">
-              {book.warnings.map((w, i) => (
+              {nonDupWarnings.map((w, i) => (
                 <li key={i}>{w}</li>
               ))}
             </ul>

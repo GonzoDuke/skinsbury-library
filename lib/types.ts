@@ -88,6 +88,28 @@ export interface BookRecord {
    * approve to export a second copy.
    */
   previouslyExported?: { date: string; batchLabel?: string };
+  /**
+   * Stable id shared across books that look like duplicates of each other in
+   * the same batch. Set by flagDuplicates during processing. While set and
+   * `duplicateResolved` is undefined, the BookCard shows a banner with
+   * Merge / Keep-both actions instead of silently merging.
+   */
+  duplicateGroup?: string;
+  /** Spine positions of the OTHER books in the same duplicate group — for the banner copy. */
+  duplicateOf?: number[];
+  /**
+   * What the user decided about this duplicate group:
+   *   'merged'   — siblings were folded into this record; their snapshots live in `mergedFrom`.
+   *   'kept-both'— user accepted both as legitimate separate copies.
+   * Undefined while the group is still pending review.
+   */
+  duplicateResolved?: 'merged' | 'kept-both';
+  /**
+   * When the user merges duplicates, the losing entries are stashed here as
+   * full snapshots so Unmerge can restore them. Undefined / empty for books
+   * that have never been merged.
+   */
+  mergedFrom?: BookRecord[];
   /** Snapshot of metadata as it came from spine read + lookup, before any user edits. */
   original: {
     title: string;
