@@ -81,7 +81,23 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
     if (rereading) return;
     setRereading(true);
     setRereadErr(null);
-    const r = await rereadBook(book.id, {});
+    // ocrImage is stripped from localStorage to stay under quota, so
+    // after any reload (or any cross-device synced batch) we use the
+    // current title/author for a lookup + tag-infer pass via
+    // matchEdition. With an ocrImage we do the full AI retry.
+    const opts = book.ocrImage
+      ? {}
+      : book.title
+        ? { matchEdition: true as const }
+        : null;
+    if (!opts) {
+      setRereading(false);
+      setRereadErr(
+        'Nothing to reread — type a title above first.'
+      );
+      return;
+    }
+    const r = await rereadBook(book.id, opts);
     setRereading(false);
     if (!r.ok) setRereadErr(r.error ?? 'Reread failed.');
   }
@@ -321,15 +337,21 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
             <button
               type="button"
               onClick={onReread}
-              disabled={rereading || !book.ocrImage}
+              disabled={rereading || (!book.ocrImage && !book.title)}
               title={
                 book.ocrImage
                   ? 'Re-run the AI on the same crop'
-                  : 'Reread unavailable — high-res crop wasn’t preserved (often the case for batches synced from another device).'
+                  : book.title
+                    ? 'Re-fetch metadata + re-infer tags using the current title/author'
+                    : 'Type a title above first'
               }
               className="text-xs px-3 py-1.5 rounded border border-line text-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {rereading ? '⟳ Rereading…' : '↻ Reread'}
+              {rereading
+                ? '⟳ Rereading…'
+                : book.ocrImage
+                  ? '↻ Reread'
+                  : '↻ Refresh metadata'}
             </button>
             {rereadErr && (
               <span className="text-[11px] text-carnegie-red">{rereadErr}</span>

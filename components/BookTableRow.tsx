@@ -95,7 +95,26 @@ export function BookTableRow({ book }: { book: BookRecord }) {
     if (rereading) return;
     setRereading(true);
     setRereadErr(null);
-    const r = await rereadBook(book.id, {});
+    // Two paths. The high-res ocrImage is stripped from localStorage
+    // to stay under quota, so after any reload it's gone — but the
+    // user still gets a useful Reread by re-running lookup + tag
+    // inference against the current (possibly user-edited) title /
+    // author / publisher / year / ISBN. matchEdition skips Pass B
+    // and trusts those fields. With an ocrImage, we do the full AI
+    // retry on the original crop (no hint).
+    const opts = book.ocrImage
+      ? {}
+      : book.title
+        ? { matchEdition: true as const }
+        : null;
+    if (!opts) {
+      setRereading(false);
+      setRereadErr(
+        'Nothing to reread — no spine crop and no title yet. Type a title in the panel above first.'
+      );
+      return;
+    }
+    const r = await rereadBook(book.id, opts);
     setRereading(false);
     if (!r.ok) setRereadErr(r.error ?? 'Reread failed.');
   }
@@ -396,15 +415,21 @@ export function BookTableRow({ book }: { book: BookRecord }) {
             <button
               type="button"
               onClick={onReread}
-              disabled={rereading || !book.ocrImage}
+              disabled={rereading || (!book.ocrImage && !book.title)}
               title={
                 book.ocrImage
                   ? 'Re-run the AI on the same crop'
-                  : 'Reread unavailable — high-res crop wasn\'t preserved'
+                  : book.title
+                    ? 'Re-fetch metadata + re-infer tags using the current title/author (the high-res crop wasn’t preserved across reload, so Pass B is skipped)'
+                    : 'Type a title above first — there’s nothing to reread'
               }
               className="text-xs px-3 py-1.5 rounded border border-line text-text-secondary hover:border-navy hover:text-navy hover:bg-navy-soft transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {rereading ? '⟳ Rereading…' : '↻ Reread'}
+              {rereading
+                ? '⟳ Rereading…'
+                : book.ocrImage
+                  ? '↻ Reread'
+                  : '↻ Refresh metadata'}
             </button>
             {rereadErr && (
               <span className="text-[11px] text-carnegie-red">{rereadErr}</span>
