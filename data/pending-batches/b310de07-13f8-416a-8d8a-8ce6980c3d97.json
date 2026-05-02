@@ -1,0 +1,60 @@
+{
+  "id": "b310de07-13f8-416a-8d8a-8ce6980c3d97",
+  "filename": "Barcode scans · 5/2/2026, 4:57:58 PM",
+  "fileSize": 0,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 0,
+  "booksIdentified": 1,
+  "books": [
+    {
+      "id": "1ba3bce6-a67d-405c-a727-4a8be2efd204",
+      "spineRead": {
+        "position": 1,
+        "rawText": "[scanned ISBN 9780307739797]",
+        "title": "China in Ten Words",
+        "author": "余华",
+        "publisher": "Pantheon Books",
+        "confidence": "HIGH"
+      },
+      "title": "China in Ten Words",
+      "author": "余华",
+      "authorLF": "余华",
+      "isbn": "9780307739797",
+      "publisher": "Pantheon Books",
+      "publicationYear": 2011,
+      "lcc": "",
+      "genreTags": [
+        "World history",
+        "Cultural history",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "Subject headings indicate Chinese history, civilization, and social conditions. Yu Hua is a prominent Chinese writer known for social commentary. No LCC code available so relied on subject analysis.",
+      "status": "pending",
+      "warnings": [
+        "No LCC found for this edition — tag inference fell back to subject headings only."
+      ],
+      "sourcePhoto": "barcode-scan-9780307739797",
+      "lookupSource": "openlibrary",
+      "lccSource": "none",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780307739797-L.jpg",
+      "scannedFromBarcode": true,
+      "original": {
+        "title": "China in Ten Words",
+        "author": "余华",
+        "isbn": "9780307739797",
+        "publisher": "Pantheon Books",
+        "publicationYear": 2011,
+        "lcc": "",
+        "genreTags": [
+          "World history",
+          "Cultural history",
+          "Social criticism"
+        ],
+        "formTags": []
+      }
+    }
+  ]
+}
