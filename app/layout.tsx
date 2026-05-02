@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { StoreProvider } from '@/lib/store';
 import { AppShell } from '@/components/AppShell';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   title: 'Carnegie',
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StoreProvider>
           <AppShell>{children}</AppShell>
         </StoreProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
