@@ -229,6 +229,64 @@ export default function UploadPage() {
     }
     setSummaryToast(`${parts.join(' · ')} — see Review for details.`);
     const t = window.setTimeout(() => setSummaryToast(null), 5000);
+
+    // Background-tab attention. Browser notification when permitted +
+    // a short chime via WebAudio (no asset needed) + a vibration pulse
+    // on phones that support it. All three are best-effort and silent
+    // failures — none of them block the toast.
+    if (typeof window !== 'undefined' && document.hidden) {
+      try {
+        if ('Notification' in window) {
+          if (Notification.permission === 'granted') {
+            new Notification('Carnegie', {
+              body: `Processing complete — ${books} ${
+                books === 1 ? 'book' : 'books'
+              } ready for review.`,
+              icon: '/icon-192.png',
+            });
+          } else if (Notification.permission === 'default') {
+            // Permission requests in Chrome require a user gesture, but
+            // the original "Process all" tap counts. Best-effort.
+            Notification.requestPermission().catch(() => {});
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    try {
+      const Ctor =
+        (window as { AudioContext?: typeof AudioContext }).AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
+      if (Ctor) {
+        const ctx = new Ctor();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        // Two-note chime: 880Hz → 1320Hz, 80ms each, soft attack so it
+        // doesn't pop. Volume capped so a quiet room hears it without
+        // a noisy one being annoyed.
+        osc.type = 'sine';
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const now = ctx.currentTime;
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.setValueAtTime(1320, now + 0.09);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+        osc.start(now);
+        osc.stop(now + 0.24);
+        osc.onended = () => ctx.close().catch(() => {});
+      }
+    } catch {
+      // ignore — no AudioContext support
+    }
+    try {
+      navigator.vibrate?.([60, 40, 60]);
+    } catch {
+      // ignore
+    }
     return () => window.clearTimeout(t);
   }, [processing?.finishedAt, state.batches]);
 
