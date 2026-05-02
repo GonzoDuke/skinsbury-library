@@ -16,7 +16,7 @@ import { confirmDiscardSession } from '@/lib/session';
  * (sidebar widths, brand padding, nav item proportions). The rest leans on
  * Tailwind for color + typography utilities.
  */
-const SIDEBAR_W = 200;
+const SIDEBAR_W = 260;
 const NAVY = '#1B3A5C';
 const SIDE_BG = '#141414';
 const SIDE_HOVER = '#1F1F1F';
@@ -97,28 +97,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         style={{
           width: SIDEBAR_W,
           background: SIDE_BG,
-          paddingTop: 20,
+          paddingTop: 0,
           paddingBottom: 0,
         }}
       >
-        {/* Brand block — clickable, links to Upload */}
+        {/* Brand block — clickable, links to Upload. Vertical stack so
+            the bigger 48px tartan can sit above an all-caps wordmark
+            wide enough to command the top of the sidebar. */}
         <Link
           href="/"
-          className="flex items-center gap-[10px] px-4 cursor-pointer group"
-          style={{ marginBottom: 28 }}
+          className="flex flex-col items-start cursor-pointer group"
+          style={{
+            padding: 20,
+            marginBottom: 36,
+            gap: 12,
+          }}
           aria-label="Carnegie — go to upload"
         >
           <span style={{ flexShrink: 0, lineHeight: 0 }}>
-            <TartanLogo size={32} />
+            <TartanLogo size={48} />
           </span>
           <span className="flex flex-col leading-none">
             <span
               style={{
                 fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-                fontSize: 14,
-                fontWeight: 600,
+                fontSize: 20,
+                fontWeight: 700,
                 color: SIDE_TEXT_ACTIVE,
-                letterSpacing: '0.5px',
+                letterSpacing: '3px',
+                textTransform: 'uppercase',
               }}
             >
               Carnegie
@@ -129,7 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 color: GOLD,
                 letterSpacing: '2px',
                 textTransform: 'uppercase',
-                marginTop: 2,
+                marginTop: 6,
               }}
             >
               Cataloging System
