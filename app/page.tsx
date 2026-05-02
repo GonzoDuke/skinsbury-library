@@ -12,6 +12,7 @@ import type { BookRecord, PhotoBatch } from '@/lib/types';
 import { createThumbnail, loadImage, makeId } from '@/lib/pipeline';
 import { processIsbnScan } from '@/lib/scan-pipeline';
 import { pushBatchToRepo, syncPendingBatchesFromRepo } from '@/lib/pending-batches';
+import { getLedgerBatches } from '@/lib/export-ledger';
 
 // 1200px wide is the realistic floor we still get useful spine-detection
 // out of. Phone in-app cameras frequently deliver 1280×720 streams, which
@@ -151,6 +152,27 @@ export default function UploadPage() {
 
   const [batchLabel, setBatchLabel] = useState('');
   const [batchNotes, setBatchNotes] = useState('');
+  // Past labels pulled from the export ledger so the user can pick a
+  // previously-used label rather than retyping. Loaded once on mount;
+  // re-derived when the ledger sync completes via the same effect.
+  const [pastLabels, setPastLabels] = useState<string[]>([]);
+  const [labelMenuOpen, setLabelMenuOpen] = useState(false);
+  useEffect(() => {
+    const labels = getLedgerBatches()
+      .map((b) => b.batchLabel)
+      .filter((s): s is string => !!s && s.trim().length > 0);
+    // Distinct, alphabetical so the dropdown reads like a stable list.
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const l of labels) {
+      if (!seen.has(l)) {
+        seen.add(l);
+        unique.push(l);
+      }
+    }
+    unique.sort((a, b) => a.localeCompare(b));
+    setPastLabels(unique);
+  }, [state.allBooks.length]);
 
   // Listen for the sidebar's New session click — wipes the local
   // input state on the upload page so the user lands on a truly clean
@@ -365,7 +387,7 @@ export default function UploadPage() {
           but de-emphasized. v3 styling: white card, 1px line border,
           navy focus ring; helper text directly under the field. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
+        <div className="relative">
           <label htmlFor="batch-label" className="typo-label block mb-1">
             Batch label
           </label>
@@ -374,10 +396,43 @@ export default function UploadPage() {
             type="text"
             value={batchLabel}
             onChange={(e) => setBatchLabel(e.target.value)}
+            onFocus={() => setLabelMenuOpen(true)}
+            // Tiny delay on blur so a click on a menu item lands before
+            // the menu unmounts. Mousedown on the menu cancels the close.
+            onBlur={() => window.setTimeout(() => setLabelMenuOpen(false), 120)}
             placeholder='Shelf 3, Box 4, Upstairs hallway...'
             disabled={isProcessing}
+            autoComplete="off"
             className="w-full bg-surface-card border border-line rounded-md px-[14px] py-[10px] text-[15px] text-text-primary placeholder:text-text-quaternary focus:outline-none focus:border-navy disabled:opacity-50 transition-colors"
           />
+          {labelMenuOpen && pastLabels.length > 0 && (
+            <div
+              className="absolute z-20 left-0 right-0 mt-1 bg-surface-card border border-line rounded-md shadow-lg max-h-52 overflow-y-auto"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="typo-label px-3 pt-2 pb-1">Recent labels</div>
+              {pastLabels
+                .filter((l) =>
+                  batchLabel.trim()
+                    ? l.toLowerCase().includes(batchLabel.toLowerCase().trim())
+                    : true
+                )
+                .slice(0, 12)
+                .map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => {
+                      setBatchLabel(l);
+                      setLabelMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-[13px] text-text-secondary hover:bg-navy-soft hover:text-navy transition"
+                  >
+                    {l}
+                  </button>
+                ))}
+            </div>
+          )}
           <div className="text-[10px] text-text-quaternary mt-0.5">
             Groups photos by physical location
           </div>
