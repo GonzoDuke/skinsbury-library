@@ -8,6 +8,7 @@ import { useStore } from '@/lib/store';
 import { VOCAB, type DomainKey } from '@/lib/tag-domains';
 import type { PhotoBatch } from '@/lib/types';
 import { flagIfPreviouslyExported } from '@/lib/export-ledger';
+import { confirmDiscardSession } from '@/lib/session';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected' | 'low';
 type Sort = 'position' | 'confidence-desc' | 'confidence-asc';
@@ -29,7 +30,7 @@ const SORTS: { id: Sort; label: string; title: string }[] = [
 const CONFIDENCE_RANK = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
 
 export default function ReviewPage() {
-  const { state, updateBook, addBook, getPendingFile, bulkRetag } = useStore();
+  const { state, updateBook, addBook, getPendingFile, bulkRetag, clear } = useStore();
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('position');
   const [addingFor, setAddingFor] = useState<PhotoBatch | null>(null);
@@ -114,11 +115,24 @@ export default function ReviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <div className="flex items-baseline gap-4 flex-wrap">
-          <h1 className="typo-page-title">Review &amp; approve</h1>
-          <span className="text-base text-ink/50 dark:text-cream-300/50 font-mono">
-            {counts.total} {counts.total === 1 ? 'book' : 'books'}
-          </span>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-baseline gap-4 flex-wrap">
+            <h1 className="typo-page-title">Review &amp; approve</h1>
+            <span className="text-base text-ink/50 dark:text-cream-300/50 font-mono">
+              {counts.total} {counts.total === 1 ? 'book' : 'books'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirmDiscardSession(state.allBooks)) clear();
+            }}
+            disabled={state.allBooks.length === 0 && state.batches.length === 0}
+            className="text-[12px] font-medium px-3 py-1.5 rounded-md border border-line text-text-secondary hover:border-carnegie-red hover:text-carnegie-red hover:bg-carnegie-red-soft transition disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Discard the current batch and start fresh — exported books stay in the ledger."
+          >
+            Clear batch
+          </button>
         </div>
         <p className="typo-page-desc max-w-3xl">
           Verify each book&apos;s metadata and tags. Edit fields by clicking them. Only
