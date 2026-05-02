@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { BookRecord, Confidence } from '@/lib/types';
 import { useStore } from '@/lib/store';
+import { toAuthorLastFirst, toTitleCase } from '@/lib/csv-export';
 import { TagChip } from './TagChip';
 import { TagPicker } from './TagPicker';
 import { Cover } from './Cover';
@@ -114,7 +114,7 @@ export function BookTableRow({ book }: { book: BookRecord }) {
     <>
       <div
         onClick={() => setOpen((v) => !v)}
-        className={`grid grid-cols-[52px_1fr_80px_200px_120px] items-center gap-3 px-[14px] py-[10px] border-b border-line-light cursor-pointer transition-colors ${rowTint}`}
+        className={`grid grid-cols-[52px_1fr_80px_200px_100px] items-center gap-3 px-[14px] py-[10px] border-b border-line-light cursor-pointer transition-colors ${rowTint}`}
         role="button"
         aria-expanded={open}
       >
@@ -171,31 +171,9 @@ export function BookTableRow({ book }: { book: BookRecord }) {
           )}
         </div>
 
-        {/* Actions — Edit link, then small ✓ ✕. The Edit link is a Next
-            Link so the browser back-button works after returning from the
-            edit page; stopPropagation keeps the row click from toggling. */}
+        {/* Actions — small ✓ ✕. Inline editing happens in the detail
+            panel below, so no separate Edit button. */}
         <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
-          <Link
-            href={`/review/${book.id}`}
-            aria-label="Edit"
-            title="Open the full edit view for this book"
-            className="w-7 h-7 rounded border border-line text-text-tertiary hover:border-navy hover:text-navy hover:bg-navy-soft transition flex items-center justify-center"
-          >
-            <svg
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.4}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              width="13"
-              height="13"
-              aria-hidden
-            >
-              <path d="M11 2.5l2.5 2.5L5 13.5H2.5V11z" />
-              <path d="M9 4.5l2.5 2.5" />
-            </svg>
-          </Link>
           <button
             type="button"
             onClick={() => setStatus('approved')}
@@ -225,18 +203,78 @@ export function BookTableRow({ book }: { book: BookRecord }) {
         </div>
       </div>
 
-      {/* Detail panel */}
+      {/* Detail panel — every metadata field is click-to-edit. Click the
+          value to open an inline input pre-populated with the current
+          string; Enter / blur saves, Escape cancels. Tags use the
+          existing pill add/remove flow below. */}
       {open && (
         <div className="bg-surface-page px-[66px] py-[14px] border-b border-line">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mb-3">
-            <DetailField label="Publisher" value={book.publisher || '—'} />
-            <DetailField
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5 mb-3">
+            <Editable
+              label="Title"
+              value={book.title}
+              placeholder="Untitled spine"
+              onSave={(v) =>
+                updateBook(book.id, { title: toTitleCase(v.trim()) })
+              }
+            />
+            <Editable
+              label="Author"
+              value={book.author}
+              placeholder="Unknown author"
+              onSave={(v) =>
+                updateBook(book.id, {
+                  author: v.trim(),
+                  authorLF: toAuthorLastFirst(v.trim()),
+                })
+              }
+            />
+            <Editable
+              label="Year"
+              value={book.publicationYear ? String(book.publicationYear) : ''}
+              placeholder="No year"
+              mono
+              onSave={(v) => {
+                const n = parseInt(v.replace(/[^\d]/g, ''), 10);
+                updateBook(book.id, {
+                  publicationYear: Number.isFinite(n) && n > 0 ? n : 0,
+                });
+              }}
+            />
+            <Editable
+              label="ISBN"
+              value={book.isbn}
+              placeholder="No ISBN"
+              mono
+              onSave={(v) =>
+                updateBook(book.id, {
+                  isbn: v.replace(/[^\dxX]/g, ''),
+                })
+              }
+            />
+            <Editable
+              label="Publisher"
+              value={book.publisher}
+              placeholder="No publisher"
+              onSave={(v) => updateBook(book.id, { publisher: v.trim() })}
+            />
+            <Editable
               label="LCC"
-              value={book.lcc || '—'}
+              value={book.lcc}
+              placeholder="No LCC"
               mono
               suffix={lccProvenance}
+              onSave={(v) => updateBook(book.id, { lcc: v.trim() })}
             />
-            <DetailField
+            <Editable
+              label="Location"
+              value={book.batchLabel ?? ''}
+              placeholder="Add a shelf, box, or room"
+              onSave={(v) =>
+                updateBook(book.id, { batchLabel: v.trim() || undefined })
+              }
+            />
+            <ReadOnlyField
               label="Source"
               value={
                 book.manuallyAdded
@@ -252,13 +290,23 @@ export function BookTableRow({ book }: { book: BookRecord }) {
                     } · spine #${book.spineRead.position}`
               }
             />
-            <DetailField label="Batch" value={book.batchLabel || 'Unlabeled'} />
           </div>
 
+          {/* Notes — full-width textarea, click-to-edit. Per-book notes
+              land in the LibraryThing COMMENTS column on export. */}
+          <Editable
+            label="Notes"
+            value={book.notes ?? ''}
+            placeholder="Signed, dedication, condition, anything for the COMMENTS column…"
+            multiline
+            onSave={(v) =>
+              updateBook(book.id, { notes: v.trim() || undefined })
+            }
+            className="mb-3"
+          />
+
           {/* Inline warnings, if any. Each entry coerced to a string so a
-              corrupt persisted record (an object accidentally pushed onto
-              warnings in some previous version) can't escape into React's
-              render path and trigger a #418. */}
+              corrupt persisted record can't reach React as a non-primitive. */}
           {Array.isArray(book.warnings) && book.warnings.length > 0 && (
             <ul className="text-[11px] text-carnegie-amber mb-3 space-y-0.5 list-disc list-inside">
               {book.warnings.map((w, i) => (
@@ -360,32 +408,162 @@ function ConfChip({ level }: { level: Confidence }) {
   );
 }
 
-function DetailField({
+/**
+ * Click-to-edit field. Click the value text to swap to an input
+ * pre-populated with the current string; Enter or blur commits, Escape
+ * cancels and reverts. The save callback receives the raw input string;
+ * the caller is responsible for trim / parse / case-coerce.
+ */
+function Editable({
   label,
   value,
+  placeholder,
+  onSave,
   mono,
+  multiline,
   suffix,
+  className,
 }: {
   label: string;
   value: string;
+  placeholder?: string;
+  onSave: (raw: string) => void;
   mono?: boolean;
+  multiline?: boolean;
   suffix?: string | null;
+  className?: string;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const cancelledRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+
+  // Keep draft in sync whenever the upstream value changes (e.g. another
+  // tab updated this book) — but only when we're not actively editing.
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [value, editing]);
+
+  function start() {
+    cancelledRef.current = false;
+    setDraft(value);
+    setEditing(true);
+    // Focus + select after the input mounts.
+    window.setTimeout(() => {
+      const el = inputRef.current;
+      if (!el) return;
+      el.focus();
+      if ('select' in el) el.select();
+    }, 0);
+  }
+  function commit() {
+    if (cancelledRef.current) {
+      cancelledRef.current = false;
+      setEditing(false);
+      return;
+    }
+    if (draft !== value) onSave(draft);
+    setEditing(false);
+  }
+  function cancel() {
+    cancelledRef.current = true;
+    setDraft(value);
+    setEditing(false);
+  }
+
+  const inputClass = `w-full bg-surface-card border border-navy/60 rounded-md px-2 py-1 text-[12px] text-text-primary placeholder:text-text-quaternary focus:outline-none focus:border-navy ${
+    mono ? 'font-mono text-[11px]' : ''
+  }`;
+
+  if (editing) {
+    return (
+      <div className={`min-w-0 ${className ?? ''}`}>
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="typo-label">{label}</span>
+          <span className="text-[9px] text-text-tertiary italic">
+            Enter to save · Esc to cancel
+          </span>
+        </div>
+        {multiline ? (
+          <textarea
+            ref={(el) => { inputRef.current = el; }}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                cancel();
+              }
+              // Cmd/Ctrl+Enter saves a multiline; bare Enter inserts a newline.
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                (e.target as HTMLTextAreaElement).blur();
+              }
+            }}
+            rows={3}
+            placeholder={placeholder}
+            className={`${inputClass} resize-y`}
+          />
+        ) : (
+          <input
+            ref={(el) => { inputRef.current = el; }}
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                (e.target as HTMLInputElement).blur();
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                cancel();
+              }
+            }}
+            placeholder={placeholder}
+            className={inputClass}
+          />
+        )}
+      </div>
+    );
+  }
+
+  const empty = !value;
   return (
-    <div className="flex items-baseline gap-2 min-w-0">
-      <span className="typo-label flex-shrink-0">{label}</span>
-      <span
-        className={`text-[12px] text-text-primary dark:text-text-primary truncate ${
+    <div className={`min-w-0 group ${className ?? ''}`}>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="typo-label">{label}</span>
+        {suffix && (
+          <span className="text-[9px] uppercase tracking-wider text-text-tertiary">
+            {suffix}
+          </span>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={start}
+        title="Click to edit"
+        className={`mt-0.5 text-left w-full text-[12px] truncate cursor-text rounded px-1.5 py-1 -mx-1.5 -my-1 hover:bg-surface-card transition-colors ${
           mono ? 'font-mono text-[11px]' : ''
+        } ${
+          empty
+            ? 'text-text-quaternary italic'
+            : 'text-text-primary'
         }`}
       >
-        {value}
-      </span>
-      {suffix && (
-        <span className="text-[9px] uppercase tracking-wider text-text-tertiary">
-          {suffix}
-        </span>
-      )}
+        {empty ? placeholder ?? '—' : value}
+      </button>
+    </div>
+  );
+}
+
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <span className="typo-label">{label}</span>
+      <div className="mt-0.5 text-[12px] text-text-secondary truncate">{value}</div>
     </div>
   );
 }

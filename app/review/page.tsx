@@ -262,7 +262,7 @@ export default function ReviewPage() {
       {/* Compact book table — replaces the v2 grouped-card layout. Sticky
           column header, click any row to expand its detail panel. */}
       <div className="bg-surface-card border border-line rounded-lg overflow-hidden">
-        <div className="grid grid-cols-[52px_1fr_80px_200px_120px] items-center gap-3 px-[14px] py-[7px] bg-surface-page border-b border-line sticky top-0 z-[5]">
+        <div className="grid grid-cols-[52px_1fr_80px_200px_100px] items-center gap-3 px-[14px] py-[7px] bg-surface-page border-b border-line sticky top-0 z-[5]">
           <span />
           <span className="typo-label">Book</span>
           <span className="typo-label">Conf.</span>
