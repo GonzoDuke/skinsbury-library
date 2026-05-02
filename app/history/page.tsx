@@ -29,6 +29,7 @@ import {
   type LedgerEntry,
 } from '@/lib/export-ledger';
 import { CSV_HEADERS, exportFilename } from '@/lib/csv-export';
+import { ImportLibraryThingDialog } from '@/components/ImportLibraryThingDialog';
 
 /** Same escape rules as the canonical CSV writer in lib/csv-export.ts —
  *  inlined here so we don't have to widen its export surface for one
@@ -123,6 +124,7 @@ export default function HistoryPage() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [busy, setBusy] = useState<{ kind: 'delete'; key: string } | null>(null);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   // Pull the canonical ledger before rendering. If the remote isn't
   // available we fall back silently to localStorage.
@@ -227,7 +229,33 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="typo-page-title">History</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="typo-page-title">History</h1>
+        <button
+          type="button"
+          onClick={() => setImportOpen(true)}
+          className="text-[12px] font-medium px-3 py-1.5 rounded-md border border-line text-text-secondary hover:border-navy hover:text-navy hover:bg-navy-soft transition"
+          title="Seed the ledger from your existing LibraryThing catalog"
+        >
+          + Import from LibraryThing
+        </button>
+      </div>
+
+      {importOpen && (
+        <ImportLibraryThingDialog
+          onClose={() => setImportOpen(false)}
+          onImported={(count) => {
+            // Refresh from local cache (pushLedgerDelta already updated it).
+            refreshFromLocal();
+            if (count > 0) {
+              setStatusMsg(
+                `Imported ${count} ${count === 1 ? 'book' : 'books'} from LibraryThing — visible below as the “LibraryThing Import” batch.`
+              );
+              window.setTimeout(() => setStatusMsg(null), 6000);
+            }
+          }}
+        />
+      )}
 
       {/* Lifetime stats line */}
       <div className="text-[13px] text-text-secondary border-b border-line pb-3">
