@@ -159,7 +159,13 @@ export async function syncLedgerFromRepo(): Promise<LedgerEntry[] | null> {
  * with the post-merge state returned by the route.
  */
 export async function pushLedgerDelta(
-  delta: { add?: LedgerEntry[]; removeBatchLabels?: (string | null)[]; clearAll?: boolean }
+  delta: {
+    add?: LedgerEntry[];
+    removeBatchLabels?: (string | null)[];
+    clearAll?: boolean;
+    /** Replace every occurrence of `from` in `tags` arrays with `to`. */
+    renameTag?: { from: string; to: string };
+  }
 ): Promise<RemoteLedgerResponse> {
   if (typeof window === 'undefined') return { available: false };
   try {

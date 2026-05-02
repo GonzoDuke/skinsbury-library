@@ -16,6 +16,12 @@ interface PostBody {
   add?: LedgerEntry[];
   removeBatchLabels?: (string | null)[];
   clearAll?: boolean;
+  /**
+   * Tag rename: replace every occurrence of `from` in any entry's
+   * `tags` array with `to`. Case-insensitive match. Used by the
+   * Vocabulary screen so a rename propagates to historical exports.
+   */
+  renameTag?: { from: string; to: string };
 }
 
 interface GhFile {
@@ -158,8 +164,17 @@ export async function POST(req: NextRequest) {
     ? body.removeBatchLabels
     : [];
   const clearAll = body.clearAll === true;
+  const renameFrom =
+    body.renameTag && typeof body.renameTag.from === 'string'
+      ? body.renameTag.from.trim()
+      : '';
+  const renameTo =
+    body.renameTag && typeof body.renameTag.to === 'string'
+      ? body.renameTag.to.trim()
+      : '';
+  const doRename = renameFrom.length > 0 && renameTo.length > 0 && renameFrom !== renameTo;
 
-  if (!clearAll && additions.length === 0 && removeLabels.length === 0) {
+  if (!clearAll && additions.length === 0 && removeLabels.length === 0 && !doRename) {
     return NextResponse.json({ error: 'Empty delta' }, { status: 400 });
   }
 
@@ -190,6 +205,31 @@ export async function POST(req: NextRequest) {
     if (validAdditions.length > 0) {
       next = mergeLedgerAdditions(next, validAdditions);
     }
+    let renameAffected = 0;
+    if (doRename) {
+      const fromLower = renameFrom.toLowerCase();
+      next = next.map((e) => {
+        if (!e.tags || e.tags.length === 0) return e;
+        let mutated = false;
+        const seen = new Set<string>();
+        const nextTags: string[] = [];
+        for (const t of e.tags) {
+          const replaced = t.toLowerCase() === fromLower ? renameTo : t;
+          // Drop dupes that the rename might create (a row that had
+          // both old and new names ends up with two identical tags).
+          if (seen.has(replaced.toLowerCase())) {
+            mutated = true;
+            continue;
+          }
+          seen.add(replaced.toLowerCase());
+          if (replaced !== t) mutated = true;
+          nextTags.push(replaced);
+        }
+        if (!mutated) return e;
+        renameAffected += 1;
+        return { ...e, tags: nextTags };
+      });
+    }
 
     // Skip the write when nothing actually changed — saves a no-op commit.
     if (
@@ -218,6 +258,11 @@ export async function POST(req: NextRequest) {
     if (validAdditions.length > 0) {
       messageParts.push(
         `add ${validAdditions.length} ${validAdditions.length === 1 ? 'entry' : 'entries'}`
+      );
+    }
+    if (doRename && renameAffected > 0) {
+      messageParts.push(
+        `rename "${renameFrom}" → "${renameTo}" (${renameAffected} ${renameAffected === 1 ? 'entry' : 'entries'})`
       );
     }
     const message = `Ledger: ${messageParts.join('; ')} (${dateStr})`;

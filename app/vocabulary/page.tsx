@@ -24,7 +24,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { VOCAB, type DomainKey } from '@/lib/tag-domains';
-import { loadLedger, syncLedgerFromRepo } from '@/lib/export-ledger';
+import { loadLedger, pushLedgerDelta, syncLedgerFromRepo } from '@/lib/export-ledger';
 import vocabSeed from '@/lib/tag-vocabulary.json';
 
 interface VocabShape {
@@ -86,13 +86,19 @@ export default function VocabularyPage() {
   const [newTagDomain, setNewTagDomain] = useState<DomainKey>(
     () => sortDomainKeysByLabel(DOMAIN_KEYS, vocabSeed.domains)[0]
   );
-  const [busy, setBusy] = useState<{ kind: 'add' | 'delete'; tag: string } | null>(
+  const [busy, setBusy] = useState<{ kind: 'add' | 'delete' | 'rename'; tag: string } | null>(
     null
   );
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ tag: string; domain: DomainKey } | null>(
     null
   );
+  // Active rename: tag row currently in inline-edit mode + the draft.
+  const [renaming, setRenaming] = useState<{
+    domain: DomainKey;
+    from: string;
+    draft: string;
+  } | null>(null);
 
   // Changelog view + ledger usage map. Both fetched once on mount.
   const [changelogText, setChangelogText] = useState<string>('');
@@ -262,6 +268,73 @@ export default function VocabularyPage() {
     );
     setBusy(null);
     if (!ok) setVocab(optimistic);
+  }
+
+  async function onRenameTag(
+    fromTag: string,
+    toTag: string,
+    domainKey: DomainKey
+  ) {
+    const trimmed = toTag.trim();
+    if (!trimmed || trimmed === fromTag) {
+      setRenaming(null);
+      return;
+    }
+    const domain = vocab.domains[domainKey];
+    if (!domain) return;
+    if (
+      domain.tags.some(
+        (t) => t.toLowerCase() === trimmed.toLowerCase() && t !== fromTag
+      )
+    ) {
+      setError(`"${trimmed}" already exists in ${domain.label}.`);
+      return;
+    }
+    const usage = usageByTag.get(fromTag) ?? 0;
+    const ok = window.confirm(
+      `Rename "${fromTag}" to "${trimmed}"?\n\n` +
+        `${
+          usage === 0
+            ? 'This tag is not used on any books yet.'
+            : `This will update ${usage} ${usage === 1 ? 'book' : 'books'} in the ledger.`
+        }`
+    );
+    if (!ok) return;
+
+    setBusy({ kind: 'rename', tag: fromTag });
+    setError(null);
+    const optimistic = vocab;
+    const next: VocabShape = JSON.parse(JSON.stringify(vocab));
+    next.domains[domainKey].tags = next.domains[domainKey].tags
+      .map((t) => (t === fromTag ? trimmed : t))
+      .sort((a, b) => a.localeCompare(b));
+    next.updated = new Date().toISOString().slice(0, 10);
+    setVocab(next);
+    setRenaming(null);
+    const vocabOk = await commitVocab(
+      next,
+      `Renamed \`${fromTag}\` to \`${trimmed}\` in **${domain.label}**`,
+      `Vocabulary: rename "${fromTag}" → "${trimmed}" in ${domain.label}`
+    );
+    if (!vocabOk) {
+      setVocab(optimistic);
+      setBusy(null);
+      return;
+    }
+    // Propagate to the export ledger so historical tags flip too.
+    try {
+      await pushLedgerDelta({ renameTag: { from: fromTag, to: trimmed } });
+    } catch (err) {
+      // Ledger push failure is non-fatal — the vocabulary already
+      // updated. Surface the error so the user knows historical
+      // entries didn't propagate.
+      setError(
+        err instanceof Error
+          ? `Vocabulary updated, but ledger rename failed: ${err.message}`
+          : 'Vocabulary updated, but ledger rename failed.'
+      );
+    }
+    setBusy(null);
   }
 
   const parsedChangelog = useMemo(
@@ -600,12 +673,71 @@ export default function VocabularyPage() {
                 const canDelete = usage === 0 && !busy;
                 const isConfirming =
                   confirm?.tag === row.tag && confirm.domain === row.domain;
+                const isRenaming =
+                  renaming?.from === row.tag && renaming.domain === row.domain;
                 return (
                   <div
                     key={`${row.domain}:${row.tag}`}
-                    className="grid grid-cols-[1fr_180px_80px_60px] items-center gap-3 px-[14px] py-[8px] border-b border-line-light last:border-b-0 text-[13px]"
+                    className="group grid grid-cols-[1fr_180px_80px_60px] items-center gap-3 px-[14px] py-[8px] border-b border-line-light last:border-b-0 text-[13px]"
                   >
-                    <span className="text-text-primary truncate">{row.tag}</span>
+                    {isRenaming ? (
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          value={renaming.draft}
+                          autoFocus
+                          onChange={(e) =>
+                            setRenaming({ ...renaming, draft: e.target.value })
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              onRenameTag(row.tag, renaming.draft, row.domain);
+                            } else if (e.key === 'Escape') {
+                              setRenaming(null);
+                            }
+                          }}
+                          className="flex-1 min-w-0 bg-surface-card border border-navy/60 rounded px-2 py-1 text-[13px] text-text-primary focus:outline-none focus:border-navy"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onRenameTag(row.tag, renaming.draft, row.domain)
+                          }
+                          disabled={!!busy}
+                          className="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-navy text-white"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRenaming(null)}
+                          className="text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-line text-text-tertiary"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-text-primary truncate">
+                          {row.tag}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setRenaming({
+                              domain: row.domain,
+                              from: row.tag,
+                              draft: row.tag,
+                            })
+                          }
+                          aria-label={`Rename ${row.tag}`}
+                          title="Rename"
+                          className="opacity-0 group-hover:opacity-100 text-[11px] text-text-quaternary hover:text-navy transition px-1"
+                        >
+                          ✎
+                        </button>
+                      </div>
+                    )}
                     <span className="text-[12px] text-text-tertiary truncate">
                       {row.domainLabel}
                     </span>
