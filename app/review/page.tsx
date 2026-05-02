@@ -15,7 +15,14 @@ import { confirmDiscardSession } from '@/lib/session';
 import { syncPendingBatchesFromRepo } from '@/lib/pending-batches';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected' | 'low';
-type Sort = 'position' | 'confidence-desc' | 'confidence-asc';
+type Sort =
+  | 'position'
+  | 'confidence-desc'
+  | 'confidence-asc'
+  | 'title-asc'
+  | 'title-desc'
+  | 'tags-desc'
+  | 'tags-asc';
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -160,15 +167,31 @@ export default function ReviewPage() {
       if (filter === 'low') return b.confidence === 'LOW';
       return b.status === filter;
     });
+    const byPosition = (a: typeof filtered[number], b: typeof filtered[number]) =>
+      a.spineRead.position - b.spineRead.position;
     if (sort === 'position') {
-      return [...filtered].sort(
-        (a, b) => a.spineRead.position - b.spineRead.position
-      );
+      return [...filtered].sort(byPosition);
+    }
+    if (sort === 'title-asc' || sort === 'title-desc') {
+      const dir = sort === 'title-desc' ? -1 : 1;
+      return [...filtered].sort((a, b) => {
+        const d = (a.title || '').localeCompare(b.title || '') * dir;
+        return d !== 0 ? d : byPosition(a, b);
+      });
+    }
+    if (sort === 'tags-asc' || sort === 'tags-desc') {
+      const dir = sort === 'tags-desc' ? -1 : 1;
+      return [...filtered].sort((a, b) => {
+        const aCount = (a.genreTags?.length ?? 0) + (a.formTags?.length ?? 0);
+        const bCount = (b.genreTags?.length ?? 0) + (b.formTags?.length ?? 0);
+        const d = (aCount - bCount) * dir;
+        return d !== 0 ? d : byPosition(a, b);
+      });
     }
     const dir = sort === 'confidence-desc' ? -1 : 1;
     return [...filtered].sort((a, b) => {
       const d = (CONFIDENCE_RANK[a.confidence] - CONFIDENCE_RANK[b.confidence]) * dir;
-      return d !== 0 ? d : a.spineRead.position - b.spineRead.position;
+      return d !== 0 ? d : byPosition(a, b);
     });
   }, [state.allBooks, filter, sort]);
 
@@ -401,9 +424,27 @@ export default function ReviewPage() {
       <div className="hidden md:block bg-surface-card border border-line rounded-lg overflow-hidden">
         <div className="grid grid-cols-[72px_1fr_90px_240px_120px] items-center gap-4 px-[16px] py-[10px] bg-surface-page border-b border-line sticky top-0 z-[5]">
           <span />
-          <span className="typo-label">Book</span>
-          <span className="typo-label">Conf.</span>
-          <span className="typo-label">Tags</span>
+          <SortHeader
+            label="Book"
+            current={sort}
+            asc="title-asc"
+            desc="title-desc"
+            setSort={setSort}
+          />
+          <SortHeader
+            label="Conf."
+            current={sort}
+            asc="confidence-asc"
+            desc="confidence-desc"
+            setSort={setSort}
+          />
+          <SortHeader
+            label="Tags"
+            current={sort}
+            asc="tags-asc"
+            desc="tags-desc"
+            setSort={setSort}
+          />
           <span className="typo-label text-right">Action</span>
         </div>
 
@@ -499,6 +540,45 @@ export default function ReviewPage() {
       )}
     </div>
     </DebugErrorBoundary>
+  );
+}
+
+/**
+ * Clickable column header that toggles between asc / desc / off.
+ * First click → desc (most users want "best at top" for confidence
+ * and "most tags" for tags); second click flips to asc; third click
+ * resets to position order. Active arrow tells the user which
+ * column drives the current sort.
+ */
+function SortHeader({
+  label,
+  current,
+  asc,
+  desc,
+  setSort,
+}: {
+  label: string;
+  current: Sort;
+  asc: Sort;
+  desc: Sort;
+  setSort: (s: Sort) => void;
+}) {
+  const active = current === asc || current === desc;
+  const arrow = current === desc ? '↓' : current === asc ? '↑' : '';
+  function onClick() {
+    if (current === desc) setSort(asc);
+    else if (current === asc) setSort('position');
+    else setSort(desc);
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`typo-label inline-flex items-center gap-1 hover:text-navy transition cursor-pointer ${active ? 'text-navy' : ''}`}
+    >
+      {label}
+      {arrow && <span className="text-[10px]">{arrow}</span>}
+    </button>
   );
 }
 
