@@ -315,9 +315,6 @@ export default function VocabularyPage() {
         ) : (
           filteredRows.map((row) => {
             const usage = usageByTag.get(row.tag) ?? 0;
-            const canDelete = usage === 0 && !busy;
-            const isConfirming =
-              confirm?.tag === row.tag && confirm.domain === row.domain;
             return (
               <div
                 key={`${row.domain}:${row.tag}`}
@@ -339,41 +336,9 @@ export default function VocabularyPage() {
                     </span>
                   </div>
                 </div>
-                {isConfirming ? (
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => onDeleteTag(row.tag, row.domain)}
-                      className="text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-carnegie-red text-carnegie-red"
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirm(null)}
-                      className="text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-line text-text-tertiary"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      canDelete && setConfirm({ tag: row.tag, domain: row.domain })
-                    }
-                    disabled={!canDelete}
-                    aria-label={`Delete ${row.tag}`}
-                    title={
-                      usage > 0
-                        ? `Used by ${usage} ${usage === 1 ? 'book' : 'books'} — delete blocked.`
-                        : 'Remove from vocabulary'
-                    }
-                    className="w-8 h-8 flex-shrink-0 rounded text-[14px] font-semibold border border-line text-text-quaternary disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    {busy?.kind === 'delete' && busy.tag === row.tag ? '…' : '✕'}
-                  </button>
-                )}
+                {/* Delete is desktop/tablet only — phone gets a read +
+                    add-only experience. The destructive action (and
+                    its confirm flow) lives in the desktop layout below. */}
               </div>
             );
           })
