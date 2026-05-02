@@ -1,0 +1,51 @@
+{
+  "id": "16198a0c-6d29-4d33-9a3d-b38f2503f9a3",
+  "filename": "Barcode scans · 5/2/2026, 5:05:37 PM",
+  "fileSize": 0,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 0,
+  "booksIdentified": 1,
+  "books": [
+    {
+      "id": "02f80708-6671-4b56-ba26-70f85fcef825",
+      "spineRead": {
+        "position": 1,
+        "rawText": "[scanned ISBN 9780882830179]",
+        "title": "",
+        "author": "",
+        "publisher": "",
+        "confidence": "LOW"
+      },
+      "title": "",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780882830179",
+      "publisher": "",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "",
+      "status": "pending",
+      "warnings": [
+        "Barcode 9780882830179 read but no metadata match in any source — fill in title/author manually."
+      ],
+      "sourcePhoto": "barcode-scan-9780882830179",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "scannedFromBarcode": true,
+      "original": {
+        "title": "",
+        "author": "",
+        "isbn": "9780882830179",
+        "publisher": "",
+        "publicationYear": 0,
+        "lcc": "",
+        "genreTags": [],
+        "formTags": []
+      }
+    }
+  ]
+}
