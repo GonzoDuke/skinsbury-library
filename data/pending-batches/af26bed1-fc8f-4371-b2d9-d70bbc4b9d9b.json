@@ -1,0 +1,126 @@
+{
+  "id": "af26bed1-fc8f-4371-b2d9-d70bbc4b9d9b",
+  "filename": "shelf-capture-001.cropped.jpg",
+  "fileSize": 669828,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 4,
+  "booksIdentified": 2,
+  "books": [
+    {
+      "id": "f8bad1cc-a4b7-41bc-9843-e19a905aa59e",
+      "spineRead": {
+        "position": 2,
+        "rawText": "A Generation of Sociopaths — Bruce Cannon Gibney",
+        "title": "A Generation of Sociopaths",
+        "author": "Bruce Cannon Gibney",
+        "publisher": "Hachette",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 20,
+          "y": 10,
+          "width": 12,
+          "height": 85
+        }
+      },
+      "title": "A Generation of Sociopaths",
+      "author": "Bruce Cannon Gibney",
+      "authorLF": "Gibney, Bruce Cannon",
+      "isbn": "9781478945291",
+      "publisher": "Hachette Books",
+      "publicationYear": 2017,
+      "lcc": "E--0893.00000000",
+      "genreTags": [
+        "American history",
+        "Social criticism",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC E → American history. Subject headings confirm Baby Boomers + US economic conditions. Title implies critical analysis of generational behavior → Social criticism + Cultural history for generational study.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781478945291-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "A Generation of Sociopaths",
+        "author": "Bruce Cannon Gibney",
+        "isbn": "9781478945291",
+        "publisher": "Hachette Books",
+        "publicationYear": 2017,
+        "lcc": "E--0893.00000000",
+        "genreTags": [
+          "American history",
+          "Social criticism",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "d8fe9238-6b44-4714-b145-572f4a20bb72",
+      "spineRead": {
+        "position": 4,
+        "rawText": "RANJI MAHARAJAH of CONNEMARA — Anne Chambers",
+        "title": "RANJI MAHARAJAH of CONNEMARA",
+        "author": "Anne Chambers",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 44,
+          "y": 10,
+          "width": 15,
+          "height": 85
+        }
+      },
+      "title": "Ranji Maharajah of Connemara",
+      "author": "Anne Chambers",
+      "authorLF": "Chambers, Anne",
+      "isbn": "9788174363442",
+      "publisher": "Lotus Collection, Roli Books",
+      "publicationYear": 2004,
+      "lcc": "DS485 .N3+",
+      "genreTags": [
+        "Music biography",
+        "Sports",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC DS485 → Indian history/biography. Subject headings confirm biography of cricket player and ruler. 'Cricket players' → Sports. 'Kings and rulers' + cultural elements → Cultural history. Ranji was famous cricketer-prince.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9788174363442-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Ranji Maharajah of Connemara",
+        "author": "Anne Chambers",
+        "isbn": "9788174363442",
+        "publisher": "Lotus Collection, Roli Books",
+        "publicationYear": 2004,
+        "lcc": "DS485 .N3+",
+        "genreTags": [
+          "Music biography",
+          "Sports",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "shelf-capture-001.jpg",
+  "sourceDimensions": {
+    "width": 1332,
+    "height": 2829
+  }
+}
