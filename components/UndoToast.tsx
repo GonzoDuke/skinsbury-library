@@ -80,24 +80,46 @@ export function UndoToast() {
     setToast(null);
   }
 
+  // Manual dismiss = same outcome as the timer expiring: the
+  // destructive action stays committed, the toast just goes away
+  // on the user's terms.
+  function onDismissClick() {
+    setToast(null);
+  }
+
   return (
     <div
       role="status"
-      className="fixed inset-x-0 z-[60] flex justify-center px-4 pointer-events-none"
-      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 72px)' }}
+      className="fixed z-[60] pointer-events-none"
+      style={{
+        left: '50%',
+        transform: 'translateX(-50%)',
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+      }}
     >
-      <div className="pointer-events-auto bg-ink dark:bg-cream-50 text-cream-50 dark:text-ink rounded-md shadow-lg px-4 py-2.5 flex items-center gap-3 max-w-md w-full sm:w-auto">
+      <div className="pointer-events-auto bg-ink dark:bg-cream-50 text-cream-50 dark:text-ink rounded-md shadow-lg pl-4 pr-1.5 py-2.5 flex items-center gap-3 max-w-[min(94vw,520px)]">
         <span className="text-[13px] flex-1 truncate">{toast.message}</span>
         <button
           type="button"
           onClick={onUndoClick}
-          className="text-[12px] font-semibold uppercase tracking-wider px-2 py-1 rounded text-brass hover:text-limestone transition"
+          className="text-[12px] font-semibold uppercase tracking-wider px-2 py-1 rounded text-brass hover:text-limestone transition flex-shrink-0"
         >
           Undo
         </button>
-        <span className="text-[10px] font-mono text-cream-300 dark:text-ink-soft tabular-nums w-4 text-right">
+        <span className="text-[10px] font-mono text-cream-300 dark:text-ink-soft tabular-nums w-4 text-right flex-shrink-0">
           {secondsLeft}
         </span>
+        <button
+          type="button"
+          onClick={onDismissClick}
+          aria-label="Dismiss"
+          // 32px tap target so it clears the WCAG / iOS minimum.
+          // Subtle by default; brightens on hover so it reads as a
+          // real control without competing with the Undo CTA.
+          className="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center text-[16px] leading-none text-cream-300 dark:text-ink-soft hover:text-cream-50 dark:hover:text-ink hover:bg-white/10 dark:hover:bg-black/10 transition"
+        >
+          ×
+        </button>
       </div>
     </div>
   );
