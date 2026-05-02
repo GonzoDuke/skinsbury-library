@@ -44,6 +44,7 @@ export function MobileShell() {
     { href: '/', label: 'Capture', icon: <CameraIcon /> },
     { href: '/review', label: 'Review', icon: <ReviewIcon /> },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
+    { href: '/vocabulary', label: 'Vocab', icon: <BooksIcon /> },
   ];
 
   function isActive(href: string) {
@@ -91,11 +92,11 @@ export function MobileShell() {
         </button>
       </header>
 
-      {/* Bottom tab bar — three primary tabs. iOS adds a home-indicator
-          inset; honor it via env(safe-area-inset-bottom) so the labels
-          don't get clipped on a real device. */}
+      {/* Bottom tab bar — four primary tabs evenly spaced. iOS adds a
+          home-indicator inset; honor it via env(safe-area-inset-bottom)
+          so the labels don't get clipped on a real device. */}
       <nav
-        className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-3 border-t border-line-light bg-surface-card"
+        className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-4 border-t border-line-light bg-surface-card"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
@@ -235,6 +236,18 @@ function ExportIcon() {
       <path d="M12 3v12" />
       <path d="M7 8l5-5 5 5" />
       <path d="M3 17v4h18v-4" />
+    </IconShell>
+  );
+}
+
+function BooksIcon() {
+  // Three-spine stack mirroring the desktop sidebar's library glyph,
+  // upscaled to the 24x24 viewBox the other phone tab icons use.
+  return (
+    <IconShell>
+      <rect x="3" y="2" width="4" height="20" rx="0.5" />
+      <rect x="9.5" y="4" width="4" height="18" rx="0.5" />
+      <path d="M16.5 21l4.5-18" />
     </IconShell>
   );
 }
