@@ -1,0 +1,58 @@
+{
+  "id": "b0869af9-ce17-4197-9b9c-98a4e05efdfc",
+  "filename": "Barcode scans · 5/2/2026, 4:17:43 PM",
+  "fileSize": 0,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 0,
+  "booksIdentified": 1,
+  "books": [
+    {
+      "id": "78f8739c-807a-496b-9f03-fa9a5f0cd178",
+      "spineRead": {
+        "position": 1,
+        "rawText": "[scanned ISBN 9780872860179]",
+        "title": "Howl, and Other Poems",
+        "author": "Allen Ginsberg",
+        "publisher": "Kraus Reprint Co.",
+        "confidence": "HIGH"
+      },
+      "title": "Howl, and Other Poems",
+      "author": "Allen Ginsberg",
+      "authorLF": "Ginsberg, Allen",
+      "isbn": "9780872860179",
+      "publisher": "Kraus Reprint Co.",
+      "publicationYear": 1956,
+      "lcc": "PS3513 .I74 .P462 vol. 1, no. 4",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Beat poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PS → American poetry. Subject headings confirm poetry and Beat generation. Ginsberg is core Beat poet → Poetry + American poetry + Beat poetry.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "barcode-scan-9780872860179",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780872860179-L.jpg",
+      "scannedFromBarcode": true,
+      "original": {
+        "title": "Howl, and Other Poems",
+        "author": "Allen Ginsberg",
+        "isbn": "9780872860179",
+        "publisher": "Kraus Reprint Co.",
+        "publicationYear": 1956,
+        "lcc": "PS3513 .I74 .P462 vol. 1, no. 4",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Beat poetry"
+        ],
+        "formTags": []
+      }
+    }
+  ]
+}
