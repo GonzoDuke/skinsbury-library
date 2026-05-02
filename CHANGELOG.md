@@ -5,6 +5,75 @@ Source documents live in [lib/archive/](lib/archive/). Newest first.
 
 ---
 
+## v3.0.0 — 2026-05-02
+
+Mobile-first release. The app stops being a desktop tool that "also works on
+the phone" and becomes one that's actually pleasant to use from a phone, with
+the desktop layout untouched. Three threads:
+
+### Phone shell + cross-device sync
+- **Mobile shell** (`bdc5c3e`, `1722898`, `6d51b64`): viewport-gated split.
+  Phone gets a 48px navy top bar (CARNEGIE wordmark + spine-stack mark + New
+  session and About icon buttons on the right) and a four-tab bottom bar —
+  Capture / Review / Export / Vocab — with iOS safe-area insets honored. The
+  desktop sidebar is unchanged.
+- **Pending-batch sync** (`bdc5c3e`): each finished batch posts to
+  `data/pending-batches/{id}.json` via the new `/api/pending-batches` route,
+  so a phone capture appears on the tablet/desktop on next load. Pull on app
+  load + a manual "Refresh from cloud" button on the Review header and
+  Capture screen. Files delete on CSV export and on Clear/New-session.
+  Token-missing returns 501 cleanly; UI continues with localStorage only.
+- **Phone Review cards** (`bdc5c3e`): `MobileBookCard` replaces the desktop
+  table on phone — full cover, title/author/ISBN/year row, confidence badge,
+  tag pills, ✓/✕ buttons. Tap to expand the same inline `Editable` helper
+  the desktop detail panel uses (extracted into `components/Editable.tsx`).
+
+### Capture flow polish
+- **Camera right-side shutter + prominent Done pill** (`fe44da6`): landscape
+  grip moves the shutter to the right edge; the Done action is a solid white
+  pill at top-right above the camera-feed gradient.
+- **Camera shots route through CropModal** (`9ab743d`): captures queue in a
+  session-local ref and flush to the parent on Done, so the CropModal opens
+  on a clean stack instead of fighting the camera modal's z-index.
+- **Photo queue surfaces every batch** (`9ab743d`): `<ProcessingQueue>` is
+  mounted on the Upload page so error rows ("Image too small …") no longer
+  vanish silently. Per-row remove button included.
+- **Realistic min-image-width + max-resolution camera ask** (`9ab743d`):
+  `MIN_IMAGE_WIDTH` lowered from 1500 → 1200 (phone cameras often deliver
+  1280×720); `getUserMedia` now hints `width: { ideal: 3840 }` so devices
+  with 4K rear sensors deliver them.
+- **Sticky phone Process-all** (`e4d95cc`): single full-width CTA pinned
+  above the bottom tab bar, only when the queue is actionable.
+
+### Vocabulary phone redesign
+- **Single-stack phone view** (`5856022`, `9c0fbcc`): horizontal scrollable
+  domain pills at the top (All selected by default), single-column tag rows
+  below (name, domain, usage count), sticky Add-tag panel at the bottom
+  (input + select + full-width Add button) above the tab bar. Delete is
+  desktop/tablet only. Verified at 375×812 portrait — no overflow.
+
+### Other
+- **Phone vocab + bottom tabs include Vocab** (`6d51b64`): four tabs evenly
+  spaced; three-spine BooksIcon matches the desktop sidebar glyph.
+- **About page** (`75a4581`): static editorial page at `/about` — 80px
+  Carnegie-tartan bar, 640px text column, Outfit typography, five-stage
+  pipeline list, Built with / Built by sections. Sidebar gets an info-circle
+  About item above the stats footer; phone header pairs an info icon next to
+  New session.
+- **Upload page UX** (`5de5f9f`): dropzone is now the first thing under the
+  page title; batch label / notes inputs moved below it. Inline (i) tips
+  button removed from the dropzone copy.
+
+### Known constraints carried into v3
+- Phone post-process edits (`updateBook`) still don't push back to the repo
+  — the sync is push-once at process-end. Refresh button covers the
+  practical gap; live edit-sync is deferred.
+- Pipeline (`lib/pipeline.ts`, `/api/process-photo`, `/api/read-spine`,
+  `/api/lookup-book`, `/api/infer-tags`, `/api/commit-vocabulary`) untouched
+  in this release.
+
+---
+
 ## v2.0.0 — 2026-05-01
 
 A cohort of features and a full design polish pass. The shape of the app is the
