@@ -316,21 +316,24 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
                 }`}
               />
 
-              {/* Top bar inside preview: counter + Done text link */}
-              <div className="absolute top-0 inset-x-0 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/55 to-transparent">
+              {/* Top bar inside preview: counter on the left. Done is its
+                  own absolutely-positioned button at top-right so it sits
+                  above the gradient and stays visible at high contrast
+                  even when the user is mid-capture. */}
+              <div className="absolute top-0 inset-x-0 px-4 py-3 bg-gradient-to-b from-black/55 to-transparent pointer-events-none">
                 <span className="text-[12px] uppercase tracking-wider text-cream-200 font-medium">
                   {captureUiCount === 0
                     ? 'Aim at a shelf'
                     : `${captureUiCount} photo${captureUiCount === 1 ? '' : 's'} taken`}
                 </span>
-                <button
-                  type="button"
-                  onClick={closeCamera}
-                  className="text-sm text-brass hover:text-limestone underline-offset-4 hover:underline transition"
-                >
-                  Done
-                </button>
               </div>
+              <button
+                type="button"
+                onClick={closeCamera}
+                className="absolute top-3 right-3 z-10 px-5 py-2 rounded-full bg-white text-ink text-base font-semibold shadow-lg ring-1 ring-black/10 hover:bg-cream-100 active:scale-95 transition"
+              >
+                Done
+              </button>
 
               {/* Camera-error overlay */}
               {cameraError && (
@@ -348,18 +351,22 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
                 </div>
               )}
 
-              {/* Bottom bar: subtle brass-outlined shutter */}
+              {/* Right-side shutter: brass-outlined, vertically centered.
+                  Landscape grip places the user's right thumb naturally
+                  here. A faint gradient anchors it to the right edge so
+                  it reads against bright shelf scenes. */}
               {!cameraError && (
-                <div className="absolute bottom-0 inset-x-0 flex items-center justify-center pb-5 pt-10 bg-gradient-to-t from-black/55 to-transparent">
+                <>
+                  <div className="absolute inset-y-0 right-0 w-24 pointer-events-none bg-gradient-to-l from-black/45 to-transparent" />
                   <button
                     type="button"
                     onClick={takePhoto}
                     aria-label="Take photo"
-                    className="group relative w-14 h-14 rounded-full border-2 border-brass/80 hover:border-brass active:scale-95 transition-transform flex items-center justify-center"
+                    className="group absolute right-5 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full border-2 border-brass/80 hover:border-brass active:scale-95 transition-transform flex items-center justify-center bg-black/20"
                   >
-                    <span className="w-9 h-9 rounded-full bg-brass/90 group-hover:bg-brass transition-colors" />
+                    <span className="w-11 h-11 rounded-full bg-brass/90 group-hover:bg-brass transition-colors" />
                   </button>
-                </div>
+                </>
               )}
             </div>
 
