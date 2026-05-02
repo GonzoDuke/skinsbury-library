@@ -1,0 +1,181 @@
+{
+  "id": "d0cd95a7-837b-4760-9d1c-15c328fecf5a",
+  "filename": "20260501_070056.cropped.jpg",
+  "fileSize": 953524,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 3,
+  "booksIdentified": 3,
+  "books": [
+    {
+      "id": "f39e119e-a478-44cd-9746-3eb695e4a616",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Catalog of Unab... — Ross Gay",
+        "title": "Catalog of Unab...",
+        "author": "Ross Gay",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "The image shows multiple book spines stacked. Focusing on the middle spine: 'ross gay • catalog of unab...' (likely 'Catalog of Unabashed Gratitude'). Title is partially cut off at the right edge.",
+        "bbox": {
+          "x": 5,
+          "y": 5,
+          "width": 25,
+          "height": 85
+        }
+      },
+      "title": "Catalog of Unab...",
+      "author": "Ross Gay",
+      "authorLF": "Gay, Ross",
+      "isbn": "",
+      "publisher": "",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "Truncated title suggests poetry collection. Ross Gay is known American poet. No LCC or other metadata to confirm - reviewer should verify complete title and classification.",
+      "status": "pending",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "20260501_070056.cropped.jpg",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "ocrModel": "o",
+      "original": {
+        "title": "Catalog of Unab...",
+        "author": "Ross Gay",
+        "isbn": "",
+        "publisher": "",
+        "publicationYear": 0,
+        "lcc": "",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "c4f965e0-6bbc-43f1-9c5a-87b99d4446e9",
+      "spineRead": {
+        "position": 2,
+        "rawText": "catalog of unabashed gratitude — ross gay",
+        "title": "catalog of unabashed gratitude",
+        "author": "ross gay",
+        "publisher": "pittsburgh",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 5,
+          "y": 40,
+          "width": 90,
+          "height": 15
+        }
+      },
+      "title": "Catalog of Unabashed Gratitude",
+      "author": "ross gay",
+      "authorLF": "gay, ross",
+      "isbn": "9780822963318",
+      "publisher": "University of Pittsburgh Press",
+      "publicationYear": 2015,
+      "lcc": "PS-3607.00000000",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PS → American literature. Subject headings confirm 'American poetry' and 'Poetry'. Ross Gay is American poet. Poetry gets 'Poetry' tag plus 'American poetry' sub-tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070056.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780822963318-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Catalog of Unabashed Gratitude",
+        "author": "ross gay",
+        "isbn": "9780822963318",
+        "publisher": "University of Pittsburgh Press",
+        "publicationYear": 2015,
+        "lcc": "PS-3607.00000000",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "4127892e-5430-4f34-86b9-1b76386b5ea5",
+      "spineRead": {
+        "position": 3,
+        "rawText": "THE POETRY OF OUR WORLD — ed. JEFFERY PAINE",
+        "title": "THE POETRY OF OUR WORLD",
+        "author": "ed. JEFFERY PAINE",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 5,
+          "y": 55,
+          "width": 90,
+          "height": 15
+        }
+      },
+      "title": "The Poetry of Our World",
+      "author": "ed. JEFFERY PAINE",
+      "authorLF": "PAINE, ed. JEFFERY",
+      "isbn": "9780060553692",
+      "publisher": "HarperCollins Publishers",
+      "publicationYear": 2000,
+      "lcc": "PN6101 .P57 2000",
+      "genreTags": [
+        "Poetry",
+        "Anthology"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "LCC PN6101 → Poetry collections. Editor credit + 'Poetry of Our World' title → international anthology. Subject headings confirm modern poetry. Poetry + Anthology for content, Anthology form tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070056.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780060553692-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "The Poetry of Our World",
+        "author": "ed. JEFFERY PAINE",
+        "isbn": "9780060553692",
+        "publisher": "HarperCollins Publishers",
+        "publicationYear": 2000,
+        "lcc": "PN6101 .P57 2000",
+        "genreTags": [
+          "Poetry",
+          "Anthology"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      }
+    }
+  ],
+  "croppedFrom": "20260501_070056.jpg",
+  "sourceDimensions": {
+    "width": 3600,
+    "height": 2131
+  }
+}
