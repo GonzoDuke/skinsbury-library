@@ -182,28 +182,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <NavItem key={item.href} item={item} active={isActive(item.href)} />
         ))}
 
-        {/* Footer — pinned to the bottom with a top border. Numbers
-            read from the export ledger so they reflect cumulative
-            cataloging across sessions. */}
-        <div
-          className="mt-auto"
-          style={{
-            padding: '12px 16px',
-            borderTop: `1px solid ${SIDE_FOOT_BORDER}`,
-          }}
-        >
-          {stats ? (
-            <>
-              <div style={{ fontSize: 11, color: SIDE_SECTION }}>
-                {stats.books} {stats.books === 1 ? 'book' : 'books'} cataloged
-              </div>
-              <div style={{ fontSize: 11, color: SIDE_SECTION }}>
-                {stats.batches} {stats.batches === 1 ? 'batch' : 'batches'} exported
-              </div>
-            </>
-          ) : (
-            <div style={{ fontSize: 11, color: SIDE_SECTION }}>—</div>
-          )}
+        {/* About — standalone item, no section header. Sits just above
+            the stats footer; the wrapper below uses mt-auto so the
+            About + stats block hugs the bottom of the rail. */}
+        <div className="mt-auto">
+          <NavItem
+            item={{ href: '/about', label: 'About', icon: <InfoIcon /> }}
+            active={isActive('/about')}
+          />
+
+          {/* Footer — pinned under About with a top border. Numbers
+              read from the export ledger so they reflect cumulative
+              cataloging across sessions. */}
+          <div
+            style={{
+              padding: '12px 16px',
+              borderTop: `1px solid ${SIDE_FOOT_BORDER}`,
+            }}
+          >
+            {stats ? (
+              <>
+                <div style={{ fontSize: 11, color: SIDE_SECTION }}>
+                  {stats.books} {stats.books === 1 ? 'book' : 'books'} cataloged
+                </div>
+                <div style={{ fontSize: 11, color: SIDE_SECTION }}>
+                  {stats.batches} {stats.batches === 1 ? 'batch' : 'batches'} exported
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: 11, color: SIDE_SECTION }}>—</div>
+            )}
+          </div>
         </div>
       </aside>
 
@@ -370,6 +379,16 @@ function ClockIcon() {
     <IconShell>
       <circle cx="8" cy="8" r="6" />
       <path d="M8 5v3l2 2" />
+    </IconShell>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <IconShell>
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 7v4" />
+      <path d="M8 5v.01" />
     </IconShell>
   );
 }

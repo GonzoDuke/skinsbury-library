@@ -76,20 +76,33 @@ export function MobileShell() {
         >
           Carnegie
         </span>
-        <button
-          type="button"
-          onClick={onNewSession}
-          disabled={sessionEmpty}
-          aria-label="New session"
-          title="Discard the current batch and start fresh — exported books stay in the ledger."
-          className="ml-auto flex items-center justify-center w-9 h-9 rounded-full transition disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            color: 'rgba(255,255,255,0.85)',
-            background: 'rgba(255,255,255,0.08)',
-          }}
-        >
-          <NewSessionIcon />
-        </button>
+        <div className="ml-auto flex items-center gap-1.5">
+          <Link
+            href="/about"
+            aria-label="About"
+            className="flex items-center justify-center w-9 h-9 rounded-full transition"
+            style={{
+              color: 'rgba(255,255,255,0.85)',
+              background: 'rgba(255,255,255,0.08)',
+            }}
+          >
+            <InfoIcon />
+          </Link>
+          <button
+            type="button"
+            onClick={onNewSession}
+            disabled={sessionEmpty}
+            aria-label="New session"
+            title="Discard the current batch and start fresh — exported books stay in the ledger."
+            className="flex items-center justify-center w-9 h-9 rounded-full transition disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              color: 'rgba(255,255,255,0.85)',
+              background: 'rgba(255,255,255,0.08)',
+            }}
+          >
+            <NewSessionIcon />
+          </button>
+        </div>
       </header>
 
       {/* Bottom tab bar — four primary tabs evenly spaced. iOS adds a
@@ -187,6 +200,26 @@ function IconShell({ children }: { children: React.ReactNode }) {
       aria-hidden
     >
       {children}
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width="18"
+      height="18"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <path d="M12 8v.01" />
     </svg>
   );
 }
