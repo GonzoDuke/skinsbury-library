@@ -268,22 +268,101 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       // Also re-Title-Case existing book titles so any older records that were
       // saved with broken casing (random ALL-CAPS words from the prior bug)
       // get cleaned up retroactively.
-      const fixBookTitle = <T extends { title?: string; original?: { title?: string } }>(book: T): T => ({
-        ...book,
-        title: book.title ? toTitleCase(book.title) : book.title,
-        original: book.original
-          ? { ...book.original, title: book.original.title ? toTitleCase(book.original.title) : book.original.title }
-          : book.original,
-      });
+      // Sanitize EVERY field that flows into a rendered React child so a
+      // corrupt persisted record (an object accidentally pushed onto
+      // warnings, a non-string tag, a non-string lcc, etc.) cannot reach
+      // JSX as a non-primitive — that's what triggers the production
+      // "Objects are not valid as a React child" #418 / #438 crashes.
+      const toStringSafe = (v: unknown): string =>
+        typeof v === 'string'
+          ? v
+          : v == null
+            ? ''
+            : typeof v === 'number' || typeof v === 'boolean'
+              ? String(v)
+              : (() => {
+                  try {
+                    return JSON.stringify(v);
+                  } catch {
+                    return '';
+                  }
+                })();
+      const toStringArr = (v: unknown): string[] =>
+        Array.isArray(v)
+          ? v.map(toStringSafe).filter((s) => s.length > 0)
+          : [];
+      const toIntSafe = (v: unknown): number => {
+        if (typeof v === 'number' && Number.isFinite(v)) return v;
+        if (typeof v === 'string') {
+          const n = parseInt(v, 10);
+          return Number.isFinite(n) ? n : 0;
+        }
+        return 0;
+      };
+      const VALID_CONFIDENCE = new Set(['HIGH', 'MEDIUM', 'LOW']);
+      const sanitizeBook = <
+        T extends Partial<BookRecord> & { title?: string; original?: { title?: string } }
+      >(book: T): BookRecord => {
+        const conf = VALID_CONFIDENCE.has(toStringSafe(book.confidence) as 'HIGH')
+          ? (book.confidence as 'HIGH' | 'MEDIUM' | 'LOW')
+          : 'LOW';
+        return {
+          ...(book as BookRecord),
+          title: book.title ? toTitleCase(toStringSafe(book.title)) : '',
+          author: toStringSafe(book.author),
+          authorLF: toStringSafe(book.authorLF),
+          isbn: toStringSafe(book.isbn),
+          publisher: toStringSafe(book.publisher),
+          publicationYear: toIntSafe(book.publicationYear),
+          lcc: toStringSafe(book.lcc),
+          reasoning: toStringSafe(book.reasoning),
+          sourcePhoto: toStringSafe(book.sourcePhoto),
+          batchLabel:
+            book.batchLabel == null ? undefined : toStringSafe(book.batchLabel),
+          batchNotes:
+            book.batchNotes == null ? undefined : toStringSafe(book.batchNotes),
+          notes: book.notes == null ? undefined : toStringSafe(book.notes),
+          coverUrl:
+            book.coverUrl == null ? undefined : toStringSafe(book.coverUrl),
+          spineThumbnail:
+            book.spineThumbnail == null
+              ? undefined
+              : toStringSafe(book.spineThumbnail),
+          ddc: book.ddc == null ? undefined : toStringSafe(book.ddc),
+          confidence: conf,
+          status:
+            book.status === 'approved' ||
+            book.status === 'rejected' ||
+            book.status === 'pending'
+              ? book.status
+              : 'pending',
+          warnings: toStringArr(book.warnings),
+          genreTags: toStringArr(book.genreTags),
+          formTags: toStringArr(book.formTags),
+          duplicateOf: Array.isArray(book.duplicateOf)
+            ? book.duplicateOf.map(toIntSafe).filter((n) => n > 0)
+            : undefined,
+          original: book.original
+            ? {
+                ...book.original,
+                title: book.original.title
+                  ? toTitleCase(toStringSafe(book.original.title))
+                  : '',
+              }
+            : ({} as BookRecord['original']),
+        };
+      };
       const batches = (parsed.batches ?? []).map((b) => ({
         ...b,
         status:
           b.status === 'processing' || b.status === 'queued'
             ? ('done' as const)
             : b.status,
-        books: (b.books ?? []).map(fixBookTitle),
+        books: Array.isArray(b.books) ? b.books.map(sanitizeBook) : [],
       }));
-      const allBooks = (parsed.allBooks ?? []).map(fixBookTitle);
+      const allBooks = Array.isArray(parsed.allBooks)
+        ? parsed.allBooks.map(sanitizeBook)
+        : [];
       return { batches, allBooks, processing: null };
     } catch {
       return init;

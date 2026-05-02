@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { BookTableRow } from '@/components/BookTableRow';
+import { DebugErrorBoundary } from '@/components/DebugErrorBoundary';
 import { SpineSelector } from '@/components/SpineSelector';
 import { useStore } from '@/lib/store';
 import { VOCAB, type DomainKey } from '@/lib/tag-domains';
@@ -113,6 +114,7 @@ export default function ReviewPage() {
   }
 
   return (
+    <DebugErrorBoundary>
     <div className="space-y-8">
       <div>
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -330,6 +332,7 @@ export default function ReviewPage() {
         />
       )}
     </div>
+    </DebugErrorBoundary>
   );
 }
 
