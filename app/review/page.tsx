@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookTableRow } from '@/components/BookTableRow';
 import { MobileBookCard } from '@/components/MobileBookCard';
@@ -181,6 +182,22 @@ export default function ReviewPage() {
     state.allBooks
       .filter((b) => b.status === 'pending')
       .forEach((b) => updateBook(b.id, { status: 'approved' }));
+  }
+
+  const router = useRouter();
+  function approveAllAndExport() {
+    const willApprove = state.allBooks.filter((b) => b.status === 'pending').length;
+    const total = state.allBooks.length;
+    const ok = window.confirm(
+      `Approve ${willApprove > 0 ? willApprove + ' remaining ' : ''}${total === 1 ? 'book' : 'books'} and download CSV?`
+    );
+    if (!ok) return;
+    state.allBooks
+      .filter((b) => b.status === 'pending')
+      .forEach((b) => updateBook(b.id, { status: 'approved' }));
+    // Hand off to /export?auto=1 — that page reads the param and
+    // auto-fires its own downloadCsv() on mount.
+    router.push('/export?auto=1');
   }
 
   if (state.allBooks.length === 0) {
@@ -435,12 +452,30 @@ export default function ReviewPage() {
 
       {/* Bottom bulk action */}
       {counts.pending > 0 && (
-        <div className="sticky bottom-4 flex justify-center">
+        <div className="sticky bottom-4 flex justify-center gap-2 flex-wrap">
           <button
             onClick={approveRemaining}
             className="text-sm px-6 py-2 rounded-md bg-navy-soft text-navy font-semibold shadow-md hover:bg-navy-mid transition"
           >
             Approve remaining ({counts.pending})
+          </button>
+          <button
+            onClick={approveAllAndExport}
+            className="text-sm px-6 py-2 rounded-md bg-accent text-cream-50 font-semibold shadow-md hover:bg-accent-deep transition"
+            title="Approve every pending book and immediately download the CSV"
+          >
+            Approve all &amp; export
+          </button>
+        </div>
+      )}
+      {counts.pending === 0 && counts.approved > 0 && (
+        <div className="sticky bottom-4 flex justify-center">
+          <button
+            onClick={approveAllAndExport}
+            className="text-sm px-6 py-2 rounded-md bg-accent text-cream-50 font-semibold shadow-md hover:bg-accent-deep transition"
+            title="Download a CSV of every approved book"
+          >
+            Export all approved ({counts.approved})
           </button>
         </div>
       )}
