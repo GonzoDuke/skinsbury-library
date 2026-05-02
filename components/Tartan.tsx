@@ -1,17 +1,23 @@
 /**
- * Carnegie tartan SVGs — used in two places per the v3 redesign spec.
+ * Carnegie tartan SVGs — sidebar logo + sidebar accent stripe.
  *
- * The official thread count (Y/4 G4 R4 G4 R4 G12 K12 R4 B12 R4 B4 R4 B/6)
- * is simplified here for a 32px icon — exact reproduction would dissolve
- * into noise at this scale. We use the five clan colors at moderate
- * opacity so the cross-hatch reads as plaid without overwhelming the
- * "C" glyph that sits on top.
+ * The thread count (Y/4 G4 R4 G4 R4 G12 K12 R4 B12 R4 B4 R4 B/6) is
+ * simplified for the on-screen sizes. The five clan colors at moderate
+ * opacity produce the cross-hatch grid that reads as plaid without
+ * overwhelming the "C" glyph that sits on top.
  *
  *   Navy   #1B3A5C  (base + B threads)
  *   Green  #2D5A3A  (G threads)
  *   Red    #B83232  (R threads)
  *   Black  #141414  (K threads)
  *   Gold   #C4A35A  (Y threads)
+ *
+ * The viewBox is laid out at 64 units to match retina (2× of the 32px
+ * display size). Stripe positions and widths are integers in this
+ * grid, so on a 2× display each rectangle edge lands on a device-pixel
+ * boundary. `shape-rendering="crispEdges"` on the tartan group tells
+ * the renderer to snap rather than antialias the rectangle edges, which
+ * keeps the pattern from going fuzzy on standard-DPI screens.
  */
 const NAVY = '#1B3A5C';
 const GREEN = '#2D5A3A';
@@ -19,16 +25,11 @@ const RED = '#B83232';
 const BLACK = '#141414';
 const GOLD = '#C4A35A';
 
-/**
- * 32×32 rounded square with the tartan pattern + a centered white "C".
- * The horizontal and vertical stripes overlap (vertical stripes inherit
- * a darker mix from the horizontal layer below them) which is exactly
- * how a real woven tartan reads to the eye.
- */
+/** 32×32 rounded square with a 64-unit-precise tartan + a centered white "C". */
 export function TartanLogo({ size = 32 }: { size?: number }) {
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox="0 0 64 64"
       width={size}
       height={size}
       xmlns="http://www.w3.org/2000/svg"
@@ -36,42 +37,41 @@ export function TartanLogo({ size = 32 }: { size?: number }) {
     >
       <defs>
         <clipPath id="carnegie-tartan-logo-clip">
-          <rect width="32" height="32" rx="8" />
+          <rect width="64" height="64" rx="16" />
         </clipPath>
       </defs>
-      <g clipPath="url(#carnegie-tartan-logo-clip)">
+      <g clipPath="url(#carnegie-tartan-logo-clip)" shapeRendering="crispEdges">
         {/* Base */}
-        <rect width="32" height="32" fill={NAVY} />
+        <rect width="64" height="64" fill={NAVY} />
 
-        {/* Horizontal stripes (the warp). Spacing roughly mirrors the thread-
-            count proportions: a thin gold accent, a green band, a wider
-            black middle, a red lower band, another thin gold near the foot. */}
-        <rect x="0" y="2" width="32" height="2" fill={GOLD} opacity="0.55" />
-        <rect x="0" y="7" width="32" height="3" fill={GREEN} opacity="0.5" />
-        <rect x="0" y="13" width="32" height="5" fill={BLACK} opacity="0.55" />
-        <rect x="0" y="21" width="32" height="3" fill={RED} opacity="0.55" />
-        <rect x="0" y="27" width="32" height="2" fill={GOLD} opacity="0.55" />
+        {/* Horizontal stripes (warp). 64-unit grid; integer coords. */}
+        <rect x="0" y="4"  width="64" height="4"  fill={GOLD} opacity="0.55" />
+        <rect x="0" y="14" width="64" height="6"  fill={GREEN} opacity="0.5" />
+        <rect x="0" y="26" width="64" height="10" fill={BLACK} opacity="0.55" />
+        <rect x="0" y="42" width="64" height="6"  fill={RED} opacity="0.55" />
+        <rect x="0" y="54" width="64" height="4"  fill={GOLD} opacity="0.55" />
 
-        {/* Vertical stripes (the weft). Same color order, slightly offset
-            from the horizontal so the crossings produce the plaid grid. */}
-        <rect x="3" y="0" width="2" height="32" fill={GOLD} opacity="0.4" />
-        <rect x="9" y="0" width="3" height="32" fill={GREEN} opacity="0.4" />
-        <rect x="15" y="0" width="5" height="32" fill={BLACK} opacity="0.45" />
-        <rect x="23" y="0" width="3" height="32" fill={RED} opacity="0.4" />
-        <rect x="29" y="0" width="2" height="32" fill={GOLD} opacity="0.4" />
+        {/* Vertical stripes (weft). Same grid + colors. */}
+        <rect x="6"  y="0" width="4"  height="64" fill={GOLD} opacity="0.4" />
+        <rect x="18" y="0" width="6"  height="64" fill={GREEN} opacity="0.4" />
+        <rect x="30" y="0" width="10" height="64" fill={BLACK} opacity="0.45" />
+        <rect x="46" y="0" width="6"  height="64" fill={RED} opacity="0.4" />
+        <rect x="58" y="0" width="4"  height="64" fill={GOLD} opacity="0.4" />
       </g>
 
-      {/* "C" glyph. paint-order: stroke gives it a faint dark halo so the
-          letter stays readable over the busiest tartan crossings. */}
+      {/* "C" glyph. Anti-aliased text is the right call here — sharp
+          edges on the tartan, smooth curves on the letter. paint-order:
+          stroke gives a faint dark halo so the letter stays readable
+          over the busiest crossings. */}
       <text
-        x="16"
-        y="22"
+        x="32"
+        y="44"
         textAnchor="middle"
         fontFamily='"JetBrains Mono", ui-monospace, monospace'
-        fontSize="16"
+        fontSize="32"
         fontWeight="600"
         fill="#FFFFFF"
-        style={{ paintOrder: 'stroke', stroke: 'rgba(20,20,20,0.55)', strokeWidth: 0.7 }}
+        style={{ paintOrder: 'stroke', stroke: 'rgba(20,20,20,0.55)', strokeWidth: 1.4 }}
       >
         C
       </text>
@@ -80,14 +80,11 @@ export function TartanLogo({ size = 32 }: { size?: number }) {
 }
 
 /**
- * Full-width, 4px-tall sidebar accent stripe. A repeating pattern of
- * vertical clan-color bands so the line reads as tartan even at the
- * smallest legible height. The pattern tile repeats horizontally so
- * the stripe scales cleanly to any sidebar width.
+ * Full-width, 4px-tall sidebar accent stripe. Pattern tile is 64px
+ * wide so the design lives on a 64-pixel grid; `shape-rendering`
+ * snaps edges so the bands don't blur on either standard or 2× DPI.
  */
 export function TartanStripe({ height = 4 }: { height?: number }) {
-  // Tile width chosen so the pattern repeats roughly every ~3rd of the
-  // 200px sidebar — gives the eye enough rhythm to recognize tartan.
   const TILE = 64;
   return (
     <svg
@@ -107,26 +104,21 @@ export function TartanStripe({ height = 4 }: { height?: number }) {
           height={height}
         >
           <rect width={TILE} height={height} fill={NAVY} />
-          {/* Gold thin */}
-          <rect x="2" y="0" width="2" height={height} fill={GOLD} opacity="0.85" />
-          {/* Green wider */}
-          <rect x="8" y="0" width="4" height={height} fill={GREEN} opacity="0.85" />
-          {/* Red */}
-          <rect x="16" y="0" width="3" height={height} fill={RED} opacity="0.9" />
-          {/* Black thicker (the K block in the thread count) */}
+          <rect x="2"  y="0" width="2" height={height} fill={GOLD}  opacity="0.85" />
+          <rect x="8"  y="0" width="4" height={height} fill={GREEN} opacity="0.85" />
+          <rect x="16" y="0" width="3" height={height} fill={RED}   opacity="0.9" />
           <rect x="24" y="0" width="6" height={height} fill={BLACK} opacity="0.95" />
-          {/* Red */}
-          <rect x="34" y="0" width="3" height={height} fill={RED} opacity="0.9" />
-          {/* Green */}
+          <rect x="34" y="0" width="3" height={height} fill={RED}   opacity="0.9" />
           <rect x="42" y="0" width="4" height={height} fill={GREEN} opacity="0.85" />
-          {/* Gold thin */}
-          <rect x="50" y="0" width="2" height={height} fill={GOLD} opacity="0.85" />
-          {/* Navy gap before the next tile boundary lets the base color
-              bleed through, which is what makes the pattern read as
-              "navy ground crossed with clan accents". */}
+          <rect x="50" y="0" width="2" height={height} fill={GOLD}  opacity="0.85" />
         </pattern>
       </defs>
-      <rect width={TILE} height={height} fill="url(#carnegie-tartan-stripe-tile)" />
+      <rect
+        width={TILE}
+        height={height}
+        fill="url(#carnegie-tartan-stripe-tile)"
+        shapeRendering="crispEdges"
+      />
     </svg>
   );
 }

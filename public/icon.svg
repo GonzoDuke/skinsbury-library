@@ -16,7 +16,7 @@
       <rect width="512" height="512" rx="128"/>
     </clipPath>
   </defs>
-  <g clip-path="url(#carnegie-icon-clip)">
+  <g clip-path="url(#carnegie-icon-clip)" shape-rendering="crispEdges">
     <rect width="512" height="512" fill="#1B3A5C"/>
 
     <!-- Horizontal stripes (warp) -->

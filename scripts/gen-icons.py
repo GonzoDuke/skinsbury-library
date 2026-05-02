@@ -1,14 +1,20 @@
 """
-Render public/icon-192.png and public/icon-512.png to match the
-sidebar TartanLogo. The renderer mirrors the SVG version in
-components/Tartan.tsx — same five clan colors, same warp/weft layering
-proportions (16x scaled at 512, 6x at 192), same 8-px sidebar
-border-radius scaled proportionally (rx = canvas/4).
+Render public/icon-192.png and public/icon-512.png at native pixel
+resolution. Each canvas size gets its own integer-pixel stripe layout
+— nothing is generated at a small reference size and scaled up, so
+edges land exactly on pixel boundaries and the tartan stays crisp at
+both PWA sizes.
 
-PIL doesn't have rect-with-rounded-corners + alpha-aware compositing
-out of the box, so we build the tartan on an opaque RGBA canvas, then
-mask it through a rounded-rect alpha layer at the end so the output
-PNG carries true transparency outside the rounded corners.
+Layout source: a 32-unit reference grid (matches the sidebar SVG).
+Stripe widths/positions are scaled to the target canvas, then floored
+to integers and adjusted so no two adjacent stripes overlap or leave
+gaps from rounding. Composition uses ImageDraw.rectangle (no
+anti-aliasing on edges) on per-color RGBA layers, then blends with
+explicit per-stripe opacities.
+
+The "C" glyph keeps its anti-aliased text rendering — sharp tartan,
+smooth letter — and a low-alpha dark halo for legibility over the
+busiest crossings.
 
 Run: `python scripts/gen-icons.py`
 """
@@ -23,44 +29,46 @@ RED = (0xB8, 0x32, 0x32)
 BLACK = (0x14, 0x14, 0x14)
 GOLD = (0xC4, 0xA3, 0x5A)
 
-# Stripe geometry expressed in the 32-unit reference grid that the SVG
-# version uses; this script scales every coordinate to the requested
-# canvas size so the visual layout of the small SVG and the rendered
-# PNG line up exactly.
+# Stripes expressed in the 32-unit reference grid the sidebar SVG uses.
+# We scale each (start, end) pair to the native canvas size with int()
+# clamping so widths stay >= 1 even at the smallest icon size.
 HORIZONTAL = [
-    # (y, height, color, opacity)
-    (2, 2, GOLD, 0.55),
-    (7, 3, GREEN, 0.50),
-    (13, 5, BLACK, 0.55),
-    (21, 3, RED, 0.55),
-    (27, 2, GOLD, 0.55),
+    # (y_start, y_end, color, opacity)
+    (2, 4, GOLD, 0.55),
+    (7, 10, GREEN, 0.50),
+    (13, 18, BLACK, 0.55),
+    (21, 24, RED, 0.55),
+    (27, 29, GOLD, 0.55),
 ]
 VERTICAL = [
-    # (x, width, color, opacity)
-    (3, 2, GOLD, 0.40),
-    (9, 3, GREEN, 0.40),
-    (15, 5, BLACK, 0.45),
-    (23, 3, RED, 0.40),
-    (29, 2, GOLD, 0.40),
+    # (x_start, x_end, color, opacity)
+    (3, 5, GOLD, 0.40),
+    (9, 12, GREEN, 0.40),
+    (15, 20, BLACK, 0.45),
+    (23, 26, RED, 0.40),
+    (29, 31, GOLD, 0.40),
 ]
 
 
-def blend(base: tuple[int, int, int], over: tuple[int, int, int], alpha: float) -> tuple[int, int, int]:
-    """Source-over blend a single opaque-RGB color over the base."""
-    return tuple(int(round(b * (1 - alpha) + o * alpha)) for b, o in zip(base, over))
+def to_native(start: int, end: int, canvas: int) -> tuple[int, int]:
+    """Map a 0..32 reference range to integer 0..canvas pixel range."""
+    a = round(start * canvas / 32)
+    b = round(end * canvas / 32)
+    if b <= a:
+        b = a + 1
+    return a, b
 
 
 def find_font(size: int) -> ImageFont.FreeTypeFont:
-    """Find a JetBrains-Mono-shaped fallback. Most desktops have it
-    after we loaded it via Google Fonts in dev; on a build server we
-    fall back to a stock monospace font that ships with PIL.
-    """
+    """Find a JetBrains-Mono-shaped fallback. We try the real font
+    first, then Consolas (ships with Windows; closest mono shape),
+    then DejaVu / Courier as a last resort."""
     candidates = [
         "JetBrainsMono-Bold.ttf",
         "JetBrainsMono-SemiBold.ttf",
         "JetBrainsMono-Medium.ttf",
-        "consola.ttf",  # Consolas, ships with Windows
         "consolab.ttf",  # Consolas Bold
+        "consola.ttf",   # Consolas regular
         "DejaVuSansMono-Bold.ttf",
         "Courier New Bold.ttf",
         "cour.ttf",
@@ -70,75 +78,66 @@ def find_font(size: int) -> ImageFont.FreeTypeFont:
             return ImageFont.truetype(name, size)
         except (IOError, OSError):
             continue
-    # Last resort — the built-in PIL bitmap font; not pretty at large
-    # sizes but won't fail.
     return ImageFont.load_default()
 
 
 def render(canvas: int, out: Path) -> None:
-    scale = canvas / 32
+    """Draw a tartan + 'C' icon at exactly canvas×canvas pixels."""
+    # Opaque navy ground.
     img = Image.new("RGBA", (canvas, canvas), NAVY + (255,))
-    draw = ImageDraw.Draw(img)
 
-    # Horizontal stripes (warp).
-    for y, h, color, alpha in HORIZONTAL:
-        y_px = int(round(y * scale))
-        h_px = int(round(h * scale))
-        for row in range(y_px, min(canvas, y_px + h_px)):
-            for col in range(canvas):
-                base = img.getpixel((col, row))[:3]
-                img.putpixel((col, row), blend(base, color, alpha) + (255,))
+    # Horizontal stripes (warp). Each stripe paints onto a temp RGBA
+    # layer so the global Image.alpha_composite can apply the per-
+    # stripe opacity uniformly. ImageDraw.rectangle is single-sample
+    # (no edge AA) so left/right edges land exactly on pixel columns.
+    for y0, y1, color, alpha in HORIZONTAL:
+        a, b = to_native(y0, y1, canvas)
+        layer = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
+        ImageDraw.Draw(layer).rectangle(
+            (0, a, canvas - 1, b - 1),
+            fill=color + (int(round(alpha * 255)),),
+        )
+        img = Image.alpha_composite(img, layer)
 
     # Vertical stripes (weft).
-    for x, w, color, alpha in VERTICAL:
-        x_px = int(round(x * scale))
-        w_px = int(round(w * scale))
-        for col in range(x_px, min(canvas, x_px + w_px)):
-            for row in range(canvas):
-                base = img.getpixel((col, row))[:3]
-                img.putpixel((col, row), blend(base, color, alpha) + (255,))
+    for x0, x1, color, alpha in VERTICAL:
+        a, b = to_native(x0, x1, canvas)
+        layer = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
+        ImageDraw.Draw(layer).rectangle(
+            (a, 0, b - 1, canvas - 1),
+            fill=color + (int(round(alpha * 255)),),
+        )
+        img = Image.alpha_composite(img, layer)
 
-    # White "C" glyph with a faint dark halo so it stays readable over
-    # the busiest tartan crossings. Position matches the SVG's
-    # text-anchor=middle, y=22 of 32 baseline.
-    font_size = int(round(16 * scale))
+    # Round the corners — same 8/32 ratio the sidebar uses (= canvas/4).
+    radius = canvas // 4
+    mask = Image.new("L", (canvas, canvas), 0)
+    ImageDraw.Draw(mask).rounded_rectangle(
+        (0, 0, canvas - 1, canvas - 1), radius=radius, fill=255
+    )
+
+    # Anti-aliased white "C" with a subtle dark halo.
+    font_size = canvas // 2
     font = find_font(font_size)
     text = "C"
-    # Center the glyph on the canvas. textbbox returns left/top/right/
-    # bottom in the destination coordinate space.
+    glyph_layer = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(glyph_layer)
     bbox = draw.textbbox((0, 0), text, font=font, anchor="lt")
     text_w = bbox[2] - bbox[0]
     text_h = bbox[3] - bbox[1]
     x = (canvas - text_w) // 2 - bbox[0]
     y = (canvas - text_h) // 2 - bbox[1]
-
-    # Halo: stroke around the glyph at low opacity.
-    halo_layer = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
-    halo_draw = ImageDraw.Draw(halo_layer)
-    halo_color = (0x14, 0x14, 0x14, 140)
-    stroke_w = max(1, int(round(0.7 * scale)))
-    halo_draw.text((x, y), text, font=font, fill=halo_color,
-                   stroke_width=stroke_w, stroke_fill=halo_color)
-    img = Image.alpha_composite(img, halo_layer)
-
-    # White glyph on top.
-    glyph_layer = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
-    glyph_draw = ImageDraw.Draw(glyph_layer)
-    glyph_draw.text((x, y), text, font=font, fill=(255, 255, 255, 255))
+    halo_alpha = 140
+    stroke_w = max(1, canvas // 256)
+    draw.text((x, y), text, font=font, fill=(255, 255, 255, 255),
+              stroke_width=stroke_w, stroke_fill=(0x14, 0x14, 0x14, halo_alpha))
     img = Image.alpha_composite(img, glyph_layer)
 
-    # Round the corners — same 8/32 ratio the SVG uses.
-    radius = int(round(canvas / 4))
-    mask = Image.new("L", (canvas, canvas), 0)
-    ImageDraw.Draw(mask).rounded_rectangle(
-        (0, 0, canvas - 1, canvas - 1), radius=radius, fill=255
-    )
     out_img = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
     out_img.paste(img, mask=mask)
-
     out.parent.mkdir(parents=True, exist_ok=True)
     out_img.save(out, format="PNG", optimize=True)
-    print(f"  wrote {out} ({canvas}x{canvas}, font={font.path if hasattr(font, 'path') else 'default'})")
+    print(f"  wrote {out} ({canvas}×{canvas})")
 
 
 def main() -> None:
