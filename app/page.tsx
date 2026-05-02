@@ -182,6 +182,15 @@ export default function UploadPage() {
   const processing = state.processing;
   const isProcessing = processing?.isActive ?? false;
 
+  // Rough back-of-envelope estimate: ~45s per photo end-to-end (Pass A
+  // detect → Pass B per-spine reads → lookups → tag inference). Renders
+  // before processing starts and updates as photos complete.
+  function formatEta(seconds: number): string {
+    if (seconds < 60) return `${seconds} seconds`;
+    const mins = Math.round(seconds / 60);
+    return `${mins} ${mins === 1 ? 'minute' : 'minutes'}`;
+  }
+
   // Files arriving from the camera or the gallery picker are queued for the
   // crop step rather than enrolled as batches directly. Each file gets a
   // CropModal pass — the user can frame just the shelf they care about, or
@@ -299,6 +308,20 @@ export default function UploadPage() {
   // reload File handles are gone, so even a "queued"-looking batch may be
   // unprocessable; we filter those out for the button.
   const processableQueued = queuedBatches.filter((b) => hasPendingFile(b.id));
+
+  // ETA copy. Pre-process: based on the queue length. During-process:
+  // remaining photos × 45s. Hidden when nothing is queued.
+  const etaText = (() => {
+    if (isProcessing && processing) {
+      const remaining = Math.max(0, processing.photoTotal - processing.photoDone);
+      if (remaining === 0) return null;
+      return `Estimated time remaining: ~${formatEta(remaining * 45)}`;
+    }
+    if (processableQueued.length > 0) {
+      return `Estimated time: ~${formatEta(processableQueued.length * 45)} for ${processableQueued.length} ${processableQueued.length === 1 ? 'photo' : 'photos'}`;
+    }
+    return null;
+  })();
   const canProcess = processableQueued.length > 0 && !isProcessing;
 
   return (
@@ -475,17 +498,22 @@ export default function UploadPage() {
             {isDark ? '☀ Switch to light mode' : '☾ Switch to dark mode'}
           </button>
         </div>
-        <button
-          onClick={() => processQueue()}
-          disabled={!canProcess}
-          className="px-[20px] py-[9px] rounded-md bg-navy text-white hover:bg-navy-deep disabled:opacity-40 disabled:cursor-not-allowed transition text-[14px] font-medium"
-        >
-          {isProcessing
-            ? 'Processing…'
-            : processableQueued.length === 0
-              ? 'Process all'
-              : `Process all (${processableQueued.length})`}
-        </button>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={() => processQueue()}
+            disabled={!canProcess}
+            className="px-[20px] py-[9px] rounded-md bg-navy text-white hover:bg-navy-deep disabled:opacity-40 disabled:cursor-not-allowed transition text-[14px] font-medium"
+          >
+            {isProcessing
+              ? 'Processing…'
+              : processableQueued.length === 0
+                ? 'Process all'
+                : `Process all (${processableQueued.length})`}
+          </button>
+          {etaText && (
+            <div className="text-[11px] text-text-tertiary">{etaText}</div>
+          )}
+        </div>
       </div>
 
       {/* Phone caption row — counter + dark-mode link. The Process-all
@@ -518,11 +546,16 @@ export default function UploadPage() {
           processing block above instead. */}
       {processableQueued.length > 0 && (
         <div
-          className="md:hidden fixed inset-x-0 z-20 px-4"
+          className="md:hidden fixed inset-x-0 z-20 px-4 space-y-1"
           style={{
             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 56px)',
           }}
         >
+          {etaText && (
+            <div className="text-[11px] text-text-tertiary text-center">
+              {etaText}
+            </div>
+          )}
           <button
             onClick={() => processQueue()}
             disabled={!canProcess}
