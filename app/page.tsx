@@ -204,6 +204,34 @@ export default function UploadPage() {
   const processing = state.processing;
   const isProcessing = processing?.isActive ?? false;
 
+  // Post-processing summary toast. Fires once when processQueue
+  // resolves (finishedAt becomes set); auto-dismisses after 5s.
+  // Counts books and unreadable spines across the just-finished
+  // batches: spinesDetected - booksIdentified per batch.
+  const [summaryToast, setSummaryToast] = useState<string | null>(null);
+  const lastFinishedAtRef = useRef<number | null>(null);
+  useEffect(() => {
+    const finishedAt = processing?.finishedAt;
+    if (!finishedAt || finishedAt === lastFinishedAtRef.current) return;
+    lastFinishedAtRef.current = finishedAt;
+    let books = 0;
+    let unreadable = 0;
+    for (const b of state.batches) {
+      if (b.status === 'done') {
+        books += b.booksIdentified;
+        unreadable += Math.max(0, b.spinesDetected - b.booksIdentified);
+      }
+    }
+    const parts: string[] = [];
+    parts.push(`${books} ${books === 1 ? 'book' : 'books'} identified`);
+    if (unreadable > 0) {
+      parts.push(`${unreadable} ${unreadable === 1 ? 'spine' : 'spines'} unreadable`);
+    }
+    setSummaryToast(`${parts.join(' · ')} — see Review for details.`);
+    const t = window.setTimeout(() => setSummaryToast(null), 5000);
+    return () => window.clearTimeout(t);
+  }, [processing?.finishedAt, state.batches]);
+
   // Rough back-of-envelope estimate: ~45s per photo end-to-end (Pass A
   // detect → Pass B per-spine reads → lookups → tag inference). Renders
   // before processing starts and updates as photos complete.
@@ -455,6 +483,24 @@ export default function UploadPage() {
           </div>
         </div>
       </div>
+
+      {summaryToast && (
+        <div
+          role="status"
+          className="bg-carnegie-green-soft border border-carnegie-green/30 rounded-md px-4 py-2.5 text-[13px] text-text-primary flex items-center gap-3"
+        >
+          <span className="text-carnegie-green text-[16px]">✓</span>
+          <span className="flex-1">{summaryToast}</span>
+          <button
+            type="button"
+            onClick={() => setSummaryToast(null)}
+            aria-label="Dismiss"
+            className="text-text-tertiary hover:text-text-primary text-[16px] leading-none"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Photo queue — surface every batch the user enrolled, including
           error rows ("Image too small …") so a low-res capture doesn't
