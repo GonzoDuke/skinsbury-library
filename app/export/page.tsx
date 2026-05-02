@@ -679,21 +679,34 @@ export default function ExportPage() {
           <span className="font-mono">More → Import books</span>, choose{' '}
           <span className="font-mono">CSV/text file</span>, and upload the file you download here.
         </div>
-        <button
-          onClick={downloadCsv}
-          disabled={booksToExport.length === 0}
-          className={`px-5 py-2.5 rounded-md text-limestone disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm ${
-            downloadFlash
-              ? 'bg-[#2D7A4F] hover:bg-[#2D7A4F]'
-              : 'bg-accent hover:bg-accent-deep'
-          }`}
-        >
-          {downloadFlash
-            ? 'Downloaded ✓'
-            : splitByBatch && hasMultipleBatches
-              ? `Download ${selectedBatches.size} CSV${selectedBatches.size !== 1 ? 's' : ''}`
-              : `Download CSV (${booksToExport.length})`}
-        </button>
+        <div className="flex flex-col items-stretch sm:items-end gap-1.5">
+          <button
+            onClick={downloadCsv}
+            disabled={booksToExport.length === 0}
+            className={`px-5 py-2.5 rounded-md text-limestone disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm ${
+              downloadFlash
+                ? 'bg-[#2D7A4F] hover:bg-[#2D7A4F]'
+                : 'bg-accent hover:bg-accent-deep'
+            }`}
+          >
+            {downloadFlash
+              ? 'Downloaded ✓'
+              : splitByBatch && hasMultipleBatches
+                ? `Download ${selectedBatches.size} CSV${selectedBatches.size !== 1 ? 's' : ''}`
+                : `Download CSV (${booksToExport.length})`}
+          </button>
+          {/* Direct deep-link to LibraryThing's import page so the user
+              doesn't have to dig through their account menu after the
+              download completes. */}
+          <a
+            href="https://www.librarything.com/import"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-ink/55 dark:text-cream-300/55 hover:text-accent underline-offset-2 hover:underline transition"
+          >
+            Upload this file to LibraryThing →
+          </a>
+        </div>
       </div>
 
       {/* Ledger sync state — shown after a CSV download triggers the
