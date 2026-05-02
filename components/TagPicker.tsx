@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ALL_FORM_TAGS, ALL_GENRE_TAGS, VOCAB } from '@/lib/tag-domains';
+import { loadLedger } from '@/lib/export-ledger';
 
 interface TagPickerProps {
   variant: 'genre' | 'form';
@@ -55,6 +56,41 @@ export function TagPicker({ variant, existing, onAdd, onClose }: TagPickerProps)
     );
   }, [lowerQ, existingSet]);
 
+  // Frequently-used: top 10 tags by ledger usage. Computed once on
+  // mount; if the ledger is empty the section hides. Filtered against
+  // the active variant + the existing-on-this-book set + the search
+  // query so the section only ever shows tags the user can actually
+  // add right now.
+  const frequentTagSet = useMemo(() => {
+    const known =
+      variant === 'genre'
+        ? new Set(ALL_GENRE_TAGS.map((g) => g.tag.toLowerCase()))
+        : new Set(ALL_FORM_TAGS.map((t) => t.toLowerCase()));
+    const counts = new Map<string, number>();
+    for (const e of loadLedger()) {
+      for (const t of e.tags ?? []) {
+        const clean = t.replace(/^\[Proposed\]\s*/i, '').trim();
+        if (!clean) continue;
+        if (!known.has(clean.toLowerCase())) continue;
+        counts.set(clean, (counts.get(clean) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([tag]) => tag);
+  }, [variant]);
+
+  const frequentlyUsed = useMemo(
+    () =>
+      frequentTagSet.filter(
+        (t) =>
+          !existingSet.has(t.toLowerCase()) &&
+          (!lowerQ || t.toLowerCase().includes(lowerQ))
+      ),
+    [frequentTagSet, existingSet, lowerQ]
+  );
+
   const exactExists =
     filteredGenre.some((g) => g.tag.toLowerCase() === lowerQ) ||
     filteredForm.some((t) => t.toLowerCase() === lowerQ);
@@ -73,6 +109,31 @@ export function TagPicker({ variant, existing, onAdd, onClose }: TagPickerProps)
       />
 
       <div className="mt-2 space-y-3">
+        {/* Frequently-used: top 10 tags by ledger usage, surfaced first
+            so common adds are one tap. Hides when the ledger is empty
+            or every popular tag is already on the book / filtered out. */}
+        {frequentlyUsed.length > 0 && (
+          <div>
+            <div className="text-[10px] uppercase tracking-wider font-semibold text-ink/50 dark:text-cream-300/50 mb-1 px-1">
+              Frequently used
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {frequentlyUsed.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    onAdd(t);
+                    onClose();
+                  }}
+                  className="text-xs px-2 py-1 rounded-full bg-cream-100 dark:bg-ink hover:bg-accent-soft dark:hover:bg-accent/30 transition"
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {variant === 'genre' &&
           (Object.keys(VOCAB.domains) as Array<keyof typeof VOCAB.domains>)
             .filter((k) => k !== '_unclassified')
