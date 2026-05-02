@@ -1,0 +1,126 @@
+{
+  "id": "583c0508-b86f-45e6-87e5-ecedd160270c",
+  "filename": "shelf-capture-001.cropped.jpg",
+  "fileSize": 702835,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 5,
+  "booksIdentified": 2,
+  "books": [
+    {
+      "id": "fb42e0b9-f29e-4359-a818-a4be565cfccb",
+      "spineRead": {
+        "position": 3,
+        "rawText": "alt.culture — steven daly and nathaniel wice",
+        "title": "alt.culture",
+        "author": "steven daly and nathaniel wice",
+        "publisher": "HarperCollins",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 18,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "Alt.culture",
+      "author": "steven daly and nathaniel wice",
+      "authorLF": "wice, steven daly and nathaniel",
+      "isbn": "9780062733832",
+      "publisher": "HarperPerennial",
+      "publicationYear": 1995,
+      "lcc": "HQ2042 .W53 1995",
+      "genreTags": [
+        "Internet culture",
+        "Counterculture",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC HQ → Social issues. Subject headings confirm subculture + computer networks. 1995 publication captures early internet counterculture. 'alt.' prefix references Usenet newsgroups.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062733832-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Alt.culture",
+        "author": "steven daly and nathaniel wice",
+        "isbn": "9780062733832",
+        "publisher": "HarperPerennial",
+        "publicationYear": 1995,
+        "lcc": "HQ2042 .W53 1995",
+        "genreTags": [
+          "Internet culture",
+          "Counterculture",
+          "Social criticism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "3d34e507-0ad0-4d50-b9b1-742e5e4419a7",
+      "spineRead": {
+        "position": 4,
+        "rawText": "HOWL — Allen Ginsberg",
+        "title": "HOWL",
+        "author": "Allen Ginsberg",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 75,
+          "y": 35,
+          "width": 12,
+          "height": 50
+        }
+      },
+      "title": "Howl",
+      "author": "Allen Ginsberg",
+      "authorLF": "Ginsberg, Allen",
+      "isbn": "9780670815999",
+      "publisher": "Harper Perennial",
+      "publicationYear": 1959,
+      "lcc": "PS3513 .I74 H6 1971",
+      "genreTags": [
+        "Poetry",
+        "Beat poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PS → American poetry. Ginsberg is quintessential Beat poet. Poetry book gets 'Poetry' + 'Beat poetry' + 'American poetry' sub-tags. Subject headings confirm Beat generation and American poetry.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780670815999-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Howl",
+        "author": "Allen Ginsberg",
+        "isbn": "9780670815999",
+        "publisher": "Harper Perennial",
+        "publicationYear": 1959,
+        "lcc": "PS3513 .I74 H6 1971",
+        "genreTags": [
+          "Poetry",
+          "Beat poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "shelf-capture-001.jpg",
+  "sourceDimensions": {
+    "width": 1232,
+    "height": 2924
+  }
+}
