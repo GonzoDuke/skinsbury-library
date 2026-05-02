@@ -19,4 +19,8 @@ Created baseline vocabulary from 186-book LibraryThing export + 22-book proof of
 - Added `drugs` to **Literature** — first seen on "Naked Lunch" by WILLIAM S. BURROUGHS
 - Added `language` to **Literature** — first seen on "The Official Dictionary of Sarcasm" by James Napoli
 
+## 2026-05-02
+
+- Added `Drugs` to **Social & political** (manual)
+
 <!-- New entries will be appended below automatically by the approve command -->
