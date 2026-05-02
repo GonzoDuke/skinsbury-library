@@ -364,53 +364,33 @@ function ClockIcon() {
 // ---- Brand panel ----------------------------------------------------------
 
 /**
- * Tartan brand zone at the top of the sidebar. Two CSS
- * repeating-linear-gradients (180deg warp, 90deg weft) layer over a
- * navy ground to create the cross-hatch weave; the SpineStackLogo +
- * wordmark sit on top. The gradients are sized to a 64px tile so the
- * pattern repeats cleanly across the 260px-wide sidebar.
+ * Tartan brand zone at the top of the sidebar. Backed by a real
+ * tartan photograph at /public/tartan.jpg, sized to cover the panel
+ * and centered. A dark linear-gradient scrim is layered above the
+ * photo (but below the text) to keep the wordmark legible over the
+ * brightest tartan crossings; a soft text-shadow on the wordmark
+ * itself is the belt-and-suspenders backup.
  *
- * Per spec: this is the only place tartan lives now — the prior
- * sidebar accent stripe is gone, and the prior tartan-patterned C
- * logo is replaced by the four-spine-stack icon.
+ * Falls back to a solid navy when /tartan.jpg is missing or fails
+ * to load — the backgroundColor underneath always paints first.
  */
 function BrandPanel() {
-  // Clan colors — kept opaque-rgb here so the per-stripe alpha can be
-  // composed at the gradient level instead of in a separate compose step.
-  const tartanLayers = [
-    // Horizontal warp stripes — fall top-to-bottom.
-    'repeating-linear-gradient(180deg,' +
-      'rgba(196,163,90,0.55) 0px 4px,' +
-      'transparent 4px 14px,' +
-      'rgba(45,90,58,0.50) 14px 20px,' +
-      'transparent 20px 26px,' +
-      'rgba(20,20,20,0.55) 26px 36px,' +
-      'transparent 36px 42px,' +
-      'rgba(184,50,50,0.55) 42px 48px,' +
-      'transparent 48px 54px,' +
-      'rgba(196,163,90,0.55) 54px 58px,' +
-      'transparent 58px 64px)',
-    // Vertical weft stripes — read left-to-right.
-    'repeating-linear-gradient(90deg,' +
-      'rgba(196,163,90,0.40) 0px 4px,' +
-      'transparent 4px 18px,' +
-      'rgba(45,90,58,0.40) 18px 24px,' +
-      'transparent 24px 30px,' +
-      'rgba(20,20,20,0.45) 30px 40px,' +
-      'transparent 40px 46px,' +
-      'rgba(184,50,50,0.40) 46px 52px,' +
-      'transparent 52px 58px,' +
-      'rgba(196,163,90,0.40) 58px 62px,' +
-      'transparent 62px 64px)',
-  ].join(',');
-
   return (
     <Link
       href="/"
-      className="cursor-pointer group flex items-center"
+      className="cursor-pointer group flex items-center relative"
       style={{
+        // Two background layers, top-to-bottom:
+        //   1. dark scrim (sits on top of the photo)
+        //   2. /tartan.jpg cover-fitted, centered
+        // Plus a navy ground for the no-image fallback.
         backgroundColor: NAVY,
-        backgroundImage: tartanLayers,
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.30))," +
+          "url('/tartan.jpg')",
+        backgroundSize: 'auto, cover',
+        backgroundPosition: 'center, center',
+        backgroundRepeat: 'no-repeat, no-repeat',
         padding: 24,
         gap: 14,
         minHeight: 96,
@@ -428,6 +408,7 @@ function BrandPanel() {
             color: '#FFFFFF',
             letterSpacing: '3px',
             textTransform: 'uppercase',
+            textShadow: '0 1px 2px rgba(0,0,0,0.7)',
           }}
         >
           Carnegie
@@ -435,10 +416,11 @@ function BrandPanel() {
         <span
           style={{
             fontSize: 8,
-            color: 'rgba(255,255,255,0.7)',
+            color: 'rgba(255,255,255,0.85)',
             letterSpacing: '2px',
             textTransform: 'uppercase',
             marginTop: 6,
+            textShadow: '0 1px 2px rgba(0,0,0,0.8)',
           }}
         >
           Cataloging System
