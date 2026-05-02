@@ -236,9 +236,12 @@ export default function UploadPage() {
         </div>
       )}
 
-      {/* Batch inputs — v3 styling: white card, 1px line border, navy
-          focus ring. Helper text directly under the field rather than
-          floating in a separate row. */}
+      <PhotoUploader onFiles={handleFiles} disabled={isProcessing} />
+
+      {/* Batch inputs — under the dropzone so the photo CTA is the
+          first thing on the page, with the metadata fields available
+          but de-emphasized. v3 styling: white card, 1px line border,
+          navy focus ring; helper text directly under the field. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label htmlFor="batch-label" className="typo-label block mb-1">
@@ -275,8 +278,6 @@ export default function UploadPage() {
           </div>
         </div>
       </div>
-
-      <PhotoUploader onFiles={handleFiles} disabled={isProcessing} />
 
       {/* Photo queue — surface every batch the user enrolled, including
           error rows ("Image too small …") so a low-res capture doesn't

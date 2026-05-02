@@ -251,17 +251,8 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
           onChange={(e) => handleFiles(e.target.files)}
         />
 
-        <div className="text-[17px] font-medium text-text-secondary mb-1.5 inline-flex items-center gap-2">
+        <div className="text-[17px] font-medium text-text-secondary mb-1.5">
           Drop bookshelf photos here
-          <button
-            type="button"
-            onClick={(e) => e.stopPropagation()}
-            aria-label="Photography tips"
-            title="Landscape orientation · fill the frame with one shelf · stand 2–3 feet away · turn flash off · avoid overhead lighting on plastic covers"
-            className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full text-[11px] font-semibold text-text-quaternary hover:text-navy border border-line hover:border-navy transition"
-          >
-            i
-          </button>
         </div>
         <div className="text-[13px] text-text-quaternary mb-5">
           JPG, PNG, HEIC up to 30 MB
