@@ -9,7 +9,6 @@ import { CropModal } from '@/components/CropModal';
 import { useDarkMode, useStore } from '@/lib/store';
 import type { PhotoBatch } from '@/lib/types';
 import { createThumbnail, loadImage, makeId } from '@/lib/pipeline';
-import { confirmDiscardSession } from '@/lib/session';
 
 const MIN_IMAGE_WIDTH = 1500;
 
@@ -21,18 +20,23 @@ export default function UploadPage() {
     setPendingFile,
     hasPendingFile,
     processQueue,
-    clear,
   } = useStore();
 
   const [batchLabel, setBatchLabel] = useState('');
   const [batchNotes, setBatchNotes] = useState('');
 
-  function startNewSession() {
-    if (!confirmDiscardSession(state.allBooks)) return;
-    clear();
-    setBatchLabel('');
-    setBatchNotes('');
-  }
+  // Listen for the sidebar's New session click — wipes the local
+  // input state on the upload page so the user lands on a truly clean
+  // page. The store-level reset is fired by AppShell.
+  useEffect(() => {
+    function onCleared() {
+      setBatchLabel('');
+      setBatchNotes('');
+    }
+    window.addEventListener('carnegie:session-cleared', onCleared);
+    return () =>
+      window.removeEventListener('carnegie:session-cleared', onCleared);
+  }, []);
 
   // Dark-mode toggle moved to a small text link below the queue summary.
   // Mirrors the document.documentElement class so the label stays accurate
@@ -165,18 +169,7 @@ export default function UploadPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="typo-page-title">Upload</h1>
-        <button
-          type="button"
-          onClick={startNewSession}
-          disabled={state.allBooks.length === 0 && state.batches.length === 0}
-          className="text-[12px] font-medium px-3 py-1.5 rounded-md border border-line text-text-secondary hover:border-navy hover:text-navy hover:bg-navy-soft transition disabled:opacity-40 disabled:cursor-not-allowed"
-          title="Discard the current session and start fresh — exported books stay in the ledger."
-        >
-          New session
-        </button>
-      </div>
+      <h1 className="typo-page-title">Upload</h1>
 
       {/* Batch inputs — v3 styling: white card, 1px line border, navy
           focus ring. Helper text directly under the field rather than

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDarkMode, useStore } from '@/lib/store';
 import { getLedgerBatches, loadLedger } from '@/lib/export-ledger';
 import { TartanLogo, TartanStripe } from '@/components/Tartan';
+import { confirmDiscardSession } from '@/lib/session';
 
 /**
  * Carnegie shell — left sidebar (200px, near-black) + scrollable content area.
@@ -40,7 +41,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // the stored preference on every page-load regardless of route.
   useDarkMode();
 
-  const { state } = useStore();
+  const { state, clear } = useStore();
+
+  function onNewSession() {
+    if (!confirmDiscardSession(state.allBooks)) return;
+    clear();
+    // Page-local state (batch label / notes inputs on the upload page)
+    // can't be reset from up here — broadcast a window event and let
+    // any listening page wipe its own inputs in response. The upload
+    // page is the only current listener.
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('carnegie:session-cleared'));
+    }
+  }
+  const sessionEmpty = state.allBooks.length === 0 && state.batches.length === 0;
 
   // Pending-review count for the badge on the Review nav item. Recomputes
   // when allBooks shifts; cheap (Array.filter + length).
@@ -122,6 +136,62 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </span>
         </Link>
+
+        {/* New session — sits above the Workflow nav, just below the
+            brand block. Disables on an empty session so the destructive
+            confirm can't fire on a fresh load. Wraps to navy on hover
+            (the sidebar's primary accent). */}
+        <button
+          type="button"
+          onClick={onNewSession}
+          disabled={sessionEmpty}
+          title="Discard the current batch and start fresh — exported books stay in the ledger."
+          style={{
+            margin: '0 12px 16px',
+            padding: '6px 10px',
+            fontSize: 12,
+            fontWeight: 500,
+            borderRadius: 6,
+            border: `1px solid ${sessionEmpty ? '#2A2A2A' : '#2F2F2F'}`,
+            background: 'transparent',
+            color: sessionEmpty ? '#3F3F3F' : SIDE_TEXT,
+            cursor: sessionEmpty ? 'not-allowed' : 'pointer',
+            transition: 'all 80ms',
+            textAlign: 'left',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 7,
+          }}
+          onMouseEnter={(e) => {
+            if (sessionEmpty) return;
+            e.currentTarget.style.background = SIDE_HOVER;
+            e.currentTarget.style.color = SIDE_TEXT_ACTIVE;
+            e.currentTarget.style.borderColor = NAVY;
+          }}
+          onMouseLeave={(e) => {
+            if (sessionEmpty) return;
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = SIDE_TEXT;
+            e.currentTarget.style.borderColor = '#2F2F2F';
+          }}
+        >
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.4}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            width="13"
+            height="13"
+            style={{ opacity: sessionEmpty ? 0.4 : 0.6 }}
+            aria-hidden
+          >
+            <path d="M3 3h10v10H3z" />
+            <path d="M8 6v4M6 8h4" />
+          </svg>
+          <span>New session</span>
+        </button>
 
         <SectionLabel>Workflow</SectionLabel>
         {workflow.map((item) => (
