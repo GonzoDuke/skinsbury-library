@@ -23,4 +23,8 @@ Created baseline vocabulary from 186-book LibraryThing export + 22-book proof of
 
 - Added `Drugs` to **Social & political** (manual)
 
+## 2026-05-02
+
+- Removed `drugs` from **Literature**
+
 <!-- New entries will be appended below automatically by the approve command -->
