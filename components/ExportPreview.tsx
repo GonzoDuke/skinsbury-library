@@ -40,8 +40,8 @@ export function ExportPreview({
             {books.map((book, rowIdx) => {
               const row = bookToCsvRow(book, options);
               // Alternating row backgrounds so wide tables stay readable.
-              // Marble (#F5F2EB) on even rows, limestone (#E8E2D4) on odd
-              // matches the page palette without screaming for attention.
+              // Page (#F6F6F4) on even rows, card (#FFFFFF) on odd matches
+              // the new palette without screaming for attention.
               const zebra =
                 rowIdx % 2 === 0
                   ? 'bg-marble dark:bg-ink/40'

@@ -89,7 +89,7 @@ export function SpineSelector({ batch, sourceFile, onAdd, onClose }: SpineSelect
         live.width,
         live.height
       );
-      ctx.strokeStyle = '#C85A12';
+      ctx.strokeStyle = '#1B3A5C';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 4]);
       ctx.strokeRect(live.x + 1, live.y + 1, live.width - 2, live.height - 2);

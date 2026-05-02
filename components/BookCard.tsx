@@ -507,7 +507,7 @@ export function BookCard({ book, selectable, selected, onToggleSelected }: BookC
 
       {/* Zone B → Zone C divider. Subtle hairline so the action region reads
           as a distinct shelf below the metadata + tags above. */}
-      <hr className="mt-5 mb-4 border-0 border-t border-[#E8E2D4] dark:border-[#3E3A35]" />
+      <hr className="mt-5 mb-4 border-0 border-t border-line dark:border-[#3A3836]" />
 
       {/* Location — editable batch label, controls grouping + LT Collections */}
       <div className="flex items-center gap-2 text-xs">

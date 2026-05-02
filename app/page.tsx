@@ -249,7 +249,7 @@ export default function UploadPage() {
             </div>
           </div>
 
-          <hr className="border-0 border-t border-[#E8E2D4] dark:border-[#3A3936]" />
+          <hr className="border-0 border-t border-line dark:border-[#3A3836]" />
 
           <div>
             <h3 className="typo-label mb-3">Tips for best results</h3>
@@ -264,7 +264,7 @@ export default function UploadPage() {
 
           {lifetimeStats &&
             (lifetimeStats.booksCataloged > 0 || lifetimeStats.batchesExported > 0) && (
-              <div className="text-[12px] text-ink/45 dark:text-cream-300/45 italic pt-2 border-t border-[#E8E2D4] dark:border-[#3A3936]">
+              <div className="text-[12px] text-ink/45 dark:text-cream-300/45 italic pt-2 border-t border-line dark:border-[#3A3836]">
                 <span className="font-medium not-italic">{lifetimeStats.booksCataloged}</span>{' '}
                 {lifetimeStats.booksCataloged === 1 ? 'book' : 'books'} cataloged ·{' '}
                 <span className="font-medium not-italic">{lifetimeStats.batchesExported}</span>{' '}

@@ -440,14 +440,14 @@ function Stat({
   // color so the user sees which filter the list is responding to.
   const accent =
     tone === 'brass'
-      ? { rail: '#C9A96E', text: 'text-brass-deep dark:text-brass', tint: 'bg-brass/5 dark:bg-brass/10' }
+      ? { rail: '#C4A35A', text: 'text-brass-deep dark:text-brass', tint: 'bg-brass/5 dark:bg-brass/10' }
       : tone === 'green'
-        ? { rail: '#2D7A4F', text: 'text-[#2D7A4F] dark:text-green-400', tint: 'bg-[#2D7A4F]/5 dark:bg-green-900/15' }
+        ? { rail: '#1A8754', text: 'text-[#1A8754] dark:text-green-400', tint: 'bg-[#1A8754]/5 dark:bg-green-900/15' }
         : tone === 'red'
-          ? { rail: '#A3432E', text: 'text-[#A3432E] dark:text-orange-300', tint: 'bg-[#A3432E]/5 dark:bg-red-900/15' }
+          ? { rail: '#B83232', text: 'text-[#B83232] dark:text-orange-300', tint: 'bg-[#B83232]/5 dark:bg-red-900/15' }
           : tone === 'mahogany'
-            ? { rail: '#8B4513', text: 'text-mahogany dark:text-orange-200', tint: 'bg-mahogany/5 dark:bg-mahogany/15' }
-            : { rail: '#1E3A2F', text: 'text-ink dark:text-cream-100', tint: 'bg-accent/5 dark:bg-accent/15' };
+            ? { rail: '#B83232', text: 'text-mahogany dark:text-orange-200', tint: 'bg-mahogany/5 dark:bg-mahogany/15' }
+            : { rail: '#1B3A5C', text: 'text-accent dark:text-accent', tint: 'bg-accent/5 dark:bg-accent/15' };
   return (
     <div
       className={`relative bg-cream-50 dark:bg-ink-soft/60 border border-cream-300 dark:border-ink-soft rounded-xl p-4 pl-5 transition-colors ${

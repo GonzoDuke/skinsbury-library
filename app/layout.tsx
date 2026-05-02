@@ -19,10 +19,10 @@ export const metadata: Metadata = {
 };
 
 // Next 14 routes themeColor through the viewport export (separate from metadata).
-// The library-green matches the AppShell header so the mobile status bar /
-// PWA chrome blends with the app surface in standalone mode.
+// Carnegie navy — matches the sidebar accent so the mobile status bar /
+// PWA chrome blends with the app chrome in standalone mode.
 export const viewport: Viewport = {
-  themeColor: '#1E3A2F',
+  themeColor: '#1B3A5C',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
