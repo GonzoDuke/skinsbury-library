@@ -38,6 +38,10 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
   const [captureUiCount, setCaptureUiCount] = useState(0);
   const [thumbs, setThumbs] = useState<SessionThumb[]>([]);
   const [showLandscapeToast, setShowLandscapeToast] = useState(false);
+  // Files captured during the active camera session. Held locally so the
+  // CropModal stack doesn't fight the open camera modal — we flush them
+  // to the parent on Done, by which time the camera UI is unmounting.
+  const cameraPending = useRef<File[]>([]);
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
@@ -85,6 +89,7 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
     setCameraError(null);
     setIsExiting(false);
     setIsMounted(true);
+    cameraPending.current = [];
     setShowLandscapeToast(true);
     window.setTimeout(() => setShowLandscapeToast(false), 2000);
 
@@ -92,8 +97,11 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          // Ask for the device's max — phones with 4K rear sensors only
+          // deliver them when explicitly hinted. The device caps to its
+          // own max if it can't satisfy the request.
+          width: { ideal: 3840 },
+          height: { ideal: 2160 },
         },
         audio: false,
       });
@@ -118,6 +126,9 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
 
   // Two-phase close so the exit animation can play. We flip isExiting,
   // wait for the keyframe to finish, then unmount and free resources.
+  // After the camera UI is gone, hand the captured files off to the
+  // parent so they go through the crop step (instead of stacking the
+  // CropModal under an open camera modal mid-capture).
   const closeCamera = useCallback(() => {
     setIsExiting(true);
     window.setTimeout(() => {
@@ -129,8 +140,13 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
         revokeThumbs(prev);
         return [];
       });
+      const pending = cameraPending.current;
+      cameraPending.current = [];
+      if (pending.length > 0) {
+        onFiles(pending, { source: 'camera' });
+      }
     }, 200);
-  }, [revokeThumbs, stopStream]);
+  }, [onFiles, revokeThumbs, stopStream]);
 
   const takePhoto = useCallback(() => {
     const v = videoRef.current;
@@ -156,7 +172,10 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
           `shelf-capture-${String(n).padStart(3, '0')}.jpg`,
           { type: 'image/jpeg', lastModified: Date.now() }
         );
-        onFiles([file], { source: 'camera' });
+        // Hold locally; closeCamera flushes to the parent (which routes
+        // each file through enqueueForCrop → CropModal). This keeps the
+        // multi-shot flow uninterrupted by mid-capture crop dialogs.
+        cameraPending.current.push(file);
         setCaptureUiCount(n);
         const url = URL.createObjectURL(blob);
         setThumbs((prev) => [...prev, { id: n, url, name: file.name }]);
@@ -175,7 +194,7 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
       'image/jpeg',
       0.92
     );
-  }, [onFiles]);
+  }, []);
 
   // Release the camera if the page hides (tab switch, screen lock) or the
   // component unmounts. Without this the camera indicator can stay lit.

@@ -11,7 +11,11 @@ import type { PhotoBatch } from '@/lib/types';
 import { createThumbnail, loadImage, makeId } from '@/lib/pipeline';
 import { syncPendingBatchesFromRepo } from '@/lib/pending-batches';
 
-const MIN_IMAGE_WIDTH = 1500;
+// 1200px wide is the realistic floor we still get useful spine-detection
+// out of. Phone in-app cameras frequently deliver 1280×720 streams, which
+// would silently fail at the old 1500px threshold even though the model
+// can read those just fine after the per-spine crop.
+const MIN_IMAGE_WIDTH = 1200;
 
 export default function UploadPage() {
   const {
@@ -164,19 +168,12 @@ export default function UploadPage() {
 
   function handleFiles(
     files: File[],
-    opts: { source: 'gallery' | 'camera' }
+    _opts?: { source: 'gallery' | 'camera' }
   ) {
-    if (opts.source === 'camera') {
-      // Camera shots were framed in the viewfinder. The CropModal also
-      // can't show itself while the camera modal is mounted on top, so
-      // route directly to commitFile with the current label/notes.
-      const savedLabel = batchLabel.trim();
-      const savedNotes = batchNotes.trim();
-      for (const f of files) {
-        void commitFile(f, savedLabel, savedNotes);
-      }
-      return;
-    }
+    // Both gallery and camera files go through the crop step. The camera
+    // path holds shots locally during a multi-capture session and only
+    // flushes them here on Done — by which time the camera modal is
+    // already unmounting, so the CropModal renders on a clean stack.
     enqueueForCrop(files);
   }
 
@@ -280,6 +277,14 @@ export default function UploadPage() {
       </div>
 
       <PhotoUploader onFiles={handleFiles} disabled={isProcessing} />
+
+      {/* Photo queue — surface every batch the user enrolled, including
+          error rows ("Image too small …") so a low-res capture doesn't
+          silently vanish. The component handles its own per-row remove
+          button, status pill, and thumbnail. */}
+      {state.batches.length > 0 && (
+        <ProcessingQueue batches={state.batches} onRemove={handleRemove} />
+      )}
 
       {processing && (
         <div
