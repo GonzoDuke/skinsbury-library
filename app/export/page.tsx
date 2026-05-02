@@ -489,12 +489,12 @@ export default function ExportPage() {
 
       {/* Vocabulary updates — proposed tags ready to be promoted into the
           controlled vocabulary. Only shown when the export set has any.
-          Brass top border anchors it as a deliberate next step rather than
-          a floating panel. */}
+          2px navy top border anchors it as a deliberate next step rather
+          than a floating panel (spec §8). */}
       {promotions.length > 0 && (
-        <div className="bg-brass-soft/40 dark:bg-brass/10 border border-brass/40 border-t-[3px] border-t-brass rounded-lg p-5 space-y-3">
+        <div className="bg-surface-card dark:bg-ink-soft border-t-2 border-t-navy border-x border-b border-line dark:border-[#2E2C29] rounded-b rounded-tr p-5 space-y-3">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <h2 className="text-sm uppercase tracking-[0.18em] font-semibold text-brass-deep dark:text-brass">
+            <h2 className="text-[10px] uppercase tracking-[1px] font-semibold text-navy">
               Vocabulary updates
             </h2>
             <span className="text-xs text-ink/55 dark:text-cream-300/55">

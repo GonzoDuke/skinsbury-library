@@ -209,11 +209,11 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
           if (disabled) return;
           handleFiles(e.dataTransfer.files);
         }}
-        className={`bookshelf-bg relative rounded-2xl border-2 border-dashed transition-all duration-200 ease-gentle p-12 text-center cursor-pointer ${
+        className={`relative rounded-[10px] border-[1.5px] border-dashed transition-all duration-200 ease-gentle px-6 py-10 text-center cursor-pointer ${
           isDragging
-            ? 'border-accent bg-accent-soft/60 dark:bg-accent/20 scale-[1.01]'
-            : 'border-cream-300 dark:border-ink-soft hover:border-accent'
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            ? 'border-navy bg-navy-soft scale-[1.005]'
+            : 'border-line hover:border-navy hover:bg-navy-soft/50'
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} bg-surface-card dark:bg-ink-soft`}
         onClick={() => !disabled && inputRef.current?.click()}
       >
         <input
@@ -225,30 +225,25 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
           onChange={(e) => handleFiles(e.target.files)}
         />
 
-        <div className="mx-auto w-14 h-14 rounded-full bg-accent/10 dark:bg-accent/30 flex items-center justify-center mb-4">
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="text-accent"
+        <div className="text-[15px] font-medium text-text-secondary mb-1 inline-flex items-center gap-1.5">
+          Drop bookshelf photos here
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            aria-label="Photography tips"
+            title="Landscape orientation · fill the frame with one shelf · stand 2–3 feet away · turn flash off · avoid overhead lighting on plastic covers"
+            className="inline-flex items-center justify-center w-[14px] h-[14px] rounded-full text-[10px] font-semibold text-text-quaternary hover:text-navy border border-line hover:border-navy transition"
           >
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <path d="M21 15l-5-5L5 21" />
-          </svg>
+            i
+          </button>
         </div>
-
-        <h2 className="font-serif text-xl mb-1">Drop bookshelf photos here</h2>
-        <p className="text-[11px] uppercase tracking-wider text-ink/50 dark:text-cream-300/50 mb-5">
-          Landscape · fill the frame · 2–3 feet away · flash off
-        </p>
+        <div className="text-[11px] text-text-quaternary mb-3.5">
+          JPG, PNG, HEIC up to 30 MB
+        </div>
         <div className="inline-flex flex-wrap justify-center gap-2">
           <button
             type="button"
-            className="inline-flex items-center text-sm px-5 py-2 rounded-md bg-accent text-limestone hover:bg-accent-deep transition disabled:opacity-50"
+            className="inline-flex items-center text-[13px] font-medium px-4 py-1.5 rounded-md bg-navy text-white hover:bg-navy-deep transition disabled:opacity-50"
             disabled={disabled}
             onClick={(e) => {
               e.stopPropagation();
@@ -259,7 +254,7 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-sm px-5 py-2 rounded-md border border-accent text-accent dark:text-brass dark:border-brass hover:bg-accent hover:text-limestone dark:hover:bg-brass dark:hover:text-accent-deep transition disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium px-4 py-1.5 rounded-md bg-surface-card text-text-secondary border border-line hover:bg-surface-page transition disabled:opacity-50"
             disabled={disabled}
             onClick={(e) => {
               e.stopPropagation();
@@ -267,11 +262,11 @@ export function PhotoUploader({ onFiles, disabled }: PhotoUploaderProps) {
             }}
             title="Open the rear camera and capture multiple shelves in sequence"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
               <circle cx="12" cy="13" r="4" />
             </svg>
-            Take photos
+            Camera
           </button>
         </div>
       </div>
