@@ -16,6 +16,12 @@ interface CommitBody {
   vocabularyJson: string;
   changelogEntries: string;
   newTagCount: number;
+  /**
+   * Optional override for the commit message. Lets non-promotion edits
+   * (manual add from the Vocabulary screen, tag deletion) describe
+   * themselves accurately instead of being labeled "promote N new tags".
+   */
+  commitMessage?: string;
 }
 
 interface GhFile {
@@ -109,7 +115,7 @@ export async function POST(req: NextRequest) {
     typeof body.changelogEntries !== 'string' ||
     typeof body.newTagCount !== 'number' ||
     !Number.isFinite(body.newTagCount) ||
-    body.newTagCount <= 0
+    body.newTagCount < 0
   ) {
     return NextResponse.json({ error: 'Bad body shape' }, { status: 400 });
   }
@@ -119,7 +125,10 @@ export async function POST(req: NextRequest) {
 
   const dateStr = new Date().toISOString().slice(0, 10);
   const tagWord = body.newTagCount === 1 ? 'tag' : 'tags';
-  const baseMessage = `Vocabulary: promote ${body.newTagCount} new ${tagWord} (${dateStr})`;
+  const baseMessage =
+    typeof body.commitMessage === 'string' && body.commitMessage.trim()
+      ? `${body.commitMessage.trim()} (${dateStr})`
+      : `Vocabulary: promote ${body.newTagCount} new ${tagWord} (${dateStr})`;
 
   try {
     // 1) Replace tag-vocabulary.json with the client-built version.

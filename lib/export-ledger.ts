@@ -14,6 +14,13 @@ export interface LedgerEntry {
   date: string;
   /** Batch label at the time of export. Undefined when the book had no label. */
   batchLabel?: string;
+  /**
+   * Genre + form tags applied at export time. Used by the Vocabulary
+   * screen to compute usage counts so we don't enable "delete" on a tag
+   * that's already shipped to LibraryThing. Optional because older
+   * ledger entries (pre v3 step 7) didn't capture tags.
+   */
+  tags?: string[];
 }
 
 export function normalizeIsbn(isbn: string | undefined | null): string {
@@ -192,12 +199,19 @@ export function getCachedRemoteAvailability(): boolean | null {
 }
 
 export function bookToLedgerEntry(book: BookRecord, date: Date = new Date()): LedgerEntry {
+  // Strip the [Proposed] prefix so the recorded tags match the cleaned form
+  // that ships in the CSV — this is the same form the Vocabulary screen
+  // uses when it counts usage.
+  const tags = [...book.genreTags, ...book.formTags]
+    .map((t) => t.replace(/^\[Proposed\]\s*/i, '').trim())
+    .filter(Boolean);
   return {
     isbn: normalizeIsbn(book.isbn),
     titleNorm: normalizeTitle(book.title),
     authorNorm: normalizeAuthor(book.author),
     date: date.toISOString().slice(0, 10),
     batchLabel: book.batchLabel,
+    tags: tags.length > 0 ? tags : undefined,
   };
 }
 
