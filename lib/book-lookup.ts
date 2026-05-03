@@ -995,15 +995,28 @@ interface WikidataHit {
   isbn: string;
   publisher: string;
   publicationYear: number;
+  // Phase-2 enrichment fields. Optional/string-valued so the
+  // consumer can gap-fill cleanly into BookLookupResult.
+  genre?: string;
+  subject?: string;
+  pageCount?: number;
+  series?: string;
 }
 
 function buildWikidataSparql(title: string): string {
-  const lower = title.toLowerCase().replace(/"/g, '\\"');
+  // Sanitize before embedding in SPARQL — strips wildcards/special chars
+  // that the CONTAINS filter would treat as literal characters and miss
+  // a match on. Also escape any double-quotes that survive.
+  const cleaned = sanitizeForSearch(title);
+  const lower = cleaned.toLowerCase().replace(/"/g, '\\"');
   // P31=Q571 (book), Q7725634 (literary work), Q47461344 (written work).
   // Filtering by any of those captures most book entities. The label
   // CONTAINS filter narrows to entries whose label includes our title;
   // we then verify the match in the response.
-  return `SELECT ?item ?itemLabel ?isbn13 ?lcc ?ddc ?authorLabel ?publisherLabel ?pubdate WHERE {
+  //
+  // Phase-2 enrichment: also pull genre (P136), main subject (P921),
+  // number of pages (P1104), and series (P179) when present.
+  return `SELECT ?item ?itemLabel ?isbn13 ?lcc ?ddc ?authorLabel ?publisherLabel ?pubdate ?genreLabel ?subjectLabel ?pages ?seriesLabel WHERE {
   VALUES ?type { wd:Q571 wd:Q7725634 wd:Q47461344 }
   ?item wdt:P31 ?type.
   ?item rdfs:label ?label. FILTER(LANG(?label) = "en"). FILTER(CONTAINS(LCASE(?label), "${lower}")).
@@ -1013,6 +1026,10 @@ function buildWikidataSparql(title: string): string {
   OPTIONAL { ?item wdt:P50 ?author. ?author rdfs:label ?authorLabel. FILTER(LANG(?authorLabel) = "en"). }
   OPTIONAL { ?item wdt:P123 ?publisher. ?publisher rdfs:label ?publisherLabel. FILTER(LANG(?publisherLabel) = "en"). }
   OPTIONAL { ?item wdt:P577 ?pubdate. }
+  OPTIONAL { ?item wdt:P136 ?genre. ?genre rdfs:label ?genreLabel. FILTER(LANG(?genreLabel) = "en"). }
+  OPTIONAL { ?item wdt:P921 ?subject. ?subject rdfs:label ?subjectLabel. FILTER(LANG(?subjectLabel) = "en"). }
+  OPTIONAL { ?item wdt:P1104 ?pages. }
+  OPTIONAL { ?item wdt:P179 ?series. ?series rdfs:label ?seriesLabel. FILTER(LANG(?seriesLabel) = "en"). }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }
 LIMIT 5`;
@@ -1026,6 +1043,11 @@ interface WikidataBinding {
   authorLabel?: { value: string };
   publisherLabel?: { value: string };
   pubdate?: { value: string };
+  // Phase-2 enrichment additions.
+  genreLabel?: { value: string };
+  subjectLabel?: { value: string };
+  pages?: { value: string };
+  seriesLabel?: { value: string };
 }
 
 /**
@@ -1088,6 +1110,8 @@ export async function lookupWikidata(
       return null;
     }
 
+    const pagesRaw = best.pages?.value;
+    const pageCount = pagesRaw ? parseInt(pagesRaw, 10) : 0;
     const hit: WikidataHit = {
       lcc: (best.lcc?.value ?? '').trim(),
       ddc: (best.ddc?.value ?? '').trim(),
@@ -1096,6 +1120,10 @@ export async function lookupWikidata(
       publicationYear: best.pubdate?.value
         ? parseInt(best.pubdate.value.slice(0, 4), 10) || 0
         : 0,
+      genre: best.genreLabel?.value?.trim() || undefined,
+      subject: best.subjectLabel?.value?.trim() || undefined,
+      pageCount: Number.isFinite(pageCount) && pageCount > 0 ? pageCount : undefined,
+      series: best.seriesLabel?.value?.trim() || undefined,
     };
     logger?.tier(
       'wikidata',
@@ -1535,6 +1563,22 @@ export async function lookupBook(
       if (!result.ddc && wd.ddc) result.ddc = wd.ddc;
       if (!result.isbn && wd.isbn) result.isbn = wd.isbn;
       if (!result.publisher && wd.publisher) result.publisher = wd.publisher;
+      if (!result.pageCount && wd.pageCount) result.pageCount = wd.pageCount;
+      if (!result.series && wd.series) result.series = wd.series;
+      // Genre / main subject merge into the subjects array — same pool
+      // tag inference reads. Treat them as additional signal alongside
+      // OL `subject` and ISBNdb `subjects`.
+      if (wd.genre || wd.subject) {
+        const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
+        const merged = [...(result.subjects ?? [])];
+        for (const v of [wd.genre, wd.subject]) {
+          if (v && !existing.has(v.toLowerCase())) {
+            merged.push(v);
+            existing.add(v.toLowerCase());
+          }
+        }
+        result.subjects = merged.slice(0, 15);
+      }
       if (!result.publicationYear && wd.publicationYear) {
         result.publicationYear = wd.publicationYear;
       }
