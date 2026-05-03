@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { withAnthropicRetry } from '@/lib/anthropic-retry';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -102,22 +103,26 @@ export async function POST(req: NextRequest) {
 
   try {
     const t0 = Date.now();
-    const resp = await client.messages.create({
-      model: modelId,
-      max_tokens: 512,
-      messages: [
-        {
-          role: 'user',
-          content: [
+    const resp = await withAnthropicRetry(
+      () =>
+        client.messages.create({
+          model: modelId,
+          max_tokens: 512,
+          messages: [
             {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: base64 },
+              role: 'user',
+              content: [
+                {
+                  type: 'image',
+                  source: { type: 'base64', media_type: mediaType, data: base64 },
+                },
+                { type: 'text', text: READ_PROMPT },
+              ],
             },
-            { type: 'text', text: READ_PROMPT },
           ],
-        },
-      ],
-    });
+        }),
+      'read-spine'
+    );
 
     const textBlock = resp.content.find((b) => b.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {

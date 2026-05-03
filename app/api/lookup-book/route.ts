@@ -30,22 +30,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'title is required' }, { status: 400 });
   }
 
-  const t0 = Date.now();
-  const result = body.matchEdition
-    ? await lookupSpecificEdition(title, author, {
-        year: body.hints?.year,
-        publisher: body.hints?.publisher,
-        isbn: body.hints?.isbn,
-      })
-    : await lookupBook(title, author);
-  const ms = Date.now() - t0;
-  const tier = (result as { tier?: string }).tier;
-  console.log(
-    `[lookup-book${body.matchEdition ? ' edition' : ''}] "${title}"${author ? ` / ${author}` : ''} → ${result.source}` +
-      `${tier && tier !== 'none' ? ` ${tier}` : ''}` +
-      `${result.isbn ? ` isbn=${result.isbn}` : ''}` +
-      `${result.lcc ? ` lcc=${result.lcc}` : ''}` +
-      ` (${ms}ms)`
-  );
-  return NextResponse.json(result);
+  // Wrap the lookup chain in a try/catch so a thrown error from any
+  // tier (network, parse, third-party 5xx) returns structured JSON
+  // instead of bubbling to Next's default HTML 500 page. The client
+  // pipeline expects a JSON body either way.
+  try {
+    const t0 = Date.now();
+    const result = body.matchEdition
+      ? await lookupSpecificEdition(title, author, {
+          year: body.hints?.year,
+          publisher: body.hints?.publisher,
+          isbn: body.hints?.isbn,
+        })
+      : await lookupBook(title, author);
+    const ms = Date.now() - t0;
+    const tier = (result as { tier?: string }).tier;
+    console.log(
+      `[lookup-book${body.matchEdition ? ' edition' : ''}] "${title}"${author ? ` / ${author}` : ''} → ${result.source}` +
+        `${tier && tier !== 'none' ? ` ${tier}` : ''}` +
+        `${result.isbn ? ` isbn=${result.isbn}` : ''}` +
+        `${result.lcc ? ` lcc=${result.lcc}` : ''}` +
+        ` (${ms}ms)`
+    );
+    return NextResponse.json(result);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[lookup-book] failed:', message);
+    return NextResponse.json(
+      { error: 'Lookup failed', details: message },
+      { status: 502 }
+    );
+  }
 }

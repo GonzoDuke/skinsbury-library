@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import type { InferTagsResult } from '@/lib/types';
 import type { CorrectionEntry } from '@/lib/corrections-log';
+import { withAnthropicRetry } from '@/lib/anthropic-retry';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -131,12 +132,16 @@ Book metadata:
 - Existing genre tags: ${(body.existingGenreTags ?? []).join('; ')}`;
 
   try {
-    const resp = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system,
-      messages: [{ role: 'user', content: userMessage }],
-    });
+    const resp = await withAnthropicRetry(
+      () =>
+        client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          system,
+          messages: [{ role: 'user', content: userMessage }],
+        }),
+      'infer-tags'
+    );
 
     const textBlock = resp.content.find((b) => b.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { withAnthropicRetry } from '@/lib/anthropic-retry';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -65,12 +66,16 @@ Publication year: ${body.publicationYear ?? ''}`;
   const t0 = Date.now();
 
   try {
-    const resp = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 256,
-      system: PROMPT,
-      messages: [{ role: 'user', content: userMsg }],
-    });
+    const resp = await withAnthropicRetry(
+      () =>
+        client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 256,
+          system: PROMPT,
+          messages: [{ role: 'user', content: userMsg }],
+        }),
+      'infer-lcc'
+    );
     const block = resp.content.find((b) => b.type === 'text');
     if (!block || block.type !== 'text') {
       return NextResponse.json({ error: 'Empty model response' }, { status: 502 });

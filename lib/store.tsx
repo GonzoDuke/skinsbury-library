@@ -125,6 +125,61 @@ function sanitizeBatch(b: Partial<PhotoBatch>): PhotoBatch {
   };
 }
 
+/**
+ * Build a stub BookRecord representing a spine whose pipeline call
+ * exceeded the 45s wall-clock cap in processQueue's worker loop. The
+ * record is LOW confidence with a single warning so the user can
+ * trigger Reread. Spine thumbnail is preserved so they can still see
+ * which spine it was; everything else is empty.
+ */
+function makeTimeoutStubBook(args: {
+  position: number;
+  bbox: { x: number; y: number; width: number; height: number };
+  spineThumbnail: string;
+  sourcePhoto: string;
+  batchLabel?: string;
+  batchNotes?: string;
+}): BookRecord {
+  return {
+    id: makeId(),
+    spineRead: {
+      position: args.position,
+      bbox: args.bbox,
+      rawText: '',
+      confidence: 'LOW',
+    },
+    title: '',
+    author: '',
+    authorLF: '',
+    isbn: '',
+    publisher: '',
+    publicationYear: 0,
+    lcc: '',
+    genreTags: [],
+    formTags: [],
+    confidence: 'LOW',
+    reasoning: '',
+    status: 'pending',
+    warnings: ['Pipeline timeout — try rereading'],
+    sourcePhoto: args.sourcePhoto,
+    batchLabel: args.batchLabel,
+    batchNotes: args.batchNotes,
+    lookupSource: 'none',
+    lccSource: 'none',
+    spineThumbnail: args.spineThumbnail,
+    original: {
+      title: '',
+      author: '',
+      isbn: '',
+      publisher: '',
+      publicationYear: 0,
+      lcc: '',
+      genreTags: [],
+      formTags: [],
+    },
+  };
+}
+
 export interface ProcessingState {
   /** True from "process all" click until the loop returns. */
   isActive: boolean;
@@ -630,32 +685,75 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           // is a roughly 4× wall-clock speedup vs. the sequential loop
           // and saves the user from staring at the screen.
           const CONCURRENCY = 4;
+          // Per-spine wall-clock cap. If buildBookFromCrop's chain of
+          // fetches stalls (network blip, silent Vercel hang), we want
+          // the worker to unblock and pick up the next spine instead of
+          // freezing the whole batch. The orphaned fetch eventually
+          // resolves (or hits its server maxDuration) but the client
+          // moves on.
+          const PER_SPINE_TIMEOUT_MS = 45_000;
           let nextIndex = 0;
           async function runWorker() {
             while (true) {
               const i = nextIndex++;
               if (i >= jobs.length) return;
               const { det, bbox, ocrCrop, spineThumbnail, position: pos } = jobs[i];
-              const { book, kept } = await buildBookFromCrop({
-                position: pos,
-                bbox,
-                spineThumbnail,
-                ocrCrop,
-                sourcePhoto: batch.filename,
-                batchLabel: batch.batchLabel,
-                batchNotes: batch.batchNotes,
-              });
+              let book: BookRecord;
+              let kept: boolean;
+              let timedOut = false;
+              try {
+                const result = await Promise.race([
+                  buildBookFromCrop({
+                    position: pos,
+                    bbox,
+                    spineThumbnail,
+                    ocrCrop,
+                    sourcePhoto: batch.filename,
+                    batchLabel: batch.batchLabel,
+                    batchNotes: batch.batchNotes,
+                  }),
+                  new Promise<never>((_, reject) =>
+                    setTimeout(
+                      () => reject(new Error('PIPELINE_TIMEOUT')),
+                      PER_SPINE_TIMEOUT_MS
+                    )
+                  ),
+                ]);
+                book = result.book;
+                kept = result.kept;
+              } catch (err) {
+                timedOut =
+                  err instanceof Error && err.message === 'PIPELINE_TIMEOUT';
+                if (!timedOut) throw err;
+                // Build a stub LOW-confidence record so the user can
+                // recover via Reread. Position + spine thumbnail are all
+                // we have; the fetches that lost the race are orphaned.
+                book = makeTimeoutStubBook({
+                  position: pos,
+                  bbox,
+                  spineThumbnail,
+                  sourcePhoto: batch.filename,
+                  batchLabel: batch.batchLabel,
+                  batchNotes: batch.batchNotes,
+                });
+                kept = true;
+                console.warn(
+                  `[processQueue] spine #${pos} pipeline timeout after ${PER_SPINE_TIMEOUT_MS}ms`
+                );
+              }
               bookDone += 1;
               if (kept) keptBooks.push(book);
               dispatch({
                 type: 'PATCH_PROCESSING',
                 patch: {
                   bookDone,
-                  currentLabel: kept
-                    ? book.title
-                      ? `Identified: ${book.title}`
-                      : `Spine #${det.position} — verify`
-                    : `Skipped illegible spine #${det.position}`,
+                  currentLabel: timedOut
+                    ? `Timed out — moved on from spine #${det.position}`
+                    : kept
+                      ? book.title
+                        ? `Identified: ${book.title}`
+                        : `Spine #${det.position} — verify`
+                      : `Skipped illegible spine #${det.position}`,
                 },
               });
             }
