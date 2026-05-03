@@ -344,6 +344,65 @@ async function fetchWorkLcc(workKey: string): Promise<string> {
   return fromLcc ?? fromLc ?? '';
 }
 
+interface GbIsbnEnrichment {
+  publisher: string;
+  publicationYear: number;
+  coverUrl: string;
+  subjects: string[];
+}
+
+/**
+ * Google Books direct ISBN lookup, used as a Phase-B gap-filler when an
+ * earlier tier produced an ISBN but didn't fill publisher / year /
+ * cover / subjects. We hit the unauth'd endpoint by default since the
+ * keyed quota is small and ISBN-direct queries are cheap there.
+ */
+async function gbEnrichByIsbn(isbn: string): Promise<GbIsbnEnrichment | null> {
+  if (!isbn) return null;
+  try {
+    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+    const base = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`;
+    const url = apiKey ? `${base}&key=${apiKey}` : base;
+    let res = await fetch(url, {
+      signal: AbortSignal.timeout(8000),
+      cache: 'no-store',
+      headers: DEFAULT_HEADERS,
+    });
+    if (!res.ok && apiKey) {
+      res = await fetch(base, {
+        signal: AbortSignal.timeout(8000),
+        cache: 'no-store',
+        headers: DEFAULT_HEADERS,
+      });
+    }
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      items?: Array<{
+        volumeInfo: {
+          publisher?: string;
+          publishedDate?: string;
+          categories?: string[];
+          imageLinks?: { thumbnail?: string; smallThumbnail?: string };
+        };
+      }>;
+    };
+    const vi = data.items?.[0]?.volumeInfo;
+    if (!vi) return null;
+    const cover = (vi.imageLinks?.thumbnail || vi.imageLinks?.smallThumbnail || '').replace(
+      /^http:\/\//i,
+      'https://'
+    );
+    return {
+      publisher: vi.publisher ?? '',
+      publicationYear: vi.publishedDate ? parseInt(vi.publishedDate.slice(0, 4), 10) || 0 : 0,
+      coverUrl: cover,
+      subjects: vi.categories ?? [],
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Given an ISBN (typically from Google Books), use Open Library's search.json
  * API to find the work-level metadata. Returns:
@@ -1025,7 +1084,8 @@ export async function lookupBook(
       tier = 'ol-t1';
     }
   }
-  // Tier 2: short title (subtitle stripped) + cleaned author
+  // Tier 2: short title (subtitle stripped) + cleaned author. Catches
+  // books whose subtitle drifted across editions.
   if (result.source === 'none' && hadSubtitle && cleanedAuthor) {
     const p = new URLSearchParams();
     p.set('title', shortTitle);
@@ -1042,29 +1102,50 @@ export async function lookupBook(
   } else {
     log.tier('ol-t2', 'skipped — no cleaned author');
   }
-  // Tier 3: short title only (no author — catches OL author-index quirks)
+  // Tier 3: short title + author last-name only. The cleaned author
+  // string can include initials, middle names, suffixes that don't
+  // match OL's index — searching by last name alone is more permissive
+  // and rescues a non-trivial fraction of partial spine reads.
+  const authorLast = lastName(cleanedAuthor);
+  if (result.source === 'none' && authorLast && authorLast !== cleanedAuthor) {
+    const p = new URLSearchParams();
+    p.set('title', shortTitle);
+    p.set('author', authorLast);
+    const r = await tryOpenLibrary(p, shortTitle, authorLast, log, 'ol-t3-last');
+    if (r) {
+      result = r;
+      tier = 'ol-t3-last';
+    }
+  } else if (result.source !== 'none') {
+    log.tier('ol-t3-last', 'skipped — earlier tier already filled');
+  } else if (!authorLast) {
+    log.tier('ol-t3-last', 'skipped — no author last name available');
+  } else {
+    log.tier('ol-t3-last', 'skipped — last name same as cleaned author (already tried)');
+  }
+  // Tier 4: short title only (no author — catches OL author-index quirks)
   if (result.source === 'none') {
     const p = new URLSearchParams();
     p.set('title', shortTitle);
-    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor, log, 'ol-t3');
+    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor, log, 'ol-t4-titleonly');
     if (r) {
       result = r;
-      tier = 'ol-t3';
+      tier = 'ol-t4-titleonly';
     }
   } else {
-    log.tier('ol-t3', 'skipped — earlier tier already filled');
+    log.tier('ol-t4-titleonly', 'skipped — earlier tier already filled');
   }
-  // Tier 4: full-text q= (most lenient OL tier)
+  // Tier 5: full-text q= (most lenient OL tier — last title-driven attempt)
   if (result.source === 'none') {
     const p = new URLSearchParams();
     p.set('q', `${shortTitle} ${cleanedAuthor}`.trim());
-    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor, log, 'ol-t4');
+    const r = await tryOpenLibrary(p, shortTitle, cleanedAuthor, log, 'ol-t5-q');
     if (r) {
       result = r;
-      tier = 'ol-t4';
+      tier = 'ol-t5-q';
     }
   } else {
-    log.tier('ol-t4', 'skipped — earlier tier already filled');
+    log.tier('ol-t5-q', 'skipped — earlier tier already filled');
   }
 
   // 5) Google Books fallback (only if Open Library didn't yield a usable result)
@@ -1155,20 +1236,73 @@ export async function lookupBook(
   result.lcc = normalizeLcc(result.lcc);
   let lccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none' = result.lcc ? 'ol' : 'none';
 
-  // LoC SRU by ISBN (existing behavior).
-  if (result.isbn && !result.lcc) {
-    const sruLcc = await lookupLccByIsbn(result.isbn);
-    if (sruLcc) {
-      result.lcc = normalizeLcc(sruLcc);
-      lccSource = 'loc';
-      log.tier('loc-by-isbn', `lx2.loc.gov/sru by isbn=${result.isbn} → matched lcc=${JSON.stringify(result.lcc)}`);
+  // -------------------------------------------------------------------------
+  // PHASE B: ISBN-driven cross-tier enrichment.
+  //
+  // The user's complaint: tiers used to run independently and the first
+  // hit "won" — leaving books with partial data when one source had ISBN
+  // but no year, another had publisher but no cover, etc. From here on,
+  // tiers feed each other: any ISBN we have is used to fan out to every
+  // source that supports ISBN-direct, with results merged into the
+  // existing record (gap-fill — never overwrite a higher-priority field).
+  // -------------------------------------------------------------------------
+  if (result.isbn) {
+    const wantOl = !result.publicationYear || !result.lcc;
+    const wantGb = !result.publisher || !result.coverUrl || (result.subjects ?? []).length === 0;
+    const wantSru = !result.lcc;
+    const callCount = (wantOl ? 1 : 0) + (wantGb ? 1 : 0) + (wantSru ? 1 : 0);
+
+    if (callCount === 0) {
+      log.tier('phase-b', `skipped — isbn=${result.isbn} but every gap-filler already satisfied`);
     } else {
-      log.tier('loc-by-isbn', `lx2.loc.gov/sru by isbn=${result.isbn} → no LCC`);
+      log.tier('phase-b', `isbn=${result.isbn} → fanning out ${callCount} ISBN-direct call(s) in parallel`);
+      const [olEnrich, gbEnrich, sruLcc] = await Promise.all([
+        wantOl ? enrichFromIsbn(result.isbn) : Promise.resolve({ firstPublishYear: 0, lcc: '' }),
+        wantGb ? gbEnrichByIsbn(result.isbn) : Promise.resolve(null as GbIsbnEnrichment | null),
+        wantSru ? lookupLccByIsbn(result.isbn) : Promise.resolve(''),
+      ]);
+
+      if (wantOl) {
+        if (!result.publicationYear && olEnrich.firstPublishYear) {
+          result.publicationYear = olEnrich.firstPublishYear;
+          log.tier('phase-b', `  ol-by-isbn filled year=${olEnrich.firstPublishYear}`);
+        }
+        if (!result.lcc && olEnrich.lcc) {
+          result.lcc = normalizeLcc(olEnrich.lcc);
+          lccSource = 'ol';
+          log.tier('phase-b', `  ol-by-isbn filled lcc=${JSON.stringify(result.lcc)}`);
+        }
+      }
+      if (gbEnrich) {
+        if (!result.publisher && gbEnrich.publisher) {
+          result.publisher = gbEnrich.publisher;
+          log.tier('phase-b', `  gb-by-isbn filled publisher=${JSON.stringify(gbEnrich.publisher)}`);
+        }
+        if (!result.publicationYear && gbEnrich.publicationYear) {
+          result.publicationYear = gbEnrich.publicationYear;
+          log.tier('phase-b', `  gb-by-isbn filled year=${gbEnrich.publicationYear}`);
+        }
+        if (gbEnrich.coverUrl && !gbCoverUrl) gbCoverUrl = gbEnrich.coverUrl;
+        if (gbEnrich.subjects.length > 0) {
+          const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
+          const merged = [...(result.subjects ?? [])];
+          for (const s of gbEnrich.subjects) {
+            if (!existing.has(s.toLowerCase())) merged.push(s);
+          }
+          if (merged.length !== (result.subjects ?? []).length) {
+            log.tier('phase-b', `  gb-by-isbn added ${merged.length - (result.subjects ?? []).length} subject(s)`);
+          }
+          result.subjects = merged.slice(0, 15);
+        }
+      }
+      if (sruLcc && !result.lcc) {
+        result.lcc = normalizeLcc(sruLcc);
+        lccSource = 'loc';
+        log.tier('phase-b', `  loc-sru filled lcc=${JSON.stringify(result.lcc)}`);
+      }
     }
-  } else if (result.lcc) {
-    log.tier('loc-by-isbn', `skipped — LCC already set (${lccSource})`);
   } else {
-    log.tier('loc-by-isbn', 'skipped — no ISBN to query by');
+    log.tier('phase-b', 'skipped — no ISBN to fan out from');
   }
 
   // LoC SRU by title + author. Catches books with no ISBN.
@@ -1189,16 +1323,13 @@ export async function lookupBook(
   }
 
   // -------------------------------------------------------------------------
-  // Tier 3: ISBNdb. Fills bibliographic gaps (ISBN, publisher, year, DDC,
-  // subjects). Never overwrites a field a higher-priority tier already set.
-  // Skip silently when ISBNDB_API_KEY isn't configured.
+  // ISBNdb. ALWAYS queried when we have an ISBN (or as a title-search
+  // fallback if we don't), regardless of what earlier tiers returned.
+  // Even when OL or GB already filled isbn+publisher+year, ISBNdb adds
+  // subjects, DDC, cover, synopsis that the others miss. Skip silently
+  // when ISBNDB_API_KEY isn't configured.
   // -------------------------------------------------------------------------
-  const needsBibliographicGapFill =
-    !result.isbn || !result.publisher || !result.publicationYear;
-  if (!needsBibliographicGapFill) {
-    log.tier('isbndb', 'skipped — isbn+publisher+year already filled');
-  }
-  if (needsBibliographicGapFill) {
+  {
     const isbndbHit = await lookupIsbndb(title, author, result.isbn || undefined, log);
     if (isbndbHit) {
       let usedIsbndb = false;

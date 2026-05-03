@@ -140,6 +140,45 @@ export async function lookupBookClient(
   return (await res.json()) as BookLookupResult;
 }
 
+export interface IdentifyBookResponse {
+  title: string;
+  author: string;
+  isbn: string;
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  reasoning: string;
+}
+
+/**
+ * Last-resort identifier. Calls /api/identify-book to ask Claude
+ * Sonnet to recognize a book from raw spine fragments. Used by
+ * buildBookFromCrop when the title-search lookup chain produces
+ * `source: 'none'` despite the spine read having captured something.
+ */
+export async function identifyBookClient(args: {
+  rawText: string;
+  partialTitle?: string;
+  partialAuthor?: string;
+}): Promise<IdentifyBookResponse> {
+  const empty: IdentifyBookResponse = {
+    title: '',
+    author: '',
+    isbn: '',
+    confidence: 'LOW',
+    reasoning: '',
+  };
+  try {
+    const res = await fetch('/api/identify-book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(args),
+    });
+    if (!res.ok) return empty;
+    return (await res.json()) as IdentifyBookResponse;
+  } catch {
+    return empty;
+  }
+}
+
 export interface InferLccResponse {
   lcc: string;
   confidence: 'HIGH' | 'MEDIUM' | 'LOW';
@@ -546,6 +585,50 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     }
   }
 
+  // Last-resort identifier. The standard lookup chain is title-driven;
+  // if the spine OCR produced a fragment too garbled to match
+  // ("STRANG" / "CAMUS" / "VINTAGE", a half-cropped subtitle, an
+  // author-only spine), every title-search tier returns nothing and
+  // the book lands on Review with empty metadata. Ask Claude Sonnet
+  // to identify the book from whatever raw text the spine read
+  // captured, then re-run the lookup chain with the corrected
+  // title/author. ISBN-direct on the new title's resolved ISBN
+  // re-enters Phase B so the re-run returns a complete record.
+  let identifyWarning = '';
+  if (lookup.source === 'none') {
+    const rawText = (spineRead.rawText || `${read.title ?? ''} ${read.author ?? ''}`).trim();
+    if (rawText.length >= 3) {
+      try {
+        const guess = await identifyBookClient({
+          rawText,
+          partialTitle: read.title,
+          partialAuthor: read.author,
+        });
+        if (guess.title && guess.confidence !== 'LOW') {
+          // Re-run the lookup with the corrected guess. If we got an
+          // ISBN from Sonnet, fold it in via matchEdition so the
+          // server hits ol-by-isbn → isbndb-direct directly.
+          const reRun = guess.isbn
+            ? await lookupBookClient(guess.title, guess.author, {
+                matchEdition: true,
+                hints: { isbn: guess.isbn },
+              })
+            : await lookupBookClient(guess.title, guess.author);
+          if (reRun.source !== 'none') {
+            lookup = { ...reRun, publisher: reRun.publisher || read.publisher || '' };
+            // Adopt the corrected title/author for the rest of the
+            // pipeline so tag inference sees the right metadata.
+            read.title = guess.title;
+            if (guess.author) read.author = guess.author;
+            identifyWarning = `Identified by AI from partial spine read: ${guess.reasoning || guess.title}`;
+          }
+        }
+      } catch {
+        // ignore — identifier is best-effort
+      }
+    }
+  }
+
   const grounded = groundSpineRead(
     {
       title: read.title,
@@ -556,6 +639,11 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     lookup,
     lookupMatchedTitle
   );
+
+  // Surface the identify-book guess (when it fired and the re-run
+  // succeeded) on the BookCard so the reviewer knows the metadata
+  // came from an AI guess, not a direct OCR → search match.
+  if (identifyWarning) grounded.warnings.push(identifyWarning);
 
   // Spine-printed LCC wins over the lookup-derived one — it's the LoC's
   // own classification for the exact physical edition the user owns.
