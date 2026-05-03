@@ -1,0 +1,407 @@
+{
+  "id": "ac353717-34f1-4b20-b036-718ea6444d03",
+  "filename": "20260501_070036.cropped.jpg",
+  "fileSize": 1515349,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 8,
+  "booksIdentified": 7,
+  "books": [
+    {
+      "id": "34791edd-592f-47f4-a94e-8837d4a2a3be",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Cultish: The Language of Fanaticism — Amanda Montell",
+        "title": "Cultish: The Language of Fanaticism",
+        "author": "Amanda Montell",
+        "publisher": "Harper Wave",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 2,
+          "y": 5,
+          "width": 12,
+          "height": 90
+        }
+      },
+      "title": "Cultish: The Language of Fanaticism",
+      "author": "Amanda Montell",
+      "authorLF": "Montell, Amanda",
+      "isbn": "9780062993151",
+      "publisher": "HarperCollins B and Blackstone Publishing",
+      "publicationYear": 2021,
+      "lcc": "P301.5 .P75M66 2021",
+      "genreTags": [
+        "Linguistics",
+        "Social criticism",
+        "Critical thinking"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC P301.5 → Linguistics/Psycholinguistics. Title indicates analysis of manipulative language patterns. Subject headings confirm language focus with cult analysis → Social criticism + Critical thinking.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Cultish: The Language of Fanaticism",
+        "author": "Amanda Montell",
+        "isbn": "9780062993151",
+        "publisher": "HarperCollins B and Blackstone Publishing",
+        "publicationYear": 2021,
+        "lcc": "P301.5 .P75M66 2021",
+        "genreTags": [
+          "Linguistics",
+          "Social criticism",
+          "Critical thinking"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "364b8fd9-68a4-434d-b6b5-458b39a9dd2b",
+      "spineRead": {
+        "position": 3,
+        "rawText": "The F Word — Sheidlower",
+        "title": "The F Word",
+        "author": "Sheidlower",
+        "publisher": "Oxford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Red spine, single book",
+        "bbox": {
+          "x": 22,
+          "y": 5,
+          "width": 12,
+          "height": 90
+        }
+      },
+      "title": "The F Word",
+      "author": "Sheidlower",
+      "authorLF": "Sheidlower",
+      "isbn": "9780375706349",
+      "publisher": "Random House Information Group",
+      "publicationYear": 1999,
+      "lcc": "PE1599 .F83 F2 1999",
+      "genreTags": [
+        "Etymology",
+        "Linguistics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PE → English language linguistics. Subject headings confirm etymology and semantics focus. Clear linguistic study of a specific word's history and usage.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "The F Word",
+        "author": "Sheidlower",
+        "isbn": "9780375706349",
+        "publisher": "Random House Information Group",
+        "publicationYear": 1999,
+        "lcc": "PE1599 .F83 F2 1999",
+        "genreTags": [
+          "Etymology",
+          "Linguistics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "b6be0c8e-ed67-4c6a-8919-059babd5aedf",
+      "spineRead": {
+        "position": 4,
+        "rawText": "F You Very Much — Danny Wallace",
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "publisher": "tp",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle: Understanding the Culture of Rudeness and What We Can Do About It",
+        "bbox": {
+          "x": 34,
+          "y": 5,
+          "width": 12,
+          "height": 90
+        }
+      },
+      "title": "F You Very Much",
+      "author": "Danny Wallace",
+      "authorLF": "Wallace, Danny",
+      "isbn": "9781473559165",
+      "publisher": "Penguin Random House",
+      "publicationYear": 2018,
+      "lcc": "BJ-1853.00000000",
+      "genreTags": [
+        "Ethics",
+        "Self-improvement"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC BJ → Ethics. Subject headings 'Interpersonal relations; Courtesy' suggest practical ethics about politeness and social behavior → Self-improvement also applies.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #4 and #5. Merge or keep both?"
+      ],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABYDASIAAhEBAxEB/8QAHAAAAgMBAQEBAAAAAAAAAAAAAAUDBAYCBwEI/8QAORAAAQMCAwQHBgQHAQAAAAAAAQACAwQRBRIhMUFRcQYTJDRyscEUIiNhYsIyc4GCJTNCVGORkqH/xAAaAQACAwEBAAAAAAAAAAAAAAACBAABAwUG/8QALhEAAgECBAMHAwUAAAAAAAAAAQIAAxESIUHwIjIzBBMjMYGRsVHB0VJhcYKi/9oADAMBAAIRAxEAPwD8xIXHWN4FHWjgitLnaFH1vyQpYySJCuPw2sbtp3/oLqKOkqJHvbHBK5zPxANNxzUxqdYRpuMiDILoVo4dWf2k/wDwUKsa/WX3T/pPtNxEL7eCXYWXHEKwEkgBu/mmsA28krwsfxCuPg9Vx15W3rPUsONP5+xmkhwavlibIymc5jwHAgjUFChpjK6GSCKMvDnNebAkiwI+4oWdh9JoTUB8xv1kNK0dXpsDUpwjv1b+z1TqnHw3eEpPgovWV3NnqjU8Lb1gsONN6GejYLFV9RHE2U2MTXhzoMsdrCwD2kEnXf8ANCXx1NL7HBCJKLI1jS5kzZiQ+2uzTbfYhWHAijUGYk2/zEsA+DJ4SkuCDtdfzZ6p9T6QSn6T5JJgLC+urWtBc4lgAAuTtQKeFt6x5h4ib0M9AwmhibRQzGhyFzLF80BnzniAHXA/b+p3inwGaWqp2xUs8kM0TRnl9kDtwGW+b6RuB90IRqARlEKrMHIY/P4MydC0NoHDNmsw68dEm6Puc2urnMcWuaWEEGxB1TyjINFI4ODmlhNxsOiR4CO24hfiz7lmvK29Z0COOmN+Rm6E+J1sDPbcOmrYvxMdke3dofdsDztfXahXaN7I6KnaXezO6tpzQujhe7TeetBI+ZA4oV2vF+8sbKLe/wCZlaYBlHKANMp8kiwDvuIc2fctC6Xrop3hjWXabhoAGzXQaBZ/o933EObPuQrytvWNN1Ke9DPRaNlNUQRRyVlPHI2GMmaaGB7dlgyx964tbU7jxCFWwzHhSRNYWVczQwNyuqrNFhuAbccroVhktmYu1GviOFcv6/cTN0xPsDy7NmyG97X2fLRJ+j3fMQ5s9U1pnXoHmwbeMmw5JV0c71iHNn3KLyPvWMHqU96GXMchlmo2Nga5zhIDYDdYoRiFU6npTJBaQmXKfeJtob7DxCEdIsFyEX7VgapdiZPEXGgfnsHdWb87JV0cPx6/xM9UxjJbQvDtXBmut0t6OH41b42+RQLyNvWbnqU96GX6ieOGKSR7IQx0pBz6gkC19AddDtQjJFNFLnjY5vXHS+0jS+waoUUrrM6ge/Db1nd+yS+FLOjv8ysP1jyTAnssmv8ASlvR78dYfrHkovTaaP1U9fgy9iEbpqXLHZtpL6HbtQuJy+GmcYh7zpiXWt8+P6IR08VsovWwFuLzkrj2STkl3R7bV/mDyV157K/kqHR897H+T0QgeG02Y+Mm9JfrrMg0cG3fckm+7mhWaiFwa0SBzA4Zm6WuOKEKVMIsYVSgXa4MpyHs8l+Co9HzrVeMeStyns7+Sp4Adav8weSMdNpm3WT1+JuYss88DXMu1tKy2pF//OaEs9vkjMclMHRkRtjcSAQSByQgDiRqLnMGKKmIR0sh66J2g0a6+/YluAu71+Z6KlJi0boi0RyEnkpMDqYmMqHSyNYXPuA462smTRcU2uIoO1UjWXinpdFiUcNDE2KUwuAAcy4cLhoFwM4texJ02n/YsG6qoSTmfCd+y6FmGcC1j7Sm7N2diTiGf7zJ5zZBebbAvltF8XYnnZ11h4BC4KFLSXM//9k=",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "isbn": "9781473559165",
+        "publisher": "Penguin Random House",
+        "publicationYear": 2018,
+        "lcc": "BJ-1853.00000000",
+        "genreTags": [
+          "Ethics",
+          "Self-improvement"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-pbfzguvy",
+      "duplicateOf": [
+        5
+      ]
+    },
+    {
+      "id": "4613827e-1d3d-4032-8888-4231ee8f6451",
+      "spineRead": {
+        "position": 5,
+        "rawText": "F You Very Much: Understanding the Culture of Rudeness — Danny Wallace",
+        "title": "F You Very Much: Understanding the Culture of Rudeness",
+        "author": "Danny Wallace",
+        "publisher": "Penguin",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Red spine; author appears as 'DANNY' near foot, full name partially obscured but matches known book by Danny Wallace.",
+        "bbox": {
+          "x": 46,
+          "y": 5,
+          "width": 8,
+          "height": 90
+        }
+      },
+      "title": "F You Very Much: Understanding the Culture of Rudeness",
+      "author": "Danny Wallace",
+      "authorLF": "Wallace, Danny",
+      "isbn": "9781473559165",
+      "publisher": "Penguin Random House",
+      "publicationYear": 2018,
+      "lcc": "BJ-1853.00000000",
+      "genreTags": [
+        "Ethics",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC BJ → Ethics. Subject headings confirm interpersonal relations and courtesy. 'Understanding the Culture' indicates social analysis → Social criticism.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #4 and #5. Merge or keep both?"
+      ],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "F You Very Much: Understanding the Culture of Rudeness",
+        "author": "Danny Wallace",
+        "isbn": "9781473559165",
+        "publisher": "Penguin Random House",
+        "publicationYear": 2018,
+        "lcc": "BJ-1853.00000000",
+        "genreTags": [
+          "Ethics",
+          "Social criticism"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-pbfzguvy",
+      "duplicateOf": [
+        4
+      ]
+    },
+    {
+      "id": "7179c497-6295-48b9-8615-a27cb3a1ba48",
+      "spineRead": {
+        "position": 6,
+        "rawText": "HOLY SH*T — MOHR",
+        "title": "HOLY SH*T",
+        "author": "MOHR",
+        "publisher": "OXFORD",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 54,
+          "y": 5,
+          "width": 12,
+          "height": 90
+        }
+      },
+      "title": "Holy Sh*t",
+      "author": "MOHR",
+      "authorLF": "MOHR",
+      "isbn": "9780190491680",
+      "publisher": "Oxford University Press, Incorporated",
+      "publicationYear": 2013,
+      "lcc": "PE3724 .S85.M65 2016",
+      "genreTags": [
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PE3724 → English language linguistics. Subject headings confirm swearing/profanity as historical and social linguistic phenomenon. Oxford UP suggests academic treatment.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Holy Sh*t",
+        "author": "MOHR",
+        "isbn": "9780190491680",
+        "publisher": "Oxford University Press, Incorporated",
+        "publicationYear": 2013,
+        "lcc": "PE3724 .S85.M65 2016",
+        "genreTags": [
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "91c27a25-01a7-497a-b49c-745dc94b8c4a",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Assholes: A Theory — Aaron James",
+        "title": "Assholes: A Theory",
+        "author": "Aaron James",
+        "publisher": "Anchor Books",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 66,
+          "y": 5,
+          "width": 10,
+          "height": 90
+        }
+      },
+      "title": "Assholes: A Theory",
+      "author": "Aaron James",
+      "authorLF": "James, Aaron",
+      "isbn": "9780385535656",
+      "publisher": "Doubleday",
+      "publicationYear": 2012,
+      "lcc": "BJ1474 .J36 2012",
+      "genreTags": [
+        "Ethics",
+        "Behavioral psychology",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC BJ → Ethics. Subject headings span conduct of life, egoism, behaviorism, and social analysis. Title indicates systematic study of antisocial behavior patterns → cross-domain Ethics + Behavioral psychology + Social criticism.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780385535656-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Assholes: A Theory",
+        "author": "Aaron James",
+        "isbn": "9780385535656",
+        "publisher": "Doubleday",
+        "publicationYear": 2012,
+        "lcc": "BJ1474 .J36 2012",
+        "genreTags": [
+          "Ethics",
+          "Behavioral psychology",
+          "Social criticism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "1ce4afe7-2c3a-408b-8377-4ba9aeaaebb2",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Ascent of the A-Word — Geoffrey Nunberg",
+        "title": "Ascent of the A-Word",
+        "author": "Geoffrey Nunberg",
+        "publisher": "PublicAffairs",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "White spine, right-hand book in the photo. 'PublicAffairs' visible at foot with 'in paper' subtitle.",
+        "bbox": {
+          "x": 76,
+          "y": 5,
+          "width": 10,
+          "height": 90
+        }
+      },
+      "title": "Ascent of the A-Word",
+      "author": "Geoffrey Nunberg",
+      "authorLF": "Nunberg, Geoffrey",
+      "isbn": "9781610391757",
+      "publisher": "PublicAffairs",
+      "publicationYear": 2012,
+      "lcc": "PE3724 .O3N86 2012",
+      "genreTags": [
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PE → Linguistics. Subject headings confirm focus on English language and slang. Nunberg is known linguist. Title suggests historical study of profanity evolution.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781610391757-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Ascent of the A-Word",
+        "author": "Geoffrey Nunberg",
+        "isbn": "9781610391757",
+        "publisher": "PublicAffairs",
+        "publicationYear": 2012,
+        "lcc": "PE3724 .O3N86 2012",
+        "genreTags": [
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "20260501_070036.jpg",
+  "sourceDimensions": {
+    "width": 2700,
+    "height": 3600
+  }
+}
