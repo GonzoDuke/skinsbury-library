@@ -369,7 +369,49 @@ export function BookTableRow({ book }: { book: BookRecord }) {
                     } · spine #${book.spineRead.position}`
               }
             />
+            {/* Phase-3 enrichment fields. Each renders only when set,
+                so old records (no enrichment) display unchanged. */}
+            {book.pageCount ? (
+              <ReadOnlyField label="Pages" value={String(book.pageCount)} />
+            ) : null}
+            {book.edition ? (
+              <ReadOnlyField label="Edition" value={book.edition} />
+            ) : null}
+            {book.binding ? (
+              <ReadOnlyField label="Binding" value={book.binding} />
+            ) : null}
+            {book.language && book.language.toLowerCase() !== 'en' && book.language.toLowerCase() !== 'eng' ? (
+              <ReadOnlyField label="Language" value={book.language} />
+            ) : null}
+            {book.series ? (
+              <ReadOnlyField label="Series" value={book.series} />
+            ) : null}
+            {book.allAuthors && book.allAuthors.length > 1 ? (
+              <ReadOnlyField label="All authors" value={book.allAuthors.join('; ')} />
+            ) : null}
           </div>
+
+          {book.synopsis ? (
+            <div className="mb-3 text-[11px] text-text-secondary leading-relaxed">
+              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1">
+                Synopsis
+              </span>
+              <span>
+                {book.synopsis.length > 280
+                  ? `${book.synopsis.slice(0, 280)}…`
+                  : book.synopsis}
+              </span>
+            </div>
+          ) : null}
+
+          {book.lcshSubjects && book.lcshSubjects.length > 0 ? (
+            <div className="mb-3 text-[11px] text-text-secondary leading-relaxed">
+              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1">
+                LCSH
+              </span>
+              <span className="font-mono">{book.lcshSubjects.join('; ')}</span>
+            </div>
+          ) : null}
 
           {/* Notes — full-width textarea, click-to-edit. Per-book notes
               land in the LibraryThing COMMENTS column on export. */}

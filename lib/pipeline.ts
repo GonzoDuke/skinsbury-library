@@ -742,6 +742,20 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     coverUrl: lookup.coverUrl,
     ocrImage: ocrCrop,
     ocrModel,
+    // Phase-3 enrichment passthrough. Each field is optional + lookup
+    // may not have set it; conditionals stop us from sticking
+    // `undefined` onto the record key explicitly.
+    canonicalTitle: lookup.canonicalTitle,
+    subtitle: lookup.subtitle,
+    allAuthors: lookup.allAuthors,
+    synopsis: lookup.synopsis,
+    pageCount: lookup.pageCount,
+    edition: lookup.edition,
+    binding: lookup.binding,
+    language: lookup.language,
+    series: lookup.series,
+    lcshSubjects: lookup.lcshSubjects,
+    coverUrlFallbacks: lookup.coverUrlFallbacks,
     original: {
       title: titleCased,
       author: read.author,
@@ -961,6 +975,19 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     ddc: lookup.ddc,
     lccSource,
     manuallyAdded: true,
+    // Phase-3 enrichment passthrough — see addManualBook's sibling
+    // construction site in buildBookFromCrop for the same pattern.
+    canonicalTitle: lookup.canonicalTitle,
+    subtitle: lookup.subtitle,
+    allAuthors: lookup.allAuthors,
+    synopsis: lookup.synopsis,
+    pageCount: lookup.pageCount,
+    edition: lookup.edition,
+    binding: lookup.binding,
+    language: lookup.language,
+    series: lookup.series,
+    lcshSubjects: lookup.lcshSubjects,
+    coverUrlFallbacks: lookup.coverUrlFallbacks,
     original: {
       title: titleCased,
       author,
@@ -1210,6 +1237,19 @@ export async function rereadBook(
     ddc: lookup.ddc,
     lccSource,
     coverUrl: lookup.coverUrl,
+    // Phase-3 enrichment passthrough — surgical, only sets what the
+    // lookup returned. undefined values won't overwrite existing data.
+    canonicalTitle: lookup.canonicalTitle,
+    subtitle: lookup.subtitle,
+    allAuthors: lookup.allAuthors,
+    synopsis: lookup.synopsis,
+    pageCount: lookup.pageCount,
+    edition: lookup.edition,
+    binding: lookup.binding,
+    language: lookup.language,
+    series: lookup.series,
+    lcshSubjects: lookup.lcshSubjects,
+    coverUrlFallbacks: lookup.coverUrlFallbacks,
   };
   if (tags) {
     patch.genreTags = tags.genreTags;

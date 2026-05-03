@@ -307,6 +307,76 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
             }
           />
 
+          {/* Phase-3 enrichment fields — each only renders when populated.
+              Old records without enrichment look exactly as before. */}
+          {(book.pageCount ||
+            book.edition ||
+            book.binding ||
+            book.series ||
+            (book.allAuthors && book.allAuthors.length > 1) ||
+            (book.language &&
+              book.language.toLowerCase() !== 'en' &&
+              book.language.toLowerCase() !== 'eng')) && (
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-text-secondary">
+              {book.pageCount ? (
+                <div>
+                  <span className="text-text-quaternary uppercase tracking-wider mr-1">Pages</span>
+                  {book.pageCount}
+                </div>
+              ) : null}
+              {book.edition ? (
+                <div>
+                  <span className="text-text-quaternary uppercase tracking-wider mr-1">Edition</span>
+                  {book.edition}
+                </div>
+              ) : null}
+              {book.binding ? (
+                <div>
+                  <span className="text-text-quaternary uppercase tracking-wider mr-1">Binding</span>
+                  {book.binding}
+                </div>
+              ) : null}
+              {book.language &&
+              book.language.toLowerCase() !== 'en' &&
+              book.language.toLowerCase() !== 'eng' ? (
+                <div>
+                  <span className="text-text-quaternary uppercase tracking-wider mr-1">Lang</span>
+                  {book.language}
+                </div>
+              ) : null}
+              {book.series ? (
+                <div className="col-span-2">
+                  <span className="text-text-quaternary uppercase tracking-wider mr-1">Series</span>
+                  {book.series}
+                </div>
+              ) : null}
+              {book.allAuthors && book.allAuthors.length > 1 ? (
+                <div className="col-span-2">
+                  <span className="text-text-quaternary uppercase tracking-wider mr-1">All authors</span>
+                  {book.allAuthors.join('; ')}
+                </div>
+              ) : null}
+            </div>
+          )}
+          {book.synopsis ? (
+            <div className="text-[11px] text-text-secondary leading-relaxed">
+              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1">
+                Synopsis
+              </span>
+              {book.synopsis.length > 240
+                ? `${book.synopsis.slice(0, 240)}…`
+                : book.synopsis}
+            </div>
+          ) : null}
+          {book.lcshSubjects && book.lcshSubjects.length > 0 ? (
+            <div className="text-[11px] text-text-secondary leading-relaxed">
+              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1">
+                LCSH
+              </span>
+              <span className="font-mono">{book.lcshSubjects.join('; ')}</span>
+            </div>
+          ) : null}
+
           {Array.isArray(book.warnings) && book.warnings.length > 0 && (
             <ul className="text-[11px] text-carnegie-amber space-y-0.5 list-disc list-inside">
               {book.warnings.map((w, i) => (
