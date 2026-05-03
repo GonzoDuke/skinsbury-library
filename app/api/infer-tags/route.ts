@@ -90,6 +90,12 @@ interface InferRequest {
   lcc?: string;
   existingGenreTags?: string[];
   subjectHeadings?: string[];
+  // Phase-3 enrichment fields. All optional; the user-message
+  // formatter omits the line when the field is empty/undefined so old
+  // callers that don't pass them produce the same prompt as before.
+  ddc?: string;
+  lcshSubjects?: string[];
+  synopsis?: string;
   /** Recent tag corrections forwarded by the client. Up to 20 most
    *  recent are appended to the system prompt as few-shot examples. */
   corrections?: CorrectionEntry[];
@@ -119,17 +125,32 @@ export async function POST(req: NextRequest) {
   const system = buildSystemWithCorrections(basePrompt, corrections);
   const client = new Anthropic({ apiKey });
 
+  // Build the user message line-by-line so optional enrichment fields
+  // are simply omitted (not rendered as empty lines) when the caller
+  // didn't pass them. Old callers see the same prompt as before.
+  const lines: string[] = [
+    `- Title: ${body.title}`,
+    `- Author: ${body.author ?? ''}`,
+    `- ISBN: ${body.isbn ?? ''}`,
+    `- Publisher: ${body.publisher ?? ''}`,
+    `- Publication year: ${body.publicationYear ?? ''}`,
+    `- LCC: ${body.lcc ?? ''}`,
+    `- Subject headings: ${(body.subjectHeadings ?? []).join('; ')}`,
+    `- Existing genre tags: ${(body.existingGenreTags ?? []).join('; ')}`,
+  ];
+  if (body.ddc) lines.push(`- DDC: ${body.ddc}`);
+  if (Array.isArray(body.lcshSubjects) && body.lcshSubjects.length > 0) {
+    lines.push(`- LCSH subject headings: ${body.lcshSubjects.join('; ')}`);
+  }
+  if (body.synopsis) {
+    const trimmed = body.synopsis.length > 300 ? body.synopsis.slice(0, 300) : body.synopsis;
+    lines.push(`- Synopsis (first 300 chars): ${trimmed}`);
+  }
+
   const userMessage = `Tag the following book according to the rules in the system prompt. Return ONLY a single JSON object (no markdown fences) with fields: title, author, isbn, publication_year, publisher, lcc, genre_tags (array of strings), form_tags (array of strings), confidence ("HIGH"|"MEDIUM"|"LOW"), reasoning (short string).
 
 Book metadata:
-- Title: ${body.title}
-- Author: ${body.author ?? ''}
-- ISBN: ${body.isbn ?? ''}
-- Publisher: ${body.publisher ?? ''}
-- Publication year: ${body.publicationYear ?? ''}
-- LCC: ${body.lcc ?? ''}
-- Subject headings: ${(body.subjectHeadings ?? []).join('; ')}
-- Existing genre tags: ${(body.existingGenreTags ?? []).join('; ')}`;
+${lines.join('\n')}`;
 
   try {
     const resp = await withAnthropicRetry(

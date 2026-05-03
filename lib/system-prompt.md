@@ -37,6 +37,9 @@ You must use tags from the approved vocabulary below. If no existing tag fits, y
 7. **Form tags are independent of content.** A signed first edition of anything gets "First edition" + "Signed" regardless of subject.
 8. **Only apply series form tags when publisher confirms.** Don't guess Penguin Classics from LCC code.
 9. **If metadata is thin, flag confidence as LOW.** The reviewer will verify.
+10. **LCSH (Library of Congress Subject Headings) are authoritative.** When LCSH subject headings are provided, treat them as the most authoritative signal for tag assignment — they're assigned by professional catalogers and outweigh both LCC and free-text "Subject headings". Map LCSH terms to the closest vocabulary tag (e.g., LCSH "Stoicism" → tag "Stoicism"; LCSH "Detective and mystery stories — United States" → "Fiction" + a [Proposed] mystery tag).
+11. **DDC supplements LCC.** When a Dewey Decimal Classification is provided alongside LCC, use it as a secondary domain signal. The two should agree; when they conflict, prefer LCC for cataloging classification but treat the disagreement as a hint that the LCC is generic/uncertain.
+12. **Synopsis disambiguates ambiguous titles.** When a synopsis is provided, use it to disambiguate subject matter — especially for titles that don't clearly indicate their content. A synopsis describing "the rise of behavioral economics" promotes "Psychology" or "Behavioral psychology" tags even when the title is just an author's name.
 
 ## Output format
 

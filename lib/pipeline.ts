@@ -208,6 +208,12 @@ export async function inferTagsClient(args: {
   publicationYear?: number;
   lcc?: string;
   subjectHeadings?: string[];
+  // Phase-3 enrichment fields. All optional — old callers continue to
+  // build the same prompt as before because the route only adds lines
+  // when these are populated.
+  ddc?: string;
+  lcshSubjects?: string[];
+  synopsis?: string;
 }): Promise<InferTagsResult> {
   // Pull the user's most recent tag corrections from localStorage and
   // forward them so the inference route can append them to the system
@@ -702,6 +708,9 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         publicationYear: lookup.publicationYear,
         lcc: finalLcc,
         subjectHeadings: lookup.subjects,
+        ddc: lookup.ddc,
+        lcshSubjects: lookup.lcshSubjects,
+        synopsis: lookup.synopsis,
       });
     } catch {
       grounded.warnings.push('Tag inference failed.');
@@ -796,8 +805,13 @@ export async function retagBook(book: BookRecord): Promise<{
       publisher: book.publisher,
       publicationYear: book.publicationYear,
       lcc: book.lcc,
-      // Subject headings aren't stored on the BookRecord; let the model work
-      // from title/author/LCC + its general knowledge.
+      // Bulk re-tag now also forwards stored enrichment fields when
+      // they exist on the BookRecord (LCSH, DDC, synopsis). Old
+      // records without enrichment hit the model with the same
+      // payload as before.
+      ddc: book.ddc,
+      lcshSubjects: book.lcshSubjects,
+      synopsis: book.synopsis,
     });
   } catch (err: any) {
     return { ok: false, error: err?.message ?? 'Tag inference failed.' };
@@ -915,6 +929,9 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
       publicationYear: lookup.publicationYear,
       lcc: lookup.lcc,
       subjectHeadings: lookup.subjects,
+      ddc: lookup.ddc,
+      lcshSubjects: lookup.lcshSubjects,
+      synopsis: lookup.synopsis,
     });
   } catch {
     // ignore
@@ -1199,6 +1216,9 @@ export async function rereadBook(
         publicationYear: lookup.publicationYear,
         lcc: finalLcc,
         subjectHeadings: lookup.subjects,
+        ddc: lookup.ddc,
+        lcshSubjects: lookup.lcshSubjects,
+        synopsis: lookup.synopsis,
       });
     } catch {
       grounded.warnings.push('Tag inference failed.');
