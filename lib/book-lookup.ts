@@ -107,6 +107,7 @@ function describeFilled(r: BookLookupResult | null | undefined): string {
 interface OpenLibraryDoc {
   key?: string;
   title?: string;
+  subtitle?: string;
   author_name?: string[];
   isbn?: string[];
   publisher?: string[];
@@ -116,6 +117,7 @@ interface OpenLibraryDoc {
   lcc?: string[];
   lc_classifications?: string[];
   subject?: string[];
+  number_of_pages_median?: number;
 }
 
 interface OpenLibraryWork {
@@ -323,6 +325,7 @@ interface OpenLibraryWorkFull {
   lcc?: string[];
   subjects?: string[];
   first_publish_date?: string;
+  description?: string | { value?: string };
 }
 
 async function fetchWork(workKey: string): Promise<OpenLibraryWorkFull | null> {
@@ -343,6 +346,15 @@ async function fetchWorkLcc(workKey: string): Promise<string> {
   const fromLcc = work.lcc && work.lcc[0];
   const fromLc = work.lc_classifications && work.lc_classifications[0];
   return fromLcc ?? fromLc ?? '';
+}
+
+/**
+ * Same /works fetch as fetchWorkLcc but returns the full record so
+ * tryOpenLibrary can also extract the work-level description as a
+ * synopsis fallback. Old fetchWorkLcc kept untouched for back-compat.
+ */
+async function fetchWorkRecord(workKey: string): Promise<OpenLibraryWorkFull | null> {
+  return fetchWork(workKey);
 }
 
 interface GbIsbnEnrichment {
@@ -652,7 +664,7 @@ export async function lookupSpecificEdition(
 }
 
 const OL_FIELDS =
-  'key,title,author_name,isbn,publisher,first_publish_year,publish_year,publish_date,lcc,lc_classifications,subject';
+  'key,title,subtitle,author_name,isbn,publisher,first_publish_year,publish_year,publish_date,lcc,lc_classifications,subject,number_of_pages_median';
 
 /**
  * Run one Open Library search.json query, score & pick the best matching
@@ -701,7 +713,19 @@ async function tryOpenLibrary(
       (best.lcc && best.lcc[0]) ??
       (best.lc_classifications && best.lc_classifications[0]) ??
       '';
-    if (!lcc && best.key) lcc = await fetchWorkLcc(best.key);
+    // Work-level fetch for both LCC fallback and synopsis extraction.
+    // Done as a single fetch so we don't pay two roundtrips when the
+    // work record is needed for either piece.
+    let workRecord: OpenLibraryWorkFull | null = null;
+    if (best.key && (!lcc || true)) {
+      workRecord = await fetchWorkRecord(best.key);
+      if (!lcc && workRecord) {
+        lcc =
+          (workRecord.lcc && workRecord.lcc[0]) ||
+          (workRecord.lc_classifications && workRecord.lc_classifications[0]) ||
+          '';
+      }
+    }
     if (!isbn && !publisher && !lcc && !publicationYear) {
       logger?.tier(stage, `GET ${url} → ${res.status} → matched but no usable identifiers`);
       return null;
@@ -714,6 +738,19 @@ async function tryOpenLibrary(
       subjects: best.subject?.slice(0, 10),
       source: 'openlibrary',
     };
+    // Phase-1/2 enrichment — additive, optional fields. Nothing reads
+    // these yet; later commits surface them downstream.
+    if (best.title) out.canonicalTitle = best.title;
+    if (best.subtitle) out.subtitle = best.subtitle;
+    if (best.author_name?.[0]) out.canonicalAuthor = best.author_name[0];
+    if (best.author_name && best.author_name.length > 0) out.allAuthors = [...best.author_name];
+    if (best.number_of_pages_median) out.pageCount = best.number_of_pages_median;
+    if (workRecord?.description) {
+      out.synopsis =
+        typeof workRecord.description === 'string'
+          ? workRecord.description
+          : workRecord.description.value;
+    }
     logger?.tier(stage, `GET ${url} → ${res.status} → ${describeFilled(out)}`);
     return out;
   } catch (err) {
