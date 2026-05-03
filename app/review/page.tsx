@@ -10,7 +10,7 @@ import { SpineSelector } from '@/components/SpineSelector';
 import { useStore } from '@/lib/store';
 import { VOCAB, type DomainKey } from '@/lib/tag-domains';
 import type { PhotoBatch } from '@/lib/types';
-import { flagIfPreviouslyExported } from '@/lib/export-ledger';
+import { flagIfPreviouslyExported, syncLedgerFromRepo } from '@/lib/export-ledger';
 import { confirmDiscardSession } from '@/lib/session';
 import { syncPendingBatchesFromRepo } from '@/lib/pending-batches';
 import { fireUndo } from '@/components/UndoToast';
@@ -59,7 +59,13 @@ export default function ReviewPage() {
     setRefreshState('pending');
     setRefreshMessage(null);
     try {
-      const remote = await syncPendingBatchesFromRepo();
+      // Pull pending batches AND the export ledger from GitHub in
+      // parallel — the ledger drives previously-exported flagging,
+      // so a stale local copy means duplicates can slip through.
+      const [remote, ledger] = await Promise.all([
+        syncPendingBatchesFromRepo(),
+        syncLedgerFromRepo().catch(() => null),
+      ]);
       if (!remote) {
         setRefreshState('error');
         setRefreshMessage('Sync unavailable — working offline.');
@@ -74,9 +80,10 @@ export default function ReviewPage() {
         added += 1;
       }
       setRefreshState('done');
-      setRefreshMessage(
-        added === 0 ? 'Already up to date.' : `Pulled ${added} new ${added === 1 ? 'batch' : 'batches'}.`
-      );
+      const batchPart =
+        added === 0 ? 'Already up to date' : `Pulled ${added} new ${added === 1 ? 'batch' : 'batches'}`;
+      const ledgerPart = ledger ? `; ledger synced (${ledger.length} entries).` : '.';
+      setRefreshMessage(`${batchPart}${ledgerPart}`);
       setTimeout(() => setRefreshState('idle'), 3500);
     } catch {
       setRefreshState('error');
