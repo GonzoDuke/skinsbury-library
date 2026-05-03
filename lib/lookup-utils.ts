@@ -160,6 +160,10 @@ export interface MarcResult {
   lcc: string | null;
   ddc: string | null;
   lcshSubjects: string[];
+  /** MARC 655 — Index Term — Genre/Form. Distinct from LCSH (subject) —
+   *  this is what KIND of work it is (e.g. "Detective and mystery
+   *  fiction", "Bildungsromans", "Festschriften", "Cookbooks"). */
+  marcGenres: string[];
   author: string | null;
   title: string | null;
   publisher: string | null;
@@ -260,10 +264,13 @@ export async function lookupFullMarcByIsbn(
       ? trimTrailingPunct(marcSubfield(editionBlock, 'a'))
       : null;
 
-    // 300 — physical description; pageCount from subfield a (e.g. "vii, 384 p.").
+    // 300 — physical description; pageCount from subfield a. Match both
+    // "384 p." and "vii, 384 pages" (with/without period, singular/plural,
+    // case-insensitive). The previous /(\d{2,4})\s*p\.?/ regex required
+    // the trailing dot and missed common LoC formatting.
     const physBlock = marcDatafields(xml, '300')[0] ?? '';
     const physA = marcSubfield(physBlock, 'a');
-    const pageMatch = physA.match(/(\d{2,4})\s*p\.?/);
+    const pageMatch = physA.match(/(\d{2,4})\s*(?:p\.?|pages?)\b/i);
     const pageCount = pageMatch ? parseInt(pageMatch[1], 10) || null : null;
 
     // 600/610/611/630/650/651 — LCSH subject headings. Concatenate all
@@ -277,6 +284,21 @@ export async function lookupFullMarcByIsbn(
       }
     }
     const dedupedLcsh = Array.from(new Set(lcshSubjects)).slice(0, 25);
+
+    // 655 — Index Term — Genre/Form. Cataloger-applied explicit genre
+    // vocabulary. We read subfield $a (the term itself) only; trailing
+    // subfields like $2 (source vocabulary) and $5 (institution) are
+    // not signal for tag inference. Capped at 15 — these are usually
+    // 1–3 per book, so the cap is a safety belt, not a hot path.
+    const marcGenres: string[] = [];
+    for (const block of marcDatafields(xml, '655')) {
+      const a = marcSubfield(block, 'a');
+      if (a) {
+        const cleaned = trimTrailingPunct(a);
+        if (cleaned) marcGenres.push(cleaned);
+      }
+    }
+    const dedupedMarcGenres = Array.from(new Set(marcGenres)).slice(0, 15);
 
     // 700/710 — added entries (co-authors / corporate co-authors).
     const coAuthors: string[] = [];
@@ -292,6 +314,7 @@ export async function lookupFullMarcByIsbn(
       lcc,
       ddc,
       lcshSubjects: dedupedLcsh,
+      marcGenres: dedupedMarcGenres,
       author,
       title,
       publisher,

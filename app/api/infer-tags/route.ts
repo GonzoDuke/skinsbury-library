@@ -95,6 +95,11 @@ interface InferRequest {
   // callers that don't pass them produce the same prompt as before.
   ddc?: string;
   lcshSubjects?: string[];
+  /** MARC field 655 (Index Term — Genre/Form) — cataloger-applied
+   *  explicit genre vocabulary, e.g. "Detective and mystery fiction",
+   *  "Bildungsromans", "Festschriften", "Cookbooks". Highest-priority
+   *  signal for genre/form classification. */
+  marcGenreTerms?: string[];
   synopsis?: string;
   /** Recent tag corrections forwarded by the client. Up to 20 most
    *  recent are appended to the system prompt as few-shot examples. */
@@ -141,6 +146,9 @@ export async function POST(req: NextRequest) {
   if (body.ddc) lines.push(`- DDC: ${body.ddc}`);
   if (Array.isArray(body.lcshSubjects) && body.lcshSubjects.length > 0) {
     lines.push(`- LCSH subject headings: ${body.lcshSubjects.join('; ')}`);
+  }
+  if (Array.isArray(body.marcGenreTerms) && body.marcGenreTerms.length > 0) {
+    lines.push(`- MARC genre/form terms: ${body.marcGenreTerms.join('; ')}`);
   }
   if (body.synopsis) {
     const trimmed = body.synopsis.length > 300 ? body.synopsis.slice(0, 300) : body.synopsis;

@@ -241,6 +241,10 @@ export async function inferTagsClient(args: {
   // when these are populated.
   ddc?: string;
   lcshSubjects?: string[];
+  /** MARC 655 genre/form terms — cataloger-applied explicit genre
+   *  vocabulary. Highest-priority signal for genre/form classification
+   *  (outranks LCSH and LCC for that purpose specifically). */
+  marcGenreTerms?: string[];
   synopsis?: string;
 }): Promise<InferTagsResult> {
   // Pull the user's most recent tag corrections from localStorage and
@@ -738,6 +742,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
         lcshSubjects: lookup.lcshSubjects,
+        marcGenreTerms: lookup.marcGenres,
         synopsis: lookup.synopsis,
       });
     } catch {
@@ -832,6 +837,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     language: lookup.language,
     series: lookup.series,
     lcshSubjects: lookup.lcshSubjects,
+    marcGenres: lookup.marcGenres,
     coverUrlFallbacks: lookup.coverUrlFallbacks,
     original: {
       // Snapshot the displayed (canonical when available) values so
@@ -877,11 +883,12 @@ export async function retagBook(book: BookRecord): Promise<{
       publicationYear: book.publicationYear,
       lcc: book.lcc,
       // Bulk re-tag now also forwards stored enrichment fields when
-      // they exist on the BookRecord (LCSH, DDC, synopsis). Old
-      // records without enrichment hit the model with the same
-      // payload as before.
+      // they exist on the BookRecord (LCSH, DDC, synopsis, MARC 655
+      // genre/form terms). Old records without enrichment hit the
+      // model with the same payload as before.
       ddc: book.ddc,
       lcshSubjects: book.lcshSubjects,
+      marcGenreTerms: book.marcGenres,
       synopsis: book.synopsis,
     });
   } catch (err: any) {
@@ -1002,6 +1009,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
       subjectHeadings: lookup.subjects,
       ddc: lookup.ddc,
       lcshSubjects: lookup.lcshSubjects,
+      marcGenreTerms: lookup.marcGenres,
       synopsis: lookup.synopsis,
     });
   } catch {
@@ -1075,6 +1083,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     language: lookup.language,
     series: lookup.series,
     lcshSubjects: lookup.lcshSubjects,
+    marcGenres: lookup.marcGenres,
     coverUrlFallbacks: lookup.coverUrlFallbacks,
     original: {
       title: titleCased,
@@ -1289,6 +1298,7 @@ export async function rereadBook(
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
         lcshSubjects: lookup.lcshSubjects,
+        marcGenreTerms: lookup.marcGenres,
         synopsis: lookup.synopsis,
       });
     } catch {
@@ -1340,6 +1350,7 @@ export async function rereadBook(
     language: lookup.language,
     series: lookup.series,
     lcshSubjects: lookup.lcshSubjects,
+    marcGenres: lookup.marcGenres,
     coverUrlFallbacks: lookup.coverUrlFallbacks,
   };
   if (tags) {

@@ -58,6 +58,14 @@ export interface BookLookupResult {
   language?: string;
   series?: string;
   lcshSubjects?: string[];
+  /**
+   * MARC field 655 (Index Term — Genre/Form). Cataloger-applied
+   * explicit genre/form vocabulary (e.g. "Detective and mystery
+   * fiction", "Bildungsromans", "Festschriften", "Cookbooks"). Distinct
+   * from LCSH (600/610/611/630/650/651): LCSH covers subject content,
+   * 655 covers what KIND of work it is. Capped at 15.
+   */
+  marcGenres?: string[];
   coverUrlFallbacks?: string[];
 }
 
@@ -167,6 +175,8 @@ export interface BookRecord {
   language?: string;
   series?: string;
   lcshSubjects?: string[];
+  /** MARC 655 genre/form terms — cataloger-applied explicit genre vocabulary. */
+  marcGenres?: string[];
   coverUrlFallbacks?: string[];
 
   /** Snapshot of metadata as it came from spine read + lookup, before any user edits. */

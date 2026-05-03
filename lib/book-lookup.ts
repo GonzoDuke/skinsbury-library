@@ -364,6 +364,15 @@ interface GbIsbnEnrichment {
   publicationYear: number;
   coverUrl: string;
   subjects: string[];
+  // Widened in the data-leak audit fix: these were already in the GB
+  // response but the inline interface below didn't declare them, so the
+  // values vanished. All optional — gap-fill only at the merge site.
+  description?: string;
+  pageCount?: number;
+  subtitle?: string;
+  language?: string;
+  mainCategory?: string;
+  authors?: string[];
 }
 
 /**
@@ -398,6 +407,12 @@ async function gbEnrichByIsbn(isbn: string): Promise<GbIsbnEnrichment | null> {
           publishedDate?: string;
           categories?: string[];
           imageLinks?: { thumbnail?: string; smallThumbnail?: string };
+          description?: string;
+          pageCount?: number;
+          subtitle?: string;
+          language?: string;
+          mainCategory?: string;
+          authors?: string[];
         };
       }>;
     };
@@ -412,6 +427,12 @@ async function gbEnrichByIsbn(isbn: string): Promise<GbIsbnEnrichment | null> {
       publicationYear: vi.publishedDate ? parseInt(vi.publishedDate.slice(0, 4), 10) || 0 : 0,
       coverUrl: cover,
       subjects: vi.categories ?? [],
+      description: vi.description?.trim() || undefined,
+      pageCount: typeof vi.pageCount === 'number' && vi.pageCount > 0 ? vi.pageCount : undefined,
+      subtitle: vi.subtitle?.trim() || undefined,
+      language: vi.language?.trim() || undefined,
+      mainCategory: vi.mainCategory?.trim() || undefined,
+      authors: Array.isArray(vi.authors) && vi.authors.length > 0 ? vi.authors : undefined,
     };
   } catch {
     return null;
@@ -752,6 +773,21 @@ async function tryOpenLibrary(
         typeof workRecord.description === 'string'
           ? workRecord.description
           : workRecord.description.value;
+    }
+    // OL work-record `subjects` — silently dropped before the audit.
+    // The search-level `subject` already populated `out.subjects`; merge
+    // the work-level entries deduped on top, then re-cap at 10 to keep
+    // the same prompt budget the search-level alone respected.
+    if (workRecord?.subjects && workRecord.subjects.length > 0) {
+      const existing = new Set((out.subjects ?? []).map((s) => s.toLowerCase()));
+      const merged = [...(out.subjects ?? [])];
+      for (const s of workRecord.subjects) {
+        if (s && !existing.has(s.toLowerCase())) {
+          merged.push(s);
+          existing.add(s.toLowerCase());
+        }
+      }
+      out.subjects = merged.slice(0, 10);
     }
     logger?.tier(stage, `GET ${url} → ${res.status} → ${describeFilled(out)}`);
     return out;
@@ -1542,8 +1578,9 @@ export async function lookupBook(
       enrichFromIsbn(result.isbn).catch(() => ({ firstPublishYear: 0, lcc: '' })),
     ]);
 
-    // MARC merge — the richest LoC payload (LCSH headings + DDC + page
-    // count + edition + co-authors + canonical title/author).
+    // MARC merge — the richest LoC payload (LCSH headings + 655 genre
+    // forms + DDC + page count + edition + co-authors + canonical
+    // title/author).
     if (marc) {
       if (marc.lcc && !result.lcc) {
         result.lcc = normalizeLcc(marc.lcc);
@@ -1553,6 +1590,10 @@ export async function lookupBook(
       if (marc.lcshSubjects.length > 0 && !(result.lcshSubjects && result.lcshSubjects.length > 0)) {
         result.lcshSubjects = marc.lcshSubjects;
         log.tier('phase-2', `  marc filled lcsh=${marc.lcshSubjects.length}`);
+      }
+      if (marc.marcGenres.length > 0 && !(result.marcGenres && result.marcGenres.length > 0)) {
+        result.marcGenres = marc.marcGenres;
+        log.tier('phase-2', `  marc filled 655 genre/form=${marc.marcGenres.length}`);
       }
       if (!result.ddc && marc.ddc) result.ddc = marc.ddc;
       if (!result.pageCount && marc.pageCount) result.pageCount = marc.pageCount;
@@ -1582,13 +1623,37 @@ export async function lookupBook(
         result.publicationYear = gbEnrich.publicationYear;
       }
       if (gbEnrich.coverUrl && !gbCoverUrl) gbCoverUrl = gbEnrich.coverUrl;
-      if (gbEnrich.subjects.length > 0) {
+      // mainCategory is GB's top-level category (BISAC-ish); when it
+      // exists, prepend it ahead of the ranked categories so it has the
+      // most weight in subject prompting.
+      const gbSubjects = [
+        ...(gbEnrich.mainCategory ? [gbEnrich.mainCategory] : []),
+        ...gbEnrich.subjects,
+      ];
+      if (gbSubjects.length > 0) {
         const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
         const merged = [...(result.subjects ?? [])];
-        for (const s of gbEnrich.subjects) {
+        for (const s of gbSubjects) {
           if (!existing.has(s.toLowerCase())) merged.push(s);
         }
         result.subjects = merged.slice(0, 15);
+      }
+      // Widened-interface gap-fills (audit fix): these were already on the
+      // GB response but the previous interface dropped them.
+      if (!result.synopsis && gbEnrich.description) result.synopsis = gbEnrich.description;
+      if (!result.pageCount && gbEnrich.pageCount) result.pageCount = gbEnrich.pageCount;
+      if (!result.subtitle && gbEnrich.subtitle) result.subtitle = gbEnrich.subtitle;
+      if (!result.language && gbEnrich.language) result.language = gbEnrich.language;
+      if (gbEnrich.authors && gbEnrich.authors.length > 0) {
+        const existing = new Set((result.allAuthors ?? []).map((a) => a.toLowerCase()));
+        const merged = [...(result.allAuthors ?? [])];
+        for (const a of gbEnrich.authors) {
+          if (a && !existing.has(a.toLowerCase())) {
+            merged.push(a);
+            existing.add(a.toLowerCase());
+          }
+        }
+        if (merged.length > (result.allAuthors?.length ?? 0)) result.allAuthors = merged;
       }
     }
 
@@ -1674,7 +1739,12 @@ export async function lookupBook(
               categories?: string[];
               imageLinks?: { thumbnail?: string; smallThumbnail?: string };
               title?: string;
+              subtitle?: string;
               authors?: string[];
+              description?: string;
+              pageCount?: number;
+              language?: string;
+              mainCategory?: string;
             };
           }>;
         };
@@ -1699,17 +1769,28 @@ export async function lookupBook(
           ]);
           const publicationYear =
             enriched.firstPublishYear || (Number.isFinite(editionYear) ? editionYear : 0);
+          // mainCategory carries GB's top-level BISAC-ish classification;
+          // when present, prepend so it weights above the ranked categories.
+          const baseSubjects = [
+            ...(vi.mainCategory ? [vi.mainCategory] : []),
+            ...(vi.categories ?? []),
+          ];
           result = {
             isbn,
             publisher,
             publicationYear,
             lcc: sruLcc || enriched.lcc,
-            subjects: vi.categories ?? [],
+            subjects: baseSubjects.length > 0 ? baseSubjects : undefined,
             source: 'googlebooks',
           };
           if (vi.title) result.canonicalTitle = vi.title;
+          if (vi.subtitle) result.subtitle = vi.subtitle;
           if (vi.authors?.[0]) result.canonicalAuthor = vi.authors[0];
           if (vi.authors && vi.authors.length > 0) result.allAuthors = [...vi.authors];
+          // Widened-interface gap-fills (audit fix).
+          if (vi.description) result.synopsis = vi.description;
+          if (typeof vi.pageCount === 'number' && vi.pageCount > 0) result.pageCount = vi.pageCount;
+          if (vi.language) result.language = vi.language;
           if (result.lcc) lccSource = sruLcc ? 'loc' : 'ol';
           tier = 'gb-fallback';
           log.tier(
@@ -1728,6 +1809,7 @@ export async function lookupBook(
                 lccSource = 'loc';
               }
               if (marc2.lcshSubjects.length > 0) result.lcshSubjects = marc2.lcshSubjects;
+              if (marc2.marcGenres.length > 0) result.marcGenres = marc2.marcGenres;
               if (!result.ddc && marc2.ddc) result.ddc = marc2.ddc;
               if (!result.pageCount && marc2.pageCount) result.pageCount = marc2.pageCount;
               if (!result.edition && marc2.edition) result.edition = marc2.edition;
@@ -1776,6 +1858,22 @@ export async function lookupBook(
       if (!result.series && wd.series) result.series = wd.series;
       if (!result.publicationYear && wd.publicationYear) {
         result.publicationYear = wd.publicationYear;
+      }
+      // Wikidata genre (P136) and main subject (P921) — silently dropped
+      // before the audit. The by-ISBN path merges these into
+      // result.subjects; mirror that here so the title-search path
+      // doesn't lose the only crowd-tagged signal Wikidata exposes
+      // exactly when we need it most (no ISBN, no LCC).
+      if (wd.genre || wd.subject) {
+        const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
+        const merged = [...(result.subjects ?? [])];
+        for (const v of [wd.genre, wd.subject]) {
+          if (v && !existing.has(v.toLowerCase())) {
+            merged.push(v);
+            existing.add(v.toLowerCase());
+          }
+        }
+        result.subjects = merged.slice(0, 15);
       }
     }
   } else if (result.lcc) {
