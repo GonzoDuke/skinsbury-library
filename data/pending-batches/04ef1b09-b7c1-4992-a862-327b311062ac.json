@@ -1,0 +1,339 @@
+{
+  "id": "04ef1b09-b7c1-4992-a862-327b311062ac",
+  "filename": "shelf-capture-001.cropped.jpg",
+  "fileSize": 1651158,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 6,
+  "booksIdentified": 6,
+  "books": [
+    {
+      "id": "09e6e004-2b2c-4332-8758-aeed14769a0f",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Crown Jewels of Iran — Meen & Tushingham",
+        "title": "Crown Jewels of Iran",
+        "author": "Meen & Tushingham",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 25,
+          "height": 100
+        }
+      },
+      "title": "Crown Jewels of Iran",
+      "author": "Meen & Tushingham",
+      "authorLF": "Tushingham, Meen &",
+      "isbn": "9780802015198",
+      "publisher": "Bānk-i Markazī-i Īran",
+      "publicationYear": 1968,
+      "lcc": "NK7415 .I7 M4",
+      "genreTags": [
+        "Visual culture",
+        "[Proposed] Art history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC NK → Decorative arts. Subject 'Crown jewels' suggests visual/material culture study. Published by Iranian Central Bank, likely scholarly treatment of historical artifacts. No clear match in existing vocabulary for art history/decorative arts.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780802015198-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Crown Jewels of Iran",
+        "author": "Meen & Tushingham",
+        "isbn": "9780802015198",
+        "publisher": "Bānk-i Markazī-i Īran",
+        "publicationYear": 1968,
+        "lcc": "NK7415 .I7 M4",
+        "genreTags": [
+          "Visual culture",
+          "[Proposed] Art history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "e6477a8d-544a-43cc-a4c5-148367d1da2c",
+      "spineRead": {
+        "position": 2,
+        "rawText": "among the cypress — Geiger/Long",
+        "title": "among the cypress",
+        "author": "Geiger/Long",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 25,
+          "y": 0,
+          "width": 15,
+          "height": 100
+        }
+      },
+      "title": "Among the Cypress",
+      "author": "Geiger/Long",
+      "authorLF": "Geiger/Long",
+      "isbn": "9781558680913",
+      "publisher": "Graphic Arts Center Pub. Co.",
+      "publicationYear": 1992,
+      "lcc": "F868 .M7 G45 1992",
+      "genreTags": [
+        "Visual culture",
+        "Nature writing"
+      ],
+      "formTags": [
+        "Reference"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC F868 → California regional geography. Subject headings indicate photographic catalog. Cypress suggests natural/botanical focus → Nature writing + Visual culture. Reference form for catalog format. Confidence MEDIUM due to minimal metadata and unclear subject focus.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781558680913-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Among the Cypress",
+        "author": "Geiger/Long",
+        "isbn": "9781558680913",
+        "publisher": "Graphic Arts Center Pub. Co.",
+        "publicationYear": 1992,
+        "lcc": "F868 .M7 G45 1992",
+        "genreTags": [
+          "Visual culture",
+          "Nature writing"
+        ],
+        "formTags": [
+          "Reference"
+        ]
+      }
+    },
+    {
+      "id": "c51ebe35-cf85-4696-bf80-d127945394f4",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Canoe Brook Country Club 1901-2001",
+        "title": "Canoe Brook Country Club 1901-2001",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Dark green spine with gold lettering. Title clearly reads 'Canoe Brook Country Club 1901-2001' with a small emblem/logo at the top. No author name visible on the spine.",
+        "bbox": {
+          "x": 40,
+          "y": 0,
+          "width": 15,
+          "height": 100
+        }
+      },
+      "title": "Canoe Brook Country Club 1901-2001",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9781931169004",
+      "publisher": "Q Pub",
+      "publicationYear": 2001,
+      "lcc": "GV969 .C36 Q85 2001",
+      "genreTags": [
+        "Sports",
+        "American history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC GV969 → Golf/Sports. Centennial history (1901-2001) of American country club → American history. Subject headings confirm golf and history focus.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781931169004-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Canoe Brook Country Club 1901-2001",
+        "author": "",
+        "isbn": "9781931169004",
+        "publisher": "Q Pub",
+        "publicationYear": 2001,
+        "lcc": "GV969 .C36 Q85 2001",
+        "genreTags": [
+          "Sports",
+          "American history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "bf081f55-a7d1-465b-bdc9-58c6e80e2ecd",
+      "spineRead": {
+        "position": 4,
+        "rawText": "BERMUDA in full color — Hannau",
+        "title": "BERMUDA in full color",
+        "author": "Hannau",
+        "publisher": "Argos Inc.",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 55,
+          "y": 0,
+          "width": 15,
+          "height": 100
+        }
+      },
+      "title": "Bermuda in Full Color",
+      "author": "Hannau",
+      "authorLF": "Hannau",
+      "isbn": "9780709119890",
+      "publisher": "The Crowood Press",
+      "publicationYear": 1970,
+      "lcc": "F--1631.00000000",
+      "genreTags": [
+        "Travel"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC F1631 → Bermuda geography/travel. 'In full color' suggests visual travel guide. Limited metadata available for deeper classification.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780709119890-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Bermuda in Full Color",
+        "author": "Hannau",
+        "isbn": "9780709119890",
+        "publisher": "The Crowood Press",
+        "publicationYear": 1970,
+        "lcc": "F--1631.00000000",
+        "genreTags": [
+          "Travel"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2dbb3c35-ee6b-49db-9aec-cdd13962c078",
+      "spineRead": {
+        "position": 5,
+        "rawText": "Harding Township Library: Historical Perspectives — Josephson",
+        "title": "Harding Township Library: Historical Perspectives",
+        "author": "Josephson",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "White spine with black text, rotated vertically",
+        "bbox": {
+          "x": 70,
+          "y": 0,
+          "width": 15,
+          "height": 100
+        }
+      },
+      "title": "Harding Township Library: Historical Perspectives",
+      "author": "Josephson",
+      "authorLF": "Josephson",
+      "isbn": "",
+      "publisher": "",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "Library science",
+        "American history"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "Very limited metadata. Title suggests township library history → Library science + American history. No LCC, ISBN, or other confirmatory data available.",
+      "status": "pending",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "ocrModel": "o",
+      "original": {
+        "title": "Harding Township Library: Historical Perspectives",
+        "author": "Josephson",
+        "isbn": "",
+        "publisher": "",
+        "publicationYear": 0,
+        "lcc": "",
+        "genreTags": [
+          "Library science",
+          "American history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "96734fdf-f9b4-4c47-8031-7cb8f3fe06bb",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Let Me Get This Off My Chest... — Margaret Lesh",
+        "title": "Let Me Get This Off My Chest...",
+        "author": "Margaret Lesh",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 85,
+          "y": 0,
+          "width": 15,
+          "height": 100
+        }
+      },
+      "title": "Let Me Get This Off My Chest...",
+      "author": "Margaret Lesh",
+      "authorLF": "Lesh, Margaret",
+      "isbn": "9781791826963",
+      "publisher": "Independently Published",
+      "publicationYear": 2019,
+      "lcc": "",
+      "genreTags": [
+        "Personal memoir"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "No LCC, subjects, or genre tags. Title suggests personal disclosure/memoir format. Author unknown. Independently published. Minimal metadata requires reviewer verification.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781791826963-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Let Me Get This Off My Chest...",
+        "author": "Margaret Lesh",
+        "isbn": "9781791826963",
+        "publisher": "Independently Published",
+        "publicationYear": 2019,
+        "lcc": "",
+        "genreTags": [
+          "Personal memoir"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "shelf-capture-001.jpg",
+  "sourceDimensions": {
+    "width": 1621,
+    "height": 3456
+  }
+}
