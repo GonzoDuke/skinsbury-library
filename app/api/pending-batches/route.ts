@@ -78,6 +78,32 @@ async function putFile(
   return (await r.json()) as GhCommitResponse;
 }
 
+/**
+ * PUT with one automatic retry on 409 (stale SHA) — fetches the current
+ * SHA again and replays the write. The content for a single batch is
+ * always a full overwrite, so the retry can safely use the latest SHA
+ * without recomputing anything. Anything other than 409 is rethrown
+ * after the first attempt so caller error-handling paths stay clean.
+ */
+async function putFileWithSha409Retry(
+  path: string,
+  content: string,
+  initialSha: string | null,
+  message: string
+): Promise<GhCommitResponse> {
+  try {
+    return await putFile(path, content, initialSha, message);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!/^GitHub PUT [^:]+: 409 /.test(msg)) {
+      throw err;
+    }
+    // Stale SHA — another writer landed first. Re-fetch and retry once.
+    const fresh = await getFile(path);
+    return await putFile(path, content, fresh?.sha ?? null, message);
+  }
+}
+
 async function deleteFile(path: string, sha: string, message: string): Promise<void> {
   const r = await ghFetch(`/repos/${REPO}/contents/${path}`, {
     method: 'DELETE',
@@ -199,7 +225,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const existing = await getFile(filePath);
-    const commit = await putFile(filePath, json, existing?.sha ?? null, message);
+    const commit = await putFileWithSha409Retry(
+      filePath,
+      json,
+      existing?.sha ?? null,
+      message
+    );
     return NextResponse.json({
       available: true,
       ok: true,

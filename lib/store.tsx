@@ -205,6 +205,7 @@ type Action =
   | { type: 'ADD_COPY'; sourceId: string }
   | { type: 'SET_PROCESSING'; processing: ProcessingState | null }
   | { type: 'PATCH_PROCESSING'; patch: Partial<ProcessingState> }
+  | { type: 'HYDRATE'; batches: PhotoBatch[]; allBooks: BookRecord[] }
   | { type: 'CLEAR' };
 
 interface State {
@@ -463,6 +464,16 @@ function reducer(state: State, action: Action): State {
       return state.processing
         ? { ...state, processing: { ...state.processing, ...action.patch } }
         : state;
+    case 'HYDRATE':
+      // Replace state with whatever was loaded from localStorage on mount.
+      // Processing state is intentionally not restored — Files don't
+      // survive a page reload, so any in-flight work is unrecoverable.
+      return {
+        ...state,
+        batches: action.batches,
+        allBooks: action.allBooks,
+        processing: null,
+      };
     case 'CLEAR':
       return initialState;
   }
@@ -515,28 +526,46 @@ const StoreCtx = createContext<StoreApi | null>(null);
 const STORAGE_KEY = 'carnegie:state:v1';
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState, (init) => {
-    if (typeof window === 'undefined') return init;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return init;
-      const parsed = JSON.parse(raw) as Partial<State>;
-      // Strip any in-flight processing state on cold load — Files don't survive
-      // a page refresh, so anything that was processing is no longer recoverable.
-      // Sanitize via the module-scope helper so the same coercion runs for
-      // localStorage hydration AND inbound cross-device sync.
-      const batches = (parsed.batches ?? []).map(sanitizeBatch);
-      const allBooks = Array.isArray(parsed.allBooks)
-        ? parsed.allBooks.map(sanitizeBook)
-        : [];
-      return { batches, allBooks, processing: null };
-    } catch {
-      return init;
-    }
-  });
+  // Always init with empty state so SSR and the first client render produce
+  // the same HTML — React 19 throws hydration errors on any mismatch. The
+  // localStorage data is layered in via a HYDRATE dispatch in the effect
+  // below, after mount.
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Track whether we've consulted localStorage yet. Two reasons:
+  //   1. We don't want to overwrite the saved cache with empty initial state
+  //      before hydration runs (the persist effect would wipe it on first
+  //      paint otherwise).
+  //   2. Consumers can show a brief loading placeholder if they prefer not
+  //      to flash empty state for a frame.
+  const hasHydrated = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (hasHydrated.current) return;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<State>;
+        const batches = (parsed.batches ?? []).map(sanitizeBatch);
+        const allBooks = Array.isArray(parsed.allBooks)
+          ? parsed.allBooks.map(sanitizeBook)
+          : [];
+        dispatch({ type: 'HYDRATE', batches, allBooks });
+      }
+    } catch {
+      // ignore — corrupt cache, fall through with empty initial state
+    } finally {
+      hasHydrated.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // Don't write until we've hydrated, otherwise the empty-state first
+    // render would clobber the saved cache before the HYDRATE dispatch
+    // could load it.
+    if (!hasHydrated.current) return;
     try {
       // Don't persist large data URIs (batch thumbnail, spine thumbnails,
       // OCR crops) or processing state. Snapshots stashed on `mergedFrom`

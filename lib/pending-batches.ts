@@ -6,6 +6,9 @@ interface RemotePendingBatchesResponse {
   available: boolean;
   batches?: PhotoBatch[];
   error?: string;
+  /** Surfaced GitHub error detail when the route returned 502. Useful in
+   *  console diagnostics; the UI doesn't render this directly. */
+  details?: string;
   ok?: boolean;
   id?: string;
 }
@@ -75,6 +78,7 @@ export async function pushBatchToRepo(
       return {
         available: data.available ?? true,
         error: data.error ?? `HTTP ${res.status}`,
+        details: data.details,
       };
     }
     rememberRemoteAvailability(true);
@@ -106,6 +110,7 @@ export async function deletePendingBatchFromRepo(
       return {
         available: data.available ?? true,
         error: data.error ?? `HTTP ${res.status}`,
+        details: data.details,
       };
     }
     rememberRemoteAvailability(true);
