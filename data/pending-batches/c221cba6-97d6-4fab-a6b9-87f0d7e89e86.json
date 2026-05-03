@@ -1,0 +1,362 @@
+{
+  "id": "c221cba6-97d6-4fab-a6b9-87f0d7e89e86",
+  "filename": "20260501_070117.cropped.jpg",
+  "fileSize": 1830438,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 7,
+  "booksIdentified": 6,
+  "books": [
+    {
+      "id": "ab0dc224-3394-4de0-ab1f-d7784b6b55e0",
+      "spineRead": {
+        "position": 2,
+        "rawText": "Howl on trial",
+        "title": "Howl on trial",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Top spine clearly reads 'Howl on trial' in white text on black background. Author not visible in this crop. A second book below shows 'SCREAMING' and 'THE LIFE OF AL...' but that is a different book.",
+        "bbox": {
+          "x": 10,
+          "y": 12,
+          "width": 35,
+          "height": 12
+        }
+      },
+      "title": "Howl on Trial",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780872864795",
+      "publisher": "City Lights Books",
+      "publicationYear": 2006,
+      "lcc": "PS3513 .I74H634 2006",
+      "genreTags": [
+        "Beat poetry",
+        "Free speech",
+        "Civil liberties",
+        "Legal history"
+      ],
+      "formTags": [
+        "Primary source"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC PS3513 → Ginsberg's Howl. Subject headings confirm obscenity trial. City Lights publisher connection to Beat movement. Trial documents = Primary source.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070117.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780872864795-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Howl on Trial",
+        "author": "",
+        "isbn": "9780872864795",
+        "publisher": "City Lights Books",
+        "publicationYear": 2006,
+        "lcc": "PS3513 .I74H634 2006",
+        "genreTags": [
+          "Beat poetry",
+          "Free speech",
+          "Civil liberties",
+          "Legal history"
+        ],
+        "formTags": [
+          "Primary source"
+        ]
+      }
+    },
+    {
+      "id": "a68e5a45-3628-4961-9a48-b9cefc4a1467",
+      "spineRead": {
+        "position": 3,
+        "rawText": "THE LIFE OF ALLE... — GRAHAM CAVE",
+        "title": "THE LIFE OF ALLE...",
+        "author": "GRAHAM CAVE",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "LOW",
+        "note": "Spine is cropped; title appears truncated as 'THE LIFE OF ALLE' (possibly 'Allen' or similar). Author appears stacked vertically as 'GRAH... CAVE' — likely 'Graham Cave' or similar but partly cut off. Orange band at top of spine.",
+        "bbox": {
+          "x": 8,
+          "y": 22,
+          "width": 40,
+          "height": 12
+        }
+      },
+      "title": "The Life of Alle...",
+      "author": "GRAHAM CAVE",
+      "authorLF": "CAVE, GRAHAM",
+      "isbn": "9780967813158",
+      "publisher": "Ibbetson Street Press",
+      "publicationYear": 2001,
+      "lcc": "PS3573 .I276 L54 2003",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "LCC PS3573 → American literature/poetry. Title truncated but Graham Cave is American poet. No subject headings available. Confidence MEDIUM due to incomplete title metadata.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070117.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780967813158-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "The Life of Alle...",
+        "author": "GRAHAM CAVE",
+        "isbn": "9780967813158",
+        "publisher": "Ibbetson Street Press",
+        "publicationYear": 2001,
+        "lcc": "PS3573 .I276 L54 2003",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "0f5ad3a1-8c32-4d63-9177-80bfc3e56128",
+      "spineRead": {
+        "position": 4,
+        "rawText": "The Essential Ginsberg",
+        "title": "The Essential Ginsberg",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Title is clearly readable but author text appears partially cut off or unclear on the right side of the spine",
+        "bbox": {
+          "x": 5,
+          "y": 32,
+          "width": 45,
+          "height": 12
+        }
+      },
+      "title": "The Essential Ginsberg",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780141398990",
+      "publisher": "Penguin Books, Limited",
+      "publicationYear": 2015,
+      "lcc": "PS3513 .I74",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Beat poetry",
+        "Counterculture"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC PS3513 → American poetry (Ginsberg). Subject headings confirm Poetry, American poetry, Beats. 'Essential' indicates anthology/selected works. Ginsberg is core Beat poet → Beat poetry + Counterculture.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070117.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780141398990-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "The Essential Ginsberg",
+        "author": "",
+        "isbn": "9780141398990",
+        "publisher": "Penguin Books, Limited",
+        "publicationYear": 2015,
+        "lcc": "PS3513 .I74",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Beat poetry",
+          "Counterculture"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      }
+    },
+    {
+      "id": "b927a21f-20c7-4bc7-b408-4c136853c19f",
+      "spineRead": {
+        "position": 5,
+        "rawText": "Selected Poems 1947-1997 — Allen Ginsberg",
+        "title": "Selected Poems 1947-1997",
+        "author": "Allen Ginsberg",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 3,
+          "y": 42,
+          "width": 50,
+          "height": 15
+        }
+      },
+      "title": "Selected Poems 1947-1997",
+      "author": "Allen Ginsberg",
+      "authorLF": "Ginsberg, Allen",
+      "isbn": "9787541118937",
+      "publisher": "Sichuan wen yi chu ban she",
+      "publicationYear": 2000,
+      "lcc": "PS3513.I74 A6 2000",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Beat poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PS3513 → American poetry. Ginsberg is a major Beat poet → Poetry + American poetry + Beat poetry. Selected poems collection spanning 50 years.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "20260501_070117.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAzANwDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAABgACBAUHAwEI/8QAQxAAAgECBQICBwYACgsAAAAAAQIDBBEABRIhMQZBE1EUFSIyYXGRByOBobHRCCUzQkNjwcLh8CY0NVVyhIWTsrPS/8QAGgEAAgMBAQAAAAAAAAAAAAAAAgMAAQQFBv/EADERAAIBAgMDCgYDAAAAAAAAAAABAgMRBAUhEjFhFSIyNFFScYGRsRMUQULB4TOh8f/aAAwDAQACEQMRAD8A+WMLjHhx6MPIaj/B8rlg6trqSWQLFV0LrYnYupVx+Ng31ONmbQZdVlLrcA23sef0H0x8nU80sEqy08rxSLsHRipF9tiPhj6D6No4D09lstTHNLJLTxyMWnkJJKg397/DGHEQvLaNFKWlgwDjvgFr+iKyXNMzjpa+EZNm08c9asn8uNLsxWM6StrtcE78DsdRb6PQcGnk/wC/J/8AWHinoCCPDnsf659vzwhXQxjafpTp2HNI8yiyunSsjZXR1uFQqulbJfQLDjbYgHkXxY0GV5Tl0ply3LaGklZdBeCnSNitwbXA4uB9BiD6Fl0h+8Sdv+KVj/bh3q7LSpXTUgHm0zb4rUhbiKD0eSDwovAlDiSPSNLh767jg6tTXvzc35xMSQW5wNjKMoCBQlRt/XHHVcsy4adHpS6dhaY8HFWLCVGB74eCD3xkHVMdPHnUscU9XEsYXSI5WG9gbnfnf/O+KqOOJbFK/MgR28Zv1vjFPFwjJxd9DrUsqnUgp7S1N0Bxzq6amradqetghqIGtqimQOrWIIuDsdwD+GMPKXa/rPNB/wAw3749AKkfxpmt+Nqhth9cAsdDiM5Gn3kahD0J0tHmDVgyamMrMWKtdot7/wBGTotvxaw2twMFYkAN7/XGEAtx6zzMdv8AWG4+uHF30WXN818ripYH9cX8/B9pORaneRu+sHHocdsYMxc2HrbNj8fSn3/PDQpLhvWuaXPf0htsV89DiXyLU7yNvzulOZ0IpguXSRmRWkjr6Q1MTqO2jWu97EG/bjFY+U9Sy5jHLF1ZFR0KlQ1HSZTGFCjkI0jOQSO51AeXbGSxoVYXzjNQR3FS2HmMMSfXmcr8qhtvpglmMOPoTkSo/uRrlN0/1ctY0p63EsJYlYJsnhIC32BKMpJ+Vt+3bD66n+0D1g0VNU9KnLiQvpLU9Qs6qQNTCPWy6gb2BaxsL2vYZLDQxuRfqTOIttj6U4t8wBjqtDTvOsTdUZyAysSxq5dNgebaSbXI7dxi1mFNv9EeSVF9y/sN8x6H6gzMxwZ91xW1eXgMskNLRx0jSBlIszKSCONmU9+L3wR9O5Jl/TuVRZdlcIigTdid2kc8ux7k/sBYAAZDJQUvjyKOps5lC91qpRseDYqD8dxgv6H6byqshqXqup85nYBDpjrZgyXvs11A7dicMhio1ZbCM+IyyWHpuo3deZbVPR5kz2mmpqhYcqOY+uKiEXMpqlAA0sbjw2PtMpFwV9kgEaZFT0Hk9XUUz1RqZqaGqlrWom8MQTTSMTrkAQM5AbSLtbSoW1r6px6SyAt/t3qBR5LXOP7MNPR/Tm38f9RA/DMpB/ZjXqcwi1X2fdM1pmaty3x5JqqStlczSIzyObm5VhcC5AHAubbsxJRTxRU+v0eGKIOV1aFC30qEHHkqqo8goHbFC3SfTZYA591ELeWZSftjoOkenv8AfvUI/wCoy/timmyj4pGPeceYQx1jGOBucfRH2Yl5ehcqeRi5KyAE+QkcAfgBbHzqL43n7FZ5ZujnSRtSQVTxxi3ugqrW+rE/jjPXXNGUt4daRxbDkiv5YQBxFrczipDp95+bDtjJY0FisI2w7wRyMClX1LPCyatCI7iMEkWueAb787bYsvWlXSxQyTiOWOW5Up2A7fPEsVcuvA3w5YrY40NfDWJeM+13U8jEsfHAtBIAet6ZUzhWW4MkSufncj9FwLTZepMk0OuOoJDFomsWtbaxNjsLC+354MOud82i34gX/wAmwPSC8LLq0avZBJI3Ow4IPNuCDjhVm41ns9p67CJSw0L9hAoTLIZTKXZQFsskLRsvN732Y2tuNrg7bi8rw9/j88eUTVEj2niKIq6ReTWpsTpseTsdybb223OJVtwe9sJqvnaGqnuOHh7YRjI3HljypaojkuiI0JC3N2uu+9lVSSbfH8Nt+wuVXZkuL6WtcfS4/PANNK4aabsSstlpI6CvSrhWSZkRoNYNgwax3BB91mPlsL3sMcKiKlMatC84mLWMboCoFuQ9wSb9tI+e2JuR+I1aEpzVJUMPu5KRS0qmxJsoIuLXvYj52uDJ6hqZ6iqkFdFOlQHDBaiK0mkjclrjk2IW1l/mkC4Jb43B3SsUIjNz8sOEe/kMSES9j2vbjFfQ5stZURxLl+YRK5NppYdKbAnm/wAMAlKSbX0GbcYtJveS0iN/LEXNMvmqJaaWKnE2i6kekNCULFbNdRfbSdv1xbIPLEDNaJ56qiliroaKSMtHHI8ayMzNayqGIAJseN/qcVRm1UWtv84BV43ptWv6dvHQi5dRVkFXMpphHTzVM1SZGl9rSxIVdIJ32U8kW732Bz0caingr5IYnkX2NkFztq7YpIUkjpYRPOKiQrqMoQIGB3BABPYjfvz3xBrepKrJhJT0s7xRMUaQR2DENrBsxBt7vPbG3CVHUxSvx3HMzKn8PBS8t/kaLBVVcsqhqadAT/OQjz3w6pqamKQBKaocHVfTGW4F/LGfZN1pX1OYwRwVE8dI1VFFpnKylVYPe7WBIuOfK3zwaeuc31j0aKCYPUvCPGdogg8QopFlbVfY9rWPPbvWPI3LOpaeGNpBTlo01XPcAX+PwGIqZsQCJopIXB914Jb/AJDAvB1lmebdVzdOwwUazGeaAiUuVPh6tQ1A7j2TvYX7gXxo+VUs8WXQR1hjWdBoYQ3KCxsLat+Lc4liXPinDhzhuPeLY6RkHbY3X7Dh/oZUnzr5P/XHjCR+WNi+waqlaizilZvuYpIpVHkzhgT9EX6YRWXNGU+kaZmU/otHJLuSBtigV3o0VpY1aqmUkht9INrXHB23A+t+BadRX9DTy1i/+f8AEYoqhRHUuiJpUW2ta23zP6nGZDmyLVWeanQioAZ76401KLEWDc2BJ5ttudhvi7zgBqShZVa+i2t0C6wALW3vbf5eWB3OqZ6qniWNJWYSKxKOi6QCCT7W3luASO2CKtallyujko2V1dQQTKrMF3IBAO3NzYDc7knfEaKOFEpRBNBIBUIb6WcDWPIDknnj9rllFULVUqTL3G/wOBLKXkhrkMYBJBWxcoDcdyPjY4vul7+FURWWyubBTcD5HuMAwkUHW0Z9ZQyH3Wi0j5gn98DtSuummHgif2D902wf4YMeu1KpREdy/wDdwIvdhJFDIEmKEjYEr5G2OFiFasz12Ad8NEj0ApCQ9NUHUUsYFkLItrXsO1rgW2tfYDfE+2+IdHIviMHilWq0jxGeKxa3u3Zbqxt5Hz2HAmA34tbvhNZamunuK6u8T0srFJIG8INaOXUyi7bmI8jblTr4A5xMAPhpqLM2kXLLpJ+Y2t8scarwDWwwTwQnxhdZSQGDC/G1xYG4INwTsOSO0LpJTxNCxeNkBViSbi21yd/rviqvQjoSn0mTsoglqJJoYqOorEZPvI6e+uwIIIsD3tyCPxsR2zOaYM9NVQTwSJIrrFL/AEYK73BW+ptmY3AJ3txaujjeZ1hjQySOwVEG5YngD44kVUCU9bNDDMk0UchRJV4dQbBhzyN+ThalzRmytoSJwb8b8YpMhy2BRDVUeaZjUxQ2RY3dgm6beyVG1iLduLXxZ1+aUOV+F6dMIjITp9kte1r8A+YxVZRmFFU5qVizmWqZ2vFAYitrJY6mtdvZHfyubnfDKUZqnJ628NPrwAqSg6kU7X8f2ECLdsQs+o6ipp6dqNcvEsUyyeJVIbrZhYKw3FyACLb37d7GO4wNZh6fm7QNV9KrPEgbQGrgrXa3ytxwRf5b3z4ZPb2rpJeH5aH4lpQ2bN37L/hMJI0qFpY1rXjkqVHttGulb3OwB3sOLnc23wF9ZOBPKAPb0Qb33teb/DBbkEM0eSU8dRTyQSIZF8KRy5RQ7aV1dwFsAfIYfSdP5N1DnEtJmMtWlWIFlCx6FXQGYCzG5vdjcWA4/DZl/WmvE52cdR9AS+zSlTNOqaSgn1iN28YlRfdFaw325a/HbGndKas3FXLEWmWIlFbQSNa1UtvZBBG3hta4sG7A4As7pKb7Puo6Z8vlqakvE2oLUeDIFa4sWANjwQwA5IsLXxXJ13mUVCaGiKUlO5KapSZwiMqBvZYEXLB3J0k/eNa22PR2PGXJD51JkHXHU2a0cSSySzVMVI88RDQs8t/ECuLhgoYWIBBfcEXBqpusuonlZ/XGYLqJYiOpdVBPkAbD5DbHDqjqCuz6sEtZWvV+CDDFK8KRM0YY6SypsCQbncne1zscU44F1vt5HBWBuDAw6234YWFjchJ6vH4Y137Bfcz0/GD9JMLCwut0GHT6Rpmcor5a+oX3GBhpnmmdpCCR7IsoFgNgNsLCxjQ5kPO5ZIsnzCSJ2R46Z5EZTYhgrb/lg0z2jp6fp6meGJUcyKCw5N1Y7+eFhYshS5VY1LEgHRG7rcXsQpI/PF90qdcdQ7e8X3tt59sLCwthIhdd/wAnR/N/7uA2opYKkgzxK7L7rH3k+KnkHYbjfCwscLFNqs2j12XJPCxT4+5WZBVTVFRmcU0hdKacxRX5Cg23PJO3JucXF/at/nnCwsDiUlOyH4dtw1OjxRzQSpMiunhk6WFx548n9+3a2FhYyy3I0R3nI8n5Xw8OzSanYszAkljck35JwsLAoNbyagCt4i7SAEBhyASCRf8AAfTHpdnA1ktbcX3sbYWFgKrdhsULh9sVfWjvD0rXTwySRyoECsjlbXkQHj4bfifM4WFisL/PDxXuVitKE3wfsXVMmijA1SOQz+1I5dj7R5JJJxRZwXWvV4pZoZNMY1wyNG1jJYi6kG1idvjhYWNmW9afmc/OupehWdXUsa5UshMsklgdcsrOfeI5Yn6YCrbYWFj1B4eR4SQQPh3wmAvwPphYWIwT/9k=",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9787541118937-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Selected Poems 1947-1997",
+        "author": "Allen Ginsberg",
+        "isbn": "9787541118937",
+        "publisher": "Sichuan wen yi chu ban she",
+        "publicationYear": 2000,
+        "lcc": "PS3513.I74 A6 2000",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Beat poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "7e7ef4e8-8e55-429e-a509-e75783dc7486",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Collected Poems 1947-1980 — Allen Ginsberg",
+        "title": "Collected Poems 1947-1980",
+        "author": "Allen Ginsberg",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 55,
+          "width": 55,
+          "height": 15
+        }
+      },
+      "title": "Collected Poems 1947-1980",
+      "author": "Allen Ginsberg",
+      "authorLF": "Ginsberg, Allen",
+      "isbn": "9780061139741",
+      "publisher": "HarperCollins",
+      "publicationYear": 1988,
+      "lcc": "PS3513 .I74",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Beat poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "Poetry collection → 'Poetry' required. LCC PS3513 → American poetry. Ginsberg is central Beat Generation poet → 'Beat poetry' sub-tag. Subject headings confirm poetry.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070117.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780061139741-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Collected Poems 1947-1980",
+        "author": "Allen Ginsberg",
+        "isbn": "9780061139741",
+        "publisher": "HarperCollins",
+        "publicationYear": 1988,
+        "lcc": "PS3513 .I74",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Beat poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9c1affcb-25f6-43d4-9d94-440c7edb0d98",
+      "spineRead": {
+        "position": 7,
+        "rawText": "THE BEST MINDS OF MY GENERATION — ALLEN GI",
+        "title": "THE BEST MINDS OF MY GENERATION",
+        "author": "ALLEN GI",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Author name appears cut off at right edge, likely 'ALLEN GINSBERG'. Title is clearly visible in gold text on black spine.",
+        "bbox": {
+          "x": 0,
+          "y": 68,
+          "width": 60,
+          "height": 32
+        }
+      },
+      "title": "The Best Minds of My Generation",
+      "author": "ALLEN GI",
+      "authorLF": "GI, ALLEN",
+      "isbn": "9781591793601",
+      "publisher": "Grove Press, 2017",
+      "publicationYear": 2005,
+      "lcc": "PS228 .B6G56 2017",
+      "genreTags": [
+        "Literary criticism",
+        "Counterculture",
+        "Beat biography"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC PS228 → American literary criticism. Subject headings confirm Beat Generation focus. Title references Ginsberg's 'Howl' opening line. Author appears to be Allen Ginsberg (truncated) writing about his Beat contemporaries → Beat biography + Counterculture movement.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070117.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781591793601-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "The Best Minds of My Generation",
+        "author": "ALLEN GI",
+        "isbn": "9781591793601",
+        "publisher": "Grove Press, 2017",
+        "publicationYear": 2005,
+        "lcc": "PS228 .B6G56 2017",
+        "genreTags": [
+          "Literary criticism",
+          "Counterculture",
+          "Beat biography"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "20260501_070117.jpg",
+  "sourceDimensions": {
+    "width": 3600,
+    "height": 2773
+  }
+}
