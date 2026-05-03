@@ -83,5 +83,241 @@
     "authorLF": "Lesh, Margaret",
     "publisher": "Independently Published",
     "publicationYear": 2019
+  },
+  {
+    "isbn": "9781529095944",
+    "titleNorm": "everything must go",
+    "authorNorm": "dorian lynskey",
+    "date": "2026-05-03",
+    "tags": [
+      "Literary criticism"
+    ],
+    "title": "Everything Must Go",
+    "author": "Dorian Lynskey",
+    "authorLF": "Lynskey, Dorian",
+    "publisher": "Pan Macmillan",
+    "publicationYear": 2024
+  },
+  {
+    "isbn": "9781910924389",
+    "titleNorm": "k punk",
+    "authorNorm": "mark fisher",
+    "date": "2026-05-03",
+    "tags": [
+      "Literary criticism",
+      "Cultural history",
+      "Social criticism"
+    ],
+    "title": "K-Punk",
+    "author": "Mark Fisher",
+    "authorLF": "Fisher, Mark",
+    "publisher": "London: Repeater Books",
+    "publicationYear": 2018
+  },
+  {
+    "isbn": "9780143106432",
+    "titleNorm": "the penguin anthology of twentieth century american poetry",
+    "authorNorm": "rita dove",
+    "date": "2026-05-03",
+    "tags": [
+      "Poetry",
+      "American poetry",
+      "Anthology",
+      "Penguin Classics"
+    ],
+    "title": "The Penguin Anthology of Twentieth-Century American Poetry",
+    "author": "Rita Dove",
+    "authorLF": "Dove, Rita; Dove, Rita",
+    "publisher": "Penguin Books",
+    "publicationYear": 2011
+  },
+  {
+    "isbn": "9780393881455",
+    "titleNorm": "foolproof why misinformation infects our minds and how to build immunity",
+    "authorNorm": "sander van der linden",
+    "date": "2026-05-03",
+    "tags": [
+      "Media literacy",
+      "Disinformation",
+      "Psychology",
+      "Critical thinking"
+    ],
+    "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+    "author": "Sander van der Linden",
+    "authorLF": "Linden, Sander van der",
+    "publisher": "W. W. Norton",
+    "publicationYear": 2023
+  },
+  {
+    "isbn": "9780231205047",
+    "titleNorm": "misguided",
+    "authorNorm": "matthew facciani",
+    "date": "2026-05-03",
+    "tags": [
+      "Disinformation",
+      "Media literacy",
+      "Social criticism"
+    ],
+    "title": "Misguided",
+    "author": "Matthew Facciani",
+    "authorLF": "Facciani, Matthew",
+    "publisher": "Columbia University Press",
+    "publicationYear": 2025
+  },
+  {
+    "isbn": "9780374614072",
+    "titleNorm": "hip hop is history",
+    "authorNorm": "questlove",
+    "date": "2026-05-03",
+    "tags": [
+      "Music",
+      "Cultural history"
+    ],
+    "title": "Hip-Hop Is History",
+    "author": "Questlove",
+    "authorLF": "Questlove; Greenman, Ben",
+    "publisher": "Orion Publishing Group, Limited",
+    "publicationYear": 2024
+  },
+  {
+    "isbn": "",
+    "titleNorm": "major dudes a steely dan companion",
+    "authorNorm": "ed barney hoskyns",
+    "date": "2026-05-03",
+    "tags": [
+      "Music",
+      "Music biography",
+      "Anthology"
+    ],
+    "title": "Major Dudes: A Steely Dan Companion",
+    "author": "ed. Barney Hoskyns",
+    "authorLF": "Hoskyns, ed. Barney",
+    "publisher": "Abrams Press"
+  },
+  {
+    "isbn": "9781324050346",
+    "titleNorm": "reality",
+    "authorNorm": "david j chalmers",
+    "date": "2026-05-03",
+    "tags": [
+      "Philosophy of mind",
+      "Media literacy",
+      "Algorithms & AI"
+    ],
+    "title": "Reality+",
+    "author": "David J. Chalmers",
+    "authorLF": "Chalmers, David J.",
+    "publisher": "Penguin Books, Limited",
+    "publicationYear": 2022
+  },
+  {
+    "isbn": "9780691244099",
+    "titleNorm": "ancient africa",
+    "authorNorm": "christopher ehret",
+    "date": "2026-05-03",
+    "tags": [
+      "World history"
+    ],
+    "title": "Ancient Africa",
+    "author": "Christopher Ehret",
+    "authorLF": "Ehret, Christopher",
+    "publisher": "Princeton University Press",
+    "publicationYear": 2023
+  },
+  {
+    "isbn": "9780307743756",
+    "titleNorm": "amsterdam a history of the world s most liberal city",
+    "authorNorm": "russell shorto",
+    "date": "2026-05-03",
+    "tags": [
+      "World history",
+      "Cultural history",
+      "Travel"
+    ],
+    "title": "Amsterdam a History of the World's Most Liberal City",
+    "author": "Russell Shorto",
+    "authorLF": "Shorto, Russell",
+    "publisher": "Knopf Doubleday Publishing Group",
+    "publicationYear": 2014
+  },
+  {
+    "isbn": "9780440351832",
+    "titleNorm": "man and his symbols",
+    "authorNorm": "carl gustav jung",
+    "date": "2026-05-03",
+    "tags": [
+      "Psychology",
+      "Philosophy of mind"
+    ],
+    "title": "Man and His Symbols",
+    "author": "Carl Gustav Jung",
+    "authorLF": "Jung, Carl Gustav",
+    "publisher": "Robert Laffont",
+    "publicationYear": 1964
+  },
+  {
+    "isbn": "9780241266472",
+    "titleNorm": "figures in a landscape",
+    "authorNorm": "paul theroux",
+    "date": "2026-05-03",
+    "tags": [
+      "Literary biography",
+      "Travel",
+      "Essays"
+    ],
+    "title": "Figures in a Landscape",
+    "author": "Paul Theroux",
+    "authorLF": "Theroux, Paul",
+    "publisher": "Houghton Mifflin Harcourt Publishing Company",
+    "publicationYear": 2018
+  },
+  {
+    "isbn": "9780226822068",
+    "titleNorm": "verified",
+    "authorNorm": "mike caulfield",
+    "date": "2026-05-03",
+    "tags": [
+      "Media literacy",
+      "Critical thinking"
+    ],
+    "title": "Verified",
+    "author": "Mike Caulfield",
+    "authorLF": "Caulfield, Mike; Wineburg, Sam",
+    "publisher": "University of Chicago Press",
+    "publicationYear": 2023
+  },
+  {
+    "isbn": "9781844676828",
+    "titleNorm": "america",
+    "authorNorm": "jean baudrillard",
+    "date": "2026-05-03",
+    "tags": [
+      "Cultural history",
+      "Social criticism",
+      "Travel",
+      "Postmodernism"
+    ],
+    "title": "America",
+    "author": "Jean Baudrillard",
+    "authorLF": "Baudrillard, Jean",
+    "publisher": "Verso",
+    "publicationYear": 2010
+  },
+  {
+    "isbn": "9780367528102",
+    "titleNorm": "digital religion the basics",
+    "authorNorm": "heidi campbell",
+    "date": "2026-05-03",
+    "tags": [
+      "Comparative religion",
+      "Media literacy",
+      "Internet culture",
+      "How-to / guide"
+    ],
+    "title": "Digital Religion the Basics",
+    "author": "Heidi Campbell",
+    "authorLF": "Campbell, Heidi; Bellar, Wendi",
+    "publisher": "Routledge",
+    "publicationYear": 2022
   }
 ]
