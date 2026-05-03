@@ -20,10 +20,29 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+/**
+ * Snapshot of the preview-card data the scanner already fetched while
+ * the user was deciding whether to commit the ISBN. Passed forward to
+ * the parent on `onScan` so the rebuild path can seed the BookRecord's
+ * cover from the preview hit instead of re-deriving it (the preview's
+ * coverUrl was confirmed to load by the user's eyes; the rebuild path
+ * may pick a different URL or come up empty). Null when the preview
+ * hadn't resolved yet (user tapped through fast) or no match.
+ */
+export interface BarcodeScanPreview {
+  title: string;
+  author: string;
+  coverUrl: string;
+  source: 'isbndb' | 'openlibrary';
+}
+
 interface BarcodeScannerProps {
   /** Fired only when the user taps "Use this ISBN" (and confirms a
-   *  duplicate-in-batch warning if the ISBN is already in the batch). */
-  onScan: (isbn: string) => void;
+   *  duplicate-in-batch warning if the ISBN is already in the batch).
+   *  `preview` is the resolved preview payload when one was rendered
+   *  on the confirm card; null if the preview was still loading,
+   *  timed out, or returned no match. */
+  onScan: (isbn: string, preview: BarcodeScanPreview | null) => void;
   /** Synchronous predicate: does this ISBN already exist in the active
    *  batch? Used to gate the Use-this-ISBN tap behind a duplicate
    *  confirmation step. */
@@ -349,7 +368,18 @@ export function BarcodeScanner({ onScan, isIsbnInBatch, onClose }: BarcodeScanne
   }
 
   function commit(isbn: string) {
-    onScan(isbn);
+    // Snapshot the preview state at commit time so the parent can seed
+    // the BookRecord's cover from the URL the user actually saw load.
+    const snap: BarcodeScanPreview | null =
+      preview?.kind === 'loaded'
+        ? {
+            title: preview.title,
+            author: preview.author,
+            coverUrl: preview.coverUrl,
+            source: preview.source,
+          }
+        : null;
+    onScan(isbn, snap);
     setScanCount((n) => n + 1);
     setStage({ kind: 'between' });
   }

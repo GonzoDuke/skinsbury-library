@@ -6,7 +6,7 @@ import { PhotoUploader } from '@/components/PhotoUploader';
 import { ProcessingQueue } from '@/components/ProcessingQueue';
 import { BatchProgress } from '@/components/BatchProgress';
 import { CropModal } from '@/components/CropModal';
-import { BarcodeScanner } from '@/components/BarcodeScanner';
+import { BarcodeScanner, type BarcodeScanPreview } from '@/components/BarcodeScanner';
 import { useDarkMode, useStore } from '@/lib/store';
 import type { BookRecord, PhotoBatch } from '@/lib/types';
 import { createThumbnail, loadImage, makeId } from '@/lib/pipeline';
@@ -72,7 +72,7 @@ export default function UploadPage() {
     return id;
   }
 
-  async function handleScan(isbn: string) {
+  async function handleScan(isbn: string, preview: BarcodeScanPreview | null) {
     const batchId = ensureScanBatch();
     scanPositionRef.current += 1;
     const position = scanPositionRef.current;
@@ -83,6 +83,7 @@ export default function UploadPage() {
         position,
         batchLabel: batchLabel.trim() || undefined,
         batchNotes: batchNotes.trim() || undefined,
+        previewResult: preview,
       });
       addBook(batchId, book);
     } catch (err) {

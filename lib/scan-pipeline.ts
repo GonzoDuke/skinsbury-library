@@ -100,7 +100,7 @@ async function lookupOpenLibrary(isbn: string): Promise<IsbnLookupResult | null>
         0,
       lcc,
       subjects: doc.subject?.slice(0, 10) ?? [],
-      coverUrl: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
+      coverUrl: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
       source: 'openlibrary',
     };
   } catch {
@@ -224,7 +224,8 @@ async function lookupViaServer(isbn: string): Promise<IsbnLookupResult | null> {
       publicationYear: data.publicationYear ?? 0,
       lcc: data.lcc ?? '',
       subjects: data.subjects ?? [],
-      coverUrl: data.coverUrl ?? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
+      coverUrl:
+        data.coverUrl ?? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
       source: narrowedSource,
     };
   } catch {
@@ -308,6 +309,20 @@ export async function lookupBookByIsbn(isbn: string): Promise<IsbnLookupResult> 
   return hit;
 }
 
+/**
+ * Optional snapshot of the preview-card hit the scanner already
+ * resolved against /api/preview-isbn while the user was deciding. The
+ * preview's coverUrl was already rendered (and confirmed by the user's
+ * eyes), so it's the most reliable cover candidate we have. The
+ * rebuild path's own lookup may pick a different URL or come up empty.
+ */
+export interface IsbnScanPreviewSeed {
+  title: string;
+  author: string;
+  coverUrl: string;
+  source: 'isbndb' | 'openlibrary';
+}
+
 interface ProcessIsbnArgs {
   isbn: string;
   /** Position number assigned to the synthetic spine read. The Review
@@ -317,6 +332,11 @@ interface ProcessIsbnArgs {
   batchLabel?: string;
   batchNotes?: string;
   sourcePhoto?: string;
+  /** Preview-card hit captured at the moment the user tapped "Use this
+   *  ISBN." Used as a cover seed: takes the primary slot when the
+   *  rebuild path produces no cover, or falls into the fallback chain
+   *  when the rebuild path picked a different URL. */
+  previewResult?: IsbnScanPreviewSeed | null;
 }
 
 /**
@@ -366,6 +386,26 @@ export async function processIsbnScan(args: ProcessIsbnArgs): Promise<BookRecord
   const titleClean = lookup.title ? toTitleCase(lookup.title.trim()) : '';
   const authorClean = lookup.author?.trim() ?? '';
 
+  // Cover-resolution policy:
+  //   1. If the lookup produced a coverUrl, that wins the primary slot
+  //      and the preview's URL (when present + different) goes into
+  //      coverUrlFallbacks so <Cover>'s onError chain can fall through.
+  //   2. If the lookup didn't, the preview's URL (when present) takes
+  //      the primary slot. The user already saw it load on the confirm
+  //      card, so it's the most reliable bet.
+  const previewCover = args.previewResult?.coverUrl?.trim() || '';
+  const lookupCover = lookup.coverUrl?.trim() || '';
+  let coverUrl: string | undefined;
+  let coverUrlFallbacks: string[] | undefined;
+  if (lookupCover) {
+    coverUrl = lookupCover;
+    if (previewCover && previewCover !== lookupCover) {
+      coverUrlFallbacks = [previewCover];
+    }
+  } else if (previewCover) {
+    coverUrl = previewCover;
+  }
+
   return {
     id: makeId(),
     spineRead: {
@@ -394,7 +434,8 @@ export async function processIsbnScan(args: ProcessIsbnArgs): Promise<BookRecord
     batchNotes: args.batchNotes,
     lookupSource: lookup.source,
     lccSource: lookup.lcc ? 'ol' : 'none',
-    coverUrl: lookup.coverUrl || undefined,
+    coverUrl,
+    coverUrlFallbacks,
     scannedFromBarcode: true,
     original: {
       title: titleClean,
