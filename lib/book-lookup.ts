@@ -3,7 +3,9 @@ import {
   normalizeLcc,
   lookupLccByIsbn,
   lookupLccByTitleAuthor,
+  lookupFullMarcByIsbn,
   sanitizeForSearch,
+  type MarcResult,
 } from './lookup-utils';
 
 // Re-export the env-free helpers so existing callers of this module
@@ -1466,6 +1468,54 @@ export async function lookupBook(
         if (!tier || tier === 'none') tier = 'isbndb';
       }
     }
+  }
+
+  // -------------------------------------------------------------------------
+  // MARC enrichment via the same LoC SRU endpoint, parsed for fields
+  // beyond LCC: LCSH subject headings (600/610/611/630/650/651), DDC
+  // (082), main author (100), title (245), publisher (264/260), edition
+  // (250), page count (300 a), and co-authors (700/710). Wrapped in
+  // try/catch so a parse / network failure here can never break the
+  // pipeline — the standard tiers above already produced a result.
+  // -------------------------------------------------------------------------
+  if (result.isbn && !(result.lcshSubjects && result.lcshSubjects.length > 0)) {
+    let marc: MarcResult | null = null;
+    try {
+      marc = await lookupFullMarcByIsbn(result.isbn);
+    } catch (err) {
+      log.tier(
+        'loc-marc',
+        `error ${err instanceof Error ? err.message : String(err)} (skipping enrichment)`
+      );
+    }
+    if (marc) {
+      if (marc.lcshSubjects.length > 0 && !(result.lcshSubjects && result.lcshSubjects.length > 0)) {
+        result.lcshSubjects = marc.lcshSubjects;
+      }
+      if (!result.ddc && marc.ddc) result.ddc = marc.ddc;
+      if (!result.pageCount && marc.pageCount) result.pageCount = marc.pageCount;
+      if (!result.edition && marc.edition) result.edition = marc.edition;
+      if (!result.canonicalAuthor && marc.author) result.canonicalAuthor = marc.author;
+      if (!result.canonicalTitle && marc.title) result.canonicalTitle = marc.title;
+      if (marc.coAuthors.length > 0) {
+        const merged = new Set<string>(result.allAuthors ?? []);
+        if (marc.author) merged.add(marc.author);
+        for (const a of marc.coAuthors) merged.add(a);
+        if (merged.size > (result.allAuthors?.length ?? 0)) {
+          result.allAuthors = Array.from(merged);
+        }
+      }
+      log.tier(
+        'loc-marc',
+        `lcsh=${marc.lcshSubjects.length} co-authors=${marc.coAuthors.length} pages=${marc.pageCount ?? '-'} edition=${JSON.stringify(marc.edition ?? '')}`
+      );
+    } else {
+      log.tier('loc-marc', 'no MARC record');
+    }
+  } else if (result.lcshSubjects && result.lcshSubjects.length > 0) {
+    log.tier('loc-marc', `skipped — lcshSubjects already populated (${result.lcshSubjects.length})`);
+  } else {
+    log.tier('loc-marc', 'skipped — no ISBN');
   }
 
   // -------------------------------------------------------------------------

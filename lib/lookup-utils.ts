@@ -98,6 +98,166 @@ export async function lookupLccByIsbn(isbn: string): Promise<string> {
 }
 
 /**
+ * Richer MARC fetch by ISBN. Returns LCC, DDC (082), LCSH subject
+ * headings (600/610/611/630/650/651), main author (100), title
+ * statement (245), publisher (264 b / 260 b), edition (250), page
+ * count parsed from physical description (300 a), and added-entry
+ * co-authors (700/710).
+ *
+ * The existing string-returning lookupLccByIsbn is intentionally
+ * kept untouched alongside this — every existing caller's signature
+ * stays exactly the same. New callers that want MARC enrichment use
+ * this helper.
+ */
+export interface MarcResult {
+  lcc: string | null;
+  ddc: string | null;
+  lcshSubjects: string[];
+  author: string | null;
+  title: string | null;
+  publisher: string | null;
+  pageCount: number | null;
+  edition: string | null;
+  coAuthors: string[];
+}
+
+const LOC_HEADERS_MARC: Record<string, string> = {
+  'User-Agent': 'Carnegie/1.0 (personal cataloging tool)',
+  Accept: 'application/xml',
+};
+
+function marcDatafields(xml: string, tag: string): string[] {
+  const re = new RegExp(
+    `<datafield[^>]*tag="${tag}"[^>]*>([\\s\\S]*?)<\\/datafield>`,
+    'g'
+  );
+  const out: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(xml)) !== null) out.push(m[1]);
+  return out;
+}
+
+function marcSubfield(block: string, code: string): string {
+  const m = block.match(
+    new RegExp(`<subfield[^>]*code="${code}"[^>]*>([^<]*)<\\/subfield>`)
+  );
+  return m ? m[1].trim() : '';
+}
+
+function marcSubfieldsAll(block: string): string[] {
+  const re = /<subfield[^>]*code="[^"]*"[^>]*>([^<]*)<\/subfield>/g;
+  const out: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(block)) !== null) {
+    const v = m[1].trim();
+    if (v) out.push(v);
+  }
+  return out;
+}
+
+function trimTrailingPunct(s: string): string {
+  return s.replace(/[\s,;:./]+$/, '').trim();
+}
+
+export async function lookupFullMarcByIsbn(
+  isbn: string
+): Promise<MarcResult | null> {
+  if (!isbn) return null;
+  const cleaned = isbn.replace(/[^\dxX]/g, '');
+  if (!cleaned) return null;
+  const url =
+    `https://lx2.loc.gov/sru/voyager?version=1.1&operation=searchRetrieve` +
+    `&query=bath.isbn=${cleaned}&maximumRecords=1&recordSchema=marcxml`;
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(8000),
+      cache: 'no-store',
+      headers: LOC_HEADERS_MARC,
+    });
+    if (!res.ok) return null;
+    const xml = await res.text();
+    if (!/<record\b/.test(xml)) return null;
+
+    // 050 — LCC: subfield a + b joined.
+    const lcc050 = marcDatafields(xml, '050')[0] ?? '';
+    const lccA = marcSubfield(lcc050, 'a');
+    const lccB = marcSubfield(lcc050, 'b');
+    const lcc = [lccA, lccB].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim() || null;
+
+    // 082 — DDC: subfield a.
+    const ddcBlock = marcDatafields(xml, '082')[0] ?? '';
+    const ddc = marcSubfield(ddcBlock, 'a') || null;
+
+    // 100 — main personal-author entry: subfield a.
+    const authorBlock = marcDatafields(xml, '100')[0] ?? '';
+    const author = marcSubfield(authorBlock, 'a')
+      ? trimTrailingPunct(marcSubfield(authorBlock, 'a'))
+      : null;
+
+    // 245 — title statement: a + b.
+    const titleBlock = marcDatafields(xml, '245')[0] ?? '';
+    const titleA = marcSubfield(titleBlock, 'a');
+    const titleB = marcSubfield(titleBlock, 'b');
+    const titleRaw = [titleA, titleB].filter(Boolean).join(' ');
+    const title = titleRaw ? trimTrailingPunct(titleRaw) : null;
+
+    // 264 (preferred) / 260 — publisher subfield b.
+    const pubBlock = marcDatafields(xml, '264')[0] ?? marcDatafields(xml, '260')[0] ?? '';
+    const publisher = pubBlock
+      ? trimTrailingPunct(marcSubfield(pubBlock, 'b')) || null
+      : null;
+
+    // 250 — edition statement subfield a.
+    const editionBlock = marcDatafields(xml, '250')[0] ?? '';
+    const edition = marcSubfield(editionBlock, 'a')
+      ? trimTrailingPunct(marcSubfield(editionBlock, 'a'))
+      : null;
+
+    // 300 — physical description; pageCount from subfield a (e.g. "vii, 384 p.").
+    const physBlock = marcDatafields(xml, '300')[0] ?? '';
+    const physA = marcSubfield(physBlock, 'a');
+    const pageMatch = physA.match(/(\d{2,4})\s*p\.?/);
+    const pageCount = pageMatch ? parseInt(pageMatch[1], 10) || null : null;
+
+    // 600/610/611/630/650/651 — LCSH subject headings. Concatenate all
+    // subfields per datafield; cap at 25 to stay well under any prompt budget.
+    const subjectTags = ['600', '610', '611', '630', '650', '651'];
+    const lcshSubjects: string[] = [];
+    for (const t of subjectTags) {
+      for (const block of marcDatafields(xml, t)) {
+        const subs = marcSubfieldsAll(block).map(trimTrailingPunct).filter(Boolean);
+        if (subs.length > 0) lcshSubjects.push(subs.join(' — '));
+      }
+    }
+    const dedupedLcsh = Array.from(new Set(lcshSubjects)).slice(0, 25);
+
+    // 700/710 — added entries (co-authors / corporate co-authors).
+    const coAuthors: string[] = [];
+    for (const t of ['700', '710']) {
+      for (const block of marcDatafields(xml, t)) {
+        const a = marcSubfield(block, 'a');
+        if (a) coAuthors.push(trimTrailingPunct(a));
+      }
+    }
+    const dedupedCoAuthors = Array.from(new Set(coAuthors)).slice(0, 10);
+
+    return {
+      lcc,
+      ddc,
+      lcshSubjects: dedupedLcsh,
+      author,
+      title,
+      publisher,
+      pageCount,
+      edition,
+      coAuthors: dedupedCoAuthors,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Tier 5: LoC SRU by title + author. Best-effort — the LoC endpoint is
  * occasionally slow/flaky on text queries; tight timeout, fall through
  * silently on miss or timeout.
