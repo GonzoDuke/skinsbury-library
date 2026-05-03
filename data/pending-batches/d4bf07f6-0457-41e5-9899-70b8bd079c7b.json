@@ -1,0 +1,739 @@
+{
+  "id": "d4bf07f6-0457-41e5-9899-70b8bd079c7b",
+  "filename": "shelf-capture-001.cropped.jpg",
+  "fileSize": 1429169,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 14,
+  "booksIdentified": 13,
+  "books": [
+    {
+      "id": "83acc405-428c-40d0-a7d3-dabfe2a661d5",
+      "spineRead": {
+        "position": 1,
+        "rawText": "TWENTIETH-CENTURY AMERICAN POETRY",
+        "title": "TWENTIETH-CENTURY AMERICAN POETRY",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Title is clearly visible but rotated 90 degrees. Author text appears to be present but is not clearly legible in this image quality and cropping.",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Twentieth-Century American Poetry",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780631220251",
+      "publisher": "Blackwell Pub.",
+      "publicationYear": 2004,
+      "lcc": "PS323.5 .M25 2004",
+      "genreTags": [
+        "American poetry",
+        "Literary criticism"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC PS323.5 → American poetry criticism. Subject headings confirm 'History and criticism' → Literary criticism. Title indicates 20th century American poetry as subject matter.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780631220251-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Twentieth-Century American Poetry",
+        "author": "",
+        "isbn": "9780631220251",
+        "publisher": "Blackwell Pub.",
+        "publicationYear": 2004,
+        "lcc": "PS323.5 .M25 2004",
+        "genreTags": [
+          "American poetry",
+          "Literary criticism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "5e230430-4c68-4256-87e2-13911a84ca1d",
+      "spineRead": {
+        "position": 2,
+        "rawText": "The Penguin Anthology of",
+        "title": "The Penguin Anthology of",
+        "author": "",
+        "publisher": "Penguin",
+        "lcc": "",
+        "confidence": "LOW",
+        "note": "Spine is upside down and cropped; orange Penguin spine reading 'THE PENGUIN ANTHOLOGY OF [...]' with rest of title cut off. Editor name partially visible ending in '...Dove' (possibly 'ed. by [...] Dove'), but not fully legible.",
+        "bbox": {
+          "x": 0,
+          "y": 7,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "The Penguin Anthology Of",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780143106432",
+      "publisher": "Penguin Books",
+      "publicationYear": 2011,
+      "lcc": "PS613 .P47 2011",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "LOW",
+      "reasoning": "LCC PS613 → American poetry. Subject headings confirm 20th century American poetry collections. Poetry anthology → 'Poetry' + 'American poetry' + 'Anthology'. Title incomplete affects confidence.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780143106432-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "The Penguin Anthology Of",
+        "author": "",
+        "isbn": "9780143106432",
+        "publisher": "Penguin Books",
+        "publicationYear": 2011,
+        "lcc": "PS613 .P47 2011",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      }
+    },
+    {
+      "id": "a525b171-8f01-4d8c-88b5-a51eab0a3c85",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Foolproof — Sander van der Linden",
+        "title": "Foolproof",
+        "author": "Sander van der Linden",
+        "publisher": "Norton",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle visible: Why Misinformation Affects Our Minds and How to Build Immunity",
+        "bbox": {
+          "x": 0,
+          "y": 14,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Foolproof",
+      "author": "Sander van der Linden",
+      "authorLF": "Linden, Sander van der",
+      "isbn": "9780393881455",
+      "publisher": "HarperCollins Publishers Limited",
+      "publicationYear": 2023,
+      "lcc": "P91 .V3 2024",
+      "genreTags": [
+        "Media literacy",
+        "Disinformation",
+        "Critical thinking"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC P91 → Communication, mass media. Van der Linden is known for research on misinformation and psychological inoculation. Title 'Foolproof' suggests protection against being deceived → Media literacy + Disinformation + Critical thinking.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393881455-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Foolproof",
+        "author": "Sander van der Linden",
+        "isbn": "9780393881455",
+        "publisher": "HarperCollins Publishers Limited",
+        "publicationYear": 2023,
+        "lcc": "P91 .V3 2024",
+        "genreTags": [
+          "Media literacy",
+          "Disinformation",
+          "Critical thinking"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "21fd55d3-e4c8-4416-99a3-6f24450375da",
+      "spineRead": {
+        "position": 4,
+        "rawText": "MISGUIDED: Where Misinformation Starts, How It Spreads, and What to Do About It — Facciani",
+        "title": "MISGUIDED: Where Misinformation Starts, How It Spreads, and What to Do About It",
+        "author": "Facciani",
+        "publisher": "Columbia",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 21,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Misguided: Where Misinformation Starts, How IT Spreads, and What to Do About IT",
+      "author": "Facciani",
+      "authorLF": "Facciani",
+      "isbn": "9780231205047",
+      "publisher": "Columbia University Press",
+      "publicationYear": 2025,
+      "lcc": "HM851 .F33 2025",
+      "genreTags": [
+        "Disinformation",
+        "Media literacy",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC HM → Sociology. Title directly addresses misinformation → Disinformation + Media literacy. Academic analysis of social problem → Social criticism. Subtitle structure suggests comprehensive treatment.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780231205047-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Misguided: Where Misinformation Starts, How IT Spreads, and What to Do About IT",
+        "author": "Facciani",
+        "isbn": "9780231205047",
+        "publisher": "Columbia University Press",
+        "publicationYear": 2025,
+        "lcc": "HM851 .F33 2025",
+        "genreTags": [
+          "Disinformation",
+          "Media literacy",
+          "Social criticism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "a4310676-a361-438e-95a4-1997df19265a",
+      "spineRead": {
+        "position": 5,
+        "rawText": "Hip-Hop Is History — Questlove",
+        "title": "Hip-Hop Is History",
+        "author": "Questlove",
+        "publisher": "AUWA",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Spine is upside-down in image; text reads 'HIP-HOP IS HISTORY' by 'QUESTLOVE' with AUWA publisher logo.",
+        "bbox": {
+          "x": 0,
+          "y": 28,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Hip-Hop Is History",
+      "author": "Questlove",
+      "authorLF": "Questlove",
+      "isbn": "9780374614072",
+      "publisher": "Orion Publishing Group, Limited",
+      "publicationYear": 2024,
+      "lcc": "ML3531 .Q47 2024",
+      "genreTags": [
+        "Music",
+        "American history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC ML3531 → Music. Title indicates hip-hop history. Questlove is known music historian/drummer. Hip-hop is American cultural movement → American history + Cultural history.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780374614072-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Hip-Hop Is History",
+        "author": "Questlove",
+        "isbn": "9780374614072",
+        "publisher": "Orion Publishing Group, Limited",
+        "publicationYear": 2024,
+        "lcc": "ML3531 .Q47 2024",
+        "genreTags": [
+          "Music",
+          "American history",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "cbd6ce2c-2caf-47ef-bb26-cb788192d6a2",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Hamlet — William Shakespeare",
+        "title": "Hamlet",
+        "author": "William Shakespeare",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Text appears to be inverted/upside down on the spine, making some portions difficult to read clearly",
+        "bbox": {
+          "x": 0,
+          "y": 35,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Hamlet",
+      "author": "William Shakespeare",
+      "authorLF": "Shakespeare, William",
+      "isbn": "9780312138417",
+      "publisher": "CreateSpace Independent Publishing Platform",
+      "publicationYear": 1912,
+      "lcc": "PR2807 .A2",
+      "genreTags": [
+        "Drama",
+        "Shakespeare"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC PR2807 → English drama. Shakespeare play → Drama (NOT Fiction). Shakespeare specifically gets both Drama + Shakespeare tags per rules.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780312138417-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Hamlet",
+        "author": "William Shakespeare",
+        "isbn": "9780312138417",
+        "publisher": "CreateSpace Independent Publishing Platform",
+        "publicationYear": 1912,
+        "lcc": "PR2807 .A2",
+        "genreTags": [
+          "Drama",
+          "Shakespeare"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "020a4d04-62b3-4e66-b14a-eb5617bcf109",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Ancient Africa — Christopher Ehret",
+        "title": "Ancient Africa",
+        "author": "Christopher Ehret",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Text appears to be upside down or rotated, making some elements difficult to read with complete certainty",
+        "bbox": {
+          "x": 0,
+          "y": 42,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Ancient Africa",
+      "author": "Christopher Ehret",
+      "authorLF": "Ehret, Christopher",
+      "isbn": "9780691244099",
+      "publisher": "Princeton University Press",
+      "publicationYear": 2023,
+      "lcc": "DT14 .E35 2023",
+      "genreTags": [
+        "World history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC DT → World history (African history specifically). Subject headings confirm. Ancient period suggests cultural/civilizational focus → Cultural history.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780691244099-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Ancient Africa",
+        "author": "Christopher Ehret",
+        "isbn": "9780691244099",
+        "publisher": "Princeton University Press",
+        "publicationYear": 2023,
+        "lcc": "DT14 .E35 2023",
+        "genreTags": [
+          "World history",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "68196c0f-d038-40f4-8239-708d1bca1723",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Amsterdam — Russell Shorto",
+        "title": "Amsterdam",
+        "author": "Russell Shorto",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 49,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Amsterdam",
+      "author": "Russell Shorto",
+      "authorLF": "Shorto, Russell",
+      "isbn": "9781408703472",
+      "publisher": "Little, Brown Book Group Limited",
+      "publicationYear": 2013,
+      "lcc": "DJ411 .A55 S56 2014",
+      "genreTags": [
+        "World history",
+        "Cultural history",
+        "Civil liberties"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC DJ411 → Netherlands history. Subject headings on religious freedom, tolerance, liberalism → Civil liberties. Dutch East/West India Companies, ethnic diversity → Cultural history crossover with World history.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAbANwDASIAAhEBAxEB/8QAHAAAAQQDAQAAAAAAAAAAAAAABQIEBgcAAwgB/8QAPRAAAQMCBQEEBgcHBQEAAAAAAQIDBAURAAYSITETIkFRYRQVMnGBkQcjQmJyodEWJCUzQ7HBF1Jjc9LD/8QAGAEBAQEBAQAAAAAAAAAAAAAAAQACBAP/xAAhEQACAgICAgMBAAAAAAAAAAAAAQIREiEEFAMTMVFhQf/aAAwDAQACEQMRAD8A9aqEMthXpbFiNj1BhXrSngbzYtv+1P64bt5Py30A47RoSuzdRLVzjx7LuT4DaHJFMpTIULp6jaQTuPH3jHEuN+nd2fw0GZTRI1LqsQt6tekupve9+b+IHwGHUmsUR+O4xJqMLpOpLa0l9I1Aix7/AAw9Zy1l0gOtUemEK3ChHQb37+MDafDyrKfLbVBhIX6UuMnVEbsVJQV3Fu4gH9MS4yX9NS5bfyMmnsqMxej62iJaQ2G02mJBQAQq4IPN0g352GGWZ6jQpNOHoU+kS5K30OOCRLSnWAkp3IUL2B49/wASqJmURGXINGiJbQ0h2/oaL2UhCtrd4C0X9/fbBiEjLbjs1qPTIX7onU5aKgAgFQNjbexQoe8Y1HwtPKyXLf0R92dlJDjsuLVaX6xT1HGnFzAQHFG+/a4v+V8Ly/WcuwZUyY/V6WzIl6S62iYHElQJJVc251ceWJJ6zy7DSApmOykhZ7MawAQlSjwNuylR+B78bhW6HqKdPbCNZSIq7j6wt29n2tYItz38YvVapsO1L6Iplyp5Zos2oqbrsAsuu6mGw8CG0kC/5i3uSMEKnXsqVNUcS6xHUmO6HglDxHaAIHHvviTUqqUic6huAptTi2+okdIpOnS2u+4Fuy62bfe9+Crigyw4tDKVFKSUpSm5Nhxifi3d7Dtzuyvk1TIqZi5PpMb0hbvXKipZ+sFzqt3Wufnh2nMWUGC+pmYylxxSnfYcUNahYqtbY28PPxxJodZdeWEqglFy5p1XBVpcSgGxG19RPlbGpzMM1t2Gk0hdnwgayspCVkkFPs32AvxuMXp3tsO5NkQoOYsvMUqI3UZKUymA4gCGzICAlSrkbDe9gd+/D56sZLmPF96O465oS2bQH7FKSCAQEWNiAPgBxiXTK09GVLDVPeeSwgKSU3AWShStINrchI5+0PcS8ST6RFZeCdPUQF6b3tcXwvxbu2L5nkb0VtmSs5brVHbpwXOj6ClbJTTJH1enwAQNtNx5fDB5vOVIS2lKEVRSQkWtTJJunx9jf34b/SC/0s05aeP9ONUlke6OMRyMNNMkqFrJyOhJA+9qOMvwxarYPlTpIlicyUlSlrTT6qsqJufVEg6rgA/0/AD5DCfW1J6vVRSawF6Qns0uQkWHH2beHyGIJ6MhP0f5tlQorrFLlNU1tlRQUBbiSlLqkg/e5PecS6NHYpuT/pCjQAWYzT8lLSbk6T6Oi+535wdeAdmaCKK9AS2y0ijVpaWU6GwaW8dItbkp8BhCqzDckdb9nK2tzSUFXqxwAjY73Fj7I+WIrnx2OxHYfcqobqcWnw00+Oh9YcbcKxrcsLDdJ534PgMTaoypn7WZgEFTpcZoqCw0ncdUqdIIT47AYetFOh7M1s0KrLagFfsxWlknVvAHmL7nwJwhFZWguFGVMwnWbm8ZHhawuvYW7v1xGKZNW1kOt1CnVqQ6FU1kPpVKcL0eZchZsrdF7jcc6TbgYJ1apVBGZXENTZKWTX4EcIS8qwb6GpSbX4J5Hfh9ETL5Mx+zU3mS2lrKOYNLVg3qQ0Qna213dttvj54dJrE9d7ZZrSfDUGB/9cRVOY5ip7lFRNm+lqzQprUSuwihVygL4sLezfjuxbIVc4fRBGXyZv5OKvpGrDGYM51GpRW3mmnigBD6QlaSlCUkEAm26TiNH34JZlscxVQ6dAMp0hPh2ztgaOecdKVKjxbt2zD78YPhjDzj247xiBHXEpZFMXoQpZLfCeTt3Yj2Zokj1oZLUMyW1xw2lSEpUWzuLaTzuoG/v7r4Nlauig3N9I/thaVqKdzyL4Ile6NeWWXodIaakBKHLqXoBvoBN7YZM0NyNKaVGmnQJDr6taQSCprQkDxA/PBBKiUm5x5rVZO+LEcvsBVLKoboVQZiSC6+qOlDSSgXulpKLc/a6afcfHG6MzMbGaP3RTQeaWWdgrUsqd9k3vYgoVbgKWq1rnBJDqyU3Vym528hjDIdHRsv2rX2GJ6Nu0xiigOTVdVcn0fprkpS040XE9oOoSrSTYjS4CQRvYDa5w8Zy+6iZGWKgNDbaEFJSSVFL4dF1FW4AukXuRcm+5GEJmyLj6w824HnhvJqEpsgodt2SfZH6YHbMp2JyjBfpuaVMOdYsx4hYDhaIbWQ1ETqSq25JbWCLn2OBveWuKlCZqbeJZUsKtYDQAki3ibkjEFdrVQRcpkEHf7CfPywzkZiqqW1FMsg6f8AYn9MacWZu0TdlquodUlypNqaMewX0xdLvUuDa3GnbDhn1t1o6XZSNKVAuKAHbA6W3G17O/MfCrnM2VsOLAmn2wP5SOPlgU5nbMIUP4irdBP8pv8A84y4tOgyRcama4XQUVJtKLJFgkG1kG5uR3qtt+eN9EXWUONespCVISp4LsE9vdHT4HFtfhigZWfMypQrTU1Cx2+qb8fw4GOfSTm0Ng+uHLqvf6lvw/DjT8bLLZ0PnKhyq7Jpz0KW1GMdEhhwOIKrtvNhBKbEdoAbdx/uPpmV6mmnz48+VB6jtITS2VMhdkBIUATfnkEnbyGKAV9Jebzf+NO/Bpv/AM4bv/SFmx09quzB+AhP9gMGDRrMvjMNOqdPyPW3atKYckynIbTbbJUploIW2kFIVwTycFX6DX1ZWrUNl+mInVeY4++SpZbbbWkDSk2vfsgbjgnHN07O2ZJkYNSqvJdaNlaVEEXB2PHkMYc85oUoXr9R3/5ziwDKzpHMWXalOny24y4hg1BqK28444Qtgsr1dlNiFXHmN8Y0/VZucs3x2UsxnFQUR23kvkFBIX0lbC4PaubcWFr45rXnLMpAvXqnvttIUP8AONLOYaz13XxVqgHnbBa0yVhS7Da5B3tiwBypWdEry7XKhl7MKZjUdupTosWOkF/WX1M+0tarcq7r/E4U1T6/KrzD8ylssR1VVmorWJaF6QlrRpAsCSD3/K/OKAFerK766xUzfxmOeX3sbRU6iq2qp1A8cy3PP72Bqtk5NF3wZI/1WcprZ+rYnP1F1J4BXHQAfmo/PFnJlp17uDHHLcyY5Oc1zZiiARcyF37u++CBQVJup6QeeX1n/ONYszdkdzHvmGpkkG8p3cfjOB1u4/lhy4kKZdWR2g4Eg+RvhoOcVHpYq17848JIx73HGJ3G+IT/2Q==",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781408703472-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Amsterdam",
+        "author": "Russell Shorto",
+        "isbn": "9781408703472",
+        "publisher": "Little, Brown Book Group Limited",
+        "publicationYear": 2013,
+        "lcc": "DJ411 .A55 S56 2014",
+        "genreTags": [
+          "World history",
+          "Cultural history",
+          "Civil liberties"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2b047426-812e-42aa-9304-66f0545f6f2d",
+      "spineRead": {
+        "position": 9,
+        "rawText": "MAN AND HIS SYMBOLS — CARL G. JUNG",
+        "title": "MAN AND HIS SYMBOLS",
+        "author": "CARL G. JUNG",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Text appears to be mirrored/reversed on the spine",
+        "bbox": {
+          "x": 0,
+          "y": 56,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Man and His Symbols",
+      "author": "CARL G. JUNG",
+      "authorLF": "JUNG, CARL G.",
+      "isbn": "9780440351832",
+      "publisher": "Robert Laffont",
+      "publicationYear": 1964,
+      "lcc": "BF173 .J936 1978",
+      "genreTags": [
+        "Behavioral psychology",
+        "Philosophy of mind"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC BF173 → Psychology. Jung's work on symbolism and the unconscious. Subject headings confirm psychology focus with symbolic/philosophical dimensions.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780440351832-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "Man and His Symbols",
+        "author": "CARL G. JUNG",
+        "isbn": "9780440351832",
+        "publisher": "Robert Laffont",
+        "publicationYear": 1964,
+        "lcc": "BF173 .J936 1978",
+        "genreTags": [
+          "Behavioral psychology",
+          "Philosophy of mind"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9ee40f0d-0cbc-415b-98b4-2da34dfcc4c8",
+      "spineRead": {
+        "position": 10,
+        "rawText": "Figures in a Landscape — Paul Theroux",
+        "title": "Figures in a Landscape",
+        "author": "Paul Theroux",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 63,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Figures in a Landscape",
+      "author": "Paul Theroux",
+      "authorLF": "Theroux, Paul",
+      "isbn": "9780241266472",
+      "publisher": "Houghton Mifflin Harcourt Publishing Company",
+      "publicationYear": 2018,
+      "lcc": "PS3570 .H4",
+      "genreTags": [
+        "Literary biography",
+        "Travel",
+        "Essays"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PS3570 → American literature. Subject headings confirm 'Authors, biography' and 'Travel writing'. Theroux is known travel writer → Literary biography + Travel. Collection of biographical portraits → Essays.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780241266472-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Figures in a Landscape",
+        "author": "Paul Theroux",
+        "isbn": "9780241266472",
+        "publisher": "Houghton Mifflin Harcourt Publishing Company",
+        "publicationYear": 2018,
+        "lcc": "PS3570 .H4",
+        "genreTags": [
+          "Literary biography",
+          "Travel",
+          "Essays"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "545ebc38-6f79-49fc-9f62-76dc6c2be4c5",
+      "spineRead": {
+        "position": 11,
+        "rawText": "Verified — Mike Caulfield & Sam Wineburg",
+        "title": "Verified",
+        "author": "Mike Caulfield & Sam Wineburg",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Green spine, text printed upside-down relative to image orientation.",
+        "bbox": {
+          "x": 0,
+          "y": 70,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Verified",
+      "author": "Mike Caulfield & Sam Wineburg",
+      "authorLF": "Wineburg, Mike Caulfield & Sam",
+      "isbn": "9780226822068",
+      "publisher": "University of Chicago Press",
+      "publicationYear": 2023,
+      "lcc": "ZA4235 .C38 2023",
+      "genreTags": [
+        "Media literacy",
+        "Disinformation",
+        "Critical thinking"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC ZA → Information science. Subject headings confirm Internet/computer literacy. Caulfield & Wineburg are known digital literacy researchers. Title 'Verified' + authors suggest fact-checking/verification focus → Media literacy + Disinformation + Critical thinking.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780226822068-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Verified",
+        "author": "Mike Caulfield & Sam Wineburg",
+        "isbn": "9780226822068",
+        "publisher": "University of Chicago Press",
+        "publicationYear": 2023,
+        "lcc": "ZA4235 .C38 2023",
+        "genreTags": [
+          "Media literacy",
+          "Disinformation",
+          "Critical thinking"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "e785d682-0124-417c-815f-a7c839bc8aa5",
+      "spineRead": {
+        "position": 12,
+        "rawText": "AMERICA — Jean Baudrillard",
+        "title": "AMERICA",
+        "author": "Jean Baudrillard",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Text appears rotated and partially obscured, with some mirror/inverted text visible. Can make out most of title and author but some uncertainty due to image quality and orientation.",
+        "bbox": {
+          "x": 0,
+          "y": 77,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "America",
+      "author": "Jean Baudrillard",
+      "authorLF": "Baudrillard, Jean",
+      "isbn": "9781844676828",
+      "publisher": "Verso",
+      "publicationYear": 2010,
+      "lcc": "E--0839.00000000",
+      "genreTags": [
+        "Cultural history",
+        "Social criticism",
+        "Travel",
+        "Postmodernism"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC E → American history. Subject headings indicate civilization critique + travel writing. Baudrillard is key postmodern theorist known for cultural analysis. Post-WWII focus + critical perspective → Cultural history + Social criticism.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781844676828-M.jpg?default=false",
+      "ocrModel": "s",
+      "original": {
+        "title": "America",
+        "author": "Jean Baudrillard",
+        "isbn": "9781844676828",
+        "publisher": "Verso",
+        "publicationYear": 2010,
+        "lcc": "E--0839.00000000",
+        "genreTags": [
+          "Cultural history",
+          "Social criticism",
+          "Travel",
+          "Postmodernism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "dd6ec87e-eff3-4c51-b11c-411b3a54e7b4",
+      "spineRead": {
+        "position": 13,
+        "rawText": "Digital Religion: Understanding Religious Practice in New Media Worlds — ed. Heidi Campbell",
+        "title": "Digital Religion: Understanding Religious Practice in New Media Worlds",
+        "author": "ed. Heidi Campbell",
+        "publisher": "Routledge",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Spine is upside down in image. Series text 'the basics' visible on red band. Title reads 'Digital Religion'. Author text partially obscured/blurry.",
+        "bbox": {
+          "x": 0,
+          "y": 84,
+          "width": 100,
+          "height": 7
+        }
+      },
+      "title": "Digital Religion: Understanding Religious Practice in New Media Worlds",
+      "author": "ed. Heidi Campbell",
+      "authorLF": "Campbell, ed. Heidi",
+      "isbn": "9781136194481",
+      "publisher": "Taylor & Francis Group",
+      "publicationYear": 2012,
+      "lcc": "BL638 .D54 2012",
+      "genreTags": [
+        "Comparative religion",
+        "Internet culture"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC BL → Religion. Title indicates cross-domain study of religion in digital contexts → Internet culture. Editor format suggests anthology but not clearly indicated in title.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781136194481-M.jpg?default=false",
+      "ocrModel": "o",
+      "original": {
+        "title": "Digital Religion: Understanding Religious Practice in New Media Worlds",
+        "author": "ed. Heidi Campbell",
+        "isbn": "9781136194481",
+        "publisher": "Taylor & Francis Group",
+        "publicationYear": 2012,
+        "lcc": "BL638 .D54 2012",
+        "genreTags": [
+          "Comparative religion",
+          "Internet culture"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "shelf-capture-001.jpg",
+  "sourceDimensions": {
+    "width": 2160,
+    "height": 3456
+  }
+}
