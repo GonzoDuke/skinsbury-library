@@ -1175,11 +1175,84 @@ export async function lookupBook(
   // available to key the OL covers URL.
   let gbCoverUrl = '';
   let isbndbCoverUrl = '';
+  // Track LCC provenance early — ISBNdb runs first now and may
+  // surface an LCC indirectly (e.g., via the cross-isbn LoC SRU
+  // call inside Phase B). Default to 'none' until something fills.
+  let lccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none' = 'none';
+
+  // -------------------------------------------------------------------------
+  // Tier 1 — ISBNdb. Most comprehensive single source: returns ISBN,
+  // publisher, year, DDC, subjects, cover, synopsis, page count,
+  // edition, binding. Always queried first; subsequent tiers gap-fill
+  // only what ISBNdb didn't have (notably LCC, which ISBNdb doesn't
+  // carry). The 1-second rate limiter inside isbndbFetch still
+  // applies. Skipped silently when ISBNDB_API_KEY isn't configured.
+  // -------------------------------------------------------------------------
+  {
+    const isbndbHit = await lookupIsbndb(searchTitle, searchAuthor, undefined, log);
+    if (isbndbHit) {
+      let usedIsbndb = false;
+      if (!result.isbn && isbndbHit.isbn) {
+        result.isbn = isbndbHit.isbn;
+        usedIsbndb = true;
+      }
+      if (!result.publisher && isbndbHit.publisher) {
+        result.publisher = isbndbHit.publisher;
+        usedIsbndb = true;
+      }
+      if (!result.publicationYear && isbndbHit.publicationYear) {
+        result.publicationYear = isbndbHit.publicationYear;
+        usedIsbndb = true;
+      }
+      if (!result.ddc && isbndbHit.ddc) {
+        result.ddc = isbndbHit.ddc;
+        usedIsbndb = true;
+      }
+      if (isbndbHit.subjects.length > 0) {
+        const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
+        const merged = [...(result.subjects ?? [])];
+        for (const s of isbndbHit.subjects) {
+          if (!existing.has(s.toLowerCase())) merged.push(s);
+        }
+        result.subjects = merged.slice(0, 15);
+      }
+      if (isbndbHit.coverUrl) isbndbCoverUrl = isbndbHit.coverUrl;
+      // Phase-2 enrichment merges. Each field gap-fills only.
+      if (!result.canonicalTitle) {
+        result.canonicalTitle = isbndbHit.title || isbndbHit.titleLong || undefined;
+      }
+      if (!result.canonicalAuthor && isbndbHit.allAuthors?.[0]) {
+        result.canonicalAuthor = isbndbHit.allAuthors[0];
+      }
+      if (!result.allAuthors && isbndbHit.allAuthors?.length) {
+        result.allAuthors = [...isbndbHit.allAuthors];
+      }
+      if (!result.synopsis && isbndbHit.synopsis) result.synopsis = isbndbHit.synopsis;
+      if (!result.pageCount && isbndbHit.pages) result.pageCount = isbndbHit.pages;
+      if (!result.edition && isbndbHit.edition) result.edition = isbndbHit.edition;
+      if (!result.binding && isbndbHit.binding) result.binding = isbndbHit.binding;
+      if (!result.language && isbndbHit.language) result.language = isbndbHit.language;
+      if (isbndbHit.coverUrl) {
+        result.coverUrlFallbacks = result.coverUrlFallbacks ?? [];
+        if (!result.coverUrlFallbacks.includes(isbndbHit.coverUrl)) {
+          result.coverUrlFallbacks.push(isbndbHit.coverUrl);
+        }
+      }
+      // ISBNdb is the first tier — when it hits, claim source/tier so
+      // the subsequent OL t1-t5 / GB title tiers know to skip.
+      if (usedIsbndb) {
+        result.source = 'isbndb';
+        if (!tier || tier === 'none') tier = 'isbndb';
+      }
+    }
+  }
 
   // Tier 1: full title + cleaned author. Sanitized strings only —
   // `title` and `author` from the args still flow downstream for
-  // display / grounding.
-  {
+  // display / grounding. Gated on source === 'none' so an earlier
+  // tier (now ISBNdb at the top of the cascade) can claim the
+  // record without OL t1 wholesale-replacing it on the next call.
+  if (result.source === 'none') {
     const p = new URLSearchParams();
     p.set('title', searchTitle);
     if (cleanedAuthor) p.set('author', cleanedAuthor);
@@ -1188,6 +1261,8 @@ export async function lookupBook(
       result = r;
       tier = 'ol-t1';
     }
+  } else {
+    log.tier('ol-t1', 'skipped — earlier tier already filled');
   }
   // Tier 2: short title (subtitle stripped) + cleaned author. Catches
   // books whose subtitle drifted across editions.
@@ -1253,93 +1328,11 @@ export async function lookupBook(
     log.tier('ol-t5-q', 'skipped — earlier tier already filled');
   }
 
-  // 5) Google Books fallback (only if Open Library didn't yield a usable result)
-  if (result.source !== 'none') {
-    log.tier('gb', 'skipped — earlier tier already filled');
-  }
-  if (result.source === 'none') try {
-    const q = `intitle:${encodeURIComponent(shortTitle)}${
-      cleanedAuthor ? `+inauthor:${encodeURIComponent(cleanedAuthor)}` : ''
-    }`;
-    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
-    const baseUrl = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3`;
-    const keyedUrl = apiKey ? `${baseUrl}&key=${apiKey}` : baseUrl;
-    let res = await fetch(keyedUrl, { signal: AbortSignal.timeout(10000), cache: 'no-store', headers: DEFAULT_HEADERS });
-    // If the keyed call fails with 4xx/5xx, retry without the key — generous unauth'd quota.
-    if (!res.ok && apiKey) {
-      log.tier('gb', `keyed → ${res.status}, retrying unauth'd`);
-      res = await fetch(baseUrl, { signal: AbortSignal.timeout(10000), cache: 'no-store', headers: DEFAULT_HEADERS });
-    }
-    if (!res.ok) {
-      log.tier('gb', `GET ${baseUrl} → ${res.status} (skip)`);
-    } else {
-      const data = (await res.json()) as {
-        items?: Array<{
-          volumeInfo: {
-            industryIdentifiers?: { type: string; identifier: string }[];
-            publisher?: string;
-            publishedDate?: string;
-            categories?: string[];
-            imageLinks?: { thumbnail?: string; smallThumbnail?: string };
-          };
-        }>;
-      };
-      const vi = data.items?.[0]?.volumeInfo;
-      if (!vi) {
-        log.tier('gb', `GET ${baseUrl} → ${res.status} → 0 items`);
-      } else {
-        // Capture the Google Books cover for the no-ISBN fallback path.
-        // Prefer thumbnail over smallThumbnail; rewrite http→https because
-        // the Books API still serves http URLs that mixed-content-block
-        // on production.
-        const gbRaw = vi.imageLinks?.thumbnail ?? vi.imageLinks?.smallThumbnail ?? '';
-        if (gbRaw) gbCoverUrl = gbRaw.replace(/^http:\/\//i, 'https://');
-        const ids = vi.industryIdentifiers ?? [];
-        const isbn13 =
-          ids.find((i) => i.type === 'ISBN_13' && !i.identifier.startsWith('9798'))?.identifier ??
-          ids.find((i) => i.type === 'ISBN_13')?.identifier ??
-          '';
-        const isbn10 = ids.find((i) => i.type === 'ISBN_10')?.identifier ?? '';
-        const isbn = isbn13 || isbn10;
-        const publisher = vi.publisher ?? '';
-        const editionYear = vi.publishedDate ? parseInt(vi.publishedDate.slice(0, 4), 10) : 0;
-
-        // Enrich in parallel: Open Library /isbn for the work's
-        // first_publish_year (e.g., 1942 for Camus' The Stranger), and
-        // LoC SRU for the authoritative LCC. Two independent ISBN-keyed
-        // calls — running them concurrently saves the slower one's wait.
-        const [enriched, sruLcc] = await Promise.all([
-          enrichFromIsbn(isbn),
-          lookupLccByIsbn(isbn),
-        ]);
-        const publicationYear =
-          enriched.firstPublishYear || (Number.isFinite(editionYear) ? editionYear : 0);
-
-        result = {
-          isbn,
-          publisher,
-          publicationYear,
-          // LoC SRU is the most authoritative LCC source; fall back to the
-          // OL work-level enrichment if SRU had nothing.
-          lcc: sruLcc || enriched.lcc,
-          subjects: vi.categories ?? [],
-          source: 'googlebooks',
-        };
-        tier = 'gb';
-        log.tier(
-          'gb',
-          `GET ${baseUrl} → ${res.status} → matched isbn=${isbn || '-'} pub=${JSON.stringify(publisher)} year=${publicationYear || '-'} lcc=${JSON.stringify(result.lcc || '')}`
-        );
-      }
-    }
-  } catch (err) {
-    log.tier('gb', `error ${err instanceof Error ? err.message : String(err)}`);
-  }
 
   // Final post-processing: canonicalize LCC + LoC SRU enrichment.
   // Track WHERE the LCC came from so the BookCard can show provenance.
   result.lcc = normalizeLcc(result.lcc);
-  let lccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none' = result.lcc ? 'ol' : 'none';
+  if (result.lcc && lccSource === 'none') lccSource = 'ol';
 
   // -------------------------------------------------------------------------
   // PHASE B: ISBN-driven cross-tier enrichment.
@@ -1427,150 +1420,94 @@ export async function lookupBook(
   }
 
   // -------------------------------------------------------------------------
-  // ISBNdb. ALWAYS queried when we have an ISBN (or as a title-search
-  // fallback if we don't), regardless of what earlier tiers returned.
-  // Even when OL or GB already filled isbn+publisher+year, ISBNdb adds
-  // subjects, DDC, cover, synopsis that the others miss. Skip silently
-  // when ISBNDB_API_KEY isn't configured.
+  // Tier 4 — Google Books title-search fallback. Only fires when ISBNdb,
+  // OL t1-t5, and the LoC SRU passes all missed completely. When it
+  // hits, GB also runs an internal ISBN-keyed enrichment (OL by ISBN +
+  // LoC SRU by ISBN) so the resulting record carries year/LCC even
+  // though GB's own response is sparse. The MARC enrichment block
+  // below picks up LCSH using whatever ISBN GB surfaced.
   // -------------------------------------------------------------------------
-  {
-    // Capture pre-ISBNdb state so the post-merge re-query block knows
-    // whether ISBNdb was the first tier to surface an ISBN.
-    const preIsbndbIsbn = result.isbn;
-    const isbndbHit = await lookupIsbndb(searchTitle, searchAuthor, result.isbn || undefined, log);
-    if (isbndbHit) {
-      let usedIsbndb = false;
-      if (!result.isbn && isbndbHit.isbn) {
-        result.isbn = isbndbHit.isbn;
-        usedIsbndb = true;
-      }
-      if (!result.publisher && isbndbHit.publisher) {
-        result.publisher = isbndbHit.publisher;
-        usedIsbndb = true;
-      }
-      if (!result.publicationYear && isbndbHit.publicationYear) {
-        result.publicationYear = isbndbHit.publicationYear;
-        usedIsbndb = true;
-      }
-      if (!result.ddc && isbndbHit.ddc) {
-        result.ddc = isbndbHit.ddc;
-        usedIsbndb = true;
-      }
-      if (isbndbHit.subjects.length > 0) {
-        const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
-        const merged = [...(result.subjects ?? [])];
-        for (const s of isbndbHit.subjects) {
-          if (!existing.has(s.toLowerCase())) merged.push(s);
-        }
-        result.subjects = merged.slice(0, 15);
-      }
-      if (isbndbHit.coverUrl) isbndbCoverUrl = isbndbHit.coverUrl;
-
-      // Phase-2 enrichment merges. Each field gap-fills only — a
-      // higher-priority tier (OL) is never overwritten. The collected
-      // ISBNdb cover URL is also added to the fallback chain so
-      // commit-10 can swap to it when the OL covers URL 404s.
-      if (!result.canonicalTitle) {
-        result.canonicalTitle = isbndbHit.title || isbndbHit.titleLong || undefined;
-      }
-      if (!result.canonicalAuthor && isbndbHit.allAuthors?.[0]) {
-        result.canonicalAuthor = isbndbHit.allAuthors[0];
-      }
-      if (!result.allAuthors && isbndbHit.allAuthors?.length) {
-        result.allAuthors = [...isbndbHit.allAuthors];
-      }
-      if (!result.synopsis && isbndbHit.synopsis) result.synopsis = isbndbHit.synopsis;
-      if (!result.pageCount && isbndbHit.pages) result.pageCount = isbndbHit.pages;
-      if (!result.edition && isbndbHit.edition) result.edition = isbndbHit.edition;
-      if (!result.binding && isbndbHit.binding) result.binding = isbndbHit.binding;
-      if (!result.language && isbndbHit.language) result.language = isbndbHit.language;
-      if (isbndbHit.coverUrl) {
-        result.coverUrlFallbacks = result.coverUrlFallbacks ?? [];
-        if (!result.coverUrlFallbacks.includes(isbndbHit.coverUrl)) {
-          result.coverUrlFallbacks.push(isbndbHit.coverUrl);
-        }
-      }
-
-      // Only flip the metadata source label when the prior chain truly
-      // returned nothing (`source: 'none'`). When OL/Google already
-      // matched, ISBNdb is a gap-filler — keep their flag for diagnostics.
-      if (result.source === 'none' && usedIsbndb) {
-        result.source = 'isbndb';
-        if (!tier || tier === 'none') tier = 'isbndb';
-      }
+  if (result.source !== 'none') {
+    log.tier('gb', 'skipped — earlier tier already filled');
+  }
+  if (result.source === 'none') try {
+    const q = `intitle:${encodeURIComponent(shortTitle)}${
+      cleanedAuthor ? `+inauthor:${encodeURIComponent(cleanedAuthor)}` : ''
+    }`;
+    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+    const baseUrl = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3`;
+    const keyedUrl = apiKey ? `${baseUrl}&key=${apiKey}` : baseUrl;
+    let res = await fetch(keyedUrl, { signal: AbortSignal.timeout(10000), cache: 'no-store', headers: DEFAULT_HEADERS });
+    // If the keyed call fails with 4xx/5xx, retry without the key — generous unauth'd quota.
+    if (!res.ok && apiKey) {
+      log.tier('gb', `keyed → ${res.status}, retrying unauth'd`);
+      res = await fetch(baseUrl, { signal: AbortSignal.timeout(10000), cache: 'no-store', headers: DEFAULT_HEADERS });
     }
+    if (!res.ok) {
+      log.tier('gb', `GET ${baseUrl} → ${res.status} (skip)`);
+    } else {
+      const data = (await res.json()) as {
+        items?: Array<{
+          volumeInfo: {
+            industryIdentifiers?: { type: string; identifier: string }[];
+            publisher?: string;
+            publishedDate?: string;
+            categories?: string[];
+            imageLinks?: { thumbnail?: string; smallThumbnail?: string };
+          };
+        }>;
+      };
+      const vi = data.items?.[0]?.volumeInfo;
+      if (!vi) {
+        log.tier('gb', `GET ${baseUrl} → ${res.status} → 0 items`);
+      } else {
+        // Capture the Google Books cover for the no-ISBN fallback path.
+        // Prefer thumbnail over smallThumbnail; rewrite http→https because
+        // the Books API still serves http URLs that mixed-content-block
+        // on production.
+        const gbRaw = vi.imageLinks?.thumbnail ?? vi.imageLinks?.smallThumbnail ?? '';
+        if (gbRaw) gbCoverUrl = gbRaw.replace(/^http:\/\//i, 'https://');
+        const ids = vi.industryIdentifiers ?? [];
+        const isbn13 =
+          ids.find((i) => i.type === 'ISBN_13' && !i.identifier.startsWith('9798'))?.identifier ??
+          ids.find((i) => i.type === 'ISBN_13')?.identifier ??
+          '';
+        const isbn10 = ids.find((i) => i.type === 'ISBN_10')?.identifier ?? '';
+        const isbn = isbn13 || isbn10;
+        const publisher = vi.publisher ?? '';
+        const editionYear = vi.publishedDate ? parseInt(vi.publishedDate.slice(0, 4), 10) : 0;
 
-    // -----------------------------------------------------------------------
-    // Cross-tier ISBN re-queries. When ISBNdb was the first tier to
-    // surface an ISBN (OL/GB missed earlier), go back and run OL-by-isbn
-    // and the full MARC parse with that ISBN — they often have LCC,
-    // LCSH, year, page count we couldn't get from the title-only
-    // search. Wrapped in try/catch + per-promise .catch so any single
-    // failure leaves the existing record untouched.
-    // -----------------------------------------------------------------------
-    if (!preIsbndbIsbn && result.isbn) {
-      const newIsbn = result.isbn;
-      log.tier('cross-isbn', `isbn=${newIsbn} surfaced by ISBNdb — running OL-by-isbn + MARC re-query`);
-      try {
-        const [olEnrich, marcEnrich] = await Promise.all([
-          enrichFromIsbn(newIsbn).catch(() => ({ firstPublishYear: 0, lcc: '' })),
-          lookupFullMarcByIsbn(newIsbn).catch(() => null),
+        // Enrich in parallel: Open Library /isbn for the work's
+        // first_publish_year (e.g., 1942 for Camus' The Stranger), and
+        // LoC SRU for the authoritative LCC. Two independent ISBN-keyed
+        // calls — running them concurrently saves the slower one's wait.
+        const [enriched, sruLcc] = await Promise.all([
+          enrichFromIsbn(isbn),
+          lookupLccByIsbn(isbn),
         ]);
-        if (olEnrich) {
-          if (!result.lcc && olEnrich.lcc) {
-            result.lcc = normalizeLcc(olEnrich.lcc);
-            lccSource = 'ol';
-            log.tier('cross-isbn', `  ol-by-isbn filled lcc=${JSON.stringify(result.lcc)}`);
-          }
-          if (!result.publicationYear && olEnrich.firstPublishYear) {
-            result.publicationYear = olEnrich.firstPublishYear;
-            log.tier('cross-isbn', `  ol-by-isbn filled year=${olEnrich.firstPublishYear}`);
-          }
-        }
-        if (marcEnrich) {
-          if (
-            marcEnrich.lcshSubjects.length > 0 &&
-            !(result.lcshSubjects && result.lcshSubjects.length > 0)
-          ) {
-            result.lcshSubjects = marcEnrich.lcshSubjects;
-            log.tier('cross-isbn', `  marc filled lcsh=${marcEnrich.lcshSubjects.length}`);
-          }
-          if (!result.ddc && marcEnrich.ddc) {
-            result.ddc = marcEnrich.ddc;
-            log.tier('cross-isbn', `  marc filled ddc=${marcEnrich.ddc}`);
-          }
-          if (!result.pageCount && marcEnrich.pageCount) {
-            result.pageCount = marcEnrich.pageCount;
-          }
-          if (!result.edition && marcEnrich.edition) {
-            result.edition = marcEnrich.edition;
-          }
-          if (!result.canonicalTitle && marcEnrich.title) {
-            result.canonicalTitle = marcEnrich.title;
-          }
-          if (!result.canonicalAuthor && marcEnrich.author) {
-            result.canonicalAuthor = marcEnrich.author;
-          }
-          if (marcEnrich.coAuthors.length > 0) {
-            const merged = new Set<string>(result.allAuthors ?? []);
-            if (marcEnrich.author) merged.add(marcEnrich.author);
-            for (const a of marcEnrich.coAuthors) merged.add(a);
-            if (merged.size > (result.allAuthors?.length ?? 0)) {
-              result.allAuthors = Array.from(merged);
-            }
-          }
-        }
-        // If we just promoted result.lcc, the standalone Wikidata gate
-        // below uses it correctly. No additional plumbing needed.
-      } catch (err) {
+        const publicationYear =
+          enriched.firstPublishYear || (Number.isFinite(editionYear) ? editionYear : 0);
+
+        result = {
+          isbn,
+          publisher,
+          publicationYear,
+          // LoC SRU is the most authoritative LCC source; fall back to the
+          // OL work-level enrichment if SRU had nothing.
+          lcc: sruLcc || enriched.lcc,
+          subjects: vi.categories ?? [],
+          source: 'googlebooks',
+        };
+        if (result.lcc) lccSource = sruLcc ? 'loc' : 'ol';
+        tier = 'gb';
         log.tier(
-          'cross-isbn',
-          `error ${err instanceof Error ? err.message : String(err)} (skipping)`
+          'gb',
+          `GET ${baseUrl} → ${res.status} → matched isbn=${isbn || '-'} pub=${JSON.stringify(publisher)} year=${publicationYear || '-'} lcc=${JSON.stringify(result.lcc || '')}`
         );
       }
-    } else if (preIsbndbIsbn) {
-      log.tier('cross-isbn', 'skipped — ISBN was already known before ISBNdb');
     }
+  } catch (err) {
+    log.tier('gb', `error ${err instanceof Error ? err.message : String(err)}`);
   }
 
   // -------------------------------------------------------------------------
