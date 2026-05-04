@@ -590,6 +590,86 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.batches, state.allBooks]);
 
+  // Debounced post-mutation sync. Watches state.batches and pushes any
+  // batch whose books-array reference changed since the last seen
+  // value to GitHub via pushBatchToRepo. The reducer creates new array
+  // refs on every UPDATE_BOOK / MERGE_DUPLICATES / etc., so reference
+  // inequality is sufficient and cheap — no deep equality needed.
+  //
+  // 2-second per-batch debounce: rapid edits (typing in a field) collapse
+  // into a single push after the user stops, but the timer is keyed by
+  // batchId so editing batch A doesn't reset batch B's timer.
+  //
+  // Gates (matching the per-creation push sites' implicit assumptions):
+  //   1. !hasHydrated.current — same gate the persist effect uses; never
+  //      push localStorage state back to GitHub on mount.
+  //   2. status === 'processing' — processQueue owns the push for batches
+  //      it's actively working on; we must not race it with stale snapshots.
+  //   3. books.length === 0 — empty batches get cleaned up elsewhere
+  //      (handleScannerClose drops empty scan batches); pushing them is
+  //      noise.
+  //
+  // Concurrent-edit semantics: this is "newest state wins" — pushing the
+  // current device's state will overwrite the remote copy. For Carnegie's
+  // single-user/two-device pattern this is acceptable and intended.
+  const syncTimeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const lastSyncedBooksRef = useRef<Map<string, BookRecord[]>>(new Map());
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const seen = lastSyncedBooksRef.current;
+    const timeouts = syncTimeoutsRef.current;
+    const liveIds = new Set<string>();
+
+    for (const batch of state.batches) {
+      liveIds.add(batch.id);
+      const prev = seen.get(batch.id);
+      // Update last-seen unconditionally so the next run compares
+      // against the current reference, even when we skip the push.
+      seen.set(batch.id, batch.books);
+      if (prev === batch.books) continue;
+      if (!hasHydrated.current) continue;
+      if (batch.status === 'processing') continue;
+      if (batch.books.length === 0) continue;
+
+      // Reset any pending timer for this batch — only the freshest
+      // snapshot (after debounce settles) gets pushed.
+      const existing = timeouts.get(batch.id);
+      if (existing) clearTimeout(existing);
+
+      const t = setTimeout(() => {
+        timeouts.delete(batch.id);
+        const current = stateRef.current.batches.find((b) => b.id === batch.id);
+        if (!current) return;
+        if (current.status === 'processing') return;
+        if (current.books.length === 0) return;
+        pushBatchToRepo(current).catch(() => {});
+      }, 2000);
+      timeouts.set(batch.id, t);
+    }
+
+    // Drop tracking for batches that have been removed since the last
+    // run, and clear any pending timeout for them.
+    for (const id of Array.from(seen.keys())) {
+      if (!liveIds.has(id)) {
+        seen.delete(id);
+        const t = timeouts.get(id);
+        if (t) {
+          clearTimeout(t);
+          timeouts.delete(id);
+        }
+      }
+    }
+  }, [state.batches]);
+
+  // Unmount cleanup — prevents stray pushes after the provider tears down.
+  useEffect(() => {
+    const timeouts = syncTimeoutsRef.current;
+    return () => {
+      for (const t of timeouts.values()) clearTimeout(t);
+      timeouts.clear();
+    };
+  }, []);
+
   // Pull the authoritative ledger from the repo on app load so duplicate
   // detection is consistent across devices. syncLedgerFromRepo updates the
   // localStorage cache that loadLedger() reads at processing time. When the
