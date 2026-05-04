@@ -1,0 +1,87 @@
+{
+  "id": "ac1505fd-cb07-4e9b-8c4f-90bfbc1b944e",
+  "filename": "Manual entries · 5/4/2026, 10:35:36 AM",
+  "fileSize": 0,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 0,
+  "booksIdentified": 2,
+  "books": [
+    {
+      "id": "9961f32d-8df5-49f4-8797-3890159c2dfd",
+      "spineRead": {
+        "position": 9999,
+        "rawText": "",
+        "title": "",
+        "author": "",
+        "confidence": "HIGH"
+      },
+      "title": "",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780593236598",
+      "publisher": "Potter/Ten Speed/Harmony/Rodale",
+      "publicationYear": 2023,
+      "lcc": "RA776.75 .A885 2023",
+      "genreTags": [],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "",
+      "status": "rejected",
+      "warnings": [],
+      "sourcePhoto": "manual-entry",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "manuallyAdded": true,
+      "original": {
+        "title": "",
+        "author": "",
+        "isbn": "9780593236598",
+        "publisher": "Potter/Ten Speed/Harmony/Rodale",
+        "publicationYear": 2023,
+        "lcc": "RA776.75 .A885 2023",
+        "genreTags": [],
+        "formTags": []
+      },
+      "spineThumbnail": ""
+    },
+    {
+      "id": "231aac0a-7ce3-46f7-8db8-5a6878cf7b96",
+      "spineRead": {
+        "position": 9999,
+        "rawText": "",
+        "title": "",
+        "author": "",
+        "confidence": "HIGH"
+      },
+      "title": "",
+      "author": "",
+      "authorLF": "",
+      "isbn": "9780593236598",
+      "publisher": "Potter/Ten Speed/Harmony/Rodale",
+      "publicationYear": 2023,
+      "lcc": "RA776.75 .A885 2023",
+      "genreTags": [],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "",
+      "status": "rejected",
+      "warnings": [],
+      "sourcePhoto": "manual-entry",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "manuallyAdded": true,
+      "original": {
+        "title": "",
+        "author": "",
+        "isbn": "9780593236598",
+        "publisher": "Potter/Ten Speed/Harmony/Rodale",
+        "publicationYear": 2023,
+        "lcc": "RA776.75 .A885 2023",
+        "genreTags": [],
+        "formTags": []
+      },
+      "spineThumbnail": ""
+    }
+  ]
+}
