@@ -29,7 +29,7 @@
       "formTags": [],
       "confidence": "MEDIUM",
       "reasoning": "[philosophy_psychology_religion] Title 'On Character' strongly suggests ethical philosophy focused on moral character development. Without additional metadata like author, LCC, or subject headings, confidence is medium, but character is a core concept in virtue ethics.",
-      "status": "pending",
+      "status": "rejected",
       "warnings": [
         "LCC code missing — tags inferred from title and author only."
       ],
