@@ -87,6 +87,22 @@ export default function UploadPage() {
         previewResult: preview,
       });
       addBook(batchId, book);
+      // Push the scan batch to GitHub on each successful scan, not just
+      // on Done-tap. Closes the gap where a session ends (screen lock,
+      // app backgrounded, browser closed) before handleScannerClose
+      // fires — those scans would otherwise live only on the source
+      // device. handleScannerClose's terminal push still fires on Done
+      // for cleanup; per-scan sync keeps cross-device visibility live.
+      // Fire-and-forget — 409-retry shim handles concurrent writes.
+      const finalized = stateRef.current.batches.find((b) => b.id === batchId);
+      if (finalized) {
+        const synced: PhotoBatch = {
+          ...finalized,
+          books: [...finalized.books, book],
+          booksIdentified: finalized.booksIdentified + 1,
+        };
+        pushBatchToRepo(synced).catch(() => {});
+      }
     } catch (err) {
       scanErrorRef.current =
         err instanceof Error ? err.message : 'Lookup failed.';
@@ -167,6 +183,25 @@ export default function UploadPage() {
     })
       .then((book) => {
         addBook(batchId, book);
+        // Push the manual-entries batch to GitHub on each successful
+        // addition. The user has no "I'm done with manual entry"
+        // moment (the modal closes after each book), so per-book sync
+        // is the closest analog to the scan flow's behavior from the
+        // user's perspective. Fire-and-forget — failures never block
+        // the UI, and the pending-batches POST has a 409-retry shim
+        // for concurrent-write conflicts.
+        const finalized = stateRef.current.batches.find((b) => b.id === batchId);
+        if (finalized) {
+          // Synthesize the post-dispatch state since stateRef is one
+          // tick behind the addBook dispatch. Append the new book to
+          // the pre-dispatch batch snapshot.
+          const synced: PhotoBatch = {
+            ...finalized,
+            books: [...finalized.books, book],
+            booksIdentified: finalized.booksIdentified + 1,
+          };
+          pushBatchToRepo(synced).catch(() => {});
+        }
       })
       .catch(() => {
         // Lookup failed entirely — surface a minimal stub so the user
@@ -209,6 +244,18 @@ export default function UploadPage() {
           },
         };
         addBook(batchId, stub);
+        // Push the stub too — the user typed something and we want
+        // it visible on other devices the same way a successful
+        // lookup would be. Same fire-and-forget pattern.
+        const finalized = stateRef.current.batches.find((b) => b.id === batchId);
+        if (finalized) {
+          const synced: PhotoBatch = {
+            ...finalized,
+            books: [...finalized.books, stub],
+            booksIdentified: finalized.booksIdentified + 1,
+          };
+          pushBatchToRepo(synced).catch(() => {});
+        }
       })
       .finally(() => {
         manualInflightRef.current -= 1;
