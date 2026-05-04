@@ -1,0 +1,305 @@
+{
+  "id": "51b9a640-ef43-4caf-bc27-d2bb03a89529",
+  "filename": "7888.cropped.jpg",
+  "fileSize": 946710,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 6,
+  "booksIdentified": 4,
+  "books": [
+    {
+      "id": "10274b45-4291-4293-ba36-39c3af2799d3",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Chuck Klosterman",
+        "title": "",
+        "author": "Chuck Klosterman",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Author name is clearly visible but title is not readable - appears to be obscured or cut off in the image",
+        "bbox": {
+          "x": 0,
+          "y": 39,
+          "width": 100,
+          "height": 12
+        }
+      },
+      "title": "Sex, Drugs, and Cocoa Puffs",
+      "author": "Chuck Klosterman",
+      "authorLF": "Klosterman, Chuck",
+      "isbn": "9780743236003",
+      "publisher": "Simon & Schuster Audio",
+      "publicationYear": 2003,
+      "lcc": "E169.12 .K56 2003",
+      "genreTags": [
+        "Cultural history",
+        "Social criticism",
+        "Essays"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC E169.12 → American cultural history. LCSH confirms popular culture focus. Klosterman writes cultural criticism essays. DDC 306 (culture/society) supports classification.",
+      "status": "pending",
+      "warnings": [
+        "Identified by AI from partial spine read: Chuck Klosterman's most popular and widely-printed book, though he has written several other titles.",
+        "Possible duplicate — same title found at spine #3 and #5. Merge or keep both?"
+      ],
+      "sourcePhoto": "7888.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "306/.0973",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780743236003-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Sex, Drugs, and Cocoa Puffs",
+      "allAuthors": [
+        "Chuck Klosterman"
+      ],
+      "pageCount": 258,
+      "lcshSubjects": [
+        "Popular culture — United States",
+        "United States — Civilization — 1970-"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780743236003-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Sex, Drugs, and Cocoa Puffs",
+        "author": "Chuck Klosterman",
+        "isbn": "9780743236003",
+        "publisher": "Simon & Schuster Audio",
+        "publicationYear": 2003,
+        "lcc": "E169.12 .K56 2003",
+        "genreTags": [
+          "Cultural history",
+          "Social criticism",
+          "Essays"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-3qyp91qu",
+      "duplicateOf": [
+        5
+      ]
+    },
+    {
+      "id": "e2ffbdbc-9027-4f1e-9087-f021f18bdec0",
+      "spineRead": {
+        "position": 4,
+        "rawText": "KILLING YOURSELF TO LIVE — CHUCK KLOSTERMAN",
+        "title": "KILLING YOURSELF TO LIVE",
+        "author": "CHUCK KLOSTERMAN",
+        "publisher": "SCRIBNER",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 51,
+          "width": 100,
+          "height": 12
+        }
+      },
+      "title": "Killing Yourself to Live",
+      "author": "Chuck Klosterman",
+      "authorLF": "Klosterman, Chuck",
+      "isbn": "9780743264457",
+      "publisher": "Scribner",
+      "publicationYear": 2005,
+      "lcc": "ML394 .K59 2005",
+      "genreTags": [
+        "Music",
+        "Travel",
+        "Personal memoir",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC ML394 → Music. Subject headings confirm rock music, travel, popular culture, and biographical elements. Klosterman's cultural criticism style → Social criticism. Travel subject → Travel tag. Biographical aspects → Personal memoir.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7888.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780743264457-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Killing Yourself to Live",
+      "allAuthors": [
+        "Chuck Klosterman"
+      ],
+      "pageCount": 259,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780743264457-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Killing Yourself to Live",
+        "author": "Chuck Klosterman",
+        "isbn": "9780743264457",
+        "publisher": "Scribner",
+        "publicationYear": 2005,
+        "lcc": "ML394 .K59 2005",
+        "genreTags": [
+          "Music",
+          "Travel",
+          "Personal memoir",
+          "Social criticism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "64962b9c-3537-44f6-b0af-ed3e84240366",
+      "spineRead": {
+        "position": 5,
+        "rawText": "Sex, Drugs, and Cocoa Puffs — Chuck Klosterman",
+        "title": "Sex, Drugs, and Cocoa Puffs",
+        "author": "Chuck Klosterman",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 63,
+          "width": 100,
+          "height": 12
+        }
+      },
+      "title": "Sex, Drugs, and Cocoa Puffs",
+      "author": "Chuck Klosterman",
+      "authorLF": "Klosterman, Chuck",
+      "isbn": "9780743236003",
+      "publisher": "Simon & Schuster Audio",
+      "publicationYear": 2003,
+      "lcc": "E169.12 .K56 2003",
+      "genreTags": [
+        "Cultural history",
+        "Social criticism",
+        "Essays"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC E169.12 → American cultural/social history. LCSH confirms popular culture focus. Klosterman is known for cultural criticism essays. DDC 306 (culture/society) aligns with LCC.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #3 and #5. Merge or keep both?"
+      ],
+      "sourcePhoto": "7888.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "306/.0973",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780743236003-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Sex, Drugs, and Cocoa Puffs",
+      "allAuthors": [
+        "Chuck Klosterman"
+      ],
+      "pageCount": 258,
+      "lcshSubjects": [
+        "Popular culture — United States",
+        "United States — Civilization — 1970-"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780743236003-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Sex, Drugs, and Cocoa Puffs",
+        "author": "Chuck Klosterman",
+        "isbn": "9780743236003",
+        "publisher": "Simon & Schuster Audio",
+        "publicationYear": 2003,
+        "lcc": "E169.12 .K56 2003",
+        "genreTags": [
+          "Cultural history",
+          "Social criticism",
+          "Essays"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-3qyp91qu",
+      "duplicateOf": [
+        3
+      ]
+    },
+    {
+      "id": "31923a78-bd3d-49a2-9010-22509d0710e3",
+      "spineRead": {
+        "position": 6,
+        "rawText": "But What If We're Wrong? — Chuck Klosterman",
+        "title": "But What If We're Wrong?",
+        "author": "Chuck Klosterman",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 75,
+          "width": 100,
+          "height": 12
+        }
+      },
+      "title": "But What If We'Re Wrong?",
+      "author": "Chuck Klosterman",
+      "authorLF": "Klosterman, Chuck",
+      "isbn": "9780399184123",
+      "publisher": "Blue Rider Press",
+      "publicationYear": 2016,
+      "lcc": "E169.12 .K5548 2016",
+      "genreTags": [
+        "Essays",
+        "Social criticism",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC E169 → American civilization/cultural history. LCSH confirms popular culture focus. Subject headings include 'Essays' and cultural analysis. Klosterman is known for cultural criticism examining contemporary assumptions.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7888.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "909.83/12",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780399184123-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "But What If We're Wrong?",
+      "subtitle": "Thinking About the Present As If It Were the Past",
+      "allAuthors": [
+        "Chuck Klosterman"
+      ],
+      "pageCount": 272,
+      "lcshSubjects": [
+        "Popular culture — United States",
+        "Future, The",
+        "History",
+        "SOCIAL SCIENCE / Popular Culture — bisacsh",
+        "LITERARY COLLECTIONS / Essays — bisacsh",
+        "BIOGRAPHY &amp; AUTOBIOGRAPHY / Personal Memoirs — bisacsh",
+        "United States — Civilization — 1970-"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780399184123-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "But What If We'Re Wrong?",
+        "author": "Chuck Klosterman",
+        "isbn": "9780399184123",
+        "publisher": "Blue Rider Press",
+        "publicationYear": 2016,
+        "lcc": "E169.12 .K5548 2016",
+        "genreTags": [
+          "Essays",
+          "Social criticism",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "7888.jpg",
+  "sourceDimensions": {
+    "width": 3154,
+    "height": 2700
+  }
+}
