@@ -81,6 +81,68 @@ export function sanitizeForSearch(text: string): string {
 }
 
 /**
+ * Static DDC→LCC class-letter crosswalk. Loaded once at module-load
+ * via direct JSON import (Next ships JSON bundles fine, no fs needed).
+ * Map shape: 3-digit DDC class string (e.g. "823") → { lccLetter, confidence }.
+ */
+import ddcToLccTable from './ddc-to-lcc.json';
+
+interface DdcLccEntry {
+  lccLetter: string;
+  confidence: 'high' | 'medium';
+}
+const DDC_TO_LCC_MAP = ddcToLccTable as unknown as Record<string, DdcLccEntry>;
+
+/**
+ * Derive an LCC class letter from a DDC value. Returns null when the
+ * DDC string is empty / unparseable / not in the mapping. Class-letter
+ * only — Carnegie uses the result as a domain anchor, not a full call
+ * number, so we can't synthesize a cutter.
+ *
+ * Strategy:
+ *   1. Strip a leading subject-class prefix (some ISBNdb DDCs start
+ *      with letters like "F " for fiction). Then scan for the leading
+ *      3-digit Dewey class.
+ *   2. Look up the exact 3-digit key (e.g. "823" → "PR").
+ *   3. If miss, fall back to the tens key (e.g. "823" → "820" → "PR").
+ *   4. If still miss, return null.
+ *
+ * The caller should write the derived letter into a `lccDerivedFromDdc`
+ * field, NOT the regular `lcc` field — keep authoritative LCC distinct
+ * from class-letter inferences so the Review surface can flag which
+ * is which.
+ */
+export function deriveLccFromDdc(
+  ddc: string | undefined | null
+): { lccLetter: string; confidence: 'high' | 'medium' } | null {
+  if (!ddc) return null;
+  // Find the first 3-digit run that starts with a digit. Handles
+  //   "823.912"  → "823"
+  //   "F 813.54" → "813"
+  //   "973"      → "973"
+  //   "92 K"     → "920" via tens-fallback below
+  const match = ddc.match(/(\d{3})/);
+  if (!match) {
+    // Try a 2-digit prefix (some old ISBNdb records use "92" for
+    // biography rather than "920"). Promote to the 3-digit hundreds
+    // key by appending "0".
+    const two = ddc.match(/(\d{2})/);
+    if (!two) return null;
+    const hundredsKey = `${two[1]}0`;
+    const hit = DDC_TO_LCC_MAP[hundredsKey];
+    return hit ? { lccLetter: hit.lccLetter, confidence: hit.confidence } : null;
+  }
+  const exactKey = match[1];
+  const exact = DDC_TO_LCC_MAP[exactKey];
+  if (exact) return { lccLetter: exact.lccLetter, confidence: exact.confidence };
+  // Fall back to the tens key (round down to the nearest 10).
+  const tensKey = `${exactKey.slice(0, 2)}0`;
+  const tens = DDC_TO_LCC_MAP[tensKey];
+  if (tens) return { lccLetter: tens.lccLetter, confidence: tens.confidence };
+  return null;
+}
+
+/**
  * Open Library returns LCC in a padded internal form like
  *   "BL-0053.00000000.J36 2012"
  *   "Q--0335.00000000.M6 2024"

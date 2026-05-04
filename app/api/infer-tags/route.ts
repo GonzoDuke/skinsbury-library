@@ -94,6 +94,10 @@ interface InferRequest {
   // formatter omits the line when the field is empty/undefined so old
   // callers that don't pass them produce the same prompt as before.
   ddc?: string;
+  /** LCC class letter derived from DDC via the static crosswalk. Passed
+   *  only when `lcc` is missing — used as a domain anchor distinct from
+   *  a sourced LCC. */
+  lccDerivedFromDdc?: string;
   lcshSubjects?: string[];
   /** MARC field 655 (Index Term — Genre/Form) — cataloger-applied
    *  explicit genre vocabulary, e.g. "Detective and mystery fiction",
@@ -150,6 +154,12 @@ export async function POST(req: NextRequest) {
     `- Existing genre tags: ${(body.existingGenreTags ?? []).join('; ')}`,
   ];
   if (body.ddc) lines.push(`- DDC: ${body.ddc}`);
+  // Only surface the derived LCC class letter when no authoritative LCC
+  // was sourced — otherwise it'd be redundant and could confuse the
+  // model into double-counting domain signal.
+  if (body.lccDerivedFromDdc && !body.lcc) {
+    lines.push(`- LCC class letter (derived from DDC, class-letter only): ${body.lccDerivedFromDdc}`);
+  }
   if (Array.isArray(body.lcshSubjects) && body.lcshSubjects.length > 0) {
     lines.push(`- LCSH subject headings: ${body.lcshSubjects.join('; ')}`);
   }

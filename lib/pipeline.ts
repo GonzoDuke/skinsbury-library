@@ -245,6 +245,10 @@ export async function inferTagsClient(args: {
   // build the same prompt as before because the route only adds lines
   // when these are populated.
   ddc?: string;
+  /** LCC class letter derived from DDC via the static crosswalk —
+   *  passed only when `lcc` is missing. Tag prompt uses it as a domain
+   *  anchor distinct from a sourced LCC. */
+  lccDerivedFromDdc?: string;
   lcshSubjects?: string[];
   /** MARC 655 genre/form terms — cataloger-applied explicit genre
    *  vocabulary. Highest-priority signal for genre/form classification
@@ -785,6 +789,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         lcc: finalLcc,
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
+        lccDerivedFromDdc: lookup.lccDerivedFromDdc,
         lcshSubjects: lookup.lcshSubjects,
         marcGenreTerms: lookup.marcGenres,
         extractedSeries: read.extractedSeries,
@@ -864,6 +869,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     manuallyAdded,
     lookupSource: lookup.source,
     ddc: lookup.ddc,
+    lccDerivedFromDdc: lookup.lccDerivedFromDdc,
     lccSource,
     spineThumbnail,
     coverUrl: lookup.coverUrl,
@@ -932,6 +938,7 @@ export async function retagBook(book: BookRecord): Promise<{
       // genre/form terms). Old records without enrichment hit the
       // model with the same payload as before.
       ddc: book.ddc,
+      lccDerivedFromDdc: book.lccDerivedFromDdc,
       lcshSubjects: book.lcshSubjects,
       marcGenreTerms: book.marcGenres,
       synopsis: book.synopsis,
@@ -1114,6 +1121,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     batchNotes: opts.batchNotes,
     lookupSource: lookup.source,
     ddc: lookup.ddc,
+    lccDerivedFromDdc: lookup.lccDerivedFromDdc,
     lccSource,
     manuallyAdded: true,
     // Phase-3 enrichment passthrough — see addManualBook's sibling
@@ -1365,6 +1373,7 @@ export async function rereadBook(
         lcc: finalLcc,
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
+        lccDerivedFromDdc: lookup.lccDerivedFromDdc,
         lcshSubjects: lookup.lcshSubjects,
         marcGenreTerms: lookup.marcGenres,
         extractedSeries: rereadExtractedSeries || undefined,
@@ -1405,6 +1414,7 @@ export async function rereadBook(
     warnings: grounded.warnings,
     lookupSource: lookup.source,
     ddc: lookup.ddc,
+    lccDerivedFromDdc: lookup.lccDerivedFromDdc,
     lccSource,
     coverUrl: lookup.coverUrl,
     // Phase-3 enrichment passthrough — surgical, only sets what the

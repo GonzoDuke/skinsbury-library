@@ -5,6 +5,7 @@ import {
   lookupLccByTitleAuthor,
   lookupFullMarcByIsbn,
   sanitizeForSearch,
+  deriveLccFromDdc,
   type MarcResult,
 } from './lookup-utils';
 
@@ -1880,6 +1881,27 @@ export async function lookupBook(
     log.tier('wikidata-title', `skipped — LCC already set (${lccSource})`);
   } else {
     log.tier('wikidata-title', 'skipped — already have ISBN, exact P212 ran in Phase 2');
+  }
+
+  // -------------------------------------------------------------------------
+  // DDC → LCC class-letter fallback. When no network tier produced an
+  // LCC but at least one tier surfaced a DDC, derive the LCC class
+  // letter from a static crosswalk and write it to a SEPARATE field
+  // (lccDerivedFromDdc) so the Review surface can distinguish a
+  // sourced LCC from a derived one. The tag-inference prompt accepts
+  // it as a domain anchor when `lcc` itself is empty.
+  // -------------------------------------------------------------------------
+  if (!result.lcc && result.ddc) {
+    const derived = deriveLccFromDdc(result.ddc);
+    if (derived) {
+      result.lccDerivedFromDdc = derived.lccLetter;
+      log.tier(
+        'ddc-fallback',
+        `derived lcc class letter ${JSON.stringify(derived.lccLetter)} from ddc=${JSON.stringify(result.ddc)} (${derived.confidence})`
+      );
+    } else {
+      log.tier('ddc-fallback', `no mapping for ddc=${JSON.stringify(result.ddc)}`);
+    }
   }
 
   // -------------------------------------------------------------------------

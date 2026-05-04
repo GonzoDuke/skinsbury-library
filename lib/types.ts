@@ -42,6 +42,15 @@ export interface BookLookupResult {
   subjects?: string[];
   /** Dewey Decimal Classification, when a tier surfaced one (ISBNdb, Wikidata). */
   ddc?: string;
+  /**
+   * LCC class letter derived from `ddc` via the static DDC→LCC
+   * crosswalk in `lib/ddc-to-lcc.json`. Populated only when no network
+   * tier produced an authoritative LCC. Class-letter only (e.g. "PR",
+   * "QA", "BJ") — not a full call number. Tag inference uses it as a
+   * domain anchor when `lcc` is empty; the Review surface flags it
+   * distinctly from a sourced LCC so the reviewer knows which is which.
+   */
+  lccDerivedFromDdc?: string;
   source: 'openlibrary' | 'googlebooks' | 'isbndb' | 'none';
   /** Where in the cascade the LCC came from. Set by lookupBook post-processing. */
   lccSource?: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none';
@@ -118,6 +127,12 @@ export interface BookRecord {
   lookupSource: 'openlibrary' | 'googlebooks' | 'isbndb' | 'none';
   /** Dewey Decimal Classification, when a tier surfaced one. */
   ddc?: string;
+  /**
+   * LCC class letter derived from DDC when no network tier produced an
+   * authoritative LCC. Class-letter only — used by tag inference as a
+   * domain anchor and surfaced distinctly in Review.
+   */
+  lccDerivedFromDdc?: string;
   /**
    * Where the LCC came from, in priority order:
    * - 'spine'    : read directly off the physical book (most authoritative)
