@@ -1,19 +1,22 @@
 'use client';
 
 /**
- * Collection — Carnegie's library homepage. Renamed from "Stacks" with
- * a structural redesign: a navy hero band at the top with the wordmark,
- * an editorial italic quote, and a row of cover thumbnails fanned along
- * the bottom edge. The dashboard sits in an asymmetric two-column body
- * below the hero (1.85fr / 1fr). Search results take over the body when
- * a query is active.
+ * Collection — the library tools page.
  *
- * The page is rendered inside AppShell's main column, which applies its
- * own px-4/8/12 + py-4/10 padding. The hero and body break out of that
- * padding via negative margins so the navy band reads as a full-bleed
- * top of the main column. The page body's pure-white surface (vs the
- * page's off-white default) creates the visual separation the design
- * wants between hero and content.
+ * Replaces Upload as the default route. Reframes Carnegie from "tool I
+ * open to do work" to "place that knows my library." Reads from the
+ * existing export ledger + active in-progress batches; no new data
+ * infrastructure.
+ *
+ * Sections (top → bottom):
+ *   1. Header: title + summary line + Refresh-from-cloud button
+ *   2. Search bar (library-wide, ⌘K focuses, fuzzy match)
+ *   3. Unclassified-books banner (when any books default to general_works)
+ *   4. Collection Overview (counts, distribution-by-domain bar + legend)
+ *   5. Cataloging tools (Authority check / Duplicates & editions / Series)
+ *   6. Resume cataloging callout (only when there's pending review work)
+ *
+ * Search live-replaces the dashboard view while a query is active.
  */
 
 import Link from 'next/link';
@@ -26,14 +29,15 @@ import {
   detectAuthorityIssues,
   type LedgerEntry,
 } from '@/lib/export-ledger';
-import { syncPendingBatchesFromRepo } from '@/lib/pending-batches';
+import {
+  syncPendingBatchesFromRepo,
+} from '@/lib/pending-batches';
 import { VOCAB, domainForLcc, type DomainKey } from '@/lib/tag-domains';
 
-const NAVY = '#1B3A5C';
-const GOLD = '#C4A35A';
-
-// Domain accent colors mirror tailwind.config.ts. Inlined as hex because
-// Tailwind purge can't see dynamic class names like `bg-${domain}-fg`.
+// Domain accent colors mirror tailwind.config.ts. Inlined here as hex
+// because Tailwind's purge can't see dynamic class names like
+// `bg-${domain}-fg`. The bar + legend swatches use these directly via
+// `style={{ background }}`.
 const DOMAIN_COLOR: Record<DomainKey, string> = {
   general_works: '#5C5C5C',
   philosophy_psychology_religion: '#4547A9',
@@ -97,6 +101,9 @@ function computeStats(entries: LedgerEntry[]): DashboardStats {
   }
   const uniqueWorks = uniqueKeys.size;
 
+  // Per-domain count via current LCC → domain matcher (the 21-class
+  // taxonomy). Books with no LCC fall to general_works (A) — those
+  // are the "unclassified" pool.
   const counts = new Map<DomainKey, number>();
   let unclassifiedCount = 0;
   for (const e of entries) {
@@ -181,13 +188,11 @@ export default function CollectionPage() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
-  // Track narrow-viewport state so the search placeholder can shorten
-  // below the sm breakpoint (640px) — Tailwind doesn't give us a CSS
-  // hook for swapping placeholder text. Initialized to false so SSR
-  // stays consistent; the resize listener flips it on mount as needed.
-  const [isNarrowViewport, setIsNarrowViewport] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Hydrate on mount — reads localStorage cache, then triggers a
+  // background sync from GitHub. The dashboard re-renders when the
+  // sync completes.
   useEffect(() => {
     const initial = loadLedger();
     setLedger(initial);
@@ -195,15 +200,7 @@ export default function CollectionPage() {
     setHydrated(true);
   }, []);
 
-  // Watch viewport width so the search placeholder can swap to a
-  // shorter form on phones. Sub-640 = "phone"; sm+ keeps the long copy.
-  useEffect(() => {
-    const check = () => setIsNarrowViewport(window.innerWidth < 640);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
+  // Debounce the search query so each keystroke doesn't re-render.
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQuery(query), 200);
     return () => window.clearTimeout(t);
@@ -244,13 +241,14 @@ export default function CollectionPage() {
     }
   }
 
+  // Search hits — recomputed when ledger or debounced query change.
   const searchHits = useMemo(
     () => searchLedger(ledger, debouncedQuery),
     [ledger, debouncedQuery]
   );
 
-  // Active-batch detection — any in-flight batch with at least one
-  // pending book becomes the "resume cataloging" target at the bottom.
+  // Active-batch detection: any batch in the live store with at least
+  // one pending book is the "resume cataloging" target.
   const pendingBatch = useMemo(() => {
     for (const b of state.batches) {
       const pending = b.books.filter((bk) => bk.status === 'pending').length;
@@ -259,12 +257,8 @@ export default function CollectionPage() {
     return null;
   }, [state.batches]);
 
-  // Cover thumbnails for the hero's bottom edge — pull the most recent
-  // entries with ISBNs. If we can't reach 12, we backfill with domain-
-  // colored placeholders so the row still reads as a "cover stack" on
-  // a fresh-install ledger.
-  const heroCovers = useMemo(() => buildHeroCovers(ledger), [ledger]);
-
+  // Pre-mount placeholder — avoids a flash of "0 books" while
+  // localStorage hydrates on the first frame.
   if (!hydrated || !stats) {
     return (
       <div className="space-y-6">
@@ -273,41 +267,112 @@ export default function CollectionPage() {
     );
   }
 
-  const isEmptyLedger =
-    stats.totalBooks === 0 && !pendingBatch && !debouncedQuery;
+  // Empty-library shortcut. Skip the whole dashboard; show the friendly
+  // first-run state instead.
+  if (stats.totalBooks === 0 && !pendingBatch && !debouncedQuery) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 text-center">
+        <h1 className="typo-page-title">Collection</h1>
+        <p className="text-text-secondary mt-3 mb-8 leading-relaxed">
+          Your library is empty. Catalog your first shelf to get started.
+        </p>
+        <Link
+          href="/upload"
+          className="inline-block px-5 py-2.5 rounded-md bg-navy text-white hover:bg-navy-deep transition font-medium"
+        >
+          Start cataloging →
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    // Negative margins defeat AppShell's px-4/8/12 + py-4/10 padding so
-    // the navy hero and white body stretch edge-to-edge of the main
-    // column.
-    <div className="-mx-4 md:-mx-8 lg:-mx-12 -mt-4 md:-mt-10 -mb-4 md:-mb-0">
-      <Hero
-        lastActivity={stats.lastActivity}
-        refreshFromCloud={refreshFromCloud}
-        refreshing={refreshing}
-        refreshMsg={refreshMsg}
-        query={query}
-        setQuery={setQuery}
-        searchInputRef={searchInputRef}
-        covers={heroCovers}
-        isNarrowViewport={isNarrowViewport}
-      />
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="typo-page-title">Collection</h1>
+          <div className="text-[13px] text-text-secondary mt-0.5">
+            {stats.totalBooks.toLocaleString()}{' '}
+            {stats.totalBooks === 1 ? 'book' : 'books'} cataloged ·{' '}
+            {stats.batchCount}{' '}
+            {stats.batchCount === 1 ? 'batch' : 'batches'} exported · last
+            activity {timeAgo(stats.lastActivity)}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={refreshFromCloud}
+          disabled={refreshing}
+          className="text-[12px] px-3.5 py-1.5 rounded-md bg-surface-card border border-line text-navy hover:bg-surface-page transition disabled:opacity-50"
+          title="Pull the latest ledger + pending batches from the cloud."
+        >
+          {refreshing ? '⟳ Refreshing…' : '↻ Refresh from cloud'}
+        </button>
+      </div>
+      {refreshMsg && (
+        <div className="text-[12px] text-text-tertiary -mt-3">{refreshMsg}</div>
+      )}
 
-      <div className="bg-surface-card">
-        <div className="px-6 sm:px-8 md:px-11 py-7 md:py-9">
-          {debouncedQuery ? (
-            <SearchResults hits={searchHits} query={debouncedQuery} />
-          ) : isEmptyLedger ? (
-            <EmptyLibraryState />
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-[1.85fr_1fr] gap-7">
-              <CollectionOverview stats={stats} />
-              <RightColumn ledger={ledger} />
+      {/* Search bar — full width, monospace ⌘K hint, library-wide. */}
+      <div className="relative">
+        <div className="bg-surface-card border border-line-light rounded-lg px-4 py-2 flex items-center gap-2.5">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-text-tertiary flex-shrink-0"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+          </svg>
+          <input
+            ref={searchInputRef}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by title, author, ISBN, or tag — across your entire library"
+            className="flex-1 bg-transparent border-none outline-none text-[14px] py-1.5 text-text-primary placeholder:text-text-tertiary"
+            aria-label="Search the library"
+          />
+          <kbd className="hidden sm:inline-block text-[11px] font-mono text-text-tertiary bg-surface-page border border-line-light px-1.5 py-0.5 rounded">
+            ⌘K
+          </kbd>
+        </div>
+      </div>
+
+      {/* Search results — replace the dashboard view while a query is active. */}
+      {debouncedQuery ? (
+        <SearchResults hits={searchHits} query={debouncedQuery} />
+      ) : (
+        <>
+          {stats.unclassifiedCount > 0 && (
+            <div className="bg-navy-soft border border-navy/20 rounded-md px-4 py-2.5 text-[13px] text-navy">
+              {stats.unclassifiedCount}{' '}
+              {stats.unclassifiedCount === 1 ? 'book needs' : 'books need'}{' '}
+              classification — review on the{' '}
+              <Link href="/review" className="underline font-medium">
+                Review page
+              </Link>{' '}
+              and add an LCC to file them properly.
             </div>
           )}
 
-          {pendingBatch && !debouncedQuery && (
-            <div className="mt-7 bg-surface-card border border-line rounded-lg px-5 py-4 flex items-center justify-between gap-3 flex-wrap">
+          <CollectionOverview stats={stats} />
+
+          <div className="typo-section-label mt-6 mb-2">Cataloging tools</div>
+          <ToolsRow ledger={ledger} />
+
+          <RecentActivityPanel ledger={ledger} />
+
+          {pendingBatch && (
+            <div className="bg-surface-card border border-line rounded-lg px-5 py-4 flex items-center justify-between gap-3 flex-wrap">
               <div>
                 <div className="font-medium text-text-primary">Resume cataloging</div>
                 <div className="text-[13px] text-text-secondary mt-0.5">
@@ -327,436 +392,89 @@ export default function CollectionPage() {
               </Link>
             </div>
           )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Hero band
-// ---------------------------------------------------------------------------
-
-interface HeroProps {
-  lastActivity: string | null;
-  refreshFromCloud: () => Promise<void> | void;
-  refreshing: boolean;
-  refreshMsg: string | null;
-  query: string;
-  setQuery: (v: string) => void;
-  searchInputRef: React.RefObject<HTMLInputElement | null>;
-  covers: HeroCover[];
-  isNarrowViewport: boolean;
-}
-
-function Hero({
-  lastActivity,
-  refreshFromCloud,
-  refreshing,
-  refreshMsg,
-  query,
-  setQuery,
-  searchInputRef,
-  covers,
-  isNarrowViewport,
-}: HeroProps) {
-  // Reused inside both the desktop-absolute and mobile-inline placements.
-  const utilityCluster = (
-    <>
-      <button
-        type="button"
-        onClick={refreshFromCloud}
-        disabled={refreshing}
-        className="text-[12px] font-medium px-3 py-1.5 rounded-md transition disabled:opacity-50"
-        style={{
-          color: 'rgba(255,255,255,0.85)',
-          background: 'rgba(255,255,255,0.10)',
-          border: '1px solid rgba(255,255,255,0.20)',
-        }}
-        title="Pull the latest ledger + pending batches from the cloud."
-      >
-        {refreshing ? '⟳ Refreshing…' : '↻ Refresh from cloud'}
-      </button>
-      <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-        {refreshMsg ?? `last activity ${timeAgo(lastActivity)}`}
-      </span>
-    </>
-  );
-
-  return (
-    <section
-      className="relative overflow-hidden"
-      style={{ background: NAVY }}
-    >
-      {/* Desktop / tablet (sm+): utility cluster pinned top-right. Below
-          sm we render a second instance inline beneath the title block
-          (see below) so the cluster doesn't overlap the YOUR LIBRARY
-          eyebrow on phones. */}
-      <div className="hidden sm:flex absolute top-6 right-7 flex-col items-end gap-1.5 z-10">
-        {utilityCluster}
-      </div>
-
-      {/* Left-aligned content block. Bottom padding on mobile is small
-          (cover row is hidden); sm+ reserves room for the cover row
-          that's positioned absolute at the bottom edge. */}
-      <div className="relative pt-9 sm:pt-11 pb-8 sm:pb-[120px] px-6 sm:px-8 md:px-11">
-        <div
-          className="uppercase mb-2.5"
-          style={{
-            color: GOLD,
-            fontSize: 11,
-            fontWeight: 500,
-            letterSpacing: '2px',
-          }}
-        >
-          Your library
-        </div>
-        <h1
-          style={{
-            color: '#FFFFFF',
-            fontSize: 'clamp(40px, 8vw, 56px)',
-            fontWeight: 500,
-            letterSpacing: '-1px',
-            lineHeight: 0.95,
-            margin: 0,
-          }}
-        >
-          Collection
-        </h1>
-        <p
-          className="hidden sm:block"
-          style={{
-            color: 'rgba(255,255,255,0.7)',
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontStyle: 'italic',
-            fontSize: 16,
-            maxWidth: 520,
-            marginTop: 16,
-            lineHeight: 1.5,
-          }}
-        >
-          “Every library is a kind of autobiography.”
-        </p>
-
-        {/* Phone (<sm): inline utility cluster below the title block.
-            Renders ABOVE the search bar so the user sees it without
-            scrolling on a 375px viewport. Hidden at sm+ where the
-            absolute desktop placement takes over. */}
-        <div className="sm:hidden flex flex-col items-start gap-1.5 mt-5">
-          {utilityCluster}
-        </div>
-
-        {/* Search bar — same logic as before, white-on-translucent. */}
-        <div
-          className="mt-5 sm:mt-6 flex items-center gap-2.5 px-4 py-2 rounded-lg max-w-[680px]"
-          style={{
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.18)',
-          }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ color: 'rgba(255,255,255,0.55)', flexShrink: 0 }}
-            aria-hidden
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="M20 20l-3.5-3.5" />
-          </svg>
-          <input
-            ref={searchInputRef}
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={
-              isNarrowViewport
-                ? 'Search your library'
-                : 'Search by title, author, ISBN, or tag — across your entire library'
-            }
-            aria-label="Search the library"
-            style={{
-              flex: 1,
-              minWidth: 0,
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              color: '#FFFFFF',
-              fontSize: 15,
-              fontWeight: 400,
-              padding: '6px 0',
-              minHeight: 0,
-            }}
-          />
-          <kbd
-            className="hidden sm:inline-block text-[11px] font-mono px-1.5 py-0.5 rounded"
-            style={{
-              color: 'rgba(255,255,255,0.7)',
-              background: 'rgba(255,255,255,0.14)',
-              border: '1px solid rgba(255,255,255,0.20)',
-            }}
-          >
-            ⌘K
-          </kbd>
-        </div>
-      </div>
-
-      {/* Cover row pinned to the bottom edge — covers "rise" from the
-          navy/white seam. Hidden on phones to keep the hero compact;
-          desktop is where the design gets its visual rhythm. */}
-      <div
-        className="hidden sm:flex absolute left-0 right-0 bottom-0 items-end gap-1.5 px-6 md:px-11 overflow-hidden"
-        aria-hidden
-        style={{ paddingBottom: 0 }}
-      >
-        {covers.map((c, i) => (
-          <HeroCoverTile key={i} cover={c} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-interface HeroCover {
-  url?: string;
-  height: number;
-  fallbackColor?: string;
-}
-
-const COVER_HEIGHT_CYCLE = [80, 84, 76, 88, 82, 78, 86, 90, 79, 83, 87, 81];
-
-function buildHeroCovers(ledger: LedgerEntry[]): HeroCover[] {
-  // Pull the 12 most recent entries with ISBNs.
-  const sorted = [...ledger].sort((a, b) => (a.date < b.date ? 1 : -1));
-  const withIsbn = sorted.filter((e) => !!e.isbn).slice(0, 12);
-  const covers: HeroCover[] = withIsbn.map((e, i) => ({
-    url: `https://covers.openlibrary.org/b/isbn/${e.isbn}-S.jpg?default=false`,
-    height: COVER_HEIGHT_CYCLE[i % COVER_HEIGHT_CYCLE.length],
-  }));
-  // Backfill with domain-colored placeholders so the row reads as a cover
-  // stack even on a fresh ledger. Cycle through the 21 domain colors.
-  const palette = Object.values(DOMAIN_COLOR);
-  while (covers.length < 12) {
-    const i = covers.length;
-    covers.push({
-      height: COVER_HEIGHT_CYCLE[i % COVER_HEIGHT_CYCLE.length],
-      fallbackColor: palette[i % palette.length],
-    });
-  }
-  return covers;
-}
-
-function HeroCoverTile({ cover }: { cover: HeroCover }) {
-  return (
-    <div
-      className="flex-shrink-0"
-      style={{
-        width: 56,
-        height: cover.height,
-        borderTopLeftRadius: 2,
-        borderTopRightRadius: 2,
-        overflow: 'hidden',
-        background: cover.fallbackColor ?? 'rgba(255,255,255,0.06)',
-        boxShadow: '0 -2px 6px rgba(0,0,0,0.25)',
-      }}
-    >
-      {cover.url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={cover.url}
-          alt=""
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+        </>
       )}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Page body — Collection Overview (left, dominant) + Right column
+// Sub-components
 // ---------------------------------------------------------------------------
 
 function CollectionOverview({ stats }: { stats: DashboardStats }) {
-  // Order: populated first (count desc), then empty in canonical
-  // taxonomy order — populated work surfaces first while empty rows
-  // round out the LCC universe at a glance.
   const populated = stats.perDomain.filter((d) => d.count > 0);
-  const populatedSet = new Set(populated.map((d) => d.domain));
-  const empty = (Object.keys(VOCAB.domains) as DomainKey[])
-    .filter((d) => !populatedSet.has(d))
-    .map((domain) => ({
-      domain,
-      label: VOCAB.domains[domain].label,
-      count: 0,
-    }));
   const totalForBar = populated.reduce((s, d) => s + d.count, 0) || 1;
 
+  // For the all-21-domains grid we want canonical taxonomy order (the
+  // VOCAB key order) so the layout is stable even as counts shift between
+  // syncs. perDomain is sorted by count desc — fine for the bar, less
+  // useful for the grid where the user expects the same domain in the
+  // same slot every visit.
+  const allDomainsOrdered = (Object.keys(VOCAB.domains) as DomainKey[]).map(
+    (domain) => ({
+      domain,
+      label: VOCAB.domains[domain].label,
+      count: stats.perDomain.find((d) => d.domain === domain)?.count ?? 0,
+    })
+  );
+
   return (
-    <section>
-      <div className="flex items-baseline justify-between flex-wrap gap-3 mb-6">
-        <div>
-          <div className="typo-section-label mb-1.5">Collection overview</div>
-          <h2
-            style={{
-              fontSize: 22,
-              fontWeight: 500,
-              lineHeight: 1.25,
-              color: 'rgb(var(--color-text-primary))',
-              margin: 0,
-            }}
-          >
-            Across the LCC taxonomy
-          </h2>
-        </div>
-        <Link
-          href="/vocabulary"
-          className="text-[12px] font-medium text-navy hover:underline"
-        >
-          View all →
+    <section className="bg-surface-card border border-line rounded-lg p-5">
+      <div className="flex items-baseline justify-between mb-4">
+        <div className="typo-section-label">Collection overview</div>
+        <Link href="/vocabulary" className="text-[12px] text-navy hover:underline">
+          View vocabulary →
         </Link>
       </div>
 
-      {/* Stats row — three large numbers, generous gap. Stacks vertically
-          on mobile (avoids the 2+1 wrap that read as broken); flexes
-          across on sm+. The DOMAINS POPULATED stat splits the proportion
-          into primary + muted so the "{N} / 21" reads as a fraction,
-          not a single number. */}
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-10 gap-y-5 pb-6 border-b border-line-light">
-        <BigStat label="Total books" value={stats.totalBooks} />
-        <BigStat label="Unique works" value={stats.uniqueWorks} />
-        <BigStatFraction
-          label="Domains populated"
-          numerator={stats.domainsPopulated}
-          denominator={21}
-        />
+      <div className="flex flex-wrap gap-x-10 gap-y-3 mb-6">
+        <Stat label="Total books" value={stats.totalBooks} />
+        <Stat label="Unique works" value={stats.uniqueWorks} />
+        <Stat label="Domains populated" value={`${stats.domainsPopulated} / 21`} />
       </div>
 
-      {/* Distribution bar */}
-      <div className="mt-5 mb-4">
-        <div
-          className="flex h-[28px] rounded-md overflow-hidden border border-line-light"
-          style={{ background: 'rgb(var(--color-surface-page))' }}
-        >
-          {populated.map((d) => (
-            <div
-              key={d.domain}
-              style={{
-                background: DOMAIN_COLOR[d.domain],
-                flexGrow: d.count,
-                flexBasis: 0,
-                minWidth: 2,
-              }}
-              title={`${d.label} — ${d.count} (${Math.round((d.count / totalForBar) * 100)}%)`}
-              aria-label={`${d.label}: ${d.count} books, ${Math.round((d.count / totalForBar) * 100)}%`}
-            />
-          ))}
-          {populated.length === 0 && (
-            <div className="flex-1 flex items-center justify-center text-[11px] text-text-tertiary">
-              No domains populated yet
-            </div>
-          )}
-        </div>
-      </div>
+      {populated.length > 0 && (
+        <>
+          <div className="typo-stat-label mb-2">Distribution by domain</div>
+          {/* Stacked bar — each populated domain gets a flex-grow segment
+              proportional to its count. Empty domains are omitted from
+              the bar (they'd render zero-width). Bumped from 8px to 22px
+              so the bar reads as a substantive distribution view rather
+              than a hairline accent. */}
+          <div className="flex h-[22px] rounded-md overflow-hidden mb-5 bg-surface-page border border-line-light">
+            {populated.map((d) => (
+              <div
+                key={d.domain}
+                style={{
+                  background: DOMAIN_COLOR[d.domain],
+                  flexGrow: d.count,
+                  flexBasis: 0,
+                  minWidth: 2,
+                }}
+                title={`${d.label} — ${d.count} (${Math.round((d.count / totalForBar) * 100)}%)`}
+                aria-label={`${d.label}: ${d.count} books, ${Math.round((d.count / totalForBar) * 100)}%`}
+              />
+            ))}
+          </div>
 
-      {/* Domain legend grid — populated first, then empty. */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-1.5">
-        {[...populated, ...empty].map((d) => (
-          <DomainLegendRow
-            key={d.domain}
-            domain={d.domain}
-            label={d.label}
-            count={d.count}
-          />
-        ))}
-      </div>
+          {/* Full 21-domain grid. Replaces the count-ordered legend with
+              taxonomy-ordered cards — populated domains visually loud,
+              empty domains muted with an em-dash so the user sees the
+              shape of their library against the LCC universe at a glance.
+              3 columns on desktop, 2 on tablet, 1 on mobile. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {allDomainsOrdered.map((d) => (
+              <DomainCard key={d.domain} domain={d.domain} label={d.label} count={d.count} />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }
 
-function BigStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <div
-        style={{
-          fontSize: 44,
-          fontWeight: 500,
-          letterSpacing: '-1px',
-          lineHeight: 1,
-          color: 'rgb(var(--color-text-primary))',
-        }}
-      >
-        {value.toLocaleString()}
-      </div>
-      <div
-        className="uppercase"
-        style={{
-          fontSize: 11,
-          fontWeight: 500,
-          letterSpacing: '0.5px',
-          color: 'rgb(var(--color-text-tertiary))',
-          marginTop: 6,
-        }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function BigStatFraction({
-  label,
-  numerator,
-  denominator,
-}: {
-  label: string;
-  numerator: number;
-  denominator: number;
-}) {
-  return (
-    <div>
-      <div
-        style={{
-          letterSpacing: '-1px',
-          lineHeight: 1,
-          color: 'rgb(var(--color-text-primary))',
-        }}
-      >
-        <span style={{ fontSize: 44, fontWeight: 500 }}>{numerator}</span>
-        <span
-          style={{
-            fontSize: 28,
-            fontWeight: 500,
-            color: 'rgb(var(--color-text-quaternary))',
-            marginLeft: 4,
-          }}
-        >
-          {' / '}
-          {denominator}
-        </span>
-      </div>
-      <div
-        className="uppercase"
-        style={{
-          fontSize: 11,
-          fontWeight: 500,
-          letterSpacing: '0.5px',
-          color: 'rgb(var(--color-text-tertiary))',
-          marginTop: 6,
-        }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function DomainLegendRow({
+function DomainCard({
   domain,
   label,
   count,
@@ -768,39 +486,22 @@ function DomainLegendRow({
   const empty = count === 0;
   return (
     <div
-      className="flex items-center gap-2.5 py-1"
-      style={{ opacity: empty ? 0.4 : 1 }}
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-md border ${
+        empty
+          ? 'border-line-light bg-surface-page/50 opacity-60'
+          : 'border-line bg-surface-card'
+      }`}
     >
       <span
         aria-hidden
-        className="flex-shrink-0"
-        style={{
-          width: 8,
-          height: 16,
-          borderRadius: 1,
-          background: empty ? 'rgb(var(--color-line))' : DOMAIN_COLOR[domain],
-        }}
+        className="inline-block w-3 h-3 rounded-sm flex-shrink-0"
+        style={{ background: DOMAIN_COLOR[domain] }}
       />
-      <span
-        className="flex-1 min-w-0 truncate"
-        style={{
-          fontSize: 13,
-          color: empty
-            ? 'rgb(var(--color-text-tertiary))'
-            : 'rgb(var(--color-text-primary))',
-        }}
-      >
+      <span className="flex-1 min-w-0 truncate text-[13px] text-text-secondary">
         {label}
       </span>
       <span
-        className="font-mono"
-        style={{
-          fontSize: 13,
-          fontWeight: empty ? 400 : 500,
-          color: empty
-            ? 'rgb(var(--color-text-tertiary))'
-            : 'rgb(var(--color-text-primary))',
-        }}
+        className={`font-mono text-[12px] ${empty ? 'text-text-quaternary' : 'text-text-primary font-medium'}`}
       >
         {empty ? '—' : count}
       </span>
@@ -808,11 +509,16 @@ function DomainLegendRow({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Right column — Cataloging tools + Recent activity
-// ---------------------------------------------------------------------------
+function Stat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div>
+      <div className="typo-stat-number">{value}</div>
+      <div className="typo-stat-label mt-1.5">{label}</div>
+    </div>
+  );
+}
 
-function RightColumn({ ledger }: { ledger: LedgerEntry[] }) {
+function ToolsRow({ ledger }: { ledger: LedgerEntry[] }) {
   const authorityGroups = useMemo(
     () => detectAuthorityIssues(ledger).groups.length,
     [ledger]
@@ -822,163 +528,81 @@ function RightColumn({ ledger }: { ledger: LedgerEntry[] }) {
     [ledger]
   );
 
-  const recent = useMemo(() => {
-    const sorted = [...ledger].sort((a, b) => {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      const at = a.title ?? a.titleNorm;
-      const bt = b.title ?? b.titleNorm;
-      return at.localeCompare(bt);
-    });
-    return sorted.slice(0, 5);
-  }, [ledger]);
-
   return (
-    <aside className="lg:border-l lg:border-line-light lg:pl-7">
-      <div className="typo-section-label mb-2.5">Cataloging tools</div>
-      <div>
-        <ToolRow
-          href="/collection/authority"
-          title="Authority check"
-          description='Inconsistent author names. "Solnit, R." vs "Solnit, Rebecca" — merge or keep separate.'
-          status={
-            authorityGroups === 0
-              ? { text: 'All clear', tone: 'green' }
-              : {
-                  text: `${authorityGroups} ${authorityGroups === 1 ? 'group' : 'groups'}`,
-                  tone: 'amber',
-                }
-          }
-          isFirst
-        />
-        <ToolRow
-          href="/collection/duplicates"
-          title="Duplicates & editions"
-          description="Multiple copies or editions of the same work."
-          status={
-            duplicateGroups === 0
-              ? { text: 'All clear', tone: 'green' }
-              : {
-                  text: `${duplicateGroups} ${duplicateGroups === 1 ? 'group' : 'groups'}`,
-                  tone: 'amber',
-                }
-          }
-        />
-      </div>
-
-      {recent.length > 0 && (
-        <div className="mt-6">
-          <div className="typo-section-label mb-2.5">Recent activity</div>
-          <div>
-            {recent.map((e, i) => (
-              <RecentActivityRow
-                key={`${e.isbn || 'noisbn'}-${e.titleNorm}-${e.date}-${e.batchLabel ?? ''}`}
-                entry={e}
-                showBorder={i > 0}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </aside>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <ToolCard
+        href="/collection/authority"
+        title="Authority check"
+        body='Inconsistent author names across your library. "Solnit, R." vs "Solnit, Rebecca" — merge or keep separate.'
+        badge={
+          authorityGroups === 0
+            ? { text: 'All clear', tone: 'green' }
+            : {
+                text: `${authorityGroups} ${authorityGroups === 1 ? 'group' : 'groups'}`,
+                tone: 'amber',
+              }
+        }
+      />
+      <ToolCard
+        href="/collection/duplicates"
+        title="Duplicates & editions"
+        body="Multiple copies or editions of the same work."
+        badge={
+          duplicateGroups === 0
+            ? { text: 'All clear', tone: 'green' }
+            : {
+                text: `${duplicateGroups} ${duplicateGroups === 1 ? 'group' : 'groups'}`,
+                tone: 'amber',
+              }
+        }
+      />
+    </div>
   );
 }
 
-function ToolRow({
+interface ToolBadge {
+  text: string;
+  tone: 'green' | 'amber' | 'red' | 'muted';
+  tooltip?: string;
+}
+
+function ToolCard({
   href,
   title,
-  description,
-  status,
-  isFirst,
+  body,
+  badge,
 }: {
   href: string;
   title: string;
-  description: string;
-  status: { text: string; tone: 'green' | 'amber' | 'red' };
-  isFirst?: boolean;
+  body: string;
+  badge: ToolBadge;
 }) {
   const toneClass =
-    status.tone === 'green'
+    badge.tone === 'green'
       ? 'bg-carnegie-green-soft text-carnegie-green'
-      : status.tone === 'amber'
+      : badge.tone === 'amber'
         ? 'bg-carnegie-amber-soft text-carnegie-amber'
-        : 'bg-carnegie-red-soft text-carnegie-red';
+        : badge.tone === 'red'
+          ? 'bg-carnegie-red-soft text-carnegie-red'
+          : 'bg-surface-page text-text-tertiary';
   return (
     <Link
       href={href}
-      className={`block py-3 -mx-1.5 px-1.5 rounded-sm hover:bg-surface-page/40 transition ${
-        isFirst ? '' : 'border-t border-line-light'
-      }`}
+      className="block bg-surface-card border border-line rounded-lg p-4 hover:border-navy transition"
     >
-      <div className="flex items-center justify-between gap-2 mb-1">
-        <span className="text-[14px] font-medium text-text-primary">
-          {title}
-        </span>
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="text-[14px] font-medium text-text-primary">{title}</div>
         <span
           className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${toneClass}`}
+          title={badge.tooltip}
         >
-          {status.text}
+          {badge.text}
         </span>
       </div>
-      <div className="text-[12px] text-text-secondary leading-relaxed">
-        {description}
-      </div>
+      <div className="text-[12px] text-text-secondary leading-relaxed">{body}</div>
     </Link>
   );
 }
-
-function RecentActivityRow({
-  entry,
-  showBorder,
-}: {
-  entry: LedgerEntry;
-  showBorder: boolean;
-}) {
-  const cover = entry.isbn
-    ? `https://covers.openlibrary.org/b/isbn/${entry.isbn}-S.jpg?default=false`
-    : '';
-  return (
-    <Link
-      href="/review"
-      className={`flex items-center gap-2.5 py-2 hover:bg-surface-page/40 transition -mx-1.5 px-1.5 rounded-sm ${
-        showBorder ? 'border-t border-line-light' : ''
-      }`}
-    >
-      <div
-        className="flex-shrink-0 bg-surface-page rounded overflow-hidden"
-        style={{ width: 24, height: 34 }}
-      >
-        {cover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={cover}
-            alt=""
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div
-          className="text-text-primary truncate"
-          style={{ fontSize: 12, fontWeight: 500, lineHeight: 1.35 }}
-        >
-          {entry.title ?? entry.titleNorm}
-        </div>
-        <div
-          className="text-text-tertiary truncate"
-          style={{ fontSize: 11, lineHeight: 1.4 }}
-        >
-          {entry.author ?? entry.authorNorm}
-          {entry.date ? ` · ${timeAgo(entry.date)}` : ''}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Search results + empty state
-// ---------------------------------------------------------------------------
 
 function SearchResults({ hits, query }: { hits: SearchHit[]; query: string }) {
   if (hits.length === 0) {
@@ -988,23 +612,19 @@ function SearchResults({ hits, query }: { hits: SearchHit[]; query: string }) {
           No books match <span className="font-mono">{`"${query}"`}</span>.
         </div>
         <div className="text-text-tertiary text-[12px] mt-2">
-          Try a different term, or click{' '}
-          <span className="font-mono">↻ Refresh from cloud</span> if you've
-          added books on another device.
+          Try a different term, or click <span className="font-mono">↻ Refresh from cloud</span>{' '}
+          if you've added books on another device.
         </div>
       </div>
     );
   }
   return (
     <div className="space-y-1">
-      <div className="typo-section-label mb-2">
+      <div className="text-[11px] uppercase tracking-wider text-text-tertiary mb-1">
         {hits.length} {hits.length === 1 ? 'result' : 'results'}
       </div>
       {hits.map((h) => (
-        <SearchResultRow
-          key={`${h.entry.isbn}-${h.entry.titleNorm}`}
-          entry={h.entry}
-        />
+        <SearchResultRow key={`${h.entry.isbn}-${h.entry.titleNorm}`} entry={h.entry} />
       ))}
     </div>
   );
@@ -1046,19 +666,81 @@ function SearchResultRow({ entry }: { entry: LedgerEntry }) {
   );
 }
 
-function EmptyLibraryState() {
+// ---------------------------------------------------------------------------
+// Recent activity — fills the dead space below the tool cards on the
+// dashboard with the last N books cataloged across all batches. Each row
+// links to /review so the user can pick up where they left off; that route
+// already lists every book in the active session, so the click target is
+// "go look at what I've been working on" rather than scroll-into-view.
+// ---------------------------------------------------------------------------
+
+function RecentActivityPanel({ ledger }: { ledger: LedgerEntry[] }) {
+  // Sort by date descending. Ties on date (multiple books exported the
+  // same day) tiebreak alphabetically on title for stable order across
+  // re-renders.
+  const recent = useMemo(() => {
+    const sorted = [...ledger].sort((a, b) => {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+      const at = a.title ?? a.titleNorm;
+      const bt = b.title ?? b.titleNorm;
+      return at.localeCompare(bt);
+    });
+    return sorted.slice(0, 10);
+  }, [ledger]);
+
+  if (recent.length === 0) return null;
+
   return (
-    <div className="max-w-xl mx-auto py-10 text-center">
-      <h2 className="typo-card-title">Your collection is empty</h2>
-      <p className="text-text-secondary mt-2 mb-6 leading-relaxed">
-        Catalog your first shelf to get started.
-      </p>
-      <Link
-        href="/upload"
-        className="inline-block px-5 py-2.5 rounded-md bg-navy text-white hover:bg-navy-deep transition font-medium"
-      >
-        Start cataloging →
-      </Link>
-    </div>
+    <section className="bg-surface-card border border-line rounded-lg p-5 mt-3">
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="typo-section-label">Recent activity</div>
+        <Link href="/history" className="text-[12px] text-navy hover:underline">
+          View history →
+        </Link>
+      </div>
+      <ul className="divide-y divide-line-light">
+        {recent.map((e) => (
+          <li key={`${e.isbn || 'noisbn'}-${e.titleNorm}-${e.date}-${e.batchLabel ?? ''}`}>
+            <RecentActivityRow entry={e} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function RecentActivityRow({ entry }: { entry: LedgerEntry }) {
+  const cover = entry.isbn
+    ? `https://covers.openlibrary.org/b/isbn/${entry.isbn}-S.jpg?default=false`
+    : '';
+  return (
+    <Link
+      href="/review"
+      className="flex items-center gap-3 py-2.5 hover:bg-surface-page/60 transition rounded-md -mx-2 px-2"
+    >
+      <div className="w-[36px] h-[50px] flex-shrink-0 bg-surface-page rounded overflow-hidden">
+        {cover && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cover}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[14px] font-medium text-text-primary truncate">
+          {entry.title ?? entry.titleNorm}
+        </div>
+        <div className="text-[12px] text-text-secondary truncate">
+          {entry.author ?? entry.authorNorm}
+          {entry.batchLabel ? ` · ${entry.batchLabel}` : ''}
+        </div>
+      </div>
+      <div className="text-[12px] text-text-tertiary flex-shrink-0 hidden sm:block">
+        {timeAgo(entry.date)}
+      </div>
+    </Link>
   );
 }
