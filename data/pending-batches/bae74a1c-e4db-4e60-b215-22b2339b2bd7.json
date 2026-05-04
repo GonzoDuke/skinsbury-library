@@ -1,0 +1,119 @@
+{
+  "id": "bae74a1c-e4db-4e60-b215-22b2339b2bd7",
+  "filename": "Barcode scans · 5/4/2026, 7:44:41 AM",
+  "fileSize": 0,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 0,
+  "booksIdentified": 2,
+  "books": [
+    {
+      "id": "636dad96-54bb-4f94-8a80-90096e06dea4",
+      "spineRead": {
+        "position": 1,
+        "rawText": "[scanned ISBN 9781118863565]",
+        "title": "Visual Design Solutions",
+        "author": "Connie Malamed",
+        "publisher": "Wiley & Sons, Incorporated, John",
+        "confidence": "HIGH"
+      },
+      "title": "Visual Design Solutions",
+      "author": "Connie Malamed",
+      "authorLF": "Malamed, Connie",
+      "isbn": "9781118863565",
+      "publisher": "Wiley & Sons, Incorporated, John",
+      "publicationYear": 2015,
+      "lcc": "HM-0500.00000000",
+      "genreTags": [
+        "Visual culture",
+        "[Proposed] Graphic design",
+        "[Proposed] Visual design"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[arts_culture] Subject headings clearly indicate commercial art, graphic arts, and visual communication. Title 'Visual Design Solutions' strongly suggests practical guidance. The content fits Visual culture domain with specialized focus on graphic design practice. | [media_tech] Book focuses on visual design solutions and graphic arts as indicated by LCSH terms. The title 'Solutions' strongly suggests practical guidance. LCC HM indicates sociology/communication focus, aligning with visual communication subject heading.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "barcode-scan-9781118863565",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781118863565-L.jpg?default=false",
+      "coverUrlFallbacks": [
+        "https://images.isbndb.com/covers/9582713482586.jpg"
+      ],
+      "scannedFromBarcode": true,
+      "original": {
+        "title": "Visual Design Solutions",
+        "author": "Connie Malamed",
+        "isbn": "9781118863565",
+        "publisher": "Wiley & Sons, Incorporated, John",
+        "publicationYear": 2015,
+        "lcc": "HM-0500.00000000",
+        "genreTags": [
+          "Visual culture",
+          "[Proposed] Graphic design",
+          "[Proposed] Visual design"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "1448eebd-341e-4138-8446-5d18a1764164",
+      "spineRead": {
+        "position": 2,
+        "rawText": "[scanned ISBN 9780321668790]",
+        "title": "Presentation Zen Design",
+        "author": "Garr Reynolds",
+        "publisher": "New Riders",
+        "confidence": "HIGH"
+      },
+      "title": "Presentation Zen Design",
+      "author": "Garr Reynolds",
+      "authorLF": "Reynolds, Garr",
+      "isbn": "9780321668790",
+      "publisher": "New Riders",
+      "publicationYear": 2010,
+      "lcc": "HF-5718.22000000",
+      "genreTags": [
+        "[Proposed] Digital design",
+        "[Proposed] Business communication",
+        "Visual culture"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[media_tech] Book focuses on design principles for business presentations and multimedia systems. The LCC classification HF (business) places it outside core media/technology, but subject headings indicate multimedia systems, presentation graphics software, and design methods that bridge into digital/media territory. The 'Zen' approach and practical focus on presentation design suggests a how-to guide format. | [arts_culture] Book focuses on design principles for presentations, which fits Visual culture in Arts & culture domain. The instructional nature and focus on design methods clearly indicates How-to / guide form.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "barcode-scan-9780321668790",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780321668790-L.jpg?default=false",
+      "coverUrlFallbacks": [
+        "https://images.isbndb.com/covers/13999323482302.jpg"
+      ],
+      "scannedFromBarcode": true,
+      "original": {
+        "title": "Presentation Zen Design",
+        "author": "Garr Reynolds",
+        "isbn": "9780321668790",
+        "publisher": "New Riders",
+        "publicationYear": 2010,
+        "lcc": "HF-5718.22000000",
+        "genreTags": [
+          "[Proposed] Digital design",
+          "[Proposed] Business communication",
+          "Visual culture"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    }
+  ]
+}
