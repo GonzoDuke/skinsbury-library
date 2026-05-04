@@ -1,0 +1,981 @@
+{
+  "id": "c83f913b-31d1-4e84-a47d-3eb5b107543d",
+  "filename": "shelf-capture-001.cropped.jpg",
+  "fileSize": 1563148,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 14,
+  "booksIdentified": 13,
+  "books": [
+    {
+      "id": "03572ae8-5e70-4f13-9dad-2be99018ba78",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Make: GEOMETRY — Joan Horvath and Rich Cameron",
+        "title": "Make: GEOMETRY",
+        "author": "Joan Horvath and Rich Cameron",
+        "publisher": "Make:",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Spine is upside down in image",
+        "bbox": {
+          "x": 10,
+          "y": 2,
+          "width": 85,
+          "height": 8
+        },
+        "extractedSeries": "Make:"
+      },
+      "title": "Make: Geometry",
+      "author": "Joan Horvath",
+      "authorLF": "Horvath, Joan; Cameron, Rich",
+      "isbn": "9781680456684",
+      "publisher": "Make Community, LLC",
+      "publicationYear": 2021,
+      "lcc": "QA445 .H67 2021",
+      "genreTags": [
+        "Mathematics",
+        "[Proposed] Digital fabrication"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[science] LCC QA445 places this in geometry, clearly within mathematics. The 'Make:' series title and practical approach to geometry indicate a how-to/guide format rather than theoretical treatment. | [media_tech] This is a Make: series book about geometry in the context of digital making/fabrication. The Make: series focuses on hands-on technology projects. While geometry itself isn't strictly media/tech, the Make: context suggests digital fabrication applications. The format is clearly instructional (how-to guide). Confidence is medium due to the geometry focus being somewhat outside core media/tech domain.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "science",
+        "media_tech"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781680456684-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Make: Geometry",
+      "allAuthors": [
+        "Joan Horvath",
+        "Rich Cameron"
+      ],
+      "pageCount": 312,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781680456684-M.jpg?default=false",
+        "https://images.isbndb.com/covers/8355903482786.jpg"
+      ],
+      "original": {
+        "title": "Make: Geometry",
+        "author": "Joan Horvath",
+        "isbn": "9781680456684",
+        "publisher": "Make Community, LLC",
+        "publicationYear": 2021,
+        "lcc": "QA445 .H67 2021",
+        "genreTags": [
+          "Mathematics",
+          "[Proposed] Digital fabrication"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "5ae402ef-0c0b-4e1e-bd68-2e0e6545b158",
+      "spineRead": {
+        "position": 2,
+        "rawText": "THE GREEN AMENDMENT — MAYA K. VAN ROSSUM",
+        "title": "THE GREEN AMENDMENT",
+        "author": "MAYA K. VAN ROSSUM",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 10,
+          "width": 85,
+          "height": 8
+        }
+      },
+      "title": "The Green Amendment the People's Fight for a Clean, Safe, and Healthy Environment",
+      "author": "Maya K. van Rossum",
+      "authorLF": "Rossum, Maya K. van; Ruffalo, Mark; Harris, Kerri Evelyn",
+      "isbn": "9781633310650",
+      "publisher": "Disruption Books",
+      "publicationYear": 2022,
+      "lcc": "KF3775 .V36 2022",
+      "genreTags": [
+        "[Proposed] Environmental law",
+        "[Proposed] Environmental activism",
+        "[Proposed] Environmental science"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[social_political] LCC KF3775 places this in environmental law. The subtitle 'The People's Fight for a Clean, Safe, and Healthy Environment' and synopsis describing a 'roadmap' for environmental activists clearly indicate this covers both environmental law and activism. The author is described as a 'veteran environmentalist' providing strategy for activists, supporting both proposed tags. | [science] LCC KF3775 indicates environmental law, which falls outside the Science & mathematics domain (Q). However, the subject headings include 'Environmental Conservation & Protection' and 'Nature', and the synopsis describes environmental activism and policy. This appears to be environmental science/policy rather than pure law, justifying the proposed tag within the Science & mathematics domain.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "social_political",
+        "science"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781633310650-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "The Green Amendment The People's Fight for a Clean, Safe, and Healthy Environment",
+      "subtitle": "The People's Fight for a Clean, Safe, and Healthy Environment",
+      "allAuthors": [
+        "Maya K. van Rossum",
+        "Mark Ruffalo",
+        "Kerri Evelyn Harris"
+      ],
+      "synopsis": "<p><br/>            <b>A veteran environmentalist shares her roadmap to a healthier world—one that uses the law to empower activists and provide hope for communities everywhere.</b><br/>          </p><br/>          <p>We have reached a critical tipping point in our fight for the environment: Corporations profit off climate change, natural disasters devastate homes, and the most vulnerable suffer the health effects of pollution. Yet our laws are designed to accommodate this destruction rather than prevent it. Without government support, it's no wonder people feel powerless. But there is a solution.</p><br/>          <p>In <br/>                        <i>The Green Amendment</i>, veteran environmentalist Maya K. van Rossum presents her radically simple plan for a green future: bypass local laws and turn to the ultimate authority—our state and federal constitutions—to ensure we have the right to a healthy environment.</p><br/>          <p>Through compelling interviews with activists on the ground, clear evidence from experts, and heartbreaking stories from those hit hardest by environmental ruin, <br/>                        <i>The Green Amendment </i>lights the path forward. In this updated edition of her trailblazing 2017 book, van Rossum invites readers to join the movement by sharing:</p><br/>          <ul><br/>            <li>Why Green Amendments work where other movements have failed</li><br/>            <li>How to position Green Amendments and what specific language offers the strongest legal protections</li><br/>            <li>How to argue in favor of environmental rights, and the economic and health benefits that will help activists make the case</li><br/>            <li>How Green Amendments address the crucial intersection of environmentalism and anti-racism</li><br/>            <li>What everyone—from artists and students to scientists and lawyer—can do to further the cause</li><br/>          </ul><br/>          <p>With the power of <br/>                        <i>The Green Amendment</i>, we can claim our environmental rights, ensuring a clean, safe Earth for generations to come.</p>",
+      "pageCount": 356,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "eng",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781633310650-M.jpg?default=false",
+        "https://books.google.com/books/content?id=K8RxEQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+        "https://images.isbndb.com/covers/14353993482769.jpg"
+      ],
+      "original": {
+        "title": "The Green Amendment the People's Fight for a Clean, Safe, and Healthy Environment",
+        "author": "Maya K. van Rossum",
+        "isbn": "9781633310650",
+        "publisher": "Disruption Books",
+        "publicationYear": 2022,
+        "lcc": "KF3775 .V36 2022",
+        "genreTags": [
+          "[Proposed] Environmental law",
+          "[Proposed] Environmental activism",
+          "[Proposed] Environmental science"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2d320f5e-71a9-4ff7-ad95-d77fba7512da",
+      "spineRead": {
+        "position": 3,
+        "rawText": "In the Black Fantastic — Ekow Eshun",
+        "title": "In the Black Fantastic",
+        "author": "Ekow Eshun",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 18,
+          "width": 85,
+          "height": 8
+        }
+      },
+      "title": "In the Black Fantastic",
+      "author": "Ekow Eshun",
+      "authorLF": "Eshun, Ekow; Commander, Michelle D.; Martin, Kameelah L.; Rugoff, Ralph",
+      "isbn": "9780500024621",
+      "publisher": "MIT Press",
+      "publicationYear": 2022,
+      "lcc": "NX164 .B55 E84 2022",
+      "genreTags": [
+        "Visual culture",
+        "[Proposed] Black Arts",
+        "[Proposed] Afrofuturism"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[arts_culture] LCC NX164 places this in visual arts/exhibitions. Subject headings emphasize Black Arts, exhibitions, Black people in art, and African American artists, all pointing to visual culture within the arts domain. The exhibition catalog nature and focus on Black artistic representation in visual media clearly fits Visual culture. | [social_political] Subject headings explicitly include 'Black Arts' and 'Afrofuturism' which don't map to existing Social & political tags. The LCC NX164 (Arts - Special aspects) suggests this is arts-focused, but the domain assignment is Social & political, so proposing these as new tags within this domain context.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "arts_culture",
+        "social_political"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780500024621-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "In the Black Fantastic",
+      "allAuthors": [
+        "Ekow Eshun",
+        "Michelle D. Commander",
+        "Kameelah L. Martin",
+        "Ralph Rugoff"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780500024621-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "In the Black Fantastic",
+        "author": "Ekow Eshun",
+        "isbn": "9780500024621",
+        "publisher": "MIT Press",
+        "publicationYear": 2022,
+        "lcc": "NX164 .B55 E84 2022",
+        "genreTags": [
+          "Visual culture",
+          "[Proposed] Black Arts",
+          "[Proposed] Afrofuturism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "c69ba98c-dd31-4ad1-b6cf-fe6a31471c11",
+      "spineRead": {
+        "position": 4,
+        "rawText": "CRIME and PUNISHMENT — DOSTOEVSKY",
+        "title": "CRIME and PUNISHMENT",
+        "author": "DOSTOEVSKY",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 26,
+          "width": 85,
+          "height": 8
+        },
+        "extractedCallNumber": "PG 3326 D62 1993",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Crime and Punishment",
+      "author": "Fyodor Dostoevsky",
+      "authorLF": "Dostoevsky, Fyodor",
+      "isbn": "9780679734505",
+      "publisher": "Knopf Doubleday Publishing Group",
+      "publicationYear": 1993,
+      "lcc": "PG 3326 D62 1993",
+      "genreTags": [
+        "Fiction",
+        "World literature",
+        "[Proposed] Psychological fiction"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[literature] Classic Russian novel by Dostoevsky clearly fits Fiction. LCC PG indicates Slavic literature, and this is a foundational work of world literature. Subject headings confirm Fiction and Literary classification. | [psychology] This is Dostoevsky's Crime and Punishment, a classic Russian novel. The LCC classification PG (Slavic literature) and DDC 891.73 (Russian fiction) clearly indicate this is literature, not psychology. The subject heading 'Psychological' likely refers to psychological realism in fiction. Since the domain is settled as Psychology, I can only propose a psychological fiction tag, but this book doesn't belong in the Psychology domain at all.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "891.73/3",
+      "inferredDomains": [
+        "literature",
+        "psychology"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780679734505-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Crime and Punishment",
+      "allAuthors": [
+        "Fyodor Dostoevsky"
+      ],
+      "synopsis": "<b>Hailed by <i>Washington Post Book World</i> as “the best [translation] currently available\" when it was first published, this second edition of <i>Crime and Punishment </i>has been updated in honor of the 200th anniversary of Dostoevsky’s birth. • <b>ONE OF <i>TIME MAGAZINE</i>'S 100 BEST MYSTERY AND THRILLER BOOKS OF ALL TIME</b></b><br><br>With the same suppleness, energy, and range of voices that won their translation of <i>The Brothers Karamazov</i> the PEN/Book-of-the-Month Club Prize, Richard Pevear and Larissa Volokhonsky offer a brilliant translation of <i>Crime and Punishment, </i>Dostoevsky's astounding pyschological thriller, newly revised for his bicentenniel. <br><br>In <i>Crime and Punishment</i>, when Raskolnikov, an impoverished student living in the St. Petersburg of the tsars, commits an act of murder and theft, he sets into motion a story that is almost unequalled in world literature for its excruciating suspense, its atmospheric vividness, and its depth of characterization and vision. Dostoevsky’s drama of sin, guilt, and redemption transforms the sordid story of an old woman’s murder into the nineteenth century’s profoundest and most compelling philosophical novel.",
+      "pageCount": 624,
+      "edition": "Reprint",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780679734505-M.jpg?default=false",
+        "https://images.isbndb.com/covers/27761143482429.jpg"
+      ],
+      "original": {
+        "title": "Crime and Punishment",
+        "author": "Fyodor Dostoevsky",
+        "isbn": "9780679734505",
+        "publisher": "Knopf Doubleday Publishing Group",
+        "publicationYear": 1993,
+        "lcc": "PG 3326 D62 1993",
+        "genreTags": [
+          "Fiction",
+          "World literature",
+          "[Proposed] Psychological fiction"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "775e30fa-4f83-46ae-a103-87e12ba81107",
+      "spineRead": {
+        "position": 5,
+        "rawText": "BELL CURVE — HERRNSTEIN AND MURRAY",
+        "title": "BELL CURVE",
+        "author": "HERRNSTEIN AND MURRAY",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 34,
+          "width": 85,
+          "height": 8
+        },
+        "extractedCallNumber": "BF 431 H398 1996",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Bell Curve",
+      "author": "Richard J. Herrnstein",
+      "authorLF": "Herrnstein, Richard J.; Murray, Charles",
+      "isbn": "9780671529796",
+      "publisher": "Simon & Schuster",
+      "publicationYear": 1994,
+      "lcc": "BF 431 H398 1996",
+      "genreTags": [
+        "[Proposed] Intelligence research",
+        "[Proposed] Psychometrics",
+        "Social criticism",
+        "[Proposed] Race & intelligence"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[psychology] LCC BF 431 places this in differential psychology/intelligence testing. The book is a major work on IQ research and psychometric testing, examining intelligence differences across populations. These are core psychology subdisciplines that merit specific tags. | [social_political] The Bell Curve is a highly controversial work examining the relationship between intelligence, race, and social outcomes. The synopsis explicitly mentions linking intelligence to class and race, making it a clear case of social criticism with racial intelligence themes. LCC BF431 (individual differences in psychology) supports the intelligence focus, while the policy implications described make it social criticism.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "psychology",
+        "social_political"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780671529796-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "BELL CURVE",
+      "allAuthors": [
+        "Richard J. Herrnstein",
+        "Charles Murray"
+      ],
+      "synopsis": "The controversial book linking intelligence to class and race in modern society, and what public policy can do to mitigate socioeconomic differences in IQ, birth rate, crime, fertility, welfare, and poverty.",
+      "binding": "Audio Cassette",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780671529796-M.jpg?default=false",
+        "https://images.isbndb.com/covers/1885633482427.jpg"
+      ],
+      "original": {
+        "title": "Bell Curve",
+        "author": "Richard J. Herrnstein",
+        "isbn": "9780671529796",
+        "publisher": "Simon & Schuster",
+        "publicationYear": 1994,
+        "lcc": "BF 431 H398 1996",
+        "genreTags": [
+          "[Proposed] Intelligence research",
+          "[Proposed] Psychometrics",
+          "Social criticism",
+          "[Proposed] Race & intelligence"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "22fcf04c-80ef-440d-b6fd-43e63cf1ac52",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Emma — Jane Austen",
+        "title": "Emma",
+        "author": "Jane Austen",
+        "publisher": "",
+        "lcc": "PR4034 .E5 1991",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 42,
+          "width": 85,
+          "height": 8
+        },
+        "extractedCallNumber": "PR 4034 .E5 1991",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Novels (emma / Mansfield Park / Northanger Abbey / Persuasion / Pride and Prejudice / Sense and Sensibility)",
+      "author": "Jane Austen",
+      "authorLF": "Austen, Jane",
+      "isbn": "9781684129065",
+      "publisher": "Parragon Plus",
+      "publicationYear": 1818,
+      "lcc": "PR 4034 .E5 1991",
+      "genreTags": [
+        "Fiction",
+        "British literature"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[literature] Classic British novel by Jane Austen. MARC genre/form terms confirm 'Novels' and 'Fiction'. LCC PR indicates British literature. LCSH confirms romance fiction and English setting. Clear fit for Fiction and British literature tags.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "823/.7",
+      "inferredDomains": [
+        "literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781684129065-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Novels (Emma / Mansfield Park / Northanger Abbey / Persuasion / Pride and Prejudice / Sense and Sensibility)",
+      "allAuthors": [
+        "Jane Austen"
+      ],
+      "pageCount": 1076,
+      "lcshSubjects": [
+        "Romance fiction, English",
+        "England — Social life and customs — Fiction"
+      ],
+      "marcGenres": [
+        "Novels",
+        "Fiction"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781684129065-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Novels (emma / Mansfield Park / Northanger Abbey / Persuasion / Pride and Prejudice / Sense and Sensibility)",
+        "author": "Jane Austen",
+        "isbn": "9781684129065",
+        "publisher": "Parragon Plus",
+        "publicationYear": 1818,
+        "lcc": "PR 4034 .E5 1991",
+        "genreTags": [
+          "Fiction",
+          "British literature"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "8505b4d9-3eb9-4b9c-9822-16eb5f872c60",
+      "spineRead": {
+        "position": 7,
+        "rawText": "PREDICTIONS — GRIFFITHS",
+        "title": "PREDICTIONS",
+        "author": "GRIFFITHS",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 50,
+          "width": 85,
+          "height": 8
+        },
+        "extractedCallNumber": "CEL P4 1993",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Predictions",
+      "author": "Sian Griffiths",
+      "authorLF": "Griffiths, Sian",
+      "isbn": "9780192862105",
+      "publisher": "Oxford University Press",
+      "publicationYear": 2000,
+      "lcc": "CEL P4 1993",
+      "genreTags": [
+        "[Proposed] Future studies",
+        "Cultural history",
+        "[Proposed] Futurism & forecasting"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[history] Subject headings indicate forecasting and predictions about the 21st century and modern civilization. This fits cultural/social history examining future trends. LCC class C supports history domain. No clear form tags apply. | [social_political] Subject headings clearly indicate this is about forecasting and predictions for the 21st century and modern civilization. No existing tag in Social & political domain directly covers futurism/forecasting, so proposing new tag. Confidence is medium due to limited metadata and unclear LCC classification.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "history",
+        "social_political"
+      ],
+      "domainConfidence": "medium",
+      "lccSource": "spine",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780192862105-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Predictions",
+      "allAuthors": [
+        "Sian Griffiths"
+      ],
+      "pageCount": 352,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780192862105-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Predictions",
+        "author": "Sian Griffiths",
+        "isbn": "9780192862105",
+        "publisher": "Oxford University Press",
+        "publicationYear": 2000,
+        "lcc": "CEL P4 1993",
+        "genreTags": [
+          "[Proposed] Future studies",
+          "Cultural history",
+          "[Proposed] Futurism & forecasting"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "00f31578-9d9a-4537-970c-08d76cb25a57",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Madeleine Sleeping — SARAH SHUN-LIEN BYNUM",
+        "title": "Madeleine Sleeping",
+        "author": "SARAH SHUN-LIEN BYNUM",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 58,
+          "width": 85,
+          "height": 8
+        },
+        "extractedCallNumber": "PS 3602 .Y58 M33",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Madeleine Sleeping",
+      "author": "Sarah Shun-lien Bynum",
+      "authorLF": "Bynum, Sarah Shun-lien",
+      "isbn": "9780151010592",
+      "publisher": "Picador",
+      "publicationYear": 2004,
+      "lcc": "PS 3602 .Y58 M33",
+      "genreTags": [
+        "Fiction"
+      ],
+      "formTags": [
+        "First edition"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[literature] LCC PS 3602 confirms American literature/fiction. MARC genre/form terms clearly indicate fiction (psychological, fantasy, bildungsroman are all fiction subtypes). Edition statement '1st ed' warrants First edition form tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "813/.6",
+      "inferredDomains": [
+        "literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780151010592-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Madeleine is sleeping",
+      "allAuthors": [
+        "Sarah Shun-lien Bynum"
+      ],
+      "pageCount": 266,
+      "edition": "1st ed",
+      "lcshSubjects": [
+        "Young women — Fiction",
+        "Triangles (Interpersonal relations) — Fiction",
+        "Circus performers — Fiction",
+        "Romanies — Fiction",
+        "Villages — Fiction",
+        "Dreams — Fiction",
+        "Sleep — Fiction",
+        "France — Fiction"
+      ],
+      "marcGenres": [
+        "Psychological fiction",
+        "Fantasy fiction",
+        "Bildungsromans",
+        "Fiction"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780151010592-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Madeleine Sleeping",
+        "author": "Sarah Shun-lien Bynum",
+        "isbn": "9780151010592",
+        "publisher": "Picador",
+        "publicationYear": 2004,
+        "lcc": "PS 3602 .Y58 M33",
+        "genreTags": [
+          "Fiction"
+        ],
+        "formTags": [
+          "First edition"
+        ]
+      }
+    },
+    {
+      "id": "e74c438a-3f8e-4b44-bcf3-a7bdeea62232",
+      "spineRead": {
+        "position": 9,
+        "rawText": "PALE BLUEBOT — CARL SAGAN",
+        "title": "PALE BLUEBOT",
+        "author": "CARL SAGAN",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Text appears rotated and partially obscured, making complete reading difficult",
+        "bbox": {
+          "x": 10,
+          "y": 66,
+          "width": 85,
+          "height": 8
+        }
+      },
+      "title": "Pale Blue Dot",
+      "author": "Carl Sagan",
+      "authorLF": "Sagan, Carl",
+      "isbn": "9781531888107",
+      "publisher": "Random House",
+      "publicationYear": 1994,
+      "lcc": "QB-0500.26200000",
+      "genreTags": [
+        "[Proposed] Astronomy",
+        "[Proposed] Space exploration"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[science] Carl Sagan's 'Pale Blue Dot' is a seminal work in popular astronomy and cosmology. The LCC QB classification confirms astronomy domain, and subject headings explicitly mention astronomy, cosmology, and space exploration. Given Sagan's established reputation as a popularizer of astronomy and the book's focus on cosmic perspective and space exploration, these two proposed tags capture the core themes.",
+      "status": "pending",
+      "warnings": [
+        "Identified by AI from partial spine read: Distinctive Sagan title with clear OCR corruption of 'Dot' to 'BLUEBOT' — unambiguous match."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "science"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781531888107-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Pale Blue Dot",
+      "allAuthors": [
+        "Carl Sagan"
+      ],
+      "pageCount": 429,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781531888107-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Pale Blue Dot",
+        "author": "Carl Sagan",
+        "isbn": "9781531888107",
+        "publisher": "Random House",
+        "publicationYear": 1994,
+        "lcc": "QB-0500.26200000",
+        "genreTags": [
+          "[Proposed] Astronomy",
+          "[Proposed] Space exploration"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "003335e1-ae80-450e-a616-f53761b1da8a",
+      "spineRead": {
+        "position": 10,
+        "rawText": "ACOLYTES — NIKKI GIOVANNI",
+        "title": "ACOLYTES",
+        "author": "NIKKI GIOVANNI",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 74,
+          "width": 85,
+          "height": 8
+        },
+        "extractedCallNumber": "811.54 G545a 2007",
+        "extractedCallNumberSystem": "ddc"
+      },
+      "title": "Acolytes",
+      "author": "Nikki Giovanni",
+      "authorLF": "Giovanni, Nikki",
+      "isbn": "9780061689666",
+      "publisher": "HarperCollins",
+      "publicationYear": 2007,
+      "lcc": "PS3557 .I55A63 2007",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[literature] Clear poetry collection by Nikki Giovanni, prominent African American poet. LCC PS3557 confirms American literature, subtitle 'Poems' and LCSH 'Poetry (poetic works by one author)' confirm poetry genre. DDC 811.54 (American poetry, 1945-1999) supports American poetry classification.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "811.54 G545a 2007",
+      "inferredDomains": [
+        "literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAlANwDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAAAAIEBQYHAwgB/8QARBAAAgEDAgMEBQgHBQkAAAAAAQIDBAURACEGEjETIkFRBxQyYXEVI1KBkbHB0RZCYqHC0uEIJHKSsiUzNWNzo+Lw8f/EABoBAAIDAQEAAAAAAAAAAAAAAAIDAAEEBgX/xAAvEQABAwIDBgMJAQAAAAAAAAABAAIRAyEEBTESEyJBUWGBkaEUFTJCcbHR4fDB/9oADAMBAAIRAxEAPwCjWfM1lo4gEBMFVEGbYBnjlQZPl3vv1Vb9OkfE92SZS0KT1CosbZBJY467Yzjw3Grbwtw9PxNbLRb4pJUWWWd3wSO7HylsY6E8676u8Po4ggrG5RAZ0Csy8+CAxIBx4ZIIHvB8tYqLhBC2V2mQVkMPE08UD0oMq0pjaPkQjxbJGfLw239+NM4btSxsHWArIDtzKrj7Dt4DbW4j0eUwlYep0fOrDZkVsEjbII8tVTiXh+plutTDBDRwRK3IRHb6YEke0c9mTnOfHVVcVSwwlwiUVDCVMQYZeFTY+I+Zi9RPzs0YjJ9UjGwAA2AxsAMeXhjpprdrsKuBY4ikwabnbMY7nQArt3SQMHHgAN8DVmtvDJoWft6OCtEgxioiGAOpxycuOnXrouFiWQKaez2ym5d+4k5z9s3u1nbmWEnVaDlWKHJVSqujrdvXammhqZ3kaYrNzABywbm7rL4j4e7XOK8zLJAyxQr2NNPSKoz7Evac2d+o7VsfAZz4zVdYK6aZXioqP2cEFZNznqPnPz1EzWuqVMJDas9t2WQ0gzJ9D/eHf3ddaW4vCvFnJLsDiW/Ku9mvE8NElvRS9OTKZFU4Z1fs8j/tLj/5q6TX0PdFulRRlmSp9Z5I2EZB5ucDmZSeXp5eeqLS2270U8VTDTQdrC+crIcZzt+qcfDUrUXC9GJkNrHZnYqk5wfDpyahqYd2jgq9mrgQWlR1Nc5aSmlhglqEkM0c6SrJylCgfHTx72fdjU1FxPQycQx19TTSQdhUwzwrTIpWJULM8ar3RhmIOdyMY3ydVsitUjNilO3tCoHT7BrlKFijeWa310YUFmICsABv9LTXOov5690o0q7flNuy6xtNEOZJ923Oc+Z66v8Abq6K6RJZb/VQpUQoq0NxDKyxbD5qRlyDETncewfdkDLkvtpEQVkr8+JCr/Np3TX+2cgU1E0aj6cX5Z017A+OUJDXbK1iCppbhVX+23GqSOI1T1sEykOAVY9oF6g80ZJGCASijOoT1q53WKsip6Z5ad5Y5nSKNn7LkBSMZySFCsVGfy1TBfrUB/xAMR/yn/l0G/W5jiO4IM7ElGG31jQCiG3Csvmy0xbgtiksj3YiSqYTU9fAeYSCjYKgjcZHeA7Qrk5A5M7BQEShOGr18lMklUqtLLVNTjLgcjrHIoPdJRD2ynb28EjlyM/jr6OReYXCjx5GVVP15OusNyggmimhuVNHKjBo3SpUMpB2IIOQQdV7P1P9y8p/oRbxWfjColljoEe4SXSnZGqYKmZHWYBsKyPzE+y0ZwASNyc74EXSXKSnp6eKKGlPZzGYPJAjliQow3MCCo5dh03PnpnUV010qTLUVprJmABZp+0YgbDfJOkos0UgdUHMGyMjm+GfA6a2mA3ZKAu4pCv9RJT1HGt6sdTQ0a2rt6pOeKljV6VELt2isoDEIFyVycgEAZxpKQ2mGu4Zoaw0clJX0UsMlbDFygSPNKiSksEPcKpnPgG896b8s3Nbw9y7QmuZizSdmuHLAhuZcYOQSDkb5Oc50i63OuuS0wrFj+YUxxrHAkYRSxYjCgDqxPTx1nGHfYA2j1gifsi3guVYKi30/D/Zw3KOmqa15m5lcyBIo0LRnPKQTlw3TcdkMZDakOG4rbfKj5NanpKSpeOSSGoheUBWRC+JA5I5CARkYI676qs91rrjevlG4OtRVkqXaSNSG5QFGRjB2AztvqWjupDFbfbqOgeYGNpKcyFyh2IBdmxnfOMHGRnBI0zdv2Lni6zb++6HabPZSdHSyztTQxyRSs0iKrBmBQk7HJ6bn7/ifPDDc636mhWOvoo5o3khllRRCW9sdcE+W2+3Q6xu08N1l0NUsDQpPTtySQSko4Pwx7iNMJAKum0u4QoTRnHXT66Wmttcix1sDx82eVuoOOuCNtMc41ERaQYK9Oeg+40dDJZDcaumpIWlroTPPIEEPNHEQct3cllUDP46235Ktt2SoSKrtlQktNFAgNRGxCqQdxGNsHmPdbBz0G2MR9BfCMXFFBLUTzKottQ5VCnMGaRVAPXwCN/m92tm/Q6dVAV6RsbewRrKywTKx4tVY63hqK40ElJPLhGkEh5eUhgH5lU7DbYdMHA6+J86cYcdpbeLrzQyWfn9XrZouft8cwDkc2OXxxnWxScHVeMrHQsffn8tV+5cAXWeftFpKJvLDLpWJwlDFANrNkDuR9k3C4urhiTTdErNaf0gWZ0/vFBWo46BFRh9vMNdBx1Yc7UlePf2afz6ulR6P748Rja2QOnkGXH2Z1GT+jmvUAycOq3/AE1B+7WA5JhOUjxW4Z1iuo8lEU3FfDc/tySwkH9eEn/TnTSao4VmSnjFz+ZjnM7L2U2Wcvzjpge1vuCPLGpb9BZIl7/DEoAGMmDm/fjTKfgikBJksdXEfIcyDPhqDJMO08L3DxH4RHOa7viAPgfymlLHaJ6eKFr/AEvMtb60WNOUDJz8/Z4cnG52IO2B5HK7lw9Y6yKpSG822IT1JqNpUHLmHsvP2ge+D5gfHS14OtqsQ1FW9fZMjfvwdfJuErYzd2OtpwceyzEdP2s6L3SAZbUPp+Aoc1eRBYPVFfw7Q173I0Fyt8dROsPYBJwe/GxbLYORnIU4ycKN/APuIeFqeLha6CFQFSilCHr0jON/HpqJ/Q22A73GtRvHIX+XQeCqAr83dZ1f9pFP4DQDKDLYq2B6fTv2RHN7EbsXEa/pY5brLEpT1zC4qYsgoT833uc/6dtOpLRbWesbsyimNPV173dbsiSCfHDYHxx4Z1qQ4HUju3mE7eMP/lobgWUNmO5UMgHnGV/HXQsrNa4OiVz76RfzIWYVNht0y2xadI4+em555Hm37Q4jwR0ADDn655Wz0AGuFBwzTTtaRUMkYqJ0jlIkGQpchi30OUBeuM82fA609uBrkoyJbc48w5H4aQeCrmEPzdDIOvdl6/aNKFmbAPinPO04OjT1WTVPDyJbKepVHWV25SGOz7tuoG4AAXr1Le7S7fwr65U0MJ54zVRlw3VQQ7L9y4HvI1pknCF3jOEtivg9VmTH7yNJ/Ra6gj/ZEwI3yJE/PRtsCCZVViH/AAiLDz6rNLdwi1cKIpK0frNVHSkMu6lie97xsPrz5Z01qOGJIbVFXdrlXIUpy7g5cefTuff5a1JbXc6JlZbdXRshBUohYgg5BBHQjz0uG31s/LTrbrhKuQBH6u5338Me9vtOpVMkFhgWn/fNSlsNa4VBJvHbSP8AVA8I+j9Ljw9SVxMqTS8+SrsvRyB0Pu1N1HAFa7Z+Ua8lVCqTUyEgAYA3PTA21ZLTxzScP0aWmqt4E9KzpIsj9mwbnOQVK5BByPq1L03pItUhxJRRAe6UH+Ea5+szMRVcWaSYuNPNe9RrZfumteLwJtzWcSej25I3NHdLh7vnzv8Abr4ODL7CwkiudTzLjBPKSD9a612Djvh9wOakmJJ/VCt/FpynF/Drvy+qTKf8K/zaEVMxCs+7TyWOPYeK2yGukjowIPNEh6qRnpscE4Phphw1wLcrVeYJ0qMI3clDR7cpO/j8D9Wt9hvnDc2QwZCT1KE/dnTyOs4Yl5vnAdt+435avf4/p6fpQMy5plp9f2sDutJR8VcP1kdtqI6pojzxsmQVkAOAQ2CM94b7dSM41juMHBG+rFfamXhvji9JY6mSKOnrZoI3BzzIshAB8xsOuoy+V0VyuUlbDAtO0+JJYgSVWQ+0VJOcE97B6ZxvjJ6AaLxq9QVOLmvW39lQAWu+L4NJG/wwGGtuudUtFTrJ2fPksMZx0Rm/hx9ejRrNT0QVfjXCyXEXNJH7HsuViMc3Nnc+73alBGM/HRo0RS3WSUw2dujFddAg0aNRplW6y+hQANHLv1P26NGiKFIaFWOCAfjvrjJb6WT26eFs/SjU/ho0aKFE3lsVslOZKClYnziGmcvCVif2rbBn3Aj7jo0aEXVyU1fgfh9s4oFUfsu356bPwDYm9mCRP8L/AJjRo0RAsrBKbSejuzsMo9Qv1g/hri/o1tzKeWqnX/346NGhIupJTGr9HtNCO5Xz5G/T+uoiq4U9X5glwmxj6P8AXRo1SubqFqLfLGTiskPUDb+uk0lTWUsvPFU5ZTtlBo0avkjAXnr0rUkUfpDvGASZnSpcnxeWNZHP+Zm1VGpUVsozA6NGtlNx2R9FmfqugZ0lIV2G3gSNMqirqY5WCVM4GM47Q6NGhdoo0rpFfLpE3zdwqgR49ofLTuLiu9xsjLcZsods40aNLRhQjszOzuSzE5JPjr5kY6aNGjaASpK//9k=",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780061689666-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Acolytes",
+      "subtitle": "Poems",
+      "allAuthors": [
+        "Nikki Giovanni"
+      ],
+      "pageCount": 144,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780061689666-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Acolytes",
+        "author": "Nikki Giovanni",
+        "isbn": "9780061689666",
+        "publisher": "HarperCollins",
+        "publicationYear": 2007,
+        "lcc": "PS3557 .I55A63 2007",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "e402e900-4fd6-4550-943f-93827692c353",
+      "spineRead": {
+        "position": 11,
+        "rawText": "resonate — NANCY DUARTE",
+        "title": "resonate",
+        "author": "NANCY DUARTE",
+        "publisher": "WILEY",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Text appears to be rotated/inverted making it challenging to read with complete certainty",
+        "bbox": {
+          "x": 10,
+          "y": 82,
+          "width": 85,
+          "height": 8
+        }
+      },
+      "title": "Resonate",
+      "author": "Nancy Duarte",
+      "authorLF": "Duarte, Nancy",
+      "isbn": "9783527506200",
+      "publisher": "Wiley & Sons, Incorporated, John",
+      "publicationYear": 2010,
+      "lcc": "HF5718.22 .D83 2010",
+      "genreTags": [
+        "[Proposed] Business communication"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[social_political] LCC HF5718.22 places this in business communication, and subject headings confirm it's about business presentations, public speaking, and persuasion. The content is instructional (how to create resonant presentations), warranting How-to / guide form tag. Business communication fits the Social & political domain as workplace communication and persuasion.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "social_political"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9783527506200-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Resonate",
+      "allAuthors": [
+        "Nancy Duarte"
+      ],
+      "pageCount": 272,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9783527506200-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Resonate",
+        "author": "Nancy Duarte",
+        "isbn": "9783527506200",
+        "publisher": "Wiley & Sons, Incorporated, John",
+        "publicationYear": 2010,
+        "lcc": "HF5718.22 .D83 2010",
+        "genreTags": [
+          "[Proposed] Business communication"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "81a4ccfc-5e61-433a-b6ed-cb3f95df2245",
+      "spineRead": {
+        "position": 12,
+        "rawText": "Slide:ology — Nancy Duarte",
+        "title": "Slide:ology",
+        "author": "Nancy Duarte",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 10,
+          "y": 90,
+          "width": 85,
+          "height": 8
+        }
+      },
+      "title": "Slide:ology",
+      "author": "Nancy Duarte",
+      "authorLF": "Duarte, Nancy",
+      "isbn": "9780596154714",
+      "publisher": "O'Reilly Media, Incorporated",
+      "publicationYear": 2008,
+      "lcc": "HF5718.22 .D83 2008",
+      "genreTags": [
+        "[Proposed] Presentation design"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "LOW",
+      "reasoning": "[media_tech] Book focuses on creating presentations and visual communication skills. The subtitle 'The Art and Science of Creating Great Presentations' and publisher O'Reilly clearly indicate this is a how-to guide. The subject matter doesn't fit existing Media/tech tags well, so proposing specific presentation design tag. | [social_political] This is a business presentation guide (LCC HF5718.22 = business communication), which falls outside the Social & political domain. The subtitle 'The Art and Science of Creating Great Presentations' and synopsis confirm it's instructional content, warranting the How-to / guide form tag. However, no genre tags from the Social & political domain apply to this business/communication topic.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "media_tech",
+        "social_political"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780596154714-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "slide:ology",
+      "subtitle": "The Art and Science of Creating Great Presentations",
+      "allAuthors": [
+        "Nancy Duarte"
+      ],
+      "synopsis": "No matter where you are on the organizational ladder, the odds are high that you've delivered a high-stakes presentation to your peers, your boss, your customers, or the general public. Presentation software is one of the few tools that requires professionals to think visually on an almost daily basis. But unlike verbal skills, effective visual expression is not easy, natural, or actively taught in schools or business training programs. slide:ology fills that void. Written by Nancy Duarte, President and CEO of Duarte Design, the firm that created the presentation for Al Gore's Oscar-winning film, An Inconvenient Truth, this book is full of practical approaches to visual story development that can be applied by anyone. The book combines conceptual thinking and inspirational design, with insightful case studies from the world's leading brands. With slide:ology you'll learn to: Connect with specific audiences Turn ideas into informative graphics Use sketching and diagramming techniques effectively Create graphics that enable audiences to process information easily Develop truly influential presentations Utilize presentation technology to your advantage Millions of presentations and billions of slides have been produced -- and most of them miss the mark. slide:ology will challenge your traditional approach to creating slides by teaching you how to be a visual thinker. And it will help your career by creating momentum for your cause.",
+      "pageCount": 295,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780596154714-M.jpg?default=false",
+        "https://books.google.com/books/content?id=7LSXDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+      ],
+      "original": {
+        "title": "Slide:ology",
+        "author": "Nancy Duarte",
+        "isbn": "9780596154714",
+        "publisher": "O'Reilly Media, Incorporated",
+        "publicationYear": 2008,
+        "lcc": "HF5718.22 .D83 2008",
+        "genreTags": [
+          "[Proposed] Presentation design"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "9fb0a949-5acb-4f3c-9ebe-c3ff57d020b2",
+      "spineRead": {
+        "position": 14,
+        "rawText": "Presentation Zen",
+        "title": "Presentation Zen",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Image shows multiple book spines stacked (upside down). The clearest reads 'presentation zen' with partial 'DESIG...' visible suggesting 'Presentation Zen Design'. Author not visible on spine.",
+        "bbox": {
+          "x": 50,
+          "y": 92,
+          "width": 45,
+          "height": 6
+        }
+      },
+      "title": "Presentation Zen",
+      "author": "Garr Reynolds",
+      "authorLF": "Reynolds, Garr",
+      "isbn": "9780132901536",
+      "publisher": "New Riders",
+      "publicationYear": 2007,
+      "lcc": "HF5718.22 .R49 2008",
+      "genreTags": [
+        "[Proposed] Presentation design",
+        "Media literacy",
+        "[Proposed] Business communication"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[media_tech] Book focuses on presentation design and effective communication through visual media. The subject headings emphasize business presentations, graphic methods, and multimedia systems. The 'Zen' approach suggests design principles and media literacy concepts. Clear how-to/guide format for practical application. | [social_political] LCC HF5718.22 places this in business communication/presentations. The subject headings focus on business presentations and design methods. While primarily a business/professional book, it touches on social aspects of communication and presentation effectiveness. Tagged as how-to guide based on practical presentation advice format.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "media_tech",
+        "social_political"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780132901536-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Presentation Zen",
+      "allAuthors": [
+        "Garr Reynolds"
+      ],
+      "pageCount": 268,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780132901536-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Presentation Zen",
+        "author": "Garr Reynolds",
+        "isbn": "9780132901536",
+        "publisher": "New Riders",
+        "publicationYear": 2007,
+        "lcc": "HF5718.22 .R49 2008",
+        "genreTags": [
+          "[Proposed] Presentation design",
+          "Media literacy",
+          "[Proposed] Business communication"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    }
+  ],
+  "croppedFrom": "shelf-capture-001.jpg",
+  "sourceDimensions": {
+    "width": 1944,
+    "height": 3456
+  }
+}
