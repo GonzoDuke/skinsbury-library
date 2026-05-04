@@ -1,0 +1,312 @@
+{
+  "id": "31a4a5ee-f855-4320-826d-9d5202502744",
+  "filename": "20260501_070147.cropped.jpg",
+  "fileSize": 1941384,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 4,
+  "booksIdentified": 4,
+  "books": [
+    {
+      "id": "e32eed26-65b6-4e7a-8292-02d4d24aa9cc",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Naked Lunch — William S. Burroughs",
+        "title": "Naked Lunch",
+        "author": "William S. Burroughs",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Orange/yellow spine",
+        "bbox": {
+          "x": 5,
+          "y": 5,
+          "width": 90,
+          "height": 15
+        }
+      },
+      "title": "Naked Lunch",
+      "author": "William S. Burroughs",
+      "authorLF": "Burroughs, William S.; Burroughs, William",
+      "isbn": "9780802133175",
+      "publisher": "Grove",
+      "publicationYear": 1959,
+      "lcc": "PS3552 .U75 N35 1971",
+      "genreTags": [
+        "Fiction",
+        "[Proposed] Beat literature"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] Classic Beat Generation novel by William S. Burroughs. While the existing vocabulary includes 'Beat poetry', Burroughs' experimental prose fiction requires a broader Beat literature tag. The LCC classification PS3552 confirms American fiction, and subject headings explicitly mention Beat Generation and Fiction.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #1 and #3. Merge or keep both?"
+      ],
+      "sourcePhoto": "20260501_070147.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780802133175-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Naked Lunch",
+      "allAuthors": [
+        "William S. Burroughs",
+        "William Burroughs"
+      ],
+      "pageCount": 255,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780802133175-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Naked Lunch",
+        "author": "William S. Burroughs",
+        "isbn": "9780802133175",
+        "publisher": "Grove",
+        "publicationYear": 1959,
+        "lcc": "PS3552 .U75 N35 1971",
+        "genreTags": [
+          "Fiction",
+          "[Proposed] Beat literature"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-v57wcj5i",
+      "duplicateOf": [
+        3
+      ]
+    },
+    {
+      "id": "7271ad2c-05e4-442a-aba2-63f06bc8efc3",
+      "spineRead": {
+        "position": 2,
+        "rawText": "NAKED LUNCH — WILLIAM S. BURROUGHS",
+        "title": "NAKED LUNCH",
+        "author": "WILLIAM S. BURROUGHS",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 5,
+          "y": 20,
+          "width": 90,
+          "height": 15
+        }
+      },
+      "title": "Naked Lunch",
+      "author": "William S. Burroughs",
+      "authorLF": "Burroughs, William S.; Burroughs, William",
+      "isbn": "9780714539676",
+      "publisher": "HarperPerennial",
+      "publicationYear": 1959,
+      "lcc": "PS3552 .U75",
+      "genreTags": [
+        "Fiction",
+        "Beat poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PS3552 confirms American literature. Burroughs is a core Beat Generation author, and Naked Lunch is his seminal experimental novel. Subject headings include 'Beat Generation' and 'Fiction'. The work straddles fiction and Beat movement literature, warranting both tags.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070147.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAcANwDASIAAhEBAxEB/8QAHAAAAwADAQEBAAAAAAAAAAAABAUGAgMHAQgA/8QAPxAAAgECBAMFBAUJCQAAAAAAAQIDBBEABRIhBhMxIkFRYXEUkaGxBxUygdEjJTNDUmLB8PEWJCZjg5Ky0+H/xAAbAQACAwEBAQAAAAAAAAAAAAADBAECBQYAB//EAC4RAAEEAAMGBAcBAQAAAAAAAAEAAgMRBBIhEzFBUWGRBSKhwSNSYnGSsfAU0f/aAAwDAQACEQMRAD8A+eYVAPZbY9bY799B7heEKpR9oVrEn1RPwxwKM2cdAO6+O0fQhmSnLczoWdVKyrOqk7tcaWNu+2lfeMZHjQJwriOn7Wt4SQMS2+q6ykpA6/HG5ZNuuFBr6WP9JPGp8L4zTNqAdauMW9cfPXmS6ynsuscAi8ylIWnsSNUyoSO4E4VxlvYpnkY6hLIhJPUiO3zGCmzbK5EAeriKhge/qDcd2MTXZOY5EapiCOzOwJbcnYn44KzEOYzKWm15sgaKpHSnRNWsLNqhDgHcHY7Y1TussRkRNraQQNgOWdvjgSOoyIBEWpiGnZRqbvvjac0yRKTl+2RcnbvPXu+QwEPcDYaeyrtWNooWrJTK2hIsIpCy+hII/wCR92G2aNEHU6rzRIZGS1tSAgkg9LggH+uF1TxBw6YDBU5nSCEWBBkta3T5YHPEnCSQrB9b0uncgCY9/Xe/S3dg0jnzNb5HWCeHOlDsTGaLt4J9VSTjXTSFSCSNvLCOKZ5pklkQIzclgFbUNJLW7hv1wvm434bgikZM2peYbA6W1X2t3YAp+LeF3hIXNIUY2N+adrdLE+uIwsMzbJY7sVMEkbWmyqNCwnc3HL1JrFt78xrWPrjZkTFeRG4UOxWUaehUxFRv3Hs4njxhwusQ/O9Kd1uebcmzXF/vJxqXjXhimsy55FGURUQiz9NW9u/ZjgsjJpGkCN34lXfNE5pGYaqjL3hY/wCat7+uMdUjNAVRVkXSBdrgjS3XwxJjjrhjnADOQU2ZoxGTqIHW4GCKHjrhjSfZZp3XrdaaVv4HEiHFNGkTvxP/ABEM0YGjgVQ0c8aVkUYBLMtwf2W0qSPQi2J7P5JqbO6rlhm9tp5giqLnXHFYWHj2yMb4+LcjV/aI6fMCTYcxcvmIAttvp2wPX8T5PUiPmUmdNy5BKoFBOO0DcE2AvuOhw3C+aOTM6J1Ftbv7ogYlrZ6ynUVxWUtfDFntPQikkghm0ozMygRsGkdVsLg6reOBqKmaBEnMPsx+r5U5akdo3XtkjvPv23wLVZ5lFROJpcpz2WTnJMG9hmGl1FlPQdLnbzxrp6zJ4jFyMmzhRESyaoZLAm17gnf7I6+GNBu0IBykc9ONHmUJsJveDy9Oib5rWx0+c05qJljgRkGpjYBik3z2xL1M7RV8srkrLJSFmv1uiqfmDh89A+bzyVdNS56uq2oQSKimwsLjV88YV+Q1dRWR1X1NmazRlirCaFOpuf1nnb0w7hGFlWDupAxDmuJBcBRvf/cEozmojy6I/V+gPELhTutgGJHr/wCYIhkZKVOebuEGr1wRV5HVzqBLkUqKARb2mmQAEi/63yGMJaPMSBfL9I8TW0v/AG4PkeRRCagxMEby7OK5KWzuWsmzWOKjBHJjEi3Nhe5G/kem/h64W10lWmXEVrEyGQ7gAC1vQeeK+qp5YbGanjiv3vmFIL29Zv52wm41y+XL8pTNaeXL8wgjdFkWjqua0WoXuwAta4tcHqcMRtfo3Kk55sM0ukEtk8Na7LnXFDaXooQxa0RldDvodmI6eaqh+/CYMV2AJ88E5vmBzPMZKp0jiBVECL0CogRevU2UXPjf0wEXI9MbEbcrQFycz88hdzRSuOpHXrbqfxx236HKTK6XIBmtXl8VXXvUSRxSTNpWIKI7DcHfdjcC+1uhxw+DtLv5H5/hjuH0SyMOGKGLYxz5hUK4ZQ2yxwkWv0+0cBmFhejNGwrKvy3Kaz+9yZdJ+VYmSP2plAPlYfMDA31Fw5flrkckkjdAKpmJPQW7P3beWLjgCMVeR1SVHbSVtLL02tp2t6fhgyjpY44Mqp7syR1soGo3J0iSxPuxzs3iEcL3x5NWnn0J9k9mkcAcy5ZPkVAsxjpeGqRZYwWeOaAysPM9Dtt1xhDl1Oywt/ZPLahJ9oyKFiHsDspHXYH3HHUTEi8fTqqgCWiu9u83A+QwnkmYfSPl1AoVaWjiKQoB0vGb/wA+WFn4tshPk1yZt54Dd39FFvG93FRhyYyVMUCcD5UssillWSjdLgWvuWHj8cAZrycqlalrOEMipZgNQvRte17AjtkHv33G2Lbg+sqqrj7MYampnmiiWblpJIWCdsDsg7DbwxP8cD/C/B5NyTTOdz4iPBYnj/SyB7AbAPHiCeJ6KC52XMCVOyQVdJWxwHLssimnIKIaKnYG5sNyp+eC+bmdNRT1QgyeIU8vLYDLqcMGuAbWjt3+OD+ICVzrJWB3bSD/ALse52fzVnYIBAqE2P8Ap4uyVnwvht81cPqA91ruwLG7XU+Xdr9NrUmYcR0nOUHL4GihacgUcABUdbWQgn3Y3Cr4gzCkiEmZwRS1Cl4oo4kiLgdTdFFuuHVXEj0srMt25LrfyI3HwGJ6eM8vIjHI8TrTvpdLXF0HiMRhMU6Vo2bWtN1oOhPsjz+HwwG3WR9+ZA917QtnbxUbpn1dF7RI0ZVZnOgrq/e3+z8cLMxz7OFqZKaTNswnETso1Tsb2Niev9MP8iIiyzLk0q953W7C5H2zcef4nEvm0SHNqqwsTO9yO/tnD+CnfNPJG/UC+XzH2SGPw0eHgjkjFE1+gs0zqv2tX1e+/wCnb8cH01dnVXTySRSZhNFFvIys7hdr7nu6H3HCSKFOeIhcLyywsdxt3Y6Rk+RpQ5pXUtHXVsMayrcqy3bTPLGt+z3AX9SfK2ns2Dc0LHMr/mPdSZrKyGZo5eas2kEhyQ1iAd777gj4Y3xVbHtFUkF+pGo4sabhyDNjlc2YVlbPLPQNKzPIpKlBHYAkdO21+89et8Y1fDVFTZLU1kbzmaMuBdhbszcsd3h8cTlbyUbWT5j3SOhlDuiimp2c7AmFSN+nXbDmjkqIpVC09PCLbfk1AFyPD1x5kuWwVNWtPJr5RkAsD0uR+OHiZFSrXGLVKVQlASRew0eX7x+GAyO1oIjHCjnsn7ofmVc+gSxQTC1xqiHZFh4/d3Y9d5RGw0xrGL3UKLn4eWH8GQUkc8elpbut7nTtuPLzxqiyenqJtDvKFG1gR+yp8PM4GZCNbVvIdzfVSskZ5HMESEM1tKqLn3DCmrcvJoCAE2ubeB64vZOH6OVA+qZC6ByFYWBt5jEHXQKFpJOpkNyCAQLgdNr95waGbaAoUgrckUz6y7FdTDci179f47YUZrmM75Hm8EYGiainMvMuLhYnI2AO9xcd1wOmKtqyfKMwaagYRyOojJKg7H19BiZr4Vrcvzyeo7Uk1FVzPYADVyZH6d24G2CWb1GiGvn/AKtYY/EXtv8AHGJY6rd1jjbGgZbm+G0Jf//Z",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780714539676-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Naked Lunch",
+      "allAuthors": [
+        "William S. Burroughs",
+        "William Burroughs"
+      ],
+      "pageCount": 255,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780714539676-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Naked Lunch",
+        "author": "William S. Burroughs",
+        "isbn": "9780714539676",
+        "publisher": "HarperPerennial",
+        "publicationYear": 1959,
+        "lcc": "PS3552 .U75",
+        "genreTags": [
+          "Fiction",
+          "Beat poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "dfce6e3a-a2f7-41e5-a813-67d0000bf11e",
+      "spineRead": {
+        "position": 3,
+        "rawText": "NAKED LUNCH — william s. burroughs",
+        "title": "NAKED LUNCH",
+        "author": "william s. burroughs",
+        "publisher": "Grove Press",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 5,
+          "y": 35,
+          "width": 90,
+          "height": 15
+        }
+      },
+      "title": "Naked Lunch",
+      "author": "William S. Burroughs",
+      "authorLF": "Burroughs, William S.; Burroughs, William",
+      "isbn": "9780802133175",
+      "publisher": "Grove",
+      "publicationYear": 1959,
+      "lcc": "PS3552 .U75 N35 1971",
+      "genreTags": [
+        "Fiction",
+        "Beat poetry"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] William S. Burroughs is a core Beat Generation author, and 'Naked Lunch' is his seminal experimental novel. The LCC PS3552 confirms American literature/fiction. Subject headings include 'Fiction' and 'Beat Generation' which map directly to our tags. While unconventional in structure, this is classified as fiction rather than poetry, but gets 'Beat poetry' due to Burroughs' central role in the Beat movement and the work's experimental literary style.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #1 and #3. Merge or keep both?"
+      ],
+      "sourcePhoto": "20260501_070147.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780802133175-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Naked Lunch",
+      "allAuthors": [
+        "William S. Burroughs",
+        "William Burroughs"
+      ],
+      "pageCount": 255,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780802133175-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Naked Lunch",
+        "author": "William S. Burroughs",
+        "isbn": "9780802133175",
+        "publisher": "Grove",
+        "publicationYear": 1959,
+        "lcc": "PS3552 .U75 N35 1971",
+        "genreTags": [
+          "Fiction",
+          "Beat poetry"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-v57wcj5i",
+      "duplicateOf": [
+        1
+      ]
+    },
+    {
+      "id": "1aff440c-f343-4497-8276-2cf6c0dfd9f9",
+      "spineRead": {
+        "position": 4,
+        "rawText": "William Burroughs — Graham Caveney",
+        "title": "William Burroughs",
+        "author": "Graham Caveney",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Can see 'GENTLEMAN', 'THE LIFE AND LEGACY OF', 'WILLIAM BURROUGHS', and 'GRAHAM CAVENEY' but some text is partially obscured or cut off",
+        "bbox": {
+          "x": 5,
+          "y": 50,
+          "width": 90,
+          "height": 15
+        }
+      },
+      "title": "Gentleman Junkie the Life and Legacy of William S. Burroughs",
+      "author": "Graham Caveney",
+      "authorLF": "Caveney, Graham",
+      "isbn": "9780316137256",
+      "publisher": "Little, Brown",
+      "publicationYear": 1998,
+      "lcc": "PS3552.U75 Z58 1998",
+      "genreTags": [
+        "Literary criticism"
+      ],
+      "formTags": [
+        "First edition"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] MARC genre/form 'Biographies' confirms biographical content, but LCC PS3552 places this in American literature criticism rather than biography proper. LCSH 'Beats (Persons)' and focus on Burroughs as literary figure supports literary criticism. Synopsis describes it as examination of 'myth behind the man' rather than straight biography. First Edition confirmed in metadata.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070147.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "813/.54",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "loc",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316137256-M.jpg?default=false",
+      "ocrModel": "s",
+      "canonicalTitle": "Gentleman Junkie The Life and Legacy of William S. Burroughs",
+      "allAuthors": [
+        "Graham Caveney"
+      ],
+      "synopsis": "With Gentleman Junkie, Graham Caveney gives us the definitive life of William S. Burroughs - less a biography than a \"chronology of the Burroughs phenomenon\", an examination of the myth behind the man. Filled with 150 color photos - many of them never seen before - and new biographical material, Gentleman Junkie shows how Burroughs's fascinating life, from Harvard to Greenwich Village to Tangiers, was matched only by his enormous impact on modern literature and pop culture. Dapper radical, literary experimentalist, and mentor to countless artists, Burroughs had an indelible influence on American life in the twentieth century.",
+      "pageCount": 224,
+      "edition": "First Edition",
+      "binding": "Hardcover",
+      "language": "en",
+      "lcshSubjects": [
+        "Burroughs, William S — 1914-1997",
+        "Burroughs, William S — 1914-1997 — Influence",
+        "Novelists, American — 20th century — Biography",
+        "Drug addicts — United States — Biography",
+        "Subculture — United States",
+        "Beats (Persons)"
+      ],
+      "marcGenres": [
+        "Biographies"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780316137256-M.jpg?default=false",
+        "https://images.isbndb.com/covers/14855563482300.jpg"
+      ],
+      "original": {
+        "title": "Gentleman Junkie the Life and Legacy of William S. Burroughs",
+        "author": "Graham Caveney",
+        "isbn": "9780316137256",
+        "publisher": "Little, Brown",
+        "publicationYear": 1998,
+        "lcc": "PS3552.U75 Z58 1998",
+        "genreTags": [
+          "Literary criticism"
+        ],
+        "formTags": [
+          "First edition"
+        ]
+      }
+    }
+  ],
+  "croppedFrom": "20260501_070147.jpg",
+  "sourceDimensions": {
+    "width": 3600,
+    "height": 2700
+  }
+}
