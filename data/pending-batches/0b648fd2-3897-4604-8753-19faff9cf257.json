@@ -413,7 +413,7 @@
       ],
       "confidence": "HIGH",
       "reasoning": "[language_literature] LCC PR6106 places this in English literature criticism. The subtitle 'The Collected and Unpublished Writings' clearly indicates an anthology of Fisher's essays and criticism. Subject headings confirm literary criticism focus on English literature and 20th century topics. | [philosophy_psychology_religion] Mark Fisher was a prominent cultural critic known for his analysis of capitalism, neoliberalism, and postmodern culture. The subtitle 'Collected and Unpublished Writings' clearly indicates an anthology format. His work fits within critical thinking and postmodernism given his theoretical approach to analyzing contemporary culture and politics.",
-      "status": "pending",
+      "status": "rejected",
       "warnings": [
         "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
       ],
