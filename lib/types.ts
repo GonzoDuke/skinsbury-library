@@ -222,6 +222,15 @@ export interface BookRecord {
   /** MARC 655 genre/form terms — cataloger-applied explicit genre vocabulary. */
   marcGenres?: string[];
   coverUrlFallbacks?: string[];
+  // -------------------------------------------------------------------------
+  // Two-step inference outputs (Step 4 / final post-audit step).
+  // -------------------------------------------------------------------------
+  /** Domains call 1 (domain detection) identified for this book. Up to 3,
+   *  primary domain first. Empty / undefined for legacy records. */
+  inferredDomains?: string[];
+  /** Confidence of the primary domain assignment from call 1. Drives a
+   *  Review-row marker when 'low' so the user can intervene. */
+  domainConfidence?: 'high' | 'medium' | 'low';
 
   /** Snapshot of metadata as it came from spine read + lookup, before any user edits. */
   original: {
@@ -279,4 +288,10 @@ export interface InferTagsResult {
   formTags: string[];
   confidence: Confidence;
   reasoning: string;
+  /** Domains the two-step inference's call 1 identified. Up to 3,
+   *  primary first. Empty array when the route runs in legacy mode or
+   *  the model failed to produce domains. */
+  inferredDomains?: string[];
+  /** Confidence of the primary domain assignment ('high'/'medium'/'low'). */
+  domainConfidence?: 'high' | 'medium' | 'low';
 }

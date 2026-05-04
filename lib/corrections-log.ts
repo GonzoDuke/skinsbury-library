@@ -25,12 +25,26 @@ export interface CorrectionEntry {
   lcc: string;
   /** Snapshot of every tag (genre + form) the system suggested for this book. */
   systemSuggestedTags: string[];
-  /** Set when the user removed a system-inferred tag. */
+  /** Set when the user removed a system-inferred tag (or domain). */
   removedTag?: string;
-  /** Set when the user added a tag the system didn't suggest. */
+  /** Set when the user added a tag (or domain) the system didn't suggest. */
   addedTag?: string;
   /** ISO timestamp at correction time. */
   timestamp: string;
+  /**
+   * Which inference call this correction targets. 'tag' = call 2
+   * (focused tag inference); 'domain' = call 1 (domain detection).
+   * Default 'tag' when the field is missing — back-compat for entries
+   * written before the two-step refactor.
+   */
+  kind?: 'tag' | 'domain';
+  /**
+   * Domain context at correction time. Only meaningful for kind='tag' —
+   * lets the focused-call few-shot filter to corrections within the
+   * same domain so unrelated tagging history doesn't dilute the prompt.
+   * Empty for legacy records and for kind='domain'.
+   */
+  domain?: string;
 }
 
 export function loadCorrections(): CorrectionEntry[] {
@@ -204,6 +218,10 @@ export function logCorrection(input: {
   systemSuggestedTags: string[];
   removedTag?: string;
   addedTag?: string;
+  /** Which inference call this correction targets. Defaults to 'tag'. */
+  kind?: 'tag' | 'domain';
+  /** Domain context for tag corrections. Empty for domain corrections. */
+  domain?: string;
 }): void {
   if (typeof window === 'undefined') return;
   if (!input.title.trim()) return;
@@ -216,6 +234,8 @@ export function logCorrection(input: {
     removedTag: input.removedTag,
     addedTag: input.addedTag,
     timestamp: new Date().toISOString(),
+    kind: input.kind ?? 'tag',
+    domain: input.domain,
   };
 
   const current = loadCorrections();
@@ -244,10 +264,26 @@ export function logCorrection(input: {
  * The 20 most recent corrections, newest first. Fed to the inference
  * route in each request so the system prompt can include them as
  * few-shot examples.
+ *
+ * Pass `kind` to filter to a specific call's corrections — 'tag' for
+ * call 2 (focused tag inference), 'domain' for call 1 (domain
+ * detection). Pass `domain` alongside `kind: 'tag'` to further filter
+ * to corrections within that domain only. Legacy entries without a
+ * `kind` field default to 'tag'.
  */
-export function recentCorrections(limit = 20): CorrectionEntry[] {
+export function recentCorrections(
+  limit = 20,
+  filter?: { kind?: 'tag' | 'domain'; domain?: string }
+): CorrectionEntry[] {
   const entries = loadCorrections();
-  return [...entries]
+  let filtered = entries;
+  if (filter?.kind) {
+    filtered = filtered.filter((e) => (e.kind ?? 'tag') === filter.kind);
+  }
+  if (filter?.domain) {
+    filtered = filtered.filter((e) => e.domain === filter.domain);
+  }
+  return [...filtered]
     .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
     .slice(0, limit);
 }

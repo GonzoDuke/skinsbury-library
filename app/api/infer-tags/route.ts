@@ -5,19 +5,74 @@ import path from 'path';
 import type { InferTagsResult } from '@/lib/types';
 import type { CorrectionEntry } from '@/lib/corrections-log';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
+import { VOCAB, type DomainKey } from '@/lib/tag-domains';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 const MAX_CORRECTIONS_IN_PROMPT = 20;
+const MAX_DOMAINS_PER_BOOK = 3;
 
-let cachedSystemPrompt: string | null = null;
-async function loadSystemPrompt(): Promise<string> {
-  if (cachedSystemPrompt) return cachedSystemPrompt;
-  const p = path.join(process.cwd(), 'lib', 'system-prompt.md');
-  cachedSystemPrompt = await fs.readFile(p, 'utf8');
-  return cachedSystemPrompt;
+// ---------------------------------------------------------------------------
+// Prompt loading. Two prompts now: one for call 1 (domain detection)
+// and one for call 2 (focused tag inference, parameterized per domain).
+// Each is loaded once per warm function instance.
+// ---------------------------------------------------------------------------
+
+let cachedDomainPrompt: string | null = null;
+async function loadDomainPrompt(): Promise<string> {
+  if (cachedDomainPrompt) return cachedDomainPrompt;
+  const p = path.join(process.cwd(), 'lib', 'system-prompt-domain.md');
+  cachedDomainPrompt = await fs.readFile(p, 'utf8');
+  return cachedDomainPrompt;
 }
+
+let cachedTagsTemplate: string | null = null;
+async function loadTagsTemplate(): Promise<string> {
+  if (cachedTagsTemplate) return cachedTagsTemplate;
+  const p = path.join(process.cwd(), 'lib', 'system-prompt-tags.md');
+  cachedTagsTemplate = await fs.readFile(p, 'utf8');
+  return cachedTagsTemplate;
+}
+
+// ---------------------------------------------------------------------------
+// Vocabulary rendering for the call-2 prompt template. The {{domainVocabulary}}
+// placeholder receives only the named domain's tag list; {{formVocabulary}}
+// receives all form tags (domain-independent).
+// ---------------------------------------------------------------------------
+
+function renderDomainVocabulary(domain: DomainKey): string {
+  const entry = VOCAB.domains[domain];
+  if (!entry) return '(no vocabulary defined for this domain)';
+  if (entry.tags.length === 0) {
+    return `(no tags defined yet for ${entry.label} — propose new tags as needed with the [Proposed] prefix)`;
+  }
+  return `**${entry.label}** (LCC prefixes: ${entry.lcc_prefixes.join(', ') || 'none'})\nTags: ${entry.tags.join(', ')}`;
+}
+
+function renderFormVocabulary(): string {
+  return [
+    `**Content forms**: ${VOCAB.form_tags.content_forms.join(', ')}`,
+    `**Series**: ${VOCAB.form_tags.series.join(', ')}`,
+    `**Collectible**: ${VOCAB.form_tags.collectible.join(', ')}`,
+  ].join('\n');
+}
+
+function renderTagsPrompt(domain: DomainKey): string {
+  if (!cachedTagsTemplate) throw new Error('Tags prompt template not loaded');
+  const domainName = VOCAB.domains[domain]?.label ?? domain;
+  return cachedTagsTemplate
+    .replace(/\{\{domainName\}\}/g, domainName)
+    .replace(/\{\{domainVocabulary\}\}/g, renderDomainVocabulary(domain))
+    .replace(/\{\{formVocabulary\}\}/g, renderFormVocabulary());
+}
+
+// ---------------------------------------------------------------------------
+// Corrections few-shot. Now split between the two calls.
+//   - Call 1 (domain detection) gets corrections with kind='domain'
+//   - Call 2 (focused tag inference) gets corrections with kind='tag',
+//     filtered to the current domain when possible.
+// ---------------------------------------------------------------------------
 
 function isCorrectionEntry(e: unknown): e is CorrectionEntry {
   if (!e || typeof e !== 'object') return false;
@@ -32,7 +87,7 @@ function isCorrectionEntry(e: unknown): e is CorrectionEntry {
   );
 }
 
-function formatCorrection(c: CorrectionEntry): string {
+function formatTagCorrection(c: CorrectionEntry): string {
   const lcc = c.lcc ? c.lcc : 'unknown';
   const suggested =
     c.systemSuggestedTags.length > 0
@@ -47,18 +102,27 @@ function formatCorrection(c: CorrectionEntry): string {
   return '';
 }
 
-function buildSystemWithCorrections(
+function formatDomainCorrection(c: CorrectionEntry): string {
+  const lcc = c.lcc ? c.lcc : 'unknown';
+  if (c.removedTag) {
+    return `CORRECTION: For "${c.title}" by ${c.author} (LCC: ${lcc}), the system inferred domain "${c.removedTag}" but the user removed it — be more cautious about that domain for similar books.`;
+  }
+  if (c.addedTag) {
+    return `CORRECTION: For "${c.title}" by ${c.author} (LCC: ${lcc}), the user added domain "${c.addedTag}" — consider it for similar books.`;
+  }
+  return '';
+}
+
+function appendCorrections(
   basePrompt: string,
-  corrections: CorrectionEntry[]
+  corrections: CorrectionEntry[],
+  formatter: (c: CorrectionEntry) => string
 ): string {
   if (corrections.length === 0) return basePrompt;
-  // Newest corrections first so the most recent editorial judgment
-  // sits closest to the model's instructions.
-  const sorted = [...corrections].sort((a, b) =>
-    a.timestamp < b.timestamp ? 1 : -1
-  );
-  const limited = sorted.slice(0, MAX_CORRECTIONS_IN_PROMPT);
-  const lines = limited.map(formatCorrection).filter(Boolean);
+  const sorted = [...corrections]
+    .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
+    .slice(0, MAX_CORRECTIONS_IN_PROMPT);
+  const lines = sorted.map(formatter).filter(Boolean);
   if (lines.length === 0) return basePrompt;
   const block = [
     '',
@@ -81,52 +145,226 @@ function extractJsonObject(text: string): unknown {
   return JSON.parse(t.slice(start, end + 1));
 }
 
+// ---------------------------------------------------------------------------
+// Request shape — now widened with the previously-missing fields the audit
+// flagged (subtitle, allAuthors, edition, series, binding, language,
+// pageCount). All optional; the user-message builder omits empty lines.
+// ---------------------------------------------------------------------------
+
 interface InferRequest {
   title?: string;
   author?: string;
+  /** Subtitle — disambiguates ambiguous titles. Audit-fix field. */
+  subtitle?: string;
+  /** Full author list — multi-author books pass all here. Audit-fix field. */
+  allAuthors?: string[];
   isbn?: string;
   publisher?: string;
   publicationYear?: number;
+  /** Edition statement (audit-fix). Drives "First edition" / "Annotated" form tags. */
+  edition?: string;
+  /** Publisher series (audit-fix). Drives "Penguin Classics" etc. form tags. */
+  series?: string;
+  /** Binding type (audit-fix). Less load-bearing but cheap. */
+  binding?: string;
+  /** Language code or name (audit-fix). Matters for non-English tagging. */
+  language?: string;
+  /** Page count (audit-fix). Helps "Anthology" vs single-work disambiguation. */
+  pageCount?: number;
   lcc?: string;
   existingGenreTags?: string[];
   subjectHeadings?: string[];
-  // Phase-3 enrichment fields. All optional; the user-message
-  // formatter omits the line when the field is empty/undefined so old
-  // callers that don't pass them produce the same prompt as before.
   ddc?: string;
-  /** LCC class letter derived from DDC via the static crosswalk. Passed
-   *  only when `lcc` is missing — used as a domain anchor distinct from
-   *  a sourced LCC. */
+  /** LCC class letter derived from DDC via the static crosswalk. */
   lccDerivedFromDdc?: string;
-  /** LCC class letter derived from the user's own ledger via the
-   *  author-pattern lookup. Passed only when `lcc` and `lccDerivedFromDdc`
-   *  are both missing AND the author-pattern sampleSize ≥ 3. */
+  /** LCC class letter derived from the user's own ledger. */
   lccDerivedFromAuthorPattern?: string;
   lcshSubjects?: string[];
-  /** MARC field 655 (Index Term — Genre/Form) — cataloger-applied
-   *  explicit genre vocabulary, e.g. "Detective and mystery fiction",
-   *  "Bildungsromans", "Festschriften", "Cookbooks". Highest-priority
-   *  signal for genre/form classification. */
+  /** MARC field 655 (Index Term — Genre/Form). */
   marcGenreTerms?: string[];
-  /** Publisher-series indicator extracted directly from the spine
-   *  ("Penguin Classics", "Library of America", "Folio Society"). The
-   *  user actually saw it on the physical book — overrides the
-   *  prompt's "only when publisher confirms" guard for the matching
-   *  form tag. */
+  /** Spine-extracted publisher series. */
   extractedSeries?: string;
-  /** Top tags applied to other books by this author in the user's
-   *  local ledger. Caller forwards only when the sample size threshold
-   *  (≥3) is satisfied; this route assumes the guard is already
-   *  enforced upstream. */
+  /** Top tags from other books by this author in the user's ledger. */
   authorPatternTags?: string[];
-  /** Number of matched ledger entries — surfaces in the prompt line so
-   *  the model knows the strength of the signal. */
+  /** Sample size for the author-pattern result. */
   authorPatternSampleSize?: number;
   synopsis?: string;
-  /** Recent tag corrections forwarded by the client. Up to 20 most
-   *  recent are appended to the system prompt as few-shot examples. */
+  /** Recent corrections forwarded by the client. The route splits these
+   *  by `kind` internally — domain corrections feed call 1, tag
+   *  corrections feed call 2 (filtered to the per-call domain when
+   *  possible). */
   corrections?: CorrectionEntry[];
 }
+
+// ---------------------------------------------------------------------------
+// User-message builder. Shared between call 1 (domain) and call 2 (tags) —
+// both calls receive the SAME book metadata, just with different system
+// prompts. This is also where the audit-flagged previously-missing fields
+// land in the prompt.
+// ---------------------------------------------------------------------------
+
+function buildUserMessage(body: InferRequest, mode: 'domain' | 'tags', domainName?: string): string {
+  const lines: string[] = [
+    `- Title: ${body.title}`,
+    `- Author: ${body.author ?? ''}`,
+    `- ISBN: ${body.isbn ?? ''}`,
+    `- Publisher: ${body.publisher ?? ''}`,
+    `- Publication year: ${body.publicationYear ?? ''}`,
+    `- LCC: ${body.lcc ?? ''}`,
+    `- Subject headings: ${(body.subjectHeadings ?? []).join('; ')}`,
+    `- Existing genre tags: ${(body.existingGenreTags ?? []).join('; ')}`,
+  ];
+  // Audit-fix: subtitle, allAuthors, edition, series, binding, language,
+  // pageCount were on BookRecord but never reached the prompt.
+  if (body.subtitle) lines.push(`- Subtitle: ${body.subtitle}`);
+  if (Array.isArray(body.allAuthors) && body.allAuthors.length > 1) {
+    lines.push(`- All authors: ${body.allAuthors.join('; ')}`);
+  }
+  if (body.edition) lines.push(`- Edition: ${body.edition}`);
+  if (body.series) lines.push(`- Series: ${body.series}`);
+  if (body.binding) lines.push(`- Binding: ${body.binding}`);
+  if (body.language) lines.push(`- Language: ${body.language}`);
+  if (typeof body.pageCount === 'number' && body.pageCount > 0) {
+    lines.push(`- Page count: ${body.pageCount}`);
+  }
+  if (body.ddc) lines.push(`- DDC: ${body.ddc}`);
+  if (body.lccDerivedFromDdc && !body.lcc) {
+    lines.push(`- LCC class letter (derived from DDC, class-letter only): ${body.lccDerivedFromDdc}`);
+  }
+  if (body.lccDerivedFromAuthorPattern && !body.lcc && !body.lccDerivedFromDdc) {
+    lines.push(`- LCC class letter (derived from author's other books in your library): ${body.lccDerivedFromAuthorPattern}`);
+  }
+  if (Array.isArray(body.lcshSubjects) && body.lcshSubjects.length > 0) {
+    lines.push(`- LCSH subject headings: ${body.lcshSubjects.join('; ')}`);
+  }
+  if (Array.isArray(body.marcGenreTerms) && body.marcGenreTerms.length > 0) {
+    lines.push(`- MARC genre/form terms: ${body.marcGenreTerms.join('; ')}`);
+  }
+  if (body.extractedSeries) {
+    lines.push(`- Spine-printed publisher series: ${body.extractedSeries}`);
+  }
+  if (
+    Array.isArray(body.authorPatternTags) &&
+    body.authorPatternTags.length > 0 &&
+    typeof body.authorPatternSampleSize === 'number' &&
+    body.authorPatternSampleSize >= 3
+  ) {
+    lines.push(
+      `- Tags frequently applied to other books by this author in the user's library (sample of ${body.authorPatternSampleSize}): ${body.authorPatternTags.join(', ')}`
+    );
+  }
+  if (body.synopsis) {
+    const trimmed = body.synopsis.length > 300 ? body.synopsis.slice(0, 300) : body.synopsis;
+    lines.push(`- Synopsis (first 300 chars): ${trimmed}`);
+  }
+
+  if (mode === 'domain') {
+    return `Identify the primary domain (or domains) of the following book according to the rules in the system prompt. Return ONLY a single JSON object as specified.\n\nBook metadata:\n${lines.join('\n')}`;
+  }
+  // mode === 'tags'
+  return `Tag the following book according to the rules in the system prompt. The domain is **${domainName}** — propose only tags within that domain (or [Proposed]-prefixed) plus form tags. Return ONLY a single JSON object as specified.\n\nBook metadata:\n${lines.join('\n')}`;
+}
+
+// ---------------------------------------------------------------------------
+// Domain validation. Accept only known domain keys so a stray model
+// hallucination can't slip through. Cap at MAX_DOMAINS_PER_BOOK.
+// ---------------------------------------------------------------------------
+
+const VALID_DOMAINS: ReadonlySet<DomainKey> = new Set(
+  Object.keys(VOCAB.domains) as DomainKey[]
+);
+
+interface DomainPick {
+  domain: DomainKey;
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+}
+
+function parseDomainResponse(parsed: unknown): { domains: DomainPick[]; reasoning: string } {
+  const out: DomainPick[] = [];
+  let reasoning = '';
+  if (parsed && typeof parsed === 'object') {
+    const p = parsed as { domains?: unknown; reasoning?: unknown };
+    if (typeof p.reasoning === 'string') reasoning = p.reasoning;
+    if (Array.isArray(p.domains)) {
+      for (const d of p.domains) {
+        if (!d || typeof d !== 'object') continue;
+        const dd = d as { domain?: unknown; confidence?: unknown };
+        const domain = typeof dd.domain === 'string' ? (dd.domain.toLowerCase() as DomainKey) : null;
+        if (!domain || !VALID_DOMAINS.has(domain)) continue;
+        if (domain === '_unclassified') continue; // never useful as a tagging anchor
+        const confidence =
+          dd.confidence === 'HIGH' || dd.confidence === 'MEDIUM' || dd.confidence === 'LOW'
+            ? dd.confidence
+            : 'LOW';
+        out.push({ domain, confidence });
+        if (out.length >= MAX_DOMAINS_PER_BOOK) break;
+      }
+    }
+  }
+  return { domains: out, reasoning };
+}
+
+// ---------------------------------------------------------------------------
+// Per-domain focused tag call. Returns the parsed result as-is (caller
+// merges across domains).
+// ---------------------------------------------------------------------------
+
+interface TagCallResult {
+  genreTags: string[];
+  formTags: string[];
+  confidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  reasoning: string;
+}
+
+async function runTagCallForDomain(
+  client: Anthropic,
+  body: InferRequest,
+  domain: DomainKey,
+  tagCorrections: CorrectionEntry[]
+): Promise<TagCallResult | null> {
+  const baseSystem = renderTagsPrompt(domain);
+  const domainScopedCorrections = tagCorrections.filter(
+    (c) => !c.domain || c.domain === domain
+  );
+  const system = appendCorrections(baseSystem, domainScopedCorrections, formatTagCorrection);
+  const userMessage = buildUserMessage(body, 'tags', VOCAB.domains[domain]?.label ?? domain);
+  const resp = await withAnthropicRetry(
+    () =>
+      client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+    `infer-tags:${domain}`
+  );
+  const textBlock = resp.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') return null;
+  let parsed: any;
+  try {
+    parsed = extractJsonObject(textBlock.text);
+  } catch {
+    return null;
+  }
+  return {
+    genreTags: Array.isArray(parsed.genre_tags) ? parsed.genre_tags.map(String) : [],
+    formTags: Array.isArray(parsed.form_tags) ? parsed.form_tags.map(String) : [],
+    confidence:
+      parsed.confidence === 'HIGH' ||
+      parsed.confidence === 'MEDIUM' ||
+      parsed.confidence === 'LOW'
+        ? parsed.confidence
+        : 'LOW',
+    reasoning: String(parsed.reasoning ?? ''),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// POST handler — orchestrates the two-call flow.
+//   1. Domain detection (one Sonnet call). Capped at 3 domains.
+//   2. For each identified domain, run focused tag inference IN PARALLEL.
+//   3. Merge genre+form tags across domains, dedupe, return.
+// ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -145,109 +383,133 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'title is required' }, { status: 400 });
   }
 
-  const basePrompt = await loadSystemPrompt();
   const corrections = Array.isArray(body.corrections)
     ? body.corrections.filter(isCorrectionEntry)
     : [];
-  const system = buildSystemWithCorrections(basePrompt, corrections);
+  const domainCorrections = corrections.filter((c) => c.kind === 'domain');
+  const tagCorrections = corrections.filter((c) => (c.kind ?? 'tag') === 'tag');
+
   const client = new Anthropic({ apiKey });
 
-  // Build the user message line-by-line so optional enrichment fields
-  // are simply omitted (not rendered as empty lines) when the caller
-  // didn't pass them. Old callers see the same prompt as before.
-  const lines: string[] = [
-    `- Title: ${body.title}`,
-    `- Author: ${body.author ?? ''}`,
-    `- ISBN: ${body.isbn ?? ''}`,
-    `- Publisher: ${body.publisher ?? ''}`,
-    `- Publication year: ${body.publicationYear ?? ''}`,
-    `- LCC: ${body.lcc ?? ''}`,
-    `- Subject headings: ${(body.subjectHeadings ?? []).join('; ')}`,
-    `- Existing genre tags: ${(body.existingGenreTags ?? []).join('; ')}`,
-  ];
-  if (body.ddc) lines.push(`- DDC: ${body.ddc}`);
-  // Only surface the derived LCC class letter when no authoritative LCC
-  // was sourced — otherwise it'd be redundant and could confuse the
-  // model into double-counting domain signal.
-  if (body.lccDerivedFromDdc && !body.lcc) {
-    lines.push(`- LCC class letter (derived from DDC, class-letter only): ${body.lccDerivedFromDdc}`);
-  }
-  if (Array.isArray(body.lcshSubjects) && body.lcshSubjects.length > 0) {
-    lines.push(`- LCSH subject headings: ${body.lcshSubjects.join('; ')}`);
-  }
-  if (Array.isArray(body.marcGenreTerms) && body.marcGenreTerms.length > 0) {
-    lines.push(`- MARC genre/form terms: ${body.marcGenreTerms.join('; ')}`);
-  }
-  if (body.extractedSeries) {
-    lines.push(`- Spine-printed publisher series: ${body.extractedSeries}`);
-  }
-  // Author-pattern tags — only surface when the upstream guard's
-  // sampleSize ≥ 3 condition was satisfied. The size is surfaced in
-  // the line so the model can weight the signal appropriately.
-  if (
-    Array.isArray(body.authorPatternTags) &&
-    body.authorPatternTags.length > 0 &&
-    typeof body.authorPatternSampleSize === 'number' &&
-    body.authorPatternSampleSize >= 3
-  ) {
-    lines.push(
-      `- Tags frequently applied to other books by this author in the user's library (sample of ${body.authorPatternSampleSize}): ${body.authorPatternTags.join(', ')}`
-    );
-  }
-  if (body.synopsis) {
-    const trimmed = body.synopsis.length > 300 ? body.synopsis.slice(0, 300) : body.synopsis;
-    lines.push(`- Synopsis (first 300 chars): ${trimmed}`);
-  }
+  // Pre-load both prompts so the per-domain calls below can render
+  // synchronously without racing.
+  const [domainBase] = await Promise.all([loadDomainPrompt(), loadTagsTemplate()]);
+  const domainSystem = appendCorrections(domainBase, domainCorrections, formatDomainCorrection);
 
-  const userMessage = `Tag the following book according to the rules in the system prompt. Return ONLY a single JSON object (no markdown fences) with fields: title, author, isbn, publication_year, publisher, lcc, genre_tags (array of strings), form_tags (array of strings), confidence ("HIGH"|"MEDIUM"|"LOW"), reasoning (short string).
-
-Book metadata:
-${lines.join('\n')}`;
-
+  // ---------------- Call 1: domain detection ----------------
+  let domainPicks: DomainPick[] = [];
+  let domainReasoning = '';
   try {
+    const userMessage = buildUserMessage(body, 'domain');
     const resp = await withAnthropicRetry(
       () =>
         client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 1024,
-          system,
+          max_tokens: 512,
+          system: domainSystem,
           messages: [{ role: 'user', content: userMessage }],
         }),
-      'infer-tags'
+      'infer-domain'
     );
-
     const textBlock = resp.content.find((b) => b.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      return NextResponse.json({ error: 'Empty model response' }, { status: 502 });
+    if (textBlock && textBlock.type === 'text') {
+      let parsed: unknown;
+      try {
+        parsed = extractJsonObject(textBlock.text);
+      } catch {
+        parsed = null;
+      }
+      const result = parseDomainResponse(parsed);
+      domainPicks = result.domains;
+      domainReasoning = result.reasoning;
     }
-
-    let parsed: any;
-    try {
-      parsed = extractJsonObject(textBlock.text);
-    } catch (err) {
-      return NextResponse.json(
-        { error: 'Could not parse JSON from model', text: textBlock.text },
-        { status: 502 }
-      );
-    }
-
-    const result: InferTagsResult = {
-      genreTags: Array.isArray(parsed.genre_tags) ? parsed.genre_tags.map(String) : [],
-      formTags: Array.isArray(parsed.form_tags) ? parsed.form_tags.map(String) : [],
-      confidence:
-        parsed.confidence === 'HIGH' ||
-        parsed.confidence === 'MEDIUM' ||
-        parsed.confidence === 'LOW'
-          ? parsed.confidence
-          : 'LOW',
-      reasoning: String(parsed.reasoning ?? ''),
-    };
-
-    return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json(
-      { error: 'Tag inference error', details: err?.message ?? String(err) },
+      { error: 'Domain inference error', details: err?.message ?? String(err) },
       { status: 502 }
     );
   }
+
+  // No domain returned → empty result with LOW domain confidence so the
+  // caller can flag it. Don't run call 2 — there's no domain to focus on.
+  if (domainPicks.length === 0) {
+    const result: InferTagsResult = {
+      genreTags: [],
+      formTags: [],
+      confidence: 'LOW',
+      reasoning: domainReasoning || 'Domain inference returned no usable domains.',
+      inferredDomains: [],
+      domainConfidence: 'low',
+    };
+    return NextResponse.json(result);
+  }
+
+  // ---------------- Call 2: per-domain focused tag inference (parallel) ----------------
+  const tagResults = await Promise.all(
+    domainPicks.map((pick) =>
+      runTagCallForDomain(client, body, pick.domain, tagCorrections).catch(() => null)
+    )
+  );
+
+  // Merge across all domain calls. Genre tags + form tags get deduped
+  // (case-sensitive — vocabulary tags ARE case-sensitive). Confidence
+  // is the WORST of any successful call's reported confidence; LOW
+  // beats MEDIUM beats HIGH.
+  const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
+  const seenGenre = new Set<string>();
+  const seenForm = new Set<string>();
+  const mergedGenre: string[] = [];
+  const mergedForm: string[] = [];
+  let mergedConfidence: 'HIGH' | 'MEDIUM' | 'LOW' = 'HIGH';
+  const reasoningLines: string[] = [];
+
+  for (let i = 0; i < tagResults.length; i++) {
+    const tr = tagResults[i];
+    if (!tr) continue;
+    for (const t of tr.genreTags) {
+      if (!seenGenre.has(t)) {
+        seenGenre.add(t);
+        mergedGenre.push(t);
+      }
+    }
+    for (const t of tr.formTags) {
+      if (!seenForm.has(t)) {
+        seenForm.add(t);
+        mergedForm.push(t);
+      }
+    }
+    if (order[tr.confidence] < order[mergedConfidence]) mergedConfidence = tr.confidence;
+    if (tr.reasoning) {
+      reasoningLines.push(`[${domainPicks[i].domain}] ${tr.reasoning}`);
+    }
+  }
+
+  // Translate domain confidence: HIGH → 'high', etc.
+  const primaryDomainConfidence = domainPicks[0].confidence;
+  const domainConfidence: 'high' | 'medium' | 'low' =
+    primaryDomainConfidence === 'HIGH'
+      ? 'high'
+      : primaryDomainConfidence === 'MEDIUM'
+        ? 'medium'
+        : 'low';
+
+  // If no tag call succeeded, we still have domain output — fall back
+  // to LOW confidence and an empty tag set so the user can intervene.
+  if (mergedGenre.length === 0 && mergedForm.length === 0) {
+    mergedConfidence = 'LOW';
+  }
+
+  const result: InferTagsResult = {
+    genreTags: mergedGenre,
+    formTags: mergedForm,
+    confidence: mergedConfidence,
+    reasoning:
+      reasoningLines.length > 0
+        ? reasoningLines.join(' | ')
+        : domainReasoning || 'Two-step inference returned no tag reasoning.',
+    inferredDomains: domainPicks.map((p) => p.domain),
+    domainConfidence,
+  };
+
+  return NextResponse.json(result);
 }

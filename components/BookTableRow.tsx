@@ -51,7 +51,8 @@ export function BookTableRow({ book }: { book: BookRecord }) {
     (Array.isArray(book.warnings) && book.warnings.length > 0) ||
     !!book.previouslyExported ||
     !!(book.duplicateGroup && !book.duplicateResolved) ||
-    book.confidence === 'LOW';
+    book.confidence === 'LOW' ||
+    book.domainConfidence === 'low';
 
   const isApproved = book.status === 'approved';
   const isRejected = book.status === 'rejected';
@@ -236,8 +237,16 @@ export function BookTableRow({ book }: { book: BookRecord }) {
         </div>
 
         {/* Confidence */}
-        <div>
+        <div className="flex items-center gap-1">
           <ConfChip level={book.confidence} />
+          {book.domainConfidence === 'low' && (
+            <span
+              className="inline-block text-[9px] font-semibold uppercase tracking-[0.3px] px-1.5 py-0.5 rounded bg-carnegie-amber-soft text-carnegie-amber"
+              title={`Low domain confidence — primary domain "${book.inferredDomains?.[0] ?? 'unknown'}" was uncertain. Review tags carefully.`}
+            >
+              ?domain
+            </span>
+          )}
         </div>
 
         {/* Tags (compact) */}

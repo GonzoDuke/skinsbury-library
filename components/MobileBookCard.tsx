@@ -50,7 +50,8 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
     (Array.isArray(book.warnings) && book.warnings.length > 0) ||
     !!book.previouslyExported ||
     !!(book.duplicateGroup && !book.duplicateResolved) ||
-    book.confidence === 'LOW';
+    book.confidence === 'LOW' ||
+    book.domainConfidence === 'low';
 
   function setStatus(next: 'approved' | 'rejected') {
     const prior = book.status;

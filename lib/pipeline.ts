@@ -278,9 +278,23 @@ export async function inferLccClient(args: {
 export async function inferTagsClient(args: {
   title: string;
   author: string;
+  /** Subtitle — disambiguates ambiguous titles. Audit-fix delivery. */
+  subtitle?: string;
+  /** Full author list — multi-author books pass all here. Audit-fix. */
+  allAuthors?: string[];
   isbn?: string;
   publisher?: string;
   publicationYear?: number;
+  /** Edition statement (audit-fix). */
+  edition?: string;
+  /** Publisher series (audit-fix). */
+  series?: string;
+  /** Binding (audit-fix). */
+  binding?: string;
+  /** Language (audit-fix). */
+  language?: string;
+  /** Page count (audit-fix). */
+  pageCount?: number;
   lcc?: string;
   subjectHeadings?: string[];
   // Phase-3 enrichment fields. All optional — old callers continue to
@@ -846,9 +860,16 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
       tags = await inferTagsClient({
         title: read.title,
         author: read.author,
+        subtitle: lookup.subtitle,
+        allAuthors: lookup.allAuthors,
         isbn: lookup.isbn,
         publisher: lookup.publisher,
         publicationYear: lookup.publicationYear,
+        edition: lookup.edition,
+        series: lookup.series,
+        binding: lookup.binding,
+        language: lookup.language,
+        pageCount: lookup.pageCount,
         lcc: finalLcc,
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
@@ -943,6 +964,8 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
     lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
+    inferredDomains: tags?.inferredDomains,
+    domainConfidence: tags?.domainConfidence,
     lccSource,
     spineThumbnail,
     coverUrl: lookup.coverUrl,
@@ -1014,9 +1037,16 @@ export async function retagBook(book: BookRecord): Promise<{
     inferred = await inferTagsClient({
       title: book.title,
       author: book.author,
+      subtitle: book.subtitle,
+      allAuthors: book.allAuthors,
       isbn: book.isbn,
       publisher: book.publisher,
       publicationYear: book.publicationYear,
+      edition: book.edition,
+      series: book.series,
+      binding: book.binding,
+      language: book.language,
+      pageCount: book.pageCount,
       lcc: book.lcc,
       // Bulk re-tag now also forwards stored enrichment fields when
       // they exist on the BookRecord (LCSH, DDC, synopsis, MARC 655
@@ -1065,6 +1095,8 @@ export async function retagBook(book: BookRecord): Promise<{
       genreTags: finalGenre,
       formTags: finalForm,
       reasoning: inferred.reasoning,
+      inferredDomains: inferred.inferredDomains,
+      domainConfidence: inferred.domainConfidence,
       // Reset the tag baseline so subsequent re-tags compare against
       // this fresh inference, not the original from initial processing.
       original: {
@@ -1154,9 +1186,16 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     tags = await inferTagsClient({
       title,
       author,
+      subtitle: lookup.subtitle,
+      allAuthors: lookup.allAuthors,
       isbn: lookup.isbn || isbn,
       publisher: lookup.publisher,
       publicationYear: lookup.publicationYear,
+      edition: lookup.edition,
+      series: lookup.series,
+      binding: lookup.binding,
+      language: lookup.language,
+      pageCount: lookup.pageCount,
       lcc: lookup.lcc,
       subjectHeadings: lookup.subjects,
       ddc: lookup.ddc,
@@ -1233,6 +1272,8 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
     lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
+    inferredDomains: tags?.inferredDomains,
+    domainConfidence: tags?.domainConfidence,
     lccSource,
     manuallyAdded: true,
     // Phase-3 enrichment passthrough — see addManualBook's sibling
@@ -1486,9 +1527,16 @@ export async function rereadBook(
       tags = await inferTagsClient({
         title,
         author,
+        subtitle: lookup.subtitle,
+        allAuthors: lookup.allAuthors,
         isbn: lookup.isbn,
         publisher: lookup.publisher,
         publicationYear: lookup.publicationYear,
+        edition: lookup.edition,
+        series: lookup.series,
+        binding: lookup.binding,
+        language: lookup.language,
+        pageCount: lookup.pageCount,
         lcc: finalLcc,
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
@@ -1544,6 +1592,8 @@ export async function rereadBook(
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
     lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
+    inferredDomains: tags?.inferredDomains,
+    domainConfidence: tags?.domainConfidence,
     lccSource,
     coverUrl: lookup.coverUrl,
     // Phase-3 enrichment passthrough — surgical, only sets what the
