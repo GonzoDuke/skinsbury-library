@@ -49,13 +49,14 @@ export function MobileShell() {
     }
   }
 
-  // Tab order: Stacks (the new front door) is first; the rest of the
+  // Tab order: Collection (the front door) is first; the rest of the
   // workflow follows. Vocab dropped from the bottom tab bar to keep it
-  // 4-wide on phones — vocab is reachable from the Stacks page header
-  // links and from the desktop sidebar. Capture relabelled to Upload
-  // and pointed at /upload (the legacy `/` is now a redirect to /stacks).
+  // 4-wide on phones — vocab is reachable from the Collection page
+  // header links and from the desktop sidebar. Capture relabelled to
+  // Upload and pointed at /upload (the legacy `/` is a redirect to
+  // /collection).
   const tabs: TabDef[] = [
-    { href: '/stacks', label: 'Stacks', icon: <StacksIcon /> },
+    { href: '/collection', label: 'Collection', icon: <CollectionIcon /> },
     { href: '/upload', label: 'Upload', icon: <CameraIcon /> },
     { href: '/review', label: 'Review', icon: <ReviewIcon /> },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
@@ -293,8 +294,8 @@ function ExportIcon() {
   );
 }
 
-// Stacks tab icon — 5 short spines, the "all of it" view.
-function StacksIcon() {
+// Collection tab icon — 5 short spines, the "all of it" view.
+function CollectionIcon() {
   return (
     <IconShell>
       <rect x="2" y="3" width="3" height="18" rx="0.6" />

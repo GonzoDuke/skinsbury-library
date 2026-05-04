@@ -650,7 +650,7 @@ export function deleteLedgerBatch(batchLabel: string | undefined): number {
 }
 
 // ---------------------------------------------------------------------------
-// Duplicates & editions detection — used by the /stacks/duplicates tool.
+// Duplicates & editions detection — used by the /collection/duplicates tool.
 // Two distinct cases:
 //   1. EXACT: multiple ledger entries that share the same ISBN.
 //   2. EDITION: multiple entries that resolve to the same work
@@ -910,7 +910,7 @@ function generateWorkGroupId(): string {
 }
 
 // ---------------------------------------------------------------------------
-// Authority check — used by the /stacks/authority tool.
+// Authority check — used by the /collection/authority tool.
 //
 // Detects entries whose author is likely the same person but stored in
 // inconsistent forms ("Solnit, Rebecca" vs "Solnit, R." vs "Solnit,

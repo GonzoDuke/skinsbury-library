@@ -90,14 +90,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
   ];
   const library: NavItemDef[] = [
-    { href: '/stacks', label: 'Stacks', icon: <StacksIcon /> },
+    { href: '/collection', label: 'Collection', icon: <CollectionIcon /> },
     { href: '/vocabulary', label: 'Vocabulary', icon: <BooksIcon /> },
     { href: '/history', label: 'History', icon: <ClockIcon /> },
   ];
 
   // Strict match for the root path (legacy bookmarks redirect to
-  // /stacks server-side); every other route uses a prefix match so
-  // nested routes (e.g. /stacks/duplicates) still highlight.
+  // /collection server-side); every other route uses a prefix match so
+  // nested routes (e.g. /collection/duplicates) still highlight.
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(href + '/');
@@ -408,10 +408,10 @@ function BooksIcon() {
   );
 }
 
-// Stacks — a row of densely-packed spines, slightly heavier than
-// BooksIcon so the new top-of-Library entry reads as the "all of it"
+// Collection — a row of densely-packed spines, slightly heavier than
+// BooksIcon so the top-of-Library entry reads as the "all of it"
 // view rather than the per-tag Vocabulary view.
-function StacksIcon() {
+function CollectionIcon() {
   return (
     <IconShell>
       <rect x="1.5" y="2" width="2" height="12" rx="0.4" />
@@ -489,7 +489,7 @@ function BrandPanel() {
 
   return (
     <Link
-      href="/stacks"
+      href="/collection"
       className="cursor-pointer group block relative"
       style={{
         // True square — width matches sidebar (260), height equals
@@ -499,7 +499,7 @@ function BrandPanel() {
         backgroundColor: NAVY,
         backgroundImage: tartanLayers,
       }}
-      aria-label="Carnegie — go to upload"
+      aria-label="Carnegie — go to Collection"
     >
       {/* Inner block positioned at 45% from top (slightly above true
           center) and horizontally centered. Translate keeps the

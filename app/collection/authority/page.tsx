@@ -85,10 +85,10 @@ export default function AuthorityPage() {
     <div className="space-y-5">
       <div>
         <Link
-          href="/stacks"
+          href="/collection"
           className="text-[12px] text-text-tertiary hover:text-navy hover:underline"
         >
-          ← Stacks
+          ← Collection
         </Link>
         <h1 className="typo-page-title mt-1">Authority check</h1>
         <div className="text-[13px] text-text-secondary mt-0.5">
@@ -442,10 +442,10 @@ function EmptyState() {
       </details>
       <div className="mt-4">
         <Link
-          href="/stacks"
+          href="/collection"
           className="inline-block px-4 py-2 rounded-md bg-surface-page border border-line text-text-secondary hover:bg-surface-card transition text-[12px]"
         >
-          ← Back to Stacks
+          ← Back to Collection
         </Link>
       </div>
     </div>
