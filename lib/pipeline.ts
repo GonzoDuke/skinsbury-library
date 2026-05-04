@@ -125,6 +125,11 @@ interface ReadSpineResponse {
   lcc: string;
   confidence: 'HIGH' | 'MEDIUM' | 'LOW';
   note?: string;
+  // Step 2 sticker extractions. All optional.
+  extractedCallNumber?: string;
+  extractedCallNumberSystem?: 'lcc' | 'ddc' | 'unknown';
+  extractedEdition?: string;
+  extractedSeries?: string;
 }
 
 export async function readSpine(args: {
@@ -245,6 +250,12 @@ export async function inferTagsClient(args: {
    *  vocabulary. Highest-priority signal for genre/form classification
    *  (outranks LCSH and LCC for that purpose specifically). */
   marcGenreTerms?: string[];
+  /** Publisher series indicator extracted directly from the spine
+   *  ("Penguin Classics", "Library of America", "Folio Society"). When
+   *  present, the prompt should apply the matching form tag with high
+   *  confidence — this is read off the physical artifact and overrides
+   *  the "only when publisher confirms" guard for series form tags. */
+  extractedSeries?: string;
   synopsis?: string;
 }): Promise<InferTagsResult> {
   // Pull the user's most recent tag corrections from localStorage and
@@ -598,6 +609,10 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     confidence: read.confidence,
     note: read.note,
     bbox,
+    extractedCallNumber: read.extractedCallNumber,
+    extractedCallNumberSystem: read.extractedCallNumberSystem,
+    extractedEdition: read.extractedEdition,
+    extractedSeries: read.extractedSeries,
   };
 
   // Look up metadata.
@@ -685,13 +700,42 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
 
   // Spine-printed LCC wins over the lookup-derived one — it's the LoC's
   // own classification for the exact physical edition the user owns.
-  // Provenance: spine > loc/ol (from lookup chain) > inferred (model best-guess)
-  let finalLcc = read.lcc || lookup.lcc;
-  let lccSource: BookRecord['lccSource'] = read.lcc
+  // Provenance: spine (printed or stickered) > loc/ol (from lookup
+  // chain) > inferred (model best-guess).
+  //
+  // The Step 2 extractedCallNumber field is the strict-stickered
+  // form. When present and tagged 'lcc' it gets the same 'spine'
+  // provenance as read.lcc. When tagged 'ddc' it goes to lookup.ddc
+  // (still gap-fill — never overwriting an LCC) so the tag prompt
+  // rule on DDC kicks in.
+  const stickerLcc =
+    read.extractedCallNumber && read.extractedCallNumberSystem === 'lcc'
+      ? read.extractedCallNumber
+      : '';
+  let finalLcc = stickerLcc || read.lcc || lookup.lcc;
+  let lccSource: BookRecord['lccSource'] = stickerLcc || read.lcc
     ? 'spine'
     : lookup.lcc
       ? lookup.lccSource ?? 'ol'
       : 'none';
+
+  // DDC override from a Dewey sticker. Same gap-fill semantics as the
+  // network DDC tier: if the lookup found a DDC we keep it (the physical
+  // sticker and the cataloger DDC should agree, and the cataloger DDC
+  // tends to be more complete). If neither did, the sticker fills in.
+  if (
+    read.extractedCallNumber &&
+    read.extractedCallNumberSystem === 'ddc' &&
+    !lookup.ddc
+  ) {
+    lookup.ddc = read.extractedCallNumber;
+  }
+
+  // Edition gap-fill — the lookup chain may have produced an edition
+  // statement from MARC 250 or ISBNdb; spine extraction is a fallback.
+  if (read.extractedEdition && !lookup.edition) {
+    lookup.edition = read.extractedEdition;
+  }
 
   // Tier 6: model-inferred LCC (final fallback). Only fires when the
   // entire lookup chain (OL t1-t4 → GB → LoC SRU by ISBN → LoC SRU by
@@ -743,6 +787,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         ddc: lookup.ddc,
         lcshSubjects: lookup.lcshSubjects,
         marcGenreTerms: lookup.marcGenres,
+        extractedSeries: read.extractedSeries,
         synopsis: lookup.synopsis,
       });
     } catch {
@@ -1139,6 +1184,13 @@ export async function rereadBook(
   let confidence: 'HIGH' | 'MEDIUM' | 'LOW' = current.confidence;
   let publisher = current.publisher;
   let lccFromSpine = '';
+  // Step 2 sticker extractions captured during an AI-retry reread.
+  // Empty strings when the reread used hint or matchEdition mode (Pass B
+  // didn't run). Plumbed forward into tag inference + edition gap-fill
+  // the same way buildBookFromCrop does.
+  let rereadExtractedSeries = '';
+  let rereadExtractedEdition = '';
+  let rereadExtractedDdc = '';
 
   if (options.matchEdition) {
     // Trust the user's edited fields as ground truth. Skip Pass B.
@@ -1199,7 +1251,19 @@ export async function rereadBook(
     author = authorEdited ? current.author : read.author;
     publisher = publisherEdited ? current.publisher : read.publisher || current.publisher;
     confidence = read.confidence;
-    lccFromSpine = read.lcc || '';
+    // Spine LCC: prefer the strict-stickered field when system='lcc';
+    // fall back to the legacy `lcc` field otherwise. Same precedence as
+    // buildBookFromCrop.
+    const stickerLcc =
+      read.extractedCallNumber && read.extractedCallNumberSystem === 'lcc'
+        ? read.extractedCallNumber
+        : '';
+    lccFromSpine = stickerLcc || read.lcc || '';
+    rereadExtractedSeries = read.extractedSeries ?? '';
+    rereadExtractedEdition = read.extractedEdition ?? '';
+    if (read.extractedCallNumber && read.extractedCallNumberSystem === 'ddc') {
+      rereadExtractedDdc = read.extractedCallNumber;
+    }
   }
 
   // Lookup
@@ -1260,6 +1324,10 @@ export async function rereadBook(
       ? lookup.lccSource ?? 'ol'
       : 'none';
 
+  // DDC + edition gap-fills from the reread's sticker extractions.
+  if (rereadExtractedDdc && !lookup.ddc) lookup.ddc = rereadExtractedDdc;
+  if (rereadExtractedEdition && !lookup.edition) lookup.edition = rereadExtractedEdition;
+
   // Tier 6 inference (same fallback as buildBookFromCrop).
   if (!finalLcc && title && author) {
     try {
@@ -1299,6 +1367,7 @@ export async function rereadBook(
         ddc: lookup.ddc,
         lcshSubjects: lookup.lcshSubjects,
         marcGenreTerms: lookup.marcGenres,
+        extractedSeries: rereadExtractedSeries || undefined,
         synopsis: lookup.synopsis,
       });
     } catch {

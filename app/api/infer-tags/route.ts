@@ -100,6 +100,12 @@ interface InferRequest {
    *  "Bildungsromans", "Festschriften", "Cookbooks". Highest-priority
    *  signal for genre/form classification. */
   marcGenreTerms?: string[];
+  /** Publisher-series indicator extracted directly from the spine
+   *  ("Penguin Classics", "Library of America", "Folio Society"). The
+   *  user actually saw it on the physical book — overrides the
+   *  prompt's "only when publisher confirms" guard for the matching
+   *  form tag. */
+  extractedSeries?: string;
   synopsis?: string;
   /** Recent tag corrections forwarded by the client. Up to 20 most
    *  recent are appended to the system prompt as few-shot examples. */
@@ -149,6 +155,9 @@ export async function POST(req: NextRequest) {
   }
   if (Array.isArray(body.marcGenreTerms) && body.marcGenreTerms.length > 0) {
     lines.push(`- MARC genre/form terms: ${body.marcGenreTerms.join('; ')}`);
+  }
+  if (body.extractedSeries) {
+    lines.push(`- Spine-printed publisher series: ${body.extractedSeries}`);
   }
   if (body.synopsis) {
     const trimmed = body.synopsis.length > 300 ? body.synopsis.slice(0, 300) : body.synopsis;

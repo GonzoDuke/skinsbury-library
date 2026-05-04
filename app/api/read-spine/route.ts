@@ -13,6 +13,10 @@ Extract:
 - publisher: the publisher logo or text if visible at the foot of the spine
 - lcc: the Library of Congress Classification call number, ONLY if a real LCC is printed or stickered on this physical spine. See LCC RULES below.
 - confidence: HIGH if both title and author are clearly legible; MEDIUM if one is partly obscured; LOW if you are guessing
+- extractedCallNumber: raw sticker text from a library call-number sticker affixed to the bottom of the spine. Return whatever the sticker shows, verbatim, even if it looks like DDC instead of LCC. Empty string if no sticker.
+- extractedCallNumberSystem: "lcc" if the sticker text starts with one to three uppercase letters followed by digits (LCC format); "ddc" if it's purely numeric (Dewey, e.g. "822.33" or "973.7"); "unknown" if you can't tell. Empty string if no sticker.
+- extractedEdition: edition statement printed on the spine ("1st ed.", "Rev. ed.", "Revised", "Annotated", "Definitive Edition"). Empty string if none visible.
+- extractedSeries: publisher series indicator printed on the spine ("Penguin Classics", "Library of America", "Folio Society", "Modern Library", "Vintage International", "Everyman's Library"). Empty string if none.
 
 STRICT RULES:
 - If text is rotated 90° (vertical), still read it left-to-right.
@@ -20,8 +24,9 @@ STRICT RULES:
 - Do NOT invent text. If you can only see part of a word, leave it empty and note it.
 - The author and title may be stacked on the same spine. Both belong to ONE book.
 - Author names: return as printed (e.g., "Albert Camus", not "Camus, Albert").
+- For all "extracted*" fields: ONLY return text that is clearly, unambiguously visible. If you are not certain, return an empty string. Hallucinating an ISBN or call number is far worse than missing it.
 
-LCC RULES (very strict):
+LCC RULES (very strict, applies to both 'lcc' and 'extractedCallNumber' when system='lcc'):
 - Return an LCC ONLY if it is actually printed, stamped, or applied as a library classification sticker on this physical spine. Common on ex-library copies, university press editions, and older Modern Library hardbacks. Most modern paperbacks have NONE — return empty string in that case.
 - Always return in canonical single-line format. The model is responsible for normalizing whatever you see on the spine.
   - Class letters (1–3 uppercase): e.g., PR, BL, QA, PS, BJ, CT, HM
@@ -35,10 +40,10 @@ LCC RULES (very strict):
   - "QA76.73 .P98 K39 2024"
   - "PS3525 .I5156 D4 1998"
 - If you cannot confidently identify EVERY component (class letters AND number AND cutter), return an empty string. Do NOT return partial LCCs. Do NOT guess the cutter from the author's name — capture only what is actually printed.
-- Do NOT confuse LCC with: ISBN (13 digits, often with barcodes); publisher series numbers like "70" on Modern Library spines; Dewey Decimal numbers (these are ALL-NUMERIC, e.g., 822.33). LCC ALWAYS starts with one to three uppercase letters.
+- Do NOT confuse LCC with: ISBN (always on the BACK COVER barcode block, never on the spine); publisher series numbers like "70" on Modern Library spines; Dewey Decimal numbers (these are ALL-NUMERIC, e.g., 822.33). LCC ALWAYS starts with one to three uppercase letters.
 
 Return ONLY a JSON object (no prose, no fences):
-{"title": "...", "author": "...", "publisher": "...", "lcc": "...", "confidence": "HIGH|MEDIUM|LOW", "note": "..."}`;
+{"title": "...", "author": "...", "publisher": "...", "lcc": "...", "confidence": "HIGH|MEDIUM|LOW", "note": "...", "extractedCallNumber": "...", "extractedCallNumberSystem": "lcc|ddc|unknown|", "extractedEdition": "...", "extractedSeries": "..."}`;
 
 interface ReadResponse {
   title: string;
@@ -47,6 +52,22 @@ interface ReadResponse {
   lcc: string;
   confidence: 'HIGH' | 'MEDIUM' | 'LOW';
   note?: string;
+  /** Raw call-number-sticker text. Empty when no sticker visible. */
+  extractedCallNumber?: string;
+  /** Classification system the sticker uses: 'lcc' (letter-prefixed),
+   *  'ddc' (purely numeric), or 'unknown'. Undefined when no sticker. */
+  extractedCallNumberSystem?: 'lcc' | 'ddc' | 'unknown';
+  /** Edition statement read from the spine ("1st ed.", "Rev. ed.").
+   *  Empty when none visible. */
+  extractedEdition?: string;
+  /** Publisher-series indicator read from the spine ("Penguin Classics",
+   *  "Library of America"). Empty when none visible. */
+  extractedSeries?: string;
+}
+
+function validateCallNumberSystem(raw: unknown): 'lcc' | 'ddc' | 'unknown' | undefined {
+  if (raw === 'lcc' || raw === 'ddc' || raw === 'unknown') return raw;
+  return undefined;
 }
 
 function extractJsonObject(text: string): unknown {
@@ -139,6 +160,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const extractedCallNumber = parsed.extractedCallNumber
+      ? String(parsed.extractedCallNumber).trim()
+      : '';
+    const extractedCallNumberSystem = validateCallNumberSystem(parsed.extractedCallNumberSystem);
+    const extractedEdition = parsed.extractedEdition
+      ? String(parsed.extractedEdition).trim()
+      : '';
+    const extractedSeries = parsed.extractedSeries
+      ? String(parsed.extractedSeries).trim()
+      : '';
+
     const result: ReadResponse = {
       title: String(parsed.title ?? '').trim(),
       author: String(parsed.author ?? '').trim(),
@@ -149,10 +181,20 @@ export async function POST(req: NextRequest) {
           ? parsed.confidence
           : 'LOW',
       note: parsed.note ? String(parsed.note) : undefined,
+      extractedCallNumber: extractedCallNumber || undefined,
+      extractedCallNumberSystem: extractedCallNumber ? extractedCallNumberSystem : undefined,
+      extractedEdition: extractedEdition || undefined,
+      extractedSeries: extractedSeries || undefined,
     };
 
+    const extras: string[] = [];
+    if (result.extractedCallNumber)
+      extras.push(`call=${JSON.stringify(result.extractedCallNumber)}/${result.extractedCallNumberSystem ?? '?'}`);
+    if (result.extractedEdition) extras.push(`ed=${JSON.stringify(result.extractedEdition)}`);
+    if (result.extractedSeries) extras.push(`series=${JSON.stringify(result.extractedSeries)}`);
+
     console.log(
-      `[read-spine ${body.model ?? 'opus'}] #${body.position ?? '?'} → "${result.title}" / "${result.author}"${result.lcc ? ` lcc=${result.lcc}` : ''} (${result.confidence}, ${Date.now() - t0}ms)`
+      `[read-spine ${body.model ?? 'opus'}] #${body.position ?? '?'} → "${result.title}" / "${result.author}"${result.lcc ? ` lcc=${result.lcc}` : ''} (${result.confidence}, ${Date.now() - t0}ms)${extras.length ? ' [' + extras.join(' ') + ']' : ''}`
     );
 
     return NextResponse.json(result);

@@ -18,6 +18,20 @@ export interface SpineRead {
   confidence: Confidence;
   note?: string;
   bbox?: SpineBbox;
+  // ---------------------------------------------------------------------
+  // Pass B sticker extractions. All optional — the read-spine prompt
+  // returns each only when clearly visible. The pipeline plumbs these
+  // forward as authoritative signals (extractedCallNumber overrides
+  // network LCC/DDC; extractedSeries informs form-tag inference).
+  // ---------------------------------------------------------------------
+  /** Raw call-number sticker text. Empty when no sticker visible. */
+  extractedCallNumber?: string;
+  /** Classification system the sticker uses. */
+  extractedCallNumberSystem?: 'lcc' | 'ddc' | 'unknown';
+  /** Edition statement printed on the spine ("1st ed.", "Rev. ed."). */
+  extractedEdition?: string;
+  /** Publisher-series indicator ("Penguin Classics", "Library of America"). */
+  extractedSeries?: string;
 }
 
 export interface BookLookupResult {
