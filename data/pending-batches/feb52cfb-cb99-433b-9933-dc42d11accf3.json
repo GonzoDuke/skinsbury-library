@@ -1,0 +1,542 @@
+{
+  "id": "feb52cfb-cb99-433b-9933-dc42d11accf3",
+  "filename": "20260501_070036.jpg",
+  "fileSize": 2898479,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 8,
+  "booksIdentified": 8,
+  "books": [
+    {
+      "id": "2909547e-24ce-4fb3-94c4-34915eb8a894",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Christ of Fanaticism — Monier",
+        "title": "Christ of Fanaticism",
+        "author": "Monier",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "LOW",
+        "note": "Spine partially visible; text reads 'Christ' large at top, 'of Fanaticism' below, and what appears to be 'Monier' near bottom. Title and author uncertain.",
+        "bbox": {
+          "x": 0,
+          "y": 10,
+          "width": 12,
+          "height": 85
+        }
+      },
+      "title": "Christ of Fanaticism",
+      "author": "Monier",
+      "authorLF": "Monier",
+      "isbn": "",
+      "publisher": "",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Christian theology",
+        "Critical thinking"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[philosophy_psychology_religion] Title suggests a critical examination of religious fanaticism from a Christian perspective. Very limited metadata with no publisher, year, or subject headings makes precise classification difficult.",
+      "status": "pending",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "none",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "medium",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABYDASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAEGAgMFBAcI/8QAMRAAAQMDAgMECQUAAAAAAAAAAQACAwQFERIhBjFREyJBYRQyUlNicYGRoZKxwfDx/8QAGQEBAAMBAQAAAAAAAAAAAAAABAABAwIF/8QAJBEAAgIBAwIHAAAAAAAAAAAAAAECEQMhQVEEEhMxMoGhsfD/2gAMAwEAAhEDEQA/APy7hZKSzHMtH1CbZ3e1d2WQAiy7nvG/YoqIedEWymaH1ETHeq5wB+66ehRrRfUKC12uGECSlpQCNjI0En6lEV9UuDbwXyfL1spzpniPRwP5WpZMOHtPQpTMS/2Sz0lzmrZ68vlmEzmaNRGkDly8kXkM7XTy9vfp6VweWiKOJ+GjO24xnZEBqT3+xCcVsUlSERODl/jkqGSybWaPJ2dU4D3Dwyi0MdaWyvFVb6qpmwCXR5xuAfaCINLgR7lHRETg5foZrqKaGO0tqC97Gve4tBY0aQMNJGN+ZRc2OK3SMiNXHcnymKMn0cNLfUHVEOlx8G9v8ypoiJhgfVeGamKK0UbXuIJiB9U9AOaLl2mVjLHQSPbqOgtGKl8R59G8+SLzZRVsWpaHz5EQL0ghc6ENfY7aXtpDgSDNQ4DHeHLvBFusTpRYaJ0TC/BkBAHxeTHFEFt2xFKkUYIERODl+4So2V9giZI+VgjkdvG8tKLw8M3Cpo7M30WNshMrgQWPdgYHsjz8UXnzjLudCYuNKynoiL0AxZrCNVox2YeBO7mzVjut+B/7IseHjEbVKJzhom23jG5b8e3h80Q5+pm68kVtFClMMC1cEV0VIKps2rDtJGBnqi53DlHPVunFPjLQMgnHVEHNG5vUXiyQUUmmcVSoUp4Q6NnqZYHSiJ7mFwBJaccv9RarYx75nBjS46c7fMIj5Eu7Up3seNFn2fmELMeISLLOnw3J2VdIT7sj8hF4aWTspC7VjbCI2XG5Ss7jKkayD/Sgje44GPqQFmpW9nJgYHt56P1g/wAos0UsgCKAp6qECIioh//Z",
+      "ocrModel": "o",
+      "original": {
+        "title": "Christ of Fanaticism",
+        "author": "Monier",
+        "isbn": "",
+        "publisher": "",
+        "publicationYear": 0,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Christian theology",
+          "Critical thinking"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "4350249c-130b-46dd-9659-2805c1ec0d0e",
+      "spineRead": {
+        "position": 2,
+        "rawText": "Cultish: The Language of Fanaticism — Amanda Montell",
+        "title": "Cultish: The Language of Fanaticism",
+        "author": "Amanda Montell",
+        "publisher": "Harper Wave",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 12,
+          "y": 10,
+          "width": 8,
+          "height": 85
+        }
+      },
+      "title": "Cultish the Language of Fanaticism",
+      "author": "Amanda Montell",
+      "authorLF": "Montell, Amanda",
+      "isbn": "9780062993151",
+      "publisher": "HarperCollinsPublishers",
+      "publicationYear": 2021,
+      "lcc": "P301.5 .P75M66 2021",
+      "genreTags": [
+        "Linguistics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC P301.5 places this firmly in sociolinguistics within the Language and literature domain. The title 'Cultish: The Language of Fanaticism' and subject headings including Linguistics and Sociolinguistics confirm this is a study of language use in specific social contexts. The book examines how language functions in cult-like groups, making Linguistics the most appropriate single genre tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "306.44",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Cultish The Language of Fanaticism",
+      "subtitle": "The Language of Fanaticism",
+      "allAuthors": [
+        "Amanda Montell"
+      ],
+      "synopsis": "<p>THE NEW YORK TIMES BESTSELLER</p><p>\"One of those life-changing reads that makes you see--or, in this case, hear--the whole world differently.\" --Megan Angelo, author of Followers</p><p>\"At times chilling, often funny, and always perceptive and cogent, Cultish is a bracing reminder that the scariest thing about cults is that you don't realize you're in one till it's too late.\"--Refinery29.com</p><p>The New York Times bestselling author of The Age of Magical Overthinking and Wordslut analyzes the social science of cult influence: how \"cultish\" groups, from Jonestown and Scientologists to SoulCycle and social media gurus, use language as the ultimate form of power.</p><p>What makes \"cults\" so intriguing and frightening? What makes them powerful? The reason why so many of us binge Manson documentaries by the dozen and fall down rabbit holes researching suburban moms gone QAnon is because we're looking for a satisfying explanation for what causes people to join--and more importantly, stay in--extreme groups. We secretly want to know: could it happen to me? Amanda Montell's argument is that, on some level, it already has . . .</p><p>Our culture tends to provide pretty flimsy answers to questions of cult influence, mostly having to do with vague talk of \"brainwashing.\" But the true answer has nothing to do with freaky mind-control wizardry or Kool-Aid. In Cultish, Montell argues that the key to manufacturing intense ideology, community, and us/them attitudes all comes down to language. In both positive ways and shadowy ones, cultish language is something we hear--and are influenced by--every single day. </p><p>Through juicy storytelling and cutting original research, Montell exposes the verbal elements that make a wide spectrum of communities \"cultish,\" revealing how they affect followers of groups as notorious as Heaven's Gate, but also how they pervade our modern start-ups, Peloton leaderboards, and Instagram feeds. Incisive and darkly funny, this enrapturing take on the curious social science of power and belief will make you hear the fanatical language of \"cultish\" everywhere.</p>",
+      "pageCount": 309,
+      "binding": "Hardcover",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false",
+        "https://books.google.com/books/content?id=zpLazQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+        "https://images.isbndb.com/covers/11135613482210.jpg"
+      ],
+      "original": {
+        "title": "Cultish the Language of Fanaticism",
+        "author": "Amanda Montell",
+        "isbn": "9780062993151",
+        "publisher": "HarperCollinsPublishers",
+        "publicationYear": 2021,
+        "lcc": "P301.5 .P75M66 2021",
+        "genreTags": [
+          "Linguistics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "45b14399-4c63-4af4-a5d4-d941f3ce7cde",
+      "spineRead": {
+        "position": 3,
+        "rawText": "The Pi$*@ing History of Swearing — Anna-Maria Hesse",
+        "title": "The Pi$*@ing History of Swearing",
+        "author": "Anna-Maria Hesse",
+        "publisher": "BIS",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 20,
+          "y": 10,
+          "width": 8,
+          "height": 85
+        }
+      },
+      "title": "The Pi$*@ing History of Swearing",
+      "author": "Anna-Maria Hesse",
+      "authorLF": "Hesse, Anna-Maria",
+      "isbn": "",
+      "publisher": "BIS",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Profanity studies",
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[language_literature] Title clearly indicates this is about the history and linguistic aspects of swearing/profanity. Falls under linguistics and language history within the domain, though profanity as a specific subfield may warrant a proposed tag.",
+      "status": "pending",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "none",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "ocrModel": "o",
+      "original": {
+        "title": "The Pi$*@ing History of Swearing",
+        "author": "Anna-Maria Hesse",
+        "isbn": "",
+        "publisher": "BIS",
+        "publicationYear": 0,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Profanity studies",
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "c759e000-a3ae-4993-8ddf-c14f64d00efe",
+      "spineRead": {
+        "position": 4,
+        "rawText": "The F Word — Sheidlower",
+        "title": "The F Word",
+        "author": "Sheidlower",
+        "publisher": "Oxford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 28,
+          "y": 10,
+          "width": 12,
+          "height": 85
+        }
+      },
+      "title": "The F Word",
+      "author": "Jesse Sheidlower",
+      "authorLF": "Sheidlower, Jesse",
+      "isbn": "9780375706349",
+      "publisher": "Random House Information Group",
+      "publicationYear": 1999,
+      "lcc": "PE1599 .F83 F2 1999",
+      "genreTags": [
+        "Etymology",
+        "Linguistics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE1599 places this in English language etymology/semantics. Subject headings explicitly list 'Etymology' and 'English language' with focus on linguistic analysis of a specific word. Clear fit for Etymology and Linguistics tags.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The F word",
+      "allAuthors": [
+        "Jesse Sheidlower"
+      ],
+      "pageCount": 272,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The F Word",
+        "author": "Jesse Sheidlower",
+        "isbn": "9780375706349",
+        "publisher": "Random House Information Group",
+        "publicationYear": 1999,
+        "lcc": "PE1599 .F83 F2 1999",
+        "genreTags": [
+          "Etymology",
+          "Linguistics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9362391d-47af-4eea-9a45-edd0457dd845",
+      "spineRead": {
+        "position": 5,
+        "rawText": "F You Very Much — Danny Wallace",
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "publisher": "tarcher perigee",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle: Understanding the Culture of Rudeness—and What We Can Do About It",
+        "bbox": {
+          "x": 40,
+          "y": 10,
+          "width": 8,
+          "height": 85
+        }
+      },
+      "title": "F You Very Much",
+      "author": "Danny Wallace",
+      "authorLF": "Wallace, Danny",
+      "isbn": "9781473559165",
+      "publisher": "Penguin Random House",
+      "publicationYear": 2018,
+      "lcc": "BJ-1853.00000000",
+      "genreTags": [
+        "Ethics",
+        "[Proposed] Social psychology"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[philosophy_psychology_religion] LCC BJ-1853 falls within ethics (BJ section). Subject headings 'Interpersonal relations' and 'Courtesy' suggest content about social behavior and moral conduct in relationships, fitting Ethics domain. The interpersonal relations aspect suggests social psychology elements not covered by existing tags.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "F*** You Very Much",
+      "allAuthors": [
+        "Danny Wallace"
+      ],
+      "pageCount": 352,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "isbn": "9781473559165",
+        "publisher": "Penguin Random House",
+        "publicationYear": 2018,
+        "lcc": "BJ-1853.00000000",
+        "genreTags": [
+          "Ethics",
+          "[Proposed] Social psychology"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "e666ed8d-8d94-4e29-a4bf-72234bf214d7",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Holy Sh*t — Mohr",
+        "title": "Holy Sh*t",
+        "author": "Mohr",
+        "publisher": "Oxford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 48,
+          "y": 10,
+          "width": 12,
+          "height": 85
+        }
+      },
+      "title": "Holy Sh*t",
+      "author": "Melissa Mohr",
+      "authorLF": "Mohr, Melissa",
+      "isbn": "9780190491680",
+      "publisher": "Oxford University Press, Incorporated",
+      "publicationYear": 2013,
+      "lcc": "PE3724 .S85.M65 2016",
+      "genreTags": [
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE3724 places this in English language studies. Subject headings confirm linguistics focus on swearing, English language history, and social aspects. The subtitle 'A Brief History of Swearing' clearly indicates historical linguistics treatment.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Holy Sh*t",
+      "subtitle": "A Brief History of Swearing",
+      "allAuthors": [
+        "Melissa Mohr"
+      ],
+      "synopsis": "Almost everyone swears, or worries about not swearing, from the two year-old who has just discovered the power of potty mouth to the grandma who wonders why every other word she hears is obscene. Whether they express anger or exhilaration, are meant to insult or to commend, swear words perform a crucial role in language. But swearing is also a uniquely well-suited lens through which to look at history, offering a fascinating record of what people care about on the deepest levels of a culture--what's divine, what's terrifying, and what's taboo. Holy Sh*t tells the story of two kinds of swearing--obscenities and oaths--from ancient Rome and the Bible to today. With humor and insight, Melissa Mohr takes readers on a journey to discover how \"swearing\" has come to include both testifying with your hand on the Bible and calling someone a *#$&!* when they cut you off on the highway. She explores obscenities in ancient Rome--which were remarkably similar to our own--and unearths the history of religious oaths in the Middle Ages, when swearing (or not swearing) an oath was often a matter of life and death. Holy Sh*t also explains the advancement of civility and corresponding censorship of language in the 18th century, considers the rise of racial slurs after World War II, examines the physiological effects of swearing (increased heart rate and greater pain tolerance), and answers a question that preoccupies the FCC, the US Senate, and anyone who has recently overheard little kids at a playground: are we swearing more now than people did in the past? A gem of lexicography and cultural history, Holy Sh*t is a serious exploration of obscenity--and it also just might expand your repertoire of words to choose from the next time you shut your finger in the car door.",
+      "pageCount": 336,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false",
+        "https://books.google.com/books/content?id=VGtdawEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "Holy Sh*t",
+        "author": "Melissa Mohr",
+        "isbn": "9780190491680",
+        "publisher": "Oxford University Press, Incorporated",
+        "publicationYear": 2013,
+        "lcc": "PE3724 .S85.M65 2016",
+        "genreTags": [
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "6a2bbceb-08e9-4582-b442-9feb5969b42d",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Sh*t is F*cked Up and Bullsh*t — Malcolm Harris",
+        "title": "Sh*t is F*cked Up and Bullsh*t",
+        "author": "Malcolm Harris",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 60,
+          "y": 10,
+          "width": 10,
+          "height": 85
+        }
+      },
+      "title": "Shit Is Fucked up and Bullshit",
+      "author": "Malcolm Harris",
+      "authorLF": "Harris, Malcolm",
+      "isbn": "9781612198361",
+      "publisher": "Melville House Publishing",
+      "publicationYear": 2020,
+      "lcc": "D862 .H37 2020",
+      "genreTags": [
+        "[Proposed] Modern civilization",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[world_history] LCC D862 places this in World history domain. Subject heading 'Modern Civilization' maps to proposed genre tag. Cultural history fits as secondary tag given the analysis of contemporary society implied by title and classification.",
+      "status": "pending",
+      "warnings": [
+        "Identified by AI from partial spine read: Distinctive profanity-laden title with clear author match makes this unambiguous despite asterisk censoring."
+      ],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABMDASIAAhEBAxEB/8QAHAAAAgMBAQEBAAAAAAAAAAAAAAQDBQYBAgcI/8QAQBAAAQMCBAMDBgoKAwAAAAAAAQIDBAARBQYSIRMxQSJRkQcyUmJxsRQjM0JDYWOTo8EVFiQlNESBobPSc6Ky/8QAGAEAAwEBAAAAAAAAAAAAAAAAAAECAwT/xAAhEQACAgIBBAMAAAAAAAAAAAAAAQIREiExAxMyQRQiQv/aAAwDAQACEQMRAD8A/MfWioNau+jWe81VDGKKgC1ekfGiigI6K3mWcnQsTeWmS9JSkMtufFqSDdVz1B2tatGnybYMfp8Q+8R/rWffgU+m0fIaK+yp8l+CFIJk4j94j/Sil8iAdtnMiJu/LPosxkj7lJ/OmTKxg5jWyyh9MZuSnX8VqQttWgAA9AAHFX79q8ZDT2pp9SKPwEVGwniZ4K+HjHA12BCviuIFEXPqWHiDXJDg2mnZuCCDYE0VHJWEvKBIuLe6ioGZTIQBRLI7o48GEVHCfSc7oQGZiVreW3qdQQkhKVXIVffZIt/XlbeXyeC8WWrvW2PBtIrQQpypuKcBcBJTHcUUvB9tem2pOrSDqF7KHLvHQ00rirL7koN4+xbGJQaxF5FwLW9worL5zmpZzLMbPNOj/wAJoqlCzOy58nzYRClgdJBT4ACrPCFwouOuMM4dKakvrWpTqlpWk3uSdlkgHQOgttyvS2R02jT9rftzw8FWruWpRfzJIt8uoKEhv4ItvhWPY7ZNjcctk3G5sdjKujRqNvIwvlEv+uWI2HVv/Gmip89t8TNmIq9ZI8EgUVqnoxa2bnJyNMeeOX7wkf5DUOSmJLUyOiRGca4bCirUhQSlZKdQF2UgXN/NUq9uo3pzKPaiS1D502Qr8Q1R+Tic9Kxx9ubPxV2aGFKejyU6W0K1pvpGo2IvbzRtflyrKHgadTyKfNCeLmGer7Ujw2/KipMSQXcUnqI/mnh4OKFFMDX5L7WE6vTfdV4rNJ5Mh4vEzViLc13E3MPZbUhtyW+XEuErBSpPS+kb2vY35XtU+TnA1lZDwJslLjlxbvJ61aZPmvz8OdekSo8k8UpSplwLCQEp2JCUi/U7denIKOohPcjFOI1S5qrc5T5/FVRUqACuQe990/iKoroSVE2XOT1rTkqOtCVLXwFKSkFQKjY7Ap38N+6msgyZDrE1uZAmRXeKHOJIbdTxQUgc3FrNxptzta1IZZWprILTiFuIWiGpQU2LqSQkm4B2Jp7Is2bM+GmdOXKCdGi8ZTQTfVexUAT09lhWH5G39ihijW0pXpOLP/Y0VJg6deHMrt5wJ/uaK2UtEjmB2Hk/AJsPgCt9AX8w/NOx9nWrXLMpt8TlNvS3tKEq1vttJBBCrW0JSem4VuNuRuAnllGrKURsJcUVRQLNq0qN09DcWP10xlqLIgxJ6JLUlJKdXEfcCtXnckhSgO8m9yT9QrBvVGlJ27KvLSNWBQjbm2KKYywm2AQf+MUVbZKQpGxcYHlTDZBjqfCktt6Uqta6ef8Aarl7GkqxLEsMDSkrYil4uFQAIIHIczz5i4rPYgXUZawng/pAkFH8AdK7aDzNjtTU66cVzI+CNKYhQbRALHQg/LWuTY+bv39KVJoTexvLlxgUIfZiipMAFsGiD1KKHyMpsQZbewzB2nHQ3bSr5YNkiyR6Jv5w7vbU+NFfFzEdE1KREWNSlK4R7KLWB7N9jYpvzVfpVpAjMOx4anmW3FtIBQpaQSk2HLuqjlyEOtZqQmM2hbbagXtJ1rv9fKwt33+qhPQnyXeEDThkUX+jHuoruHgiBHH2afdRSfIBFfRHhB11QShCLqJ6C1LZjmNvZSfeaN23mxp/rXlUNE7DzGfKwhYAJTsdiD+VJ5zSmBk4toJ4TRbTdR3sDakltIp4437LaGsCGwCr6NPuor1AiceDHcQ2FpU2ntAX6UVT5JPgTadO6XFp9htXt5Gpu61qWfWN6rtR7zRqV3mu7E5y5YlzmGUts4hLabSNkIdUAPYAaKptSu8+NFGDA5RXK7VgG9FFFAH/2Q==",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781612198361-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Shit Is Fucked up and Bullshit",
+      "allAuthors": [
+        "Malcolm Harris"
+      ],
+      "pageCount": 280,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781612198361-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Shit Is Fucked up and Bullshit",
+        "author": "Malcolm Harris",
+        "isbn": "9781612198361",
+        "publisher": "Melville House Publishing",
+        "publicationYear": 2020,
+        "lcc": "D862 .H37 2020",
+        "genreTags": [
+          "[Proposed] Modern civilization",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2c37dbaf-ebfb-4b85-884d-70ba2afc2a06",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Assholes: A Theory — Aaron James",
+        "title": "Assholes: A Theory",
+        "author": "Aaron James",
+        "publisher": "Anchor Books",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 70,
+          "y": 10,
+          "width": 12,
+          "height": 85
+        }
+      },
+      "title": "Assholes a Theory",
+      "author": "Aaron James",
+      "authorLF": "James, Aaron",
+      "isbn": "9780804171359",
+      "publisher": "Knopf Doubleday Publishing Group",
+      "publicationYear": 2014,
+      "lcc": "E901.1 .T78J36 2016",
+      "genreTags": [
+        "Ethics",
+        "Philosophy of mind"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] DDC 171.9 places this in ethics/moral philosophy. The book presents a philosophical theory about a specific type of person/behavior, combining ethical analysis with philosophy of mind. Subject headings confirm philosophy and psychology elements.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "171.9",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABcDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAUDBAECBgcI/8QAOxAAAgEDAwEFBAcFCQAAAAAAAQIDAAQRBRIhMQYTQVGRFCIycRVSYYGhssEkYqKx8BYjJWNydLPR8f/EABkBAAMBAQEAAAAAAAAAAAAAAAABAgMEBf/EABsRAQEBAQEBAQEAAAAAAAAAAAABAhExIUFx/9oADAMBAAIRAxEAPwD5kxRiq5YnqSaxmq4azRVbNFPg6xRXRdutEttA1z2OzklkiMSyZlILAnPGQB5Vz1LOpqdgs4xRUkcTyNtjRnbyUZop9hPeoFV+0GrMUUsrom7HONinGfLk01VFx8C+lJJSyapq5i74ytcKEES5y3dDAOeAOOpwKc2TXLljcRJGnVBuy/yYDgH5E151dEKJEVtduGAAKqqnA+zP60VKin6av/8AWv8AxpRWbRGvvX2pHcBuuyvXBPGMA5HPlT+AZjQ+YFJNKy9xqONuWvZhypboxHmKe2iAQxnKsxUZcLjd9uK0qCkLjWL0+BYfkSitom36jeN/mEemB+lFZxajZvLGLz2dGkdr64O1VBOO8PPLrxkjx8eldHYpKEBkkieMqNgjjKAD7yfs9KTaNA08TurKALuZz97n9Mj5MT4V0kY6A+tXUSOdsuLi9b3j/fyfD1+MiipLCMtLeBXKEzyYYYyPfbzoqIqjso+/S9/15Gb1NP0PI8K53sYD/Z+0J6lM10SDmr0UIdGfvDO/1nZvVmorTs2CbJGPJKg/zoqIqtuycans/p5ZQSIwRnwp/GRtGPKkPZ8quhWSEcGPHXFOywjidjwFUk1WvSnjnNLlmt9GWS3gE8gVcIX2Z6eOKK1tUsTo8aanIkdudo9+UxgnHAyCPSijPOFrvTLs+g+h7UEDBjANXNSbZpd43lC5/hNV9EGNLtR+4Km1bnSL8Hxgf8poojnrjA0DmWwiG5Rm9TdGeBx8/X9QVtcW80mm27WguBcRS743gWNivulTkOQCMEj54oqs+FqfTO0eSO0sVhK5ZADvOFxgeODzzwOM81b1Q40m8zjmFh+FU41Bh0/JkBULjbuA8OuOMfPNWNcbGkXJHiAPVgKnZz1zWsSKIdOSVLHu3d/fvt3dBgOAcHGSM4z5UU/010WCNGdQzk7VJ648hRRNc+C5/UdrOUe1h72MM8K7UZcknnODnyqbXc/Q0wOCd0f51qGAhZ7Ve8cHux7i4weDyf66kVLrZ/wqQfvx/nFGxlTtGX2q0UiLO1jlsbh8vH/yisWat7dbHau0RZLZXIznjpu9DRUT9b78z/DOE7Y1HkMVS7QPiwjH1plH8z+lXIzwKW9oj+y2v+4H5WqteMZ6s2bxRWaSylE9wAu2B+P30VSv9w0rEW7vQg24coeq55H9etFOTpXSxIJjdBkYiPjkNxjIyCPkD61D2hb9lteee/z/AANVp7YGQsdrK3ONoII+f30m7WXcdvJp0UzBO9d9ufEgdPxp374Uq9qbBdJfcIT8IxL8PWip7uIGyKyIGXjgiilKdjxVLy+UADUbwbQAAJm4Hl1qrqFxc3RT2q6nuNudveyF9vyyaXbm+sfWs7j5mvQmOVzLBhXbyxNFV8k+NFPlDSthWP8Aqsr1qgBRRRQT/9k=",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780804171359-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Assholes A Theory",
+      "allAuthors": [
+        "Aaron James"
+      ],
+      "synopsis": "<b>The perfect graduation gift for every young adult entering the real world.<br><br>In the <i>New York Times</i> bestseller Nick Hornby calls “helpful, stimulating, and very timely” (<i>The Believer</i>), philosopher Aaron James presents a theory of the asshole that is both intellectually provocative and existentially necessary.<br></b><br> What does it mean for someone to be an asshole? The answer is not obvious, despite the fact that we are often personally stuck dealing with people for whom there is no better name. Try as we might to avoid them, assholes are found everywhere and in multiple iterations: smug assholes, royal assholes, the presidential asshole, corporate assholes, reckless assholes. The list goes on. <br><br> Asshole management begins with asshole understanding. Much as Machiavelli illuminated political strategy for princes, this book finally gives us the concepts to think or say why assholes disturb us so, and explains why such people seem part of the human social condition, especially in an age of raging narcissism and unbridled capitalism. These concepts are also practically useful, as understanding the asshole we are stuck with helps us think constructively about how to handle problems he (and they are mostly all men) presents. We get a better sense of when the asshole is best resisted, and when he is best ignored—a better sense of what is, and what is not, worth fighting for.",
+      "pageCount": 240,
+      "edition": "Reprint",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780804171359-M.jpg?default=false",
+        "https://images.isbndb.com/covers/8269133482474.jpg"
+      ],
+      "original": {
+        "title": "Assholes a Theory",
+        "author": "Aaron James",
+        "isbn": "9780804171359",
+        "publisher": "Knopf Doubleday Publishing Group",
+        "publicationYear": 2014,
+        "lcc": "E901.1 .T78J36 2016",
+        "genreTags": [
+          "Ethics",
+          "Philosophy of mind"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "sourceDimensions": {
+    "width": 3000,
+    "height": 4000
+  }
+}
