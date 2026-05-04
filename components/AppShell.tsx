@@ -103,15 +103,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/review', label: 'Review', icon: <ReviewIcon />, badge: pendingCount || undefined },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
   ];
-  const library: NavItemDef[] = [
-    { href: '/collection', label: 'Collection', icon: <CollectionIcon /> },
+  // Vocabulary is the only standalone item left after Collection was
+  // removed and History was demoted to an Export-page utility link.
+  // Rendered as a single row below the WORKFLOW section without its
+  // own section header — one item doesn't need a header.
+  const standalone: NavItemDef[] = [
     { href: '/vocabulary', label: 'Vocabulary', icon: <BooksIcon /> },
-    { href: '/history', label: 'History', icon: <ClockIcon /> },
   ];
 
   // Strict match for the root path (legacy bookmarks redirect to
-  // /collection server-side); every other route uses a prefix match so
-  // nested routes (e.g. /collection/duplicates) still highlight.
+  // /upload server-side); every other route uses a prefix match so
+  // nested routes still highlight.
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(href + '/');
@@ -204,8 +206,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <NavItem key={item.href} item={item} active={isActive(item.href)} />
         ))}
 
-        <SectionLabel topGap>Library</SectionLabel>
-        {library.map((item) => (
+        <div style={{ marginTop: 14 }} />
+        {standalone.map((item) => (
           <NavItem key={item.href} item={item} active={isActive(item.href)} />
         ))}
 
@@ -512,30 +514,6 @@ function BooksIcon() {
   );
 }
 
-// Collection — a row of densely-packed spines, slightly heavier than
-// BooksIcon so the top-of-Library entry reads as the "all of it"
-// view rather than the per-tag Vocabulary view.
-function CollectionIcon() {
-  return (
-    <IconShell>
-      <rect x="1.5" y="2" width="2" height="12" rx="0.4" />
-      <rect x="4.5" y="3" width="2" height="11" rx="0.4" />
-      <rect x="7.5" y="2" width="2" height="12" rx="0.4" />
-      <rect x="10.5" y="4" width="2" height="10" rx="0.4" />
-      <rect x="13.5" y="2.5" width="1.5" height="11.5" rx="0.4" />
-    </IconShell>
-  );
-}
-
-function ClockIcon() {
-  return (
-    <IconShell>
-      <circle cx="8" cy="8" r="6" />
-      <path d="M8 5v3l2 2" />
-    </IconShell>
-  );
-}
-
 function InfoIcon() {
   return (
     <IconShell>
@@ -593,7 +571,7 @@ function BrandPanel() {
 
   return (
     <Link
-      href="/collection"
+      href="/upload"
       className="cursor-pointer group block relative"
       style={{
         // True square — width matches sidebar (260), height equals
@@ -603,7 +581,7 @@ function BrandPanel() {
         backgroundColor: NAVY,
         backgroundImage: tartanLayers,
       }}
-      aria-label="Carnegie — go to Collection"
+      aria-label="Carnegie — go to Upload"
     >
       {/* Inner block positioned at 45% from top (slightly above true
           center) and horizontally centered. Translate keeps the

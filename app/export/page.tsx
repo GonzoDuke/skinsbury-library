@@ -778,6 +778,23 @@ export default function ExportPage() {
           )}
         </div>
       )}
+
+      {/* Past exports — quiet utility link to /history. History is no
+          longer in the sidebar; this is the only entry point. The LT
+          import flow lives on the History page, so it's reached via
+          the same path. */}
+      <div className="pt-6 mt-2 border-t border-line-light text-[12px] text-text-tertiary">
+        <Link
+          href="/history"
+          className="text-navy hover:underline font-medium"
+        >
+          Past exports →
+        </Link>
+        <span className="ml-2">
+          Re-download CSVs from previous batches and import a LibraryThing
+          backup.
+        </span>
+      </div>
     </div>
   );
 }

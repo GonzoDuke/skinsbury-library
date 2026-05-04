@@ -85,17 +85,15 @@ export function MobileShell() {
     }
   }
 
-  // Tab order: Collection (the front door) is first; the rest of the
-  // workflow follows. Vocab dropped from the bottom tab bar to keep it
-  // 4-wide on phones — vocab is reachable from the Collection page
-  // header links and from the desktop sidebar. Capture relabelled to
-  // Upload and pointed at /upload (the legacy `/` is a redirect to
-  // /collection).
+  // Bottom tab bar — four primary destinations. Upload is the front
+  // door (legacy `/` redirects there). Vocabulary is the only
+  // library-scoped surface that gets a tab; History is reached via
+  // the Export page's "Past exports →" link, not the tab bar.
   const tabs: TabDef[] = [
-    { href: '/collection', label: 'Collection', icon: <CollectionIcon /> },
     { href: '/upload', label: 'Upload', icon: <CameraIcon /> },
     { href: '/review', label: 'Review', icon: <ReviewIcon /> },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
+    { href: '/vocabulary', label: 'Vocabulary', icon: <VocabIcon /> },
   ];
 
   function isActive(href: string) {
@@ -441,15 +439,16 @@ function ExportIcon() {
   );
 }
 
-// Collection tab icon — 5 short spines, the "all of it" view.
-function CollectionIcon() {
+// Vocabulary tab icon — book + tag glyph. Two stacked spines on the
+// left, a small tag on the right for the per-tag library-management
+// register.
+function VocabIcon() {
   return (
     <IconShell>
-      <rect x="2" y="3" width="3" height="18" rx="0.6" />
-      <rect x="6.5" y="5" width="3" height="16" rx="0.6" />
-      <rect x="11" y="3" width="3" height="18" rx="0.6" />
-      <rect x="15.5" y="6" width="3" height="15" rx="0.6" />
-      <rect x="20" y="4" width="2.5" height="17" rx="0.6" />
+      <rect x="3" y="3" width="4" height="18" rx="0.7" />
+      <rect x="8.5" y="3" width="4" height="18" rx="0.7" />
+      <path d="M14.5 8l5 5-3 3-5-5z" />
+      <circle cx="16" cy="10" r="0.8" fill="currentColor" />
     </IconShell>
   );
 }
