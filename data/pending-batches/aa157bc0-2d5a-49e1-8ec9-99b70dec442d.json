@@ -1,0 +1,566 @@
+{
+  "id": "aa157bc0-2d5a-49e1-8ec9-99b70dec442d",
+  "filename": "20260501_070036.cropped.jpg",
+  "fileSize": 1515349,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 8,
+  "booksIdentified": 8,
+  "books": [
+    {
+      "id": "76513a97-aa90-4f2d-a86c-5a6890e2cece",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Cultish: The Language of Fanaticism — Amanda Montell",
+        "title": "Cultish: The Language of Fanaticism",
+        "author": "Amanda Montell",
+        "publisher": "Harper Wave",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 2,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "Cultish the Language of Fanaticism",
+      "author": "Amanda Montell",
+      "authorLF": "Montell, Amanda",
+      "isbn": "9780062993151",
+      "publisher": "HarperCollinsPublishers",
+      "publicationYear": 2021,
+      "lcc": "P301.5 .P75M66 2021",
+      "genreTags": [
+        "Linguistics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC P301.5 places this in sociolinguistics within the linguistics classification. The subject headings confirm linguistics and sociolinguistics as primary topics. The title and subtitle focus on language analysis of fanaticism, making this a linguistics study rather than psychology or sociology.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "306.44",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Cultish The Language of Fanaticism",
+      "subtitle": "The Language of Fanaticism",
+      "allAuthors": [
+        "Amanda Montell"
+      ],
+      "synopsis": "<p>THE NEW YORK TIMES BESTSELLER</p><p>\"One of those life-changing reads that makes you see--or, in this case, hear--the whole world differently.\" --Megan Angelo, author of Followers</p><p>\"At times chilling, often funny, and always perceptive and cogent, Cultish is a bracing reminder that the scariest thing about cults is that you don't realize you're in one till it's too late.\"--Refinery29.com</p><p>The New York Times bestselling author of The Age of Magical Overthinking and Wordslut analyzes the social science of cult influence: how \"cultish\" groups, from Jonestown and Scientologists to SoulCycle and social media gurus, use language as the ultimate form of power.</p><p>What makes \"cults\" so intriguing and frightening? What makes them powerful? The reason why so many of us binge Manson documentaries by the dozen and fall down rabbit holes researching suburban moms gone QAnon is because we're looking for a satisfying explanation for what causes people to join--and more importantly, stay in--extreme groups. We secretly want to know: could it happen to me? Amanda Montell's argument is that, on some level, it already has . . .</p><p>Our culture tends to provide pretty flimsy answers to questions of cult influence, mostly having to do with vague talk of \"brainwashing.\" But the true answer has nothing to do with freaky mind-control wizardry or Kool-Aid. In Cultish, Montell argues that the key to manufacturing intense ideology, community, and us/them attitudes all comes down to language. In both positive ways and shadowy ones, cultish language is something we hear--and are influenced by--every single day. </p><p>Through juicy storytelling and cutting original research, Montell exposes the verbal elements that make a wide spectrum of communities \"cultish,\" revealing how they affect followers of groups as notorious as Heaven's Gate, but also how they pervade our modern start-ups, Peloton leaderboards, and Instagram feeds. Incisive and darkly funny, this enrapturing take on the curious social science of power and belief will make you hear the fanatical language of \"cultish\" everywhere.</p>",
+      "pageCount": 309,
+      "binding": "Hardcover",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false",
+        "https://books.google.com/books/content?id=zpLazQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+        "https://images.isbndb.com/covers/11135613482210.jpg"
+      ],
+      "original": {
+        "title": "Cultish the Language of Fanaticism",
+        "author": "Amanda Montell",
+        "isbn": "9780062993151",
+        "publisher": "HarperCollinsPublishers",
+        "publicationYear": 2021,
+        "lcc": "P301.5 .P75M66 2021",
+        "genreTags": [
+          "Linguistics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "b3f2a6f3-1540-4c28-a6b6-a2566e75e004",
+      "spineRead": {
+        "position": 2,
+        "rawText": "THE F!$*@ING HISTORY OF SWEARING — Anna-Maria Klosse",
+        "title": "THE F!$*@ING HISTORY OF SWEARING",
+        "author": "Anna-Maria Klosse",
+        "publisher": "BIS",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 14,
+          "y": 10,
+          "width": 10,
+          "height": 80
+        }
+      },
+      "title": "The F***ing History of Swearing",
+      "author": "Anna Maria Kiosse",
+      "authorLF": "Kiosse, Anna Maria",
+      "isbn": "9789063694678",
+      "publisher": "BIS Publishers",
+      "publicationYear": 2017,
+      "lcc": "PE1449 .K56 2017",
+      "genreTags": [
+        "Linguistics",
+        "Etymology"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE1449 places this squarely in English language studies, specifically slang and colloquialisms. The book examines the historical development and social aspects of profanity/swearing, making it both a linguistic study and etymological exploration of taboo language evolution.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only.",
+        "Identified by AI from partial spine read: Distinctive profanity-themed title with specific author name makes this essentially unambiguous despite OCR corruption of the expletive."
+      ],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "googlebooks",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9789063694678-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The F***ing History of Swearing",
+      "allAuthors": [
+        "Anna Maria Kiosse"
+      ],
+      "synopsis": "This book is a bold and expressively designed treasure trove of information about the history of swearing. With its bold and expressive design, The F***ing History of Swearing is an outstanding visual feast. Swearing is and always has been regarded as undereducated, obscene, rude and profane in society. Yet despite your mum's best efforts, cussing is mainstream. It's even more than that, it's an integrated part of our culture. The number of times we swear is huge. Most often it occurs naturally and you would have to force yourself not to swear. We don't think twice about shouting the word 'FUCK' if we hurt ourselves or miss the bus in the morning. It just happens automatically and that's where it gets interesting.",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9789063694678-M.jpg?default=false",
+        "https://books.google.com/books/content?id=UWafAQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "The F***ing History of Swearing",
+        "author": "Anna Maria Kiosse",
+        "isbn": "9789063694678",
+        "publisher": "BIS Publishers",
+        "publicationYear": 2017,
+        "lcc": "PE1449 .K56 2017",
+        "genreTags": [
+          "Linguistics",
+          "Etymology"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "f40e8ce9-ef31-411f-a45f-61533ad99f91",
+      "spineRead": {
+        "position": 3,
+        "rawText": "THE F WORD — Sheidlower",
+        "title": "THE F WORD",
+        "author": "Sheidlower",
+        "publisher": "OXFORD",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 24,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "The F Word",
+      "author": "Jesse Sheidlower",
+      "authorLF": "Sheidlower, Jesse",
+      "isbn": "9780375706349",
+      "publisher": "Random House Information Group",
+      "publicationYear": 1999,
+      "lcc": "PE1599 .F83 F2 1999",
+      "genreTags": [
+        "Etymology",
+        "Linguistics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE1599 places this in English language etymology/lexicography. Subject headings explicitly list 'Etymology' and 'English language' with focus on semantics and obscene words. This is a scholarly study of the word's linguistic history and usage patterns.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The F word",
+      "allAuthors": [
+        "Jesse Sheidlower"
+      ],
+      "synopsis": "WARNING: Usually considered vulgar. X-rated. Censored. Bleep. Not for polite company. Due to adult language, viewer and parental discretion advised. Wash your mouth out with soap. Good boys and girls don't use that kind of language. Obscene. Immoral. Immodest. And indecent. IS THIS ALL YOU THINK ABOUT THE F-WORD? HERE'S THE FULL STORY! Has any other single word ever sparked so much creativity, and captured so many imaginations? The F-Word contains page after page of actual, uncensored examples of the word in all its varied and robust use, from its first appearance in English in the fifteenth century to its use in the Starr Report. This second edition includes many new words and phrases, F-words from Britain, Ireland, and Australia, and hundreds of new examples of usage. Words, explanations, and examples come from thousands of sources, including Robert Burns, Norman Mailer, E.E. Cummings, Ernest Hemingway, Liz Phair, Jack Kerouac, Anne Sexton, \"Playboy, and the Internet. Here is all you've (n)ever wanted to know about the word still considered the most vulgar utterance in the English language--and perhaps one of the most creative, as well.",
+      "pageCount": 272,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false",
+        "https://books.google.com/books/content?id=UoPlAAAAMAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "The F Word",
+        "author": "Jesse Sheidlower",
+        "isbn": "9780375706349",
+        "publisher": "Random House Information Group",
+        "publicationYear": 1999,
+        "lcc": "PE1599 .F83 F2 1999",
+        "genreTags": [
+          "Etymology",
+          "Linguistics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "946f1382-2425-4358-a21b-46fe1d7a9228",
+      "spineRead": {
+        "position": 4,
+        "rawText": "F You Very Much — Danny Wallace",
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "publisher": "tarcher perigee",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle: Understanding the Culture of Rudeness—and What We Can Do About It",
+        "bbox": {
+          "x": 36,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "F You Very Much",
+      "author": "Danny Wallace",
+      "authorLF": "Wallace, Danny",
+      "isbn": "9781473559165",
+      "publisher": "Penguin Random House",
+      "publicationYear": 2018,
+      "lcc": "BJ-1853.00000000",
+      "genreTags": [
+        "Ethics"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[philosophy_psychology_religion] LCC BJ-1853 places this in ethics/moral philosophy section, specifically interpersonal ethics. Subject headings confirm focus on courtesy and interpersonal relations, which fits within ethical behavior and moral philosophy.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "F*** You Very Much",
+      "allAuthors": [
+        "Danny Wallace"
+      ],
+      "pageCount": 352,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "isbn": "9781473559165",
+        "publisher": "Penguin Random House",
+        "publicationYear": 2018,
+        "lcc": "BJ-1853.00000000",
+        "genreTags": [
+          "Ethics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2c68640d-994f-49fb-8bdb-024882405225",
+      "spineRead": {
+        "position": 5,
+        "rawText": "HOLY SH*T — Mohr",
+        "title": "HOLY SH*T",
+        "author": "Mohr",
+        "publisher": "Oxford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 48,
+          "y": 10,
+          "width": 10,
+          "height": 80
+        }
+      },
+      "title": "Holy Sh*t",
+      "author": "Melissa Mohr",
+      "authorLF": "Mohr, Melissa",
+      "isbn": "9780190491680",
+      "publisher": "Oxford University Press, Incorporated",
+      "publicationYear": 2013,
+      "lcc": "PE3724 .S85.M65 2016",
+      "genreTags": [
+        "Linguistics",
+        "Etymology",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE3724 places this in English language studies. Subject headings confirm focus on swearing, English language history, slang, and social aspects - clearly linguistics and etymology. The historical aspect of English language development warrants the History of language tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Holy Sh*t",
+      "allAuthors": [
+        "Melissa Mohr"
+      ],
+      "pageCount": 336,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Holy Sh*t",
+        "author": "Melissa Mohr",
+        "isbn": "9780190491680",
+        "publisher": "Oxford University Press, Incorporated",
+        "publicationYear": 2013,
+        "lcc": "PE3724 .S85.M65 2016",
+        "genreTags": [
+          "Linguistics",
+          "Etymology",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "7e8fe5e1-3e04-4c03-8175-9cf33c3ae03e",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Sh*t is F*cked Up and Bullsh*t — Malcolm Harris",
+        "title": "Sh*t is F*cked Up and Bullsh*t",
+        "author": "Malcolm Harris",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "White spine with red asterisks censoring letters",
+        "bbox": {
+          "x": 58,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "Shit Is Fucked up and Bullshit",
+      "author": "Malcolm Harris",
+      "authorLF": "Harris, Malcolm",
+      "isbn": "9781612198361",
+      "publisher": "Melville House Publishing",
+      "publicationYear": 2020,
+      "lcc": "D862 .H37 2020",
+      "genreTags": [
+        "[Proposed] Modern civilization"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[world_history] LCC D862 places this in World history domain, specifically modern history. Subject heading 'Modern Civilization' maps directly to a proposed genre tag for contemporary civilization and cultural analysis.",
+      "status": "pending",
+      "warnings": [
+        "Identified by AI from partial spine read: Distinctive profanity-laden title with exact author match makes this unambiguous."
+      ],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781612198361-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Shit Is Fucked up and Bullshit",
+      "allAuthors": [
+        "Malcolm Harris"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781612198361-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Shit Is Fucked up and Bullshit",
+        "author": "Malcolm Harris",
+        "isbn": "9781612198361",
+        "publisher": "Melville House Publishing",
+        "publicationYear": 2020,
+        "lcc": "D862 .H37 2020",
+        "genreTags": [
+          "[Proposed] Modern civilization"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "35b36304-dfd6-4dad-9482-cbacd20a51fc",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Assholes: A Theory — Aaron James",
+        "title": "Assholes: A Theory",
+        "author": "Aaron James",
+        "publisher": "Anchor Books",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 70,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "Assholes a Theory",
+      "author": "Aaron James",
+      "authorLF": "James, Aaron",
+      "isbn": "9780804171359",
+      "publisher": "Knopf Doubleday Publishing Group",
+      "publicationYear": 2014,
+      "lcc": "E901.1 .T78J36 2016",
+      "genreTags": [
+        "Ethics",
+        "Philosophy of mind"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] DDC 171.9 places this in applied ethics, and the author Aaron James is a philosopher presenting a theoretical framework about human behavior and moral character. The subject headings include Philosophy and the synopsis confirms this is philosophical theory applied to social behavior.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "171.9",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780804171359-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Assholes A Theory",
+      "allAuthors": [
+        "Aaron James"
+      ],
+      "synopsis": "<b>The perfect graduation gift for every young adult entering the real world.<br><br>In the <i>New York Times</i> bestseller Nick Hornby calls “helpful, stimulating, and very timely” (<i>The Believer</i>), philosopher Aaron James presents a theory of the asshole that is both intellectually provocative and existentially necessary.<br></b><br> What does it mean for someone to be an asshole? The answer is not obvious, despite the fact that we are often personally stuck dealing with people for whom there is no better name. Try as we might to avoid them, assholes are found everywhere and in multiple iterations: smug assholes, royal assholes, the presidential asshole, corporate assholes, reckless assholes. The list goes on. <br><br> Asshole management begins with asshole understanding. Much as Machiavelli illuminated political strategy for princes, this book finally gives us the concepts to think or say why assholes disturb us so, and explains why such people seem part of the human social condition, especially in an age of raging narcissism and unbridled capitalism. These concepts are also practically useful, as understanding the asshole we are stuck with helps us think constructively about how to handle problems he (and they are mostly all men) presents. We get a better sense of when the asshole is best resisted, and when he is best ignored—a better sense of what is, and what is not, worth fighting for.",
+      "pageCount": 240,
+      "edition": "Reprint",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780804171359-M.jpg?default=false",
+        "https://images.isbndb.com/covers/8269133482474.jpg"
+      ],
+      "original": {
+        "title": "Assholes a Theory",
+        "author": "Aaron James",
+        "isbn": "9780804171359",
+        "publisher": "Knopf Doubleday Publishing Group",
+        "publicationYear": 2014,
+        "lcc": "E901.1 .T78J36 2016",
+        "genreTags": [
+          "Ethics",
+          "Philosophy of mind"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "bd0fe2ed-c89c-47d9-8080-c925981d87c4",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Ascent of the A-Word — Geoffrey Nunberg",
+        "title": "Ascent of the A-Word",
+        "author": "Geoffrey Nunberg",
+        "publisher": "PublicAffairs",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 82,
+          "y": 10,
+          "width": 12,
+          "height": 80
+        }
+      },
+      "title": "Ascent of the A-Word",
+      "author": "Geoffrey Nunberg",
+      "authorLF": "Nunberg, Geoffrey",
+      "isbn": "9781610391757",
+      "publisher": "PublicAffairs",
+      "publicationYear": 2012,
+      "lcc": "PE3724 .O3N86 2012",
+      "genreTags": [
+        "Linguistics",
+        "Etymology"
+      ],
+      "formTags": [
+        "First edition"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE3724 places this in English language studies, specifically obscene/slang words. LCSH confirms focus on 'English language — Obscene words'. Author Nunberg is a well-known linguist. The study of word origins and language patterns fits both Linguistics and Etymology. Edition statement '1st ed' confirms First edition form tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "20260501_070036.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "427",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781610391757-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Ascent of the A-word",
+      "allAuthors": [
+        "Geoffrey Nunberg"
+      ],
+      "pageCount": 251,
+      "edition": "1st ed",
+      "lcshSubjects": [
+        "English language — Obscene words",
+        "Obscene words"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781610391757-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Ascent of the A-Word",
+        "author": "Geoffrey Nunberg",
+        "isbn": "9781610391757",
+        "publisher": "PublicAffairs",
+        "publicationYear": 2012,
+        "lcc": "PE3724 .O3N86 2012",
+        "genreTags": [
+          "Linguistics",
+          "Etymology"
+        ],
+        "formTags": [
+          "First edition"
+        ]
+      }
+    }
+  ],
+  "croppedFrom": "20260501_070036.jpg",
+  "sourceDimensions": {
+    "width": 2700,
+    "height": 3600
+  }
+}
