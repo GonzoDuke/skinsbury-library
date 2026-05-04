@@ -98,6 +98,10 @@ interface InferRequest {
    *  only when `lcc` is missing — used as a domain anchor distinct from
    *  a sourced LCC. */
   lccDerivedFromDdc?: string;
+  /** LCC class letter derived from the user's own ledger via the
+   *  author-pattern lookup. Passed only when `lcc` and `lccDerivedFromDdc`
+   *  are both missing AND the author-pattern sampleSize ≥ 3. */
+  lccDerivedFromAuthorPattern?: string;
   lcshSubjects?: string[];
   /** MARC field 655 (Index Term — Genre/Form) — cataloger-applied
    *  explicit genre vocabulary, e.g. "Detective and mystery fiction",
@@ -110,6 +114,14 @@ interface InferRequest {
    *  prompt's "only when publisher confirms" guard for the matching
    *  form tag. */
   extractedSeries?: string;
+  /** Top tags applied to other books by this author in the user's
+   *  local ledger. Caller forwards only when the sample size threshold
+   *  (≥3) is satisfied; this route assumes the guard is already
+   *  enforced upstream. */
+  authorPatternTags?: string[];
+  /** Number of matched ledger entries — surfaces in the prompt line so
+   *  the model knows the strength of the signal. */
+  authorPatternSampleSize?: number;
   synopsis?: string;
   /** Recent tag corrections forwarded by the client. Up to 20 most
    *  recent are appended to the system prompt as few-shot examples. */
@@ -168,6 +180,19 @@ export async function POST(req: NextRequest) {
   }
   if (body.extractedSeries) {
     lines.push(`- Spine-printed publisher series: ${body.extractedSeries}`);
+  }
+  // Author-pattern tags — only surface when the upstream guard's
+  // sampleSize ≥ 3 condition was satisfied. The size is surfaced in
+  // the line so the model can weight the signal appropriately.
+  if (
+    Array.isArray(body.authorPatternTags) &&
+    body.authorPatternTags.length > 0 &&
+    typeof body.authorPatternSampleSize === 'number' &&
+    body.authorPatternSampleSize >= 3
+  ) {
+    lines.push(
+      `- Tags frequently applied to other books by this author in the user's library (sample of ${body.authorPatternSampleSize}): ${body.authorPatternTags.join(', ')}`
+    );
   }
   if (body.synopsis) {
     const trimmed = body.synopsis.length > 300 ? body.synopsis.slice(0, 300) : body.synopsis;

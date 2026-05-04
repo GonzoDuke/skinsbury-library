@@ -51,6 +51,16 @@ export interface BookLookupResult {
    * distinctly from a sourced LCC so the reviewer knows which is which.
    */
   lccDerivedFromDdc?: string;
+  /**
+   * LCC class letter derived from the user's own export ledger — the
+   * dominant class letter across other books by the same author the
+   * user has previously approved + exported. Populated only when no
+   * authoritative LCC and no DDC-derived class letter were found AND
+   * the ledger contains ≥3 books by the same author. Class-letter only.
+   * Distinctly personalized — equivalent confidence to `lccDerivedFromDdc`
+   * but signal comes from the user's collection, not a static table.
+   */
+  lccDerivedFromAuthorPattern?: string;
   source: 'openlibrary' | 'googlebooks' | 'isbndb' | 'none';
   /** Where in the cascade the LCC came from. Set by lookupBook post-processing. */
   lccSource?: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none';
@@ -133,6 +143,11 @@ export interface BookRecord {
    * domain anchor and surfaced distinctly in Review.
    */
   lccDerivedFromDdc?: string;
+  /**
+   * LCC class letter derived from the user's own export ledger. See
+   * BookLookupResult.lccDerivedFromAuthorPattern for full semantics.
+   */
+  lccDerivedFromAuthorPattern?: string;
   /**
    * Where the LCC came from, in priority order:
    * - 'spine'    : read directly off the physical book (most authoritative)

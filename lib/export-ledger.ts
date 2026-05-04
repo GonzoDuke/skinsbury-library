@@ -33,6 +33,14 @@ export interface LedgerEntry {
   publisher?: string;
   publicationYear?: number;
   batchNotes?: string;
+  /**
+   * LCC at the time of export. Populated by new exports so future
+   * features (author-similarity backfill, domain-clustering analytics)
+   * can read it directly off the ledger. Optional because pre-step-4
+   * ledger entries don't carry it; getAuthorPattern simply ignores
+   * entries without an LCC when computing the dominant class letter.
+   */
+  lcc?: string;
 }
 
 export function normalizeIsbn(isbn: string | undefined | null): string {
@@ -236,6 +244,7 @@ export function bookToLedgerEntry(book: BookRecord, date: Date = new Date()): Le
     publisher: book.publisher || undefined,
     publicationYear: book.publicationYear || undefined,
     batchNotes: book.batchNotes || undefined,
+    lcc: book.lcc || undefined,
   };
 }
 
@@ -371,6 +380,171 @@ export function getLedgerBatches(): LedgerBatch[] {
     const bl = b.batchLabel ?? '';
     return al.localeCompare(bl);
   });
+}
+
+// ---------------------------------------------------------------------------
+// Author-pattern lookup — Step 4 of the post-audit plan. Reads the local
+// ledger to surface "books by this author the user already owns and exported"
+// as a personalized signal feeding LCC fallback + tag inference. No network,
+// no GitHub round-trip — the in-memory localStorage cache is what we read.
+// ---------------------------------------------------------------------------
+
+/**
+ * Build an author key (lastname + first-given-name, both lowercased)
+ * from any of the author forms the ledger or pipeline carry. Returns
+ * an empty string when the input is unusable.
+ *
+ * Match logic:
+ *   "Sontag, Susan"        → "sontag|susan"
+ *   "Sontag, Susan J."     → "sontag|susan"   ✓ matches above
+ *   "Sontag, Susan Jane"   → "sontag|susan"   ✓ matches above
+ *   "Le Guin, Ursula K."   → "le guin|ursula"
+ *   "Le Guin, Ursula"      → "le guin|ursula" ✓ matches
+ *   "Doe, John"            → "doe|john"
+ *   "Doe, Jane"            → "doe|jane"       ✗ different first-given
+ *
+ * For multi-word last names ("Le Guin", "van der Linden"), the lastname
+ * is everything before the comma. The first-given-name is the FIRST
+ * whitespace-separated token after the comma — middle names + initials
+ * are ignored.
+ *
+ * Display-form ("First Last") inputs without a comma are accepted too:
+ * "Susan Sontag" → "sontag|susan". Last token wins as the lastname.
+ */
+function authorKey(raw: string | undefined | null): string {
+  if (!raw) return '';
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+  let lastname = '';
+  let firstGiven = '';
+  if (trimmed.includes(',')) {
+    const [last, rest] = trimmed.split(',', 2);
+    lastname = last.trim();
+    const restTokens = (rest ?? '').trim().split(/\s+/).filter(Boolean);
+    firstGiven = restTokens[0] ?? '';
+  } else {
+    // Display form "First Middle Last". Last token is the lastname,
+    // first token is the first-given. Middle parts ignored.
+    const tokens = trimmed.split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return '';
+    lastname = tokens[tokens.length - 1];
+    firstGiven = tokens[0] !== lastname ? tokens[0] : '';
+  }
+  // Strip any trailing punctuation (initials with periods, commas) and
+  // lowercase. "Susan J." → "susan" once the period is stripped.
+  const cleanLast = lastname.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+  const cleanFirst = firstGiven.toLowerCase().replace(/[^a-z]/g, '');
+  if (!cleanLast || !cleanFirst) return '';
+  return `${cleanLast}|${cleanFirst}`;
+}
+
+/**
+ * Split a multi-author string ("Caulfield, Mike; Wineburg, Sam" or
+ * "Mike Caulfield & Sam Wineburg") into individual author keys. The
+ * caller can then test whether any of the query's keys match any of an
+ * entry's keys — the "match either author independently" semantics.
+ */
+function authorKeysFor(raw: string | undefined | null): string[] {
+  if (!raw) return [];
+  const parts = raw
+    .split(/;|\s&\s|\sand\s/i)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const keys = parts.map(authorKey).filter(Boolean);
+  return Array.from(new Set(keys));
+}
+
+export interface AuthorPatternResult {
+  /**
+   * Most common LCC class letter (e.g. "B", "PR", "QA") across matched
+   * books, computed from each entry's `lcc` field's leading 1–3 letter
+   * prefix. Null when no matched book has an LCC.
+   */
+  dominantLccLetter: string | null;
+  /** Top 5 most-frequent tags across matched books (genreTags + formTags merged). */
+  frequentTags: string[];
+  /** Number of matched ledger entries — caller's minimum-sample guard. */
+  sampleSize: number;
+}
+
+/**
+ * Scan the local ledger for books whose author overlaps with the
+ * supplied authorLF (display form also accepted) and return aggregate
+ * signals: dominant LCC class letter and top tags. Pure read; no
+ * mutation; returns `{sampleSize: 0, dominantLccLetter: null,
+ * frequentTags: []}` when nothing matches.
+ *
+ * Caller is responsible for the minimum-sample-size guard. Below 3,
+ * two books prove nothing — but this helper still returns the count
+ * so other features can use sampleSize === 1 for display purposes.
+ */
+export function getAuthorPattern(authorLF: string): AuthorPatternResult {
+  const empty: AuthorPatternResult = {
+    dominantLccLetter: null,
+    frequentTags: [],
+    sampleSize: 0,
+  };
+  const queryKeys = authorKeysFor(authorLF);
+  if (queryKeys.length === 0) return empty;
+  const querySet = new Set(queryKeys);
+
+  const ledger = loadLedger();
+  if (ledger.length === 0) return empty;
+
+  // Match: a ledger entry matches when any of its individual author
+  // keys is in the query's key set. Prefer authorLF (preserves the
+  // "Last, First" form). Fall back to author (display form) for older
+  // entries that didn't capture LF. Skip entries whose authors can't
+  // be parsed — they don't contribute either way.
+  const matches: LedgerEntry[] = [];
+  for (const e of ledger) {
+    const candidate = e.authorLF ?? e.author;
+    if (!candidate) continue;
+    const eKeys = authorKeysFor(candidate);
+    if (eKeys.some((k) => querySet.has(k))) matches.push(e);
+  }
+  if (matches.length === 0) return empty;
+
+  // Dominant LCC class letter — leading run of uppercase letters from
+  // each entry's LCC. Old entries without an LCC simply don't vote.
+  const letterCounts = new Map<string, number>();
+  for (const e of matches) {
+    if (!e.lcc) continue;
+    const m = e.lcc.match(/^([A-Z]{1,3})/);
+    if (!m) continue;
+    const letter = m[1];
+    letterCounts.set(letter, (letterCounts.get(letter) ?? 0) + 1);
+  }
+  let dominantLccLetter: string | null = null;
+  let bestCount = 0;
+  for (const [letter, count] of letterCounts) {
+    if (count > bestCount) {
+      bestCount = count;
+      dominantLccLetter = letter;
+    }
+  }
+
+  // Top tags by frequency across genre+form. Cap at 5 — we want signal,
+  // not a full tag dump that would dilute the prompt's other guidance.
+  const tagCounts = new Map<string, number>();
+  for (const e of matches) {
+    if (!e.tags || e.tags.length === 0) continue;
+    for (const t of e.tags) {
+      const tag = t.trim();
+      if (!tag) continue;
+      tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+    }
+  }
+  const frequentTags = Array.from(tagCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 5)
+    .map(([tag]) => tag);
+
+  return {
+    dominantLccLetter,
+    frequentTags,
+    sampleSize: matches.length,
+  };
 }
 
 /**

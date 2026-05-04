@@ -6,6 +6,7 @@ import type {
   SpineBbox,
 } from './types';
 import { toAuthorLastFirst, toTitleCase } from './csv-export';
+import { getAuthorPattern, type AuthorPatternResult } from './export-ledger';
 import { stringSimilarity } from './lookup-utils';
 
 /**
@@ -33,6 +34,47 @@ function flipNameLastFirst(name: string): string {
   const last = parts[parts.length - 1];
   const first = parts.slice(0, -1).join(' ');
   return `${last}, ${first}`;
+}
+
+/**
+ * Apply author-pattern enrichment to a lookup result. Mutates `lookup`
+ * in place when the ledger has ≥3 books by the same author AND no
+ * authoritative or DDC-derived LCC was already filled. Returns the
+ * pattern result so the caller can also forward authorPatternTags +
+ * sampleSize to the tag prompt — but only when the sampleSize ≥ 3
+ * guard passes. Below 3, the helper returns the count for telemetry
+ * but emits no signal into the lookup or prompt.
+ */
+const AUTHOR_PATTERN_MIN_SAMPLE = 3;
+function applyAuthorPatternEnrichment(
+  lookup: BookLookupResult,
+  authorLF: string
+): AuthorPatternResult {
+  const empty: AuthorPatternResult = {
+    dominantLccLetter: null,
+    frequentTags: [],
+    sampleSize: 0,
+  };
+  if (!authorLF) return empty;
+  let pattern: AuthorPatternResult;
+  try {
+    pattern = getAuthorPattern(authorLF);
+  } catch {
+    return empty;
+  }
+  if (pattern.sampleSize < AUTHOR_PATTERN_MIN_SAMPLE) return pattern;
+  // Only fill the personalized LCC slot when neither a sourced nor a
+  // DDC-derived class letter is present. The Review surface flags this
+  // distinctly from the other two so the user can tell signal source.
+  if (
+    pattern.dominantLccLetter &&
+    !lookup.lcc &&
+    !lookup.lccDerivedFromDdc &&
+    !lookup.lccDerivedFromAuthorPattern
+  ) {
+    lookup.lccDerivedFromAuthorPattern = pattern.dominantLccLetter;
+  }
+  return pattern;
 }
 
 /**
@@ -249,6 +291,11 @@ export async function inferTagsClient(args: {
    *  passed only when `lcc` is missing. Tag prompt uses it as a domain
    *  anchor distinct from a sourced LCC. */
   lccDerivedFromDdc?: string;
+  /** LCC class letter derived from the user's own export ledger via
+   *  the author-pattern lookup. Passed only when `lcc` and
+   *  `lccDerivedFromDdc` are both missing AND the author has ≥3 prior
+   *  exports in the ledger. */
+  lccDerivedFromAuthorPattern?: string;
   lcshSubjects?: string[];
   /** MARC 655 genre/form terms — cataloger-applied explicit genre
    *  vocabulary. Highest-priority signal for genre/form classification
@@ -260,6 +307,12 @@ export async function inferTagsClient(args: {
    *  confidence — this is read off the physical artifact and overrides
    *  the "only when publisher confirms" guard for series form tags. */
   extractedSeries?: string;
+  /** Top tags from other books by this author in the user's local
+   *  ledger. Forwarded only when ≥3 sample books matched. */
+  authorPatternTags?: string[];
+  /** Sample size for the author-pattern result — number of matched
+   *  books in the ledger. Caller has already enforced the ≥3 guard. */
+  authorPatternSampleSize?: number;
   synopsis?: string;
 }): Promise<InferTagsResult> {
   // Pull the user's most recent tag corrections from localStorage and
@@ -741,6 +794,16 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     lookup.edition = read.extractedEdition;
   }
 
+  // Author-pattern enrichment from the local ledger. Reads the user's
+  // own previously-exported books by the same author to surface a
+  // dominant LCC class letter (when ≥3 sample) and frequent tags. Runs
+  // BEFORE the model-inferred LCC fallback so the personalized signal
+  // beats a Sonnet best-guess. Mutates `lookup` to fill
+  // `lccDerivedFromAuthorPattern` when applicable; the prompt-tier
+  // signals (frequentTags) come back via the returned pattern object.
+  const earlyAuthorLF = read.author ? toAuthorLastFirst(read.author) : '';
+  const authorPattern = applyAuthorPatternEnrichment(lookup, earlyAuthorLF);
+
   // Tier 6: model-inferred LCC (final fallback). Only fires when the
   // entire lookup chain (OL t1-t4 → GB → LoC SRU by ISBN → LoC SRU by
   // title+author) returned nothing. Marked 'inferred' so the BookCard
@@ -790,9 +853,18 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
         lccDerivedFromDdc: lookup.lccDerivedFromDdc,
+        lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
         lcshSubjects: lookup.lcshSubjects,
         marcGenreTerms: lookup.marcGenres,
         extractedSeries: read.extractedSeries,
+        authorPatternTags:
+          authorPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+            ? authorPattern.frequentTags
+            : undefined,
+        authorPatternSampleSize:
+          authorPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+            ? authorPattern.sampleSize
+            : undefined,
         synopsis: lookup.synopsis,
       });
     } catch {
@@ -870,6 +942,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     lookupSource: lookup.source,
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
+    lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
     lccSource,
     spineThumbnail,
     coverUrl: lookup.coverUrl,
@@ -924,6 +997,18 @@ export async function retagBook(book: BookRecord): Promise<{
   error?: string;
 }> {
   if (!book.title) return { ok: false, error: 'No title.' };
+  // Recompute the author-pattern signal at retag time — the ledger may
+  // have changed since the book was first processed (the user may have
+  // exported more books by this author since), so the pattern is fresh.
+  const retagPattern = book.authorLF
+    ? (() => {
+        try {
+          return getAuthorPattern(book.authorLF);
+        } catch {
+          return { dominantLccLetter: null, frequentTags: [], sampleSize: 0 };
+        }
+      })()
+    : { dominantLccLetter: null as string | null, frequentTags: [], sampleSize: 0 };
   let inferred: InferTagsResult;
   try {
     inferred = await inferTagsClient({
@@ -939,8 +1024,17 @@ export async function retagBook(book: BookRecord): Promise<{
       // model with the same payload as before.
       ddc: book.ddc,
       lccDerivedFromDdc: book.lccDerivedFromDdc,
+      lccDerivedFromAuthorPattern: book.lccDerivedFromAuthorPattern,
       lcshSubjects: book.lcshSubjects,
       marcGenreTerms: book.marcGenres,
+      authorPatternTags:
+        retagPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+          ? retagPattern.frequentTags
+          : undefined,
+      authorPatternSampleSize:
+        retagPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+          ? retagPattern.sampleSize
+          : undefined,
       synopsis: book.synopsis,
     });
   } catch (err: any) {
@@ -1043,6 +1137,12 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     }
   }
 
+  // Author-pattern enrichment from the local ledger. Mutates `lookup`
+  // to fill `lccDerivedFromAuthorPattern` when applicable; the prompt
+  // signals (frequentTags / sampleSize) come back via the returned object.
+  const manualAuthorLF = author ? toAuthorLastFirst(author) : '';
+  const manualPattern = applyAuthorPatternEnrichment(lookup, manualAuthorLF);
+
   // Tag inference (always run — manual entry is a known good title/author).
   let tags: InferTagsResult = {
     genreTags: [],
@@ -1060,8 +1160,18 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
       lcc: lookup.lcc,
       subjectHeadings: lookup.subjects,
       ddc: lookup.ddc,
+      lccDerivedFromDdc: lookup.lccDerivedFromDdc,
+      lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
       lcshSubjects: lookup.lcshSubjects,
       marcGenreTerms: lookup.marcGenres,
+      authorPatternTags:
+        manualPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+          ? manualPattern.frequentTags
+          : undefined,
+      authorPatternSampleSize:
+        manualPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+          ? manualPattern.sampleSize
+          : undefined,
       synopsis: lookup.synopsis,
     });
   } catch {
@@ -1122,6 +1232,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     lookupSource: lookup.source,
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
+    lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
     lccSource,
     manuallyAdded: true,
     // Phase-3 enrichment passthrough — see addManualBook's sibling
@@ -1336,6 +1447,14 @@ export async function rereadBook(
   if (rereadExtractedDdc && !lookup.ddc) lookup.ddc = rereadExtractedDdc;
   if (rereadExtractedEdition && !lookup.edition) lookup.edition = rereadExtractedEdition;
 
+  // Author-pattern enrichment from the local ledger. Same call as
+  // buildBookFromCrop / addManualBook — runs BEFORE the model-LCC
+  // fallback so the personalized signal beats the Sonnet best-guess.
+  const rereadAuthorLF = author
+    ? toAuthorLastFirst(author)
+    : current.authorLF || '';
+  const rereadPattern = applyAuthorPatternEnrichment(lookup, rereadAuthorLF);
+
   // Tier 6 inference (same fallback as buildBookFromCrop).
   if (!finalLcc && title && author) {
     try {
@@ -1374,9 +1493,18 @@ export async function rereadBook(
         subjectHeadings: lookup.subjects,
         ddc: lookup.ddc,
         lccDerivedFromDdc: lookup.lccDerivedFromDdc,
+        lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
         lcshSubjects: lookup.lcshSubjects,
         marcGenreTerms: lookup.marcGenres,
         extractedSeries: rereadExtractedSeries || undefined,
+        authorPatternTags:
+          rereadPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+            ? rereadPattern.frequentTags
+            : undefined,
+        authorPatternSampleSize:
+          rereadPattern.sampleSize >= AUTHOR_PATTERN_MIN_SAMPLE
+            ? rereadPattern.sampleSize
+            : undefined,
         synopsis: lookup.synopsis,
       });
     } catch {
@@ -1415,6 +1543,7 @@ export async function rereadBook(
     lookupSource: lookup.source,
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
+    lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
     lccSource,
     coverUrl: lookup.coverUrl,
     // Phase-3 enrichment passthrough — surgical, only sets what the
