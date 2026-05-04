@@ -1,0 +1,1437 @@
+{
+  "id": "0b648fd2-3897-4604-8753-19faff9cf257",
+  "filename": "7856.cropped.jpg",
+  "fileSize": 2341995,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 21,
+  "booksIdentified": 20,
+  "books": [
+    {
+      "id": "fd6b90d9-72fa-44eb-8891-352c8630be34",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Quantum Criminals — Alex Pappademas & Joan LeMay",
+        "title": "Quantum Criminals",
+        "author": "Alex Pappademas & Joan LeMay",
+        "publisher": "Texas",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Quantum Criminals",
+      "author": "Alex Pappademas",
+      "authorLF": "Pappademas, Alex; LeMay, Joan",
+      "isbn": "9781477324998",
+      "publisher": "University of Texas Press",
+      "publicationYear": 2023,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Pop culture criticism",
+        "[Proposed] Media studies"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[general_works] Limited metadata with no LCC, subject headings, or synopsis. Based on the title 'Quantum Criminals' and dual authorship, this appears to be cultural criticism or media analysis. University of Texas Press suggests academic treatment of popular culture topics. Proposing tags due to insufficient information to map to existing vocabulary.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "general_works"
+      ],
+      "domainConfidence": "low",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781477324998-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Quantum Criminals",
+      "allAuthors": [
+        "Alex Pappademas",
+        "Joan LeMay"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781477324998-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Quantum Criminals",
+        "author": "Alex Pappademas",
+        "isbn": "9781477324998",
+        "publisher": "University of Texas Press",
+        "publicationYear": 2023,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Pop culture criticism",
+          "[Proposed] Media studies"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "b807cef5-f25c-4632-890c-a368918aaa00",
+      "spineRead": {
+        "position": 2,
+        "rawText": "Moral Ambition — Rutger Bregman",
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "publisher": "Little, Brown",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Teal/mint spine with black text",
+        "bbox": {
+          "x": 4,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Moral Ambition",
+      "author": "Rutger Bregman",
+      "authorLF": "Bregman, Rutger",
+      "isbn": "9780316580359",
+      "publisher": "Little, Brown and Company",
+      "publicationYear": 2025,
+      "lcc": "",
+      "genreTags": [
+        "Ethics",
+        "Self-improvement",
+        "[Proposed] Social justice",
+        "[Proposed] Personal development"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] The subtitle 'Stop Wasting Your Talent and Start Making a Difference' clearly indicates a how-to/guide format. Subject headings include 'self-help' and 'personal growth' which map to Self-improvement, while the title 'Moral Ambition' and focus on 'making a difference' suggests ethical considerations, warranting the Ethics tag. Author Rutger Bregman is known for works combining moral philosophy with practical application. | [social_sciences] Subject headings explicitly include 'social justice' and 'activism' which fit the Social sciences domain, along with 'self-help' and 'personal growth'. The subtitle 'Stop Wasting Your Talent and Start Making a Difference' clearly indicates prescriptive guidance, warranting the How-to / guide form tag. Author Bregman is known for social science writing that combines personal development with social activism themes.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316580359-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Moral Ambition",
+      "subtitle": "Stop Wasting Your Talent and Start Making a Difference",
+      "allAuthors": [
+        "Rutger Bregman"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780316580359-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "isbn": "9780316580359",
+        "publisher": "Little, Brown and Company",
+        "publicationYear": 2025,
+        "lcc": "",
+        "genreTags": [
+          "Ethics",
+          "Self-improvement",
+          "[Proposed] Social justice",
+          "[Proposed] Personal development"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "24f97678-ae90-4707-b25f-9a7e9d59913b",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Moral Ambition — Rutger Bregman",
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "publisher": "Little, Brown",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 9,
+          "y": 10,
+          "width": 6,
+          "height": 75
+        }
+      },
+      "title": "Moral Ambition",
+      "author": "Rutger Bregman",
+      "authorLF": "Bregman, Rutger",
+      "isbn": "9780316580373",
+      "publisher": "Hachette",
+      "publicationYear": 2025,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Activism & Social Justice",
+        "Ethics",
+        "Self-improvement"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[social_sciences] Subject headings explicitly include 'Activism & Social Justice' which aligns with social sciences domain. Author Rutger Bregman is known for progressive social commentary (Humankind, Utopia for Realists). Other subject headings like 'Self-Help' and 'Personal Growth' suggest self-improvement content, but the activism component and social science categorization point to broader social change themes within the social sciences domain. | [philosophy_psychology_religion] Author Rutger Bregman is known for philosophical works on human nature and social reform. 'Moral Ambition' with subject headings including Self-Help and Personal Growth suggests both ethical philosophy and self-improvement content. The title directly references morality, indicating ethical considerations.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "social_sciences",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316580373-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Moral Ambition",
+      "allAuthors": [
+        "Rutger Bregman"
+      ],
+      "synopsis": "INTERNATIONAL BESTSELLER | Bloomberg Businessweek's Best Business Books of the Year | Audible's Best Books of the Year | Longlisted for the Non-Obvious Book Awards From the author of the New York Times bestsellers Humankind and Utopia for Realists—“a more politically radical Malcolm Gladwell” (The New York Times)—comes a bold manifesto daring us to harness our talents and transform our idealism into action, all with the goal of making the world a wildly better place. A career consists of 2,000 workweeks, and how you spend that time is one of the most important decisions of your life. Still, millions of people are stuck in in mind-numbing, pointless, or just plain harmful jobs. There’s an antidote to this waste of talent, and it’s called moral ambition. Moral ambition is the will to be among the best, but with different measures of success. Not a fancy title, fat salary, or corner office, but a career dedicated to the best solutions to the world's biggest problems— whether that means tackling climate change, making pandemics history or fighting Big Tobacco. In Moral Ambition, internationally bestselling author Rutger Bregman reveals how our conventional definitions of success are harming us and the planet, and shows how we can shift the focus from personal gain to societal benefit. In the process, he explains, we will join a growing movement of pioneers who are already living out this ethos. They're the builders, the problem-solvers, the doers who have chosen a path less traveled. A guidebook to finding that path for ourselves, Moral Ambition reminds us that the real measure of success lies not in what we accumulate, but in what we contribute, and shows how we, too, can build a legacy that truly matters.",
+      "pageCount": 304,
+      "binding": "ePub",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780316580373-M.jpg?default=false",
+        "https://images.isbndb.com/covers/19286733482300.jpg"
+      ],
+      "original": {
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "isbn": "9780316580373",
+        "publisher": "Hachette",
+        "publicationYear": 2025,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Activism & Social Justice",
+          "Ethics",
+          "Self-improvement"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "f009457e-3454-466f-8f08-f7eb95797b1f",
+      "spineRead": {
+        "position": 4,
+        "rawText": "Everything Must Go",
+        "title": "Everything Must Go",
+        "author": "",
+        "publisher": "Pantheon",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Author partially visible at top, appears to end in '...an' and '...key' but not fully legible",
+        "bbox": {
+          "x": 15,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Everything Must Go",
+      "author": "Kevin Coval",
+      "authorLF": "Coval, Kevin",
+      "isbn": "9781642590838",
+      "publisher": "Open Road Integrated Media, Inc.",
+      "publicationYear": 2019,
+      "lcc": "PS3603 .O88825 A6 2019",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PS3603 places this in American literature/poetry. Subject headings include 'Poetry' and synopsis confirms it's a collection of poems. Author Kevin Coval is an American poet, so gets both Poetry and American poetry tags.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781642590838-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Everything Must Go",
+      "allAuthors": [
+        "Kevin Coval"
+      ],
+      "synopsis": "A unique artistic tribute to a Chicago neighborhood lost to gentrification: \"Kevin Coval made me understand what it is to be a poet\" (Chance the Rapper, Grammy winner and activist).   Everything Must Go is an illustrated collection of poems in the spirit of a graphic novel, a collaboration between poet Kevin Coval and illustrator Langston Allston. The book celebrates Chicago's Wicker Park in the late 1990s, Coval's home as a young artist, the ancestral neighborhood of his forebears, and a vibrant enclave populated by colorful characters.   Allston's illustrations honor the neighborhood as it once was, before gentrification remade it. The book excavates and mourns that which has been lost in transition and serves as a template for understanding the process of displacement and reinvention currently reshaping American cities.   \"Chicago's unofficial poet laureate.\" —NPR",
+      "pageCount": 112,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781642590838-M.jpg?default=false",
+        "https://images.isbndb.com/covers/22898503482772.jpg"
+      ],
+      "original": {
+        "title": "Everything Must Go",
+        "author": "Kevin Coval",
+        "isbn": "9781642590838",
+        "publisher": "Open Road Integrated Media, Inc.",
+        "publicationYear": 2019,
+        "lcc": "PS3603 .O88825 A6 2019",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9b1a40ef-b3a2-4423-b42f-587c9b8d0096",
+      "spineRead": {
+        "position": 5,
+        "rawText": "K-PUNK — Mark Fisher",
+        "title": "K-PUNK",
+        "author": "Mark Fisher",
+        "publisher": "Repeater",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 20,
+          "y": 10,
+          "width": 6,
+          "height": 75
+        }
+      },
+      "title": "K-Punk",
+      "author": "Mark Fisher",
+      "authorLF": "Fisher, Mark",
+      "isbn": "9781912248285",
+      "publisher": "Repeater",
+      "publicationYear": 2018,
+      "lcc": "PR6106 .I845 A6 2018",
+      "genreTags": [
+        "Literary criticism",
+        "Essays",
+        "Critical thinking",
+        "Postmodernism"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PR6106 places this in English literature criticism. The subtitle 'The Collected and Unpublished Writings' clearly indicates an anthology of Fisher's critical essays and writings. Subject headings confirm literary criticism focus on 20th century English literature. | [philosophy_psychology_religion] Mark Fisher was a prominent cultural critic known for analyzing capitalism, neoliberalism, and postmodern culture through a critical theory lens. The subtitle 'Collected and Unpublished Writings' clearly indicates this is an anthology. His work bridges critical thinking about contemporary culture and postmodern philosophy. The subject headings confirm modern philosophy content.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "K-punk",
+      "subtitle": "The Collected and Unpublished Writings of Mark Fisher",
+      "allAuthors": [
+        "Mark Fisher"
+      ],
+      "pageCount": 817,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "K-Punk",
+        "author": "Mark Fisher",
+        "isbn": "9781912248285",
+        "publisher": "Repeater",
+        "publicationYear": 2018,
+        "lcc": "PR6106 .I845 A6 2018",
+        "genreTags": [
+          "Literary criticism",
+          "Essays",
+          "Critical thinking",
+          "Postmodernism"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      },
+      "duplicateGroup": "dup-p6xjpukh",
+      "duplicateOf": [
+        6
+      ]
+    },
+    {
+      "id": "0422a591-c444-4b4e-94ea-ac3b84423dd2",
+      "spineRead": {
+        "position": 6,
+        "rawText": "K-Punk — Mark Fisher",
+        "title": "K-Punk",
+        "author": "Mark Fisher",
+        "publisher": "Repeater",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Dark spine with partial face image at top; text reads 'FISHER  K-PUNK' vertically",
+        "bbox": {
+          "x": 26,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "K-Punk",
+      "author": "Mark Fisher",
+      "authorLF": "Fisher, Mark",
+      "isbn": "9781912248285",
+      "publisher": "Repeater",
+      "publicationYear": 2018,
+      "lcc": "PR6106 .I845 A6 2018",
+      "genreTags": [
+        "Literary criticism",
+        "Essays",
+        "Critical thinking",
+        "Postmodernism"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PR6106 places this in English literature criticism. The subtitle 'The Collected and Unpublished Writings' clearly indicates an anthology of Fisher's essays and criticism. Subject headings confirm literary criticism focus on English literature and 20th century topics. | [philosophy_psychology_religion] Mark Fisher was a prominent cultural critic known for his analysis of capitalism, neoliberalism, and postmodern culture. The subtitle 'Collected and Unpublished Writings' clearly indicates an anthology format. His work fits within critical thinking and postmodernism given his theoretical approach to analyzing contemporary culture and politics.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABADASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAQACAwQFBwb/xAAwEAABAwIDBwIEBwAAAAAAAAABAgMRAAQFITEGEiJBUWFxE9EkcoGxBxQ0Q6Gjwf/EABkBAQEBAQEBAAAAAAAAAAAAAAEABAMFAv/EABwRAQEAAgIDAAAAAAAAAAAAAAABAhMUUREhYf/aAAwDAQACEQMRAD8A5iMduoHCzPg+9EY/dR+z/PvXNDcPxBecj5jURJUZUZPU1n4/1r5NKhTta6JguGWmPbFtO3rQFyw8u2TcJPHupSgpk8wAoJA5AZVoZXl4ik7eXNoGixcONj1BklRAPkc6nuVlx5SiqdAM5y886z8T/Tg9FA0ubStmUvObq3UNJylStBJiep5aSY5ZVQxIfBr+n3rcYtQxfMtqVLm+UKaUgykjLPln2JOR7VjYgn4Nzx/tNgjTZecN4h7dS44CFQpIIUR1HPv1qDHHE3Dl88kAJcUtYA0zJOVT2xCFeqpO8EEEA6E9D21qpdpm2d+U19Wek1XHmRh7luzBHqoWFLRC1QFTpMDMZT071QdEtKHUU6krNJ8V0sBUYkUBrTuVKCkaIpGhQBpnrROlW8ZIOMXxTcJuk+u5D6U7od4jxAcgdY71TJoKW9YXaXtxbOGVsuKbUd1SZKSQclAEaaEA9QKhOlT4laKsLxy2cMuIjeEEFJIBKSDooEwRyIIqqTlnUmltGptWMvraDKUKCFAMrbWkSgGAW0pT5ASIMg5yazTWjtFfpxPGH7xC3Fh0IzcKyqQgA5rWtR05qP00GbQg1paa1638Q29m7O/GH7N2l2xcWb77V25cKkOELhITxHhEKAyBiJkya8gTQFvGr84pjF/flsNm6fcfKAZ3d5RVE9pqkTQpTR5Tp6dmcHKCk2wiZPGfvPeidlMImfyv9ivetjdBUBTYhMgmvH259vZ1YdP/2Q==",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "K-punk",
+      "subtitle": "The Collected and Unpublished Writings of Mark Fisher",
+      "allAuthors": [
+        "Mark Fisher"
+      ],
+      "pageCount": 817,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "K-Punk",
+        "author": "Mark Fisher",
+        "isbn": "9781912248285",
+        "publisher": "Repeater",
+        "publicationYear": 2018,
+        "lcc": "PR6106 .I845 A6 2018",
+        "genreTags": [
+          "Literary criticism",
+          "Essays",
+          "Critical thinking",
+          "Postmodernism"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      },
+      "duplicateGroup": "dup-p6xjpukh",
+      "duplicateOf": [
+        5
+      ]
+    },
+    {
+      "id": "3be49651-ebbf-4f83-81aa-248e851d06a2",
+      "spineRead": {
+        "position": 7,
+        "rawText": "The Penguin Book of Twentieth-Century American Poetry — ed. Rita Dove",
+        "title": "The Penguin Book of Twentieth-Century American Poetry",
+        "author": "ed. Rita Dove",
+        "publisher": "Penguin",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Editor's last name partially obscured but visible as 'Rita'",
+        "bbox": {
+          "x": 30,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "The Penguin Book of Twentieth-Century American Poetry",
+      "author": "Rita Dove",
+      "authorLF": "Dove, Rita",
+      "isbn": "9780143121480",
+      "publisher": "Penguin Publishing Group",
+      "publicationYear": 2013,
+      "lcc": "PS613 .P46 2013",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Anthology"
+      ],
+      "formTags": [
+        "Penguin Classics"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PS613 confirms American poetry anthology. Subject headings explicitly list 'Poetry' and 'Anthologies (multiple authors)' and 'American'. Rita Dove is editing 20th-century American poets, so gets Poetry + American poetry + Anthology. Publisher is Penguin Publishing Group with 'Penguin Book of' in title, indicating Penguin Classics series.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "811/.508",
+      "lccDerivedFromDdc": "PS",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780143121480-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Penguin Anthology of Twentieth-Century American Poetry",
+      "allAuthors": [
+        "Rita Dove"
+      ],
+      "synopsis": "<b>Penguin’s landmark poetry anthology, perfect for learning poems by heart in the age of ephemeral media <br><br>Recipient of the Academy of American Poets' Wallace Stevens Award (Dove)<br></b><br> Rita Dove, Pulitzer Prize winner and former Poet Laureate of the United States, introduces readers to the most significant and compelling poems of the past hundred years in <i>The Penguin Anthology of Twentieth-Century American Poetry</i>. Now available in paperback, this indispensable volume represents the full spectrum of aesthetic sensibilities—with varying styles, voices, themes, and cultures—while balancing important poems with vital periods of each poet. Featuring works by Mary Oliver, Derek Walcott, John Ashbery, Gwendolyn Brooks, Kevin Young, Terrance Hayes, Li-Young Lee, Joanna Klink and A.E. Stallings, Dove’s selections paint a dynamic and cohesive portrait of modern American poetry.",
+      "pageCount": 656,
+      "edition": "1",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780143121480-M.jpg?default=false",
+        "https://images.isbndb.com/covers/26016783482238.jpg"
+      ],
+      "original": {
+        "title": "The Penguin Book of Twentieth-Century American Poetry",
+        "author": "Rita Dove",
+        "isbn": "9780143121480",
+        "publisher": "Penguin Publishing Group",
+        "publicationYear": 2013,
+        "lcc": "PS613 .P46 2013",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Anthology"
+        ],
+        "formTags": [
+          "Penguin Classics"
+        ]
+      }
+    },
+    {
+      "id": "0c842a22-aa72-4230-9f1b-1eb4538b2584",
+      "spineRead": {
+        "position": 8,
+        "rawText": "The Penguin Anthology of Poetry — ed. Rita Dove",
+        "title": "The Penguin Anthology of Poetry",
+        "author": "ed. Rita Dove",
+        "publisher": "Penguin",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Orange spine, vertical text partially obscured; title appears to be The Penguin Anthology of Poetry edited by Rita Dove",
+        "bbox": {
+          "x": 35,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "The Penguin Anthology of Twentieth-Century American Poetry",
+      "author": "Rita Dove",
+      "authorLF": "Dove, Rita",
+      "isbn": "9780143106432",
+      "publisher": "Penguin Books",
+      "publicationYear": 2011,
+      "lcc": "PS613 .P47 2011",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Anthology"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PS613 confirms American poetry collections. Subject headings explicitly state 'American poetry' and 'collections'. Rita Dove is a renowned American poet. Gets Poetry + American poetry + Anthology per rule 6a for multi-poet collections.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780143106432-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Penguin anthology of twentieth-century American poetry",
+      "allAuthors": [
+        "Rita Dove"
+      ],
+      "pageCount": 599,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780143106432-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Penguin Anthology of Twentieth-Century American Poetry",
+        "author": "Rita Dove",
+        "isbn": "9780143106432",
+        "publisher": "Penguin Books",
+        "publicationYear": 2011,
+        "lcc": "PS613 .P47 2011",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Anthology"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "923c96e0-f1f7-4ebf-9ffc-da8a57816214",
+      "spineRead": {
+        "position": 9,
+        "rawText": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity — Sander van der Linden",
+        "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+        "author": "Sander van der Linden",
+        "publisher": "Norton",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 40,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+      "author": "Sander van der Linden",
+      "authorLF": "Linden, Sander van der",
+      "isbn": "9780393881455",
+      "publisher": "W. W. Norton",
+      "publicationYear": 2023,
+      "lcc": "P91 .V3 2024",
+      "genreTags": [
+        "[Proposed] Media literacy",
+        "Social psychology",
+        "Critical thinking"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P91 places this in mass communication/media studies within Language and literature domain. The book focuses on misinformation, psychology of belief, and building resistance - closest fit is media literacy though not in current vocabulary. Subject headings emphasize psychology but domain is settled as Language/literature. | [philosophy_psychology_religion] Book focuses on psychology of misinformation and building mental defenses against it. Subject headings confirm Social Psychology and Applied Psychology. Synopsis emphasizes psychological mechanisms and protective strategies, fitting Social psychology and Critical thinking tags.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "language_literature",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABADASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAABAUDBgABAgcI/8QANBAAAgIBAwIFAQUHBQAAAAAAAQIDBBEFEiEAMQYTIkFRFDJCYXGRFRYjUoGhojNEYnLB/8QAGQEAAwEBAQAAAAAAAAAAAAAAAgMEAQAF/8QAJBEAAgECBQQDAAAAAAAAAAAAAAECEVEDEhMhQQQUMXEyobH/2gAMAwEAAhEDEQA/APIf3mL/AO/Uc/IHXDa8r5LX+e3EpHVE6zpOiinuJGY/DreD8dOK/hvXLEjJX0bUpXX7SpVckfngdBXaVqjKYrtaevIOCksZQj+h6bURQ+uIvphrccqWmLSVSEg8tuRv/wBTPbk/h75z1StUpV7Mk9izdS9pg2s1V1O1MMDjaeOApHz+HVjr6uZdZvPW05fKpQPG87T42EWZECEMRgFUL55Kj2OQDX7skc/gOzYgoilJNDJ5lcys7xEeYPVkZHKe+OcjuOVqDTKpY8HFpV+i5ahFYU27cWqQrBJCfKL2GCRt5uQ3xjBAOc88cDjpf4lUHw7brvMZJhCd7eYG3Eh88Z45B9h2x7ECW5a0/wDdQw7LzUBIIdwVdybWXnIGMZ+eTngfCvxTZpS6vNWJsG8I2Gdq7MBXIGe/Zvy7ZzjPQp7jpwbg6q/Fi426ltrUXkuIqzmR5cIn/EJjIznA3ZOe2D7AV27XusLj3a0AVWkMLBF3BSTzuGfYj4Jyc/PTm1LRs6utwzh3hjmjRVTaAwRSxyTy2Cf6f9SelFavT/Y9uSKWKeKWVpA5j2kMxQgckkcgEZ57fAJzk7xDxxYZRpaq6Q8qaaiSyKymAI75/hM2Tk/eIRSO+c5JJGAtVazBVpJHSXZKvrEULKIuI85GePvDnsPyOY7mm6qvhanpNrXGryj0PeS2/mzMfO2+plyAWER79gyg4A3I9b0zU7WuadLH4mkWKmsEc9QPJG1lVUMzuo+8xOCCMYxk546JxVxWrJ1eT9Lxq3lRazp1Z4PqZJmGwu+AgUOSSAvdQxA+fcgjJUwPBcu6g8VWBbWVDlrJIkbYTwMcDIx29jkZGOn80t1tWhAsLFSEZDhzGTI4k24GOccj9VzzkdJYLln9nE3LlU2GZmD70KhSH2jgjsUOTzkA88cAxy+L9XYTpjabHp80lOK60Um2y7kKXciZtoxnuSpGAOw9iekmpWNKh8N6fWY6h9O7MIwCnmZBYer2HLHt8dPyZ4qEDVtMqx3ZlGAKjKkbbo/tY5xyWzxjb8r0Jfnvm9HDUpQrXMCiSRoTwwZl2jtwDyO/ByOD1zQalu/dzrUdb0+vbpyW9SsQPXjWWap9PKWdX8pFG3aGI3yJ3BOSRxtIUKo2n3PGOpipdE1mqqpLUNdlWEl92dxwCSQzce5zz061jT9Gg1OHU7kDHUJ2jrxsJHJkZSHRAucd0DcjHpJJ7noWHTdOFmzbqw2I55JD5rs0qFzuD4wSMru5AHp9T4+02XOESGPUYnDJLsniB7tSSnPpC6ajN9Tvdy+AWUgHGDjgn7PqXGQOOubks8gYG7TrbJGikVBvIdsbBkkANhgdpBzke3eK9Wgm1V6FnQLEuntulNwyBl3vneNu7cFIODjvkjbjk86pVEFWrFp+jwOiWYRtdUAjVSg8wDP3UGBzkFV4I6Nk6CKixRfV10127Iae1JY5TGzREoGBLFNxyGBySRkY9iOl7T6dr9SYVdVezHHLEmYiuUlQhgRhec8EnkenjGD04j1QlooHgl80qCzbQFz6c+5/m+T+fQ2rXpIK8csFc2lcEjyyT90kdgeDjGfkjrHNDVgzVNifTYtQihX66eOcgHG3jd9nGeOOQ36/pDqkdl5o/p5gkYJL57+2ABjkd/f3/Qy1Z+lpCXyZJUVcsUK+kAck5I/t0vj1BL7M1NGkgHHnZARu2QPfIz8Y/HrJJeAoubWdJUFtbxjplmsjK9iIY9SvECCOCex74BA59+x6F1jxNUhso0kmoiNceiOOPa/Pcnvg/njg9EVfBGnJVTy57QGM8spA/wAetaj4Qp2mVrFm2xXthlGf8fw/t0lrFZ6CfQKSyt5fW5Wa+qazViSOHVZzHGoUK6RtwPklcn+p61NrOtS4DavPGR/JDD/6h6g+71GpJHJ6g18S5mjh2P/Z",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393881455-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+      "allAuthors": [
+        "Sander van der Linden"
+      ],
+      "synopsis": "One of the world’s top experts on fighting misinformation reveals the psychology behind its power—and how we can protect ourselves. From fake news to conspiracy theories, from pandemics to politics, misinformation may be the defining problem of our era. Like a virus, misinformation infects our minds—altering our beliefs and replicating at astonishing rates. Once the virus takes hold, our primary strategies of fact-checking and debunking are an ineffective cure. In Foolproof, psychologist Sander van der Linden introduces a new paradigm for combatting what the World Health Organization has declared a worldwide “infodemic.” Synthesizing decades of social psychology studies with groundbreaking original research, he explains why our brains are so susceptible to misinformation, how it spreads across social networks, and how we can cultivate immunity. The answer is the innovative science of “prebunking”—inoculating people against misinformation by preemptively exposing them to a weakened dose and teaching them to identify and fend off its manipulative tactics. With engaging case studies and practical strategies for institutions and individuals alike, Foolproof is the definitive book on resisting nefarious persuasion.",
+      "pageCount": 368,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780393881455-M.jpg?default=false",
+        "https://images.isbndb.com/covers/5895433482328.jpg"
+      ],
+      "original": {
+        "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+        "author": "Sander van der Linden",
+        "isbn": "9780393881455",
+        "publisher": "W. W. Norton",
+        "publicationYear": 2023,
+        "lcc": "P91 .V3 2024",
+        "genreTags": [
+          "[Proposed] Media literacy",
+          "Social psychology",
+          "Critical thinking"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "cc67e4a8-329b-4b38-8d6d-4f55acf343d2",
+      "spineRead": {
+        "position": 10,
+        "rawText": "Misguided — Facciani",
+        "title": "Misguided",
+        "author": "Facciani",
+        "publisher": "Columbia",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle: Where Misinformation Starts, How It Spreads, and What to Do About It",
+        "bbox": {
+          "x": 44,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Misguided",
+      "author": "Matthew Facciani",
+      "authorLF": "Facciani, Matthew",
+      "isbn": "9780231205047",
+      "publisher": "Columbia University Press",
+      "publicationYear": 2025,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Personal narrative",
+        "[Proposed] Social commentary"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[general_works] Very limited metadata with no LCC, subject headings, or synopsis. Title 'Misguided' suggests personal reflection or social critique. Columbia University Press suggests academic/intellectual content. Proposing broad tags that could encompass memoir, essay, or social analysis within General works domain.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "general_works"
+      ],
+      "domainConfidence": "low",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABQDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAYEBQEDBwII/8QAQBAAAgEDBAECAwMHCAsAAAAAAQIDBAURAAYSITEHExQiQVFhgQgjMnGRpNIVFkJTZKGisSUzNlJjcoSTssHC/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDAAQF/8QAIhEAAgIBBAEFAAAAAAAAAAAAAAECEQMTITFRMgQSIiNh/9oADAMBAAIRAxEAPwDjovqYwa8/jKTrB3BDjDVzEfrJ0jaydR0UdOvIcjf6Q+als/8AK2jSYdGtpRNryDB+zWcHXvRqlkaPHejXvRrWaj6625tHbg29a2ksFqkc00TM8lJG7MSgySSMk/r1ZrtPbg8bftA/6KL+HVhZY+Nkto+yli/8BqLtmsqa+3vUVXh5SYh7XDEZAK95Kt0f0lJU/T7NVoQ+TvUCmio9732CnjSOFKyUIiDCqOR6A+g+7Rrf6k/7eX7J7+Nm/D5zo1KS3HXB9U7KqnrdtUssv6SPLD+EcroP7lGouwPhTt+M0s1LMz8XmME6TESGNeQkdOmkyPmb+kTy6zgSNgR8NqwD+0VJ/eJNY2cSsVxpnhqoWhq5OKztIy8CSF9vkiqqYXComQAB3knVUIcD9QtvxVG/b+xlZD8SCQF/3o0f/wCtGrD1LmaL1F3Co/rYT+7Q6NUUYtbl4qNHd9mx8NuQAf1s5/bM51bxxohbiiqScnAxk6Wfjbla9l01VaaGnrHWWZphUVK06RxB5Szlz11gft+7Srtjfm7N2Vc8Vhslr9iA8Zauad/aQkZHeAT4x0D5H071JEGc39XJRF6l34EgZeA/u8WjVf63SKnqnfgSPMHk/wBni0aqnsUUtjr1bWn+aFUtdUbjT2Lv7SCwsEqMmENxPf6GWYkZPeNK0VktaXUXQWj1Y+PyWNSadRISRg5cDl2OvPjTbAt6i2bfpNve9PVxXaOaQQtxnkiSOBnEeQRzPHwVIILDiSQDm4Q743VTVt6pXuViipsfyTao+Ec9Q4YfnKjmVHE/VCcY+hx+ckuBHyce/KEpmpPVG4yOOqqKGZe8dCNU/wA0OjW78pU1Y3lZzcVhSuazwGoEOeAk5ycuOe+Oc4z9NGjYLOx0kF3n9N78m1EeK6TzoKdUlVWQFIAwDtgAhOWG6P1HeNL1l9Nq6ShvlXLZKyyXmCISWuphuolqZ5ij8hJIG4fM3HsKnTHv66bK+2XO6en246Kw1JS6SVGI3WX2yzKIi68hjBYKy/Qd4OBnScmxwigD0hHQ7P8AOXz/AItLHhDT8mIH5SSVqbrsC3RxJcBY6cVLoBhpecvMjAAxnP0GjXv8oin+H3Jt2D4M0XtWKnT4X3fd9jDyj2+f9Lj4z9cZ0aYQ69eq62x2Ldpvgrmtcfwryx0nyy9ylQVzjyVXPfYBxnSpXUOyqailnm9Od6Se0hdpKqGaNAAMkswk6H2nGnWzzxwpvCrvdJI9Mtvjapp0IYtEPiOSjsA/L9+kGFdpzzxUKWb1GqaEoayGzceVP7RJw6oG58Mnps+T5Okjwh8nkxM9eeFZddqz26malo329SmKAuWMS8pMLyPZwMDJ86Ndrko7Nve22q80VDHFSNTexDE9OuY1SR14gDoAEHodaNUAkQ9o1NvG0d01S8rlbhbXLg8oDUIpqeS58rnBGfP11HoN53RLHS3i0bItkNLFTJSxXCa90xEcXXGNnbiw745VjnPkZ057No6e31VwhooUhgSKBVRBgDuU/wCeTqM/pxs97iK02KmEwYPxDOIsj/hg8MdeMYOkittgzbk22SvTKc3DYtqqmt0Ft91ZGWmp4zFGqmRsFVP0YYbP15Z+ujTLTRpDAkUCJFFGoREQBVVQMAADwNGnMhO2vWNT1VfLXV1LLSyUqVRqVURxIir2cliOOSzZJ6B89Z01U8sVRDHNTypLDIodJEYMrKRkEEdEEfXSjSOTumSF5Giiktk5aRQCVw8YyMgjIDHyDq8sNRwoqClnnWSeSKSWIlyzPCrAK2eK98Xjz0Dk/XzpY8AZMsdZNcLVT1VTS/CSygkw+4JMDJAIYeQRgjx0RkA9aNZs7k22DKcMDAHNW6BwO1+XxjodDx9NGiYVtu0cdHuyKOLJX4OpYknJLPNGzH8SSdTLFc6iqodvvP8AH/Ez+4spr4FpncKCG5KFIBJAZUBXK5OTxOtVgLSbgp5mQo7UMhZD5Ul4zjWm0RTXSm2zXUE0E8FO0ryyzSTy46KHiWcEv2y5cHALePBEHaNJU6ZJ9Noq2LadObmKpJ5JZnENU4doV9xuKhsAsMAHLZJ5ecYANWm3ITS2ampykMftLgLDE8aAHsYD/NnBGSe85z3nRogKXbkTQXt+czy8oH48zkj/AFYx/hJ/HTKPlyMk9k9nPk50uUDKt8pgxwWWRR9/QP8A60xHSwWw05W7ZHtEUtNQrFOfnDOR+daQ4LEjLMSfB8eB4HQB0ak+NGmFOZ2bcMV43paIKWCRI0eV+bkAn804xgfr+3TFeo1udWZLfPZqtIE9yRaqYv7LnHAjBIVWUNnoZwD830q7LY6C07gtT0kbe6XdTI7kkj2n/D+7TnHQUcM0ksNJTpLIQXdY1BYjOCTjvGT+06TFft+Rf1TxPJ9KqP6aqGuofaaGOvp5ngYxSlZgxVx+kDliQe/BORo1pksNmkmklktFueWVi8jtTIWdj5JOOz9+jVDnOURy1/8AKVNcJbrVS1dPn2i3AIpKlSeAULnDEZI+urZtwXxvF1lUfdDF/BqkfojWOTDwSNeIs+Ts9jRh0W7Xy/An/S8//Zh/g0aqBM31wfw0aOvk7Bow6P/Z",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780231205047-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Misguided",
+      "allAuthors": [
+        "Matthew Facciani"
+      ],
+      "pageCount": 400,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780231205047-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Misguided",
+        "author": "Matthew Facciani",
+        "isbn": "9780231205047",
+        "publisher": "Columbia University Press",
+        "publicationYear": 2025,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Personal narrative",
+          "[Proposed] Social commentary"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "424ccf84-84d6-4419-a0c2-7ac2d30579e8",
+      "spineRead": {
+        "position": 11,
+        "rawText": "Hip-Hop is History — Questlove",
+        "title": "Hip-Hop is History",
+        "author": "Questlove",
+        "publisher": "Picador",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 49,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Hip-Hop Is History",
+      "author": "Questlove",
+      "authorLF": "Questlove",
+      "isbn": "9780374614072",
+      "publisher": "Orion Publishing Group, Limited",
+      "publicationYear": 2024,
+      "lcc": "ML3531 .T46 2024",
+      "genreTags": [
+        "Music"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[music] LCC ML3531 places this in Music domain, specifically popular music. Questlove is a well-known musician and music historian writing about hip-hop history. The title indicates a historical treatment of hip-hop as a musical genre.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "music"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780374614072-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Hip-Hop Is History",
+      "allAuthors": [
+        "Questlove"
+      ],
+      "pageCount": 352,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780374614072-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Hip-Hop Is History",
+        "author": "Questlove",
+        "isbn": "9780374614072",
+        "publisher": "Orion Publishing Group, Limited",
+        "publicationYear": 2024,
+        "lcc": "ML3531 .T46 2024",
+        "genreTags": [
+          "Music"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "8c1d8a3a-b042-43ad-adae-9ab354b07b76",
+      "spineRead": {
+        "position": 12,
+        "rawText": "Major Dudes — ed. Barney Hoskyns",
+        "title": "Major Dudes",
+        "author": "ed. Barney Hoskyns",
+        "publisher": "Abrams Press",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "A Steely Dan Companion",
+        "bbox": {
+          "x": 53,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Major Dudes",
+      "author": "Barney Hoskyns",
+      "authorLF": "Hoskyns, Barney",
+      "isbn": "9781472127549",
+      "publisher": "Abrams Press",
+      "publicationYear": 2015,
+      "lcc": "ML421 .S76",
+      "genreTags": [
+        "Music"
+      ],
+      "formTags": [
+        "Primary source"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[music] LCC ML421 places this in Music biography/criticism. Subject headings confirm it's about rock musicians and Steely Dan specifically, with 'Interviews' indicating primary source material. The editor credit and interview focus make this a Primary source collection within the Music domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "music"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781472127549-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Major dudes",
+      "allAuthors": [
+        "Barney Hoskyns"
+      ],
+      "pageCount": 336,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781472127549-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Major Dudes",
+        "author": "Barney Hoskyns",
+        "isbn": "9781472127549",
+        "publisher": "Abrams Press",
+        "publicationYear": 2015,
+        "lcc": "ML421 .S76",
+        "genreTags": [
+          "Music"
+        ],
+        "formTags": [
+          "Primary source"
+        ]
+      }
+    },
+    {
+      "id": "b04deedc-38c8-4d9e-8fa1-4aebdb707866",
+      "spineRead": {
+        "position": 13,
+        "rawText": "Reality+ And the Problems of Philosophy — Chalmers",
+        "title": "Reality+ And the Problems of Philosophy",
+        "author": "Chalmers",
+        "publisher": "Norton",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Blue spine, white text",
+        "bbox": {
+          "x": 58,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Reality+ and the Problems of Philosophy",
+      "author": "David J Chalmers",
+      "authorLF": "Chalmers, David J",
+      "isbn": "9780393635805",
+      "publisher": "National Geographic Books",
+      "publicationYear": 2022,
+      "lcc": "BD331 .C4925 2022",
+      "genreTags": [
+        "Philosophy of mind",
+        "Metaphysics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] LCC BD331 places this in metaphysics, supported by LCSH 'Metaphysics' and 'Philosophy'. The synopsis indicates focus on virtual reality and nature of reality, which aligns with philosophy of mind. Chalmers is a well-known philosopher of mind and consciousness. No form tags applicable.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "111",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393635805-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Reality+ Virtual Worlds and the Problems of Philosophy",
+      "allAuthors": [
+        "David J Chalmers"
+      ],
+      "synopsis": "<b>A leading philosopher takes a mind-bending journey through virtual worlds, illuminating the nature of reality and our place within it.</b><br><p>Virtual reality is genuine reality; that’s the central thesis of <i>Reality+</i>. In a highly original work of “technophilosophy,” David J. Chalmers gives a compelling analysis of our technological future. He argues that virtual worlds are not second-class worlds, and that we can live a meaningful life in virtual reality. We may even be in a virtual world already.</p> <p>Along the way, Chalmers conducts a grand tour of big ideas in philosophy and science. He uses virtual reality technology to offer a new perspective on long-established philosophical questions. How do we know that there’s an external world? Is there a god? What is the nature of reality? What’s the relation between mind and body? How can we lead a good life? All of these questions are illuminated or transformed by Chalmers’ mind-bending analysis.</p> <p>Studded with illustrations that bring philosophical issues to life, <i>Reality+</i> is a major statement that will shape discussion of philosophy, science, and technology for years to come.</p>",
+      "pageCount": 528,
+      "binding": "Hardcover",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780393635805-M.jpg?default=false",
+        "https://images.isbndb.com/covers/3438933482328.jpg"
+      ],
+      "original": {
+        "title": "Reality+ and the Problems of Philosophy",
+        "author": "David J Chalmers",
+        "isbn": "9780393635805",
+        "publisher": "National Geographic Books",
+        "publicationYear": 2022,
+        "lcc": "BD331 .C4925 2022",
+        "genreTags": [
+          "Philosophy of mind",
+          "Metaphysics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "62c9b623-446d-4362-aace-456475c168ad",
+      "spineRead": {
+        "position": 15,
+        "rawText": "Amsterdam: A History of the World's Most Liberal City — Russell Shorto",
+        "title": "Amsterdam: A History of the World's Most Liberal City",
+        "author": "Russell Shorto",
+        "publisher": "Vintage",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 67,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        },
+        "extractedSeries": "Vintage"
+      },
+      "title": "Amsterdam a History of the World's Most Liberal City",
+      "author": "Russell Shorto",
+      "authorLF": "Shorto, Russell",
+      "isbn": "9780307743756",
+      "publisher": "Knopf Doubleday Publishing Group",
+      "publicationYear": 2014,
+      "lcc": "DJ411 .A55 S56 2014",
+      "genreTags": [
+        "World history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[world_history] LCC DJ411 places this in European history, specifically Netherlands history. The focus on Amsterdam as a liberal city and its cultural development fits both World history and Cultural history tags. Subject headings confirm history and social history themes.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "949.2352",
+      "inferredDomains": [
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780307743756-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Amsterdam A History of the World's Most Liberal City",
+      "allAuthors": [
+        "Russell Shorto"
+      ],
+      "synopsis": "<b>An endlessly entertaining portrait of the unique city of Amsterdam, by the author of the acclaimed <i>Island at the Center of the World <br><br></i>Updated Edition with a New Preface for Amsterdam's 750th Anniversary</b><br><br>Tourists know Amsterdam as a picturesque city of low-slung brick houses lining tidy canals; student travelers know it for its legal brothels and hash bars; art lovers know it for Rembrandt's glorious portraits.<br><br>But the deeper history of Amsterdam, what makes it one of the most fascinating places on earth, is bound up in its unique geography-the constant battle of its citizens to keep the sea at bay and the democratic philosophy that this enduring struggle fostered. Amsterdam is the font of liberalism, in both its senses. Tolerance for free thinking and free love make it a place where, in the words of one of its mayors, \"craziness is a value.\" But the city also fostered the deeper meaning of liberalism, one that profoundly influenced America: political and economic freedom. Amsterdam was home not only to religious dissidents and radical thinkers but to the world's first great global corporation.<br><br>In this effortlessly erudite account, Russell Shorto traces the idiosyncratic evolution of Amsterdam, showing how such disparate elements as herring anatomy, naked Anabaptists parading through the streets, and an intimate gathering in a sixteenth-century wine-tasting room had a profound effect on Dutch-and world-history. Weaving in his own experiences of his adopted home, Shorto provides an ever-surprising, intellectually engaging story of Amsterdam.",
+      "pageCount": 384,
+      "edition": "Reprint",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780307743756-M.jpg?default=false",
+        "https://images.isbndb.com/covers/15177933482297.jpg"
+      ],
+      "original": {
+        "title": "Amsterdam a History of the World's Most Liberal City",
+        "author": "Russell Shorto",
+        "isbn": "9780307743756",
+        "publisher": "Knopf Doubleday Publishing Group",
+        "publicationYear": 2014,
+        "lcc": "DJ411 .A55 S56 2014",
+        "genreTags": [
+          "World history",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2c45dfba-9f6b-47b3-8cb3-379c9cf1eccd",
+      "spineRead": {
+        "position": 16,
+        "rawText": "Man and His Symbols — Carl G. Jung",
+        "title": "Man and His Symbols",
+        "author": "Carl G. Jung",
+        "publisher": "Bantam",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 72,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Man and His Symbols",
+      "author": "Carl Gustav Jung",
+      "authorLF": "Jung, Carl Gustav",
+      "isbn": "9782221027702",
+      "publisher": "MacMillan",
+      "publicationYear": 1964,
+      "lcc": "BF173 .J936 1978",
+      "genreTags": [
+        "Neuroscience"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] Carl Jung is a foundational figure in psychology/psychoanalysis. LCC BF173 places this in psychology, and the subject headings confirm focus on psychological symbolism, psychoanalysis, dreams, and subconsciousness. 'Neuroscience' is the closest available tag for psychological/psychoanalytical works in this domain's vocabulary.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABQDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAcBBQIDBgQI/8QAPBAAAgEDAwEFBAcECwAAAAAAAQIDAAQRBRIhMQYIQVFhBxMi0RQjMlJxkaEVQmKzFiYzNHKBo7HBw+H/xAAYAQEBAQEBAAAAAAAAAAAAAAABAAMCBf/EAB8RAAICAgIDAQAAAAAAAAAAAAABAhESQQNRBBMhMf/aAAwDAQACEQMRAD8A+en125Y52RY/A/OobXLo5wsS+oX/ANqrorPCJrm+yzGtXYGPqz6laKrKKcIlk+ydh86nYazqarKjVt9aK2miqyxCpFG5c9D+VSGHgDXJWg20VkGH3CaKvpWWGo6HqemhP2lZzWbvkrHcL7uQgeOw/Fj1xg4Pka0JaEj4pY1/HPypqd4PI7Z2Xrp6fzJKXJgAbbvO/wB37zoMdN2M5+7+vHrTSOE5P8PMtjGR8V7bIfIiT/hTRWxTx0opoMjqvaLotto17pKWN9NfW1zYJcxyyrt+FmbG1f3RjnHqaoMfUxl4S25H2nYEGR4hh9rHrXee260ex1Ds7bSJEjQ6XHEVhLFAVJBCluSPLPNcAZZjCEEUQQrwfdLuI6ZzjPgeaJDxtJuzzAkDg0VGfSikzGT7bJbV7vQEsIruK2hsvcotzBJEwCkY/tAC3BHPI9aX8M6RRuDFukZCgYngdOcefXx8fzaneKD/ALU0Ey7S/wBHkDEdCdy5/wB6VQCiFcAFyDzuXA58RihmkLTdHnooorozGr7ftRsNSv8AQn029trtFimVjbyrIFOU4O08UuYnZIYVDYMiMMYyPtHB5PBznpjA88mmZ3iILe3v9AFvBHEWjuGcogXdzHjpSlLEqBk4BJArmSs0hPBthRWFFJmOTvI/3ns4f4bkfrFXFdk5YGtwWmvUkhRo/d2aRvK5YkqyCSTOQfGNAQB1HWu27x5y/Zsjni5/6qXWiS2sdnHLPqcFrPC5VIkjkSSRG4cNKi8ZHAzu6ngeMx2UBOfCisT1opAdPeOX6vs83k04/MR/Kl12U04agcyWsF8IywisxNFE8zFedx3rJgcEYDDgjjmmP3i1I0/QMksRJKuTjJ+FflSt027tV0tLe4ELbbhnZZzNgAqPiUIwGfhIOQDyvJGdox2UxGGI8j4HNFZSFWkcouxCThc5wPKioB1d4kZ0fQCv2RPIOuf3B8qUGm6ZNer71GtBGpKkS3sUDE48ncE9evSm/wC3u6iv+yWh3dvzFJdnaeDkbG5BGQQccEHBHIpR2U10tlFAsMTxyzOkDyce7kIQOQcgZxs5bIHUYPNRbK+VGileNipZGKkqwYZHkRwR6iis7wTrdzC8959JDsJfeHLbs85z45oqIeneKGezGlHx+nAf6T0m+zrgzyQi0urh5VIzBuYouCGYIpUsQCerAYJzkGnB7fpWn7EaNMybDJeIxUhgVJhkOMMAR/mAfQUqeyTyO0tslkt/G0sbyQFJ5SFXPxhI2VWxkDDeLADgmhjX0o7lViuJEVtyqxAY45GevBI/In8aKy1KZJ9QuZlSFVklZwsK7YwCScKD0XyHlRSQ8fbzE1v7P9HhlkaWSK9ijaRmLFiIZQSSeST50ntEgtbqzuob7U47CIyI4Zw77iFkwAiqc8kfESMA+OacneIP9S7A+WpR/wAuWkbZXz2qFAkckZlSYpIMgsm7GfT4jx61MmRqbrLqN06SGZWlYiRnLl+epYgEk+ZAJ8hRWiaaSeZ5ZmZ5XO5mJyWPiSfE+tFAD47wTLL2EsJIirxnUImDKQQQUkwQfEc0ldBtI7y5ljmXcBEWXnGDkDP604vbpELT2c6TbQNI0cN7BFuf7TBY3GTwOeB4UjYpTGGwqNn7y5/KiabVI24ZxhyKU1aWjK4VVnkWMHYGIGTziitbNuOeBwBgCipGb/fg7+3Woy9rNGjsBbi0McyziQXBJyARjG3+I+NLz+hZXgzHP+M/Ku2Ycj1qD9oc9a8x+RN7PVXjQWjik7HHBy7dfv0V3QQN1oq90+y9EOj/2Q==",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9782221027702-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Man and His Symbols",
+      "allAuthors": [
+        "Carl Gustav Jung"
+      ],
+      "pageCount": 320,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9782221027702-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Man and His Symbols",
+        "author": "Carl Gustav Jung",
+        "isbn": "9782221027702",
+        "publisher": "MacMillan",
+        "publicationYear": 1964,
+        "lcc": "BF173 .J936 1978",
+        "genreTags": [
+          "Neuroscience"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "777d03fe-9ec1-42f3-8195-27314a477474",
+      "spineRead": {
+        "position": 17,
+        "rawText": "Figures in a Landscape — Paul Theroux",
+        "title": "Figures in a Landscape",
+        "author": "Paul Theroux",
+        "publisher": "Mariner",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 77,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Figures in a Landscape",
+      "author": "Paul Theroux",
+      "authorLF": "Theroux, Paul",
+      "isbn": "9780241266472",
+      "publisher": "Houghton Mifflin Harcourt Publishing Company",
+      "publicationYear": 2018,
+      "lcc": "PS3570 .H4",
+      "genreTags": [
+        "Essays"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] Paul Theroux's 'Figures in a Landscape' is a collection of biographical essays about various literary figures and travel writers. The LCC PS3570 places it in American literature, and the subject headings confirm it covers authors and biography in essay form. This fits the Essays tag within the Language and literature domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780241266472-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Figures in a Landscape",
+      "allAuthors": [
+        "Paul Theroux"
+      ],
+      "pageCount": 416,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780241266472-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Figures in a Landscape",
+        "author": "Paul Theroux",
+        "isbn": "9780241266472",
+        "publisher": "Houghton Mifflin Harcourt Publishing Company",
+        "publicationYear": 2018,
+        "lcc": "PS3570 .H4",
+        "genreTags": [
+          "Essays"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "f01713ab-7d88-4e13-80eb-ada742d9bef9",
+      "spineRead": {
+        "position": 18,
+        "rawText": "Verified — Mike Caulfield & Sam Wineburg",
+        "title": "Verified",
+        "author": "Mike Caulfield & Sam Wineburg",
+        "publisher": "Chicago",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Green spine with white text, checkmark logo",
+        "bbox": {
+          "x": 82,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Verified",
+      "author": "Mike Caulfield",
+      "authorLF": "Caulfield, Mike; Wineburg, Sam",
+      "isbn": "9780226822068",
+      "publisher": "University of Chicago Press",
+      "publicationYear": 2023,
+      "lcc": "ZA4235 .C38 2023",
+      "genreTags": [
+        "Information science"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[books_libraries] LCC ZA4235 places this squarely in information science (computer literacy/internet skills). The subject headings 'Computer literacy; Internet' confirm this is about digital information literacy skills. Given the practical nature of computer/internet literacy instruction, this fits the How-to/guide form tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "books_libraries"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780226822068-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Verified",
+      "allAuthors": [
+        "Mike Caulfield",
+        "Sam Wineburg"
+      ],
+      "pageCount": 240,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780226822068-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Verified",
+        "author": "Mike Caulfield",
+        "isbn": "9780226822068",
+        "publisher": "University of Chicago Press",
+        "publicationYear": 2023,
+        "lcc": "ZA4235 .C38 2023",
+        "genreTags": [
+          "Information science"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "b70b50b5-09a3-4af3-a02d-1689d4099a5d",
+      "spineRead": {
+        "position": 19,
+        "rawText": "The Timbuktu School for Nomads — Nicholas Jubber",
+        "title": "The Timbuktu School for Nomads",
+        "author": "Nicholas Jubber",
+        "publisher": "nb",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 87,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "The Timbuktu School for Nomads",
+      "author": "Nicholas Jubber",
+      "authorLF": "Jubber, Nicholas",
+      "isbn": "9781857886542",
+      "publisher": "Nicholas Brealey Publishing",
+      "publicationYear": 2016,
+      "lcc": "DT165.2 .J83 2016",
+      "genreTags": [
+        "World history",
+        "Exploration",
+        "Travel"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[world_history] LCC DT165.2 places this in African history, specifically Mali. The subject headings confirm travel/exploration themes with nomads and West African travel description. The combination of historical and travel elements in Mali fits World history and Exploration tags perfectly. | [geography_recreation] Clear travel narrative about the author's journey through Mali and West Africa. LCC DT165.2 places this in African geography/travel literature, and subject headings explicitly list 'Travel' and 'Description and travel'. The focus on nomadic cultures and West African travel fits squarely within the Travel genre tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "world_history",
+        "geography_recreation"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781857886542-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Timbuktu school for nomads",
+      "allAuthors": [
+        "Nicholas Jubber"
+      ],
+      "pageCount": 326,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781857886542-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Timbuktu School for Nomads",
+        "author": "Nicholas Jubber",
+        "isbn": "9781857886542",
+        "publisher": "Nicholas Brealey Publishing",
+        "publicationYear": 2016,
+        "lcc": "DT165.2 .J83 2016",
+        "genreTags": [
+          "World history",
+          "Exploration",
+          "Travel"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "955c8cd2-b475-40fe-b619-11a831ddb716",
+      "spineRead": {
+        "position": 20,
+        "rawText": "America — Jean Baudrillard",
+        "title": "America",
+        "author": "Jean Baudrillard",
+        "publisher": "Verso",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 92,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "America",
+      "author": "Jean Baudrillard",
+      "authorLF": "Baudrillard, Jean",
+      "isbn": "9781844676828",
+      "publisher": "Verso",
+      "publicationYear": 2010,
+      "lcc": "E--0839.00000000",
+      "genreTags": [
+        "American history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[american_history] LCC E classification and DDC 973 both indicate American history. LCSH confirms focus on US civilization post-1970 and travel observations. Baudrillard's philosophical perspective on American culture fits squarely within the American history domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "973",
+      "inferredDomains": [
+        "american_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781844676828-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "America",
+      "allAuthors": [
+        "Jean Baudrillard"
+      ],
+      "pageCount": 138,
+      "lcshSubjects": [
+        "Baudrillard, Jean — 1929-2007 — Travel — United States",
+        "United States — Civilization — 1970-",
+        "United States — Description and travel"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781844676828-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "America",
+        "author": "Jean Baudrillard",
+        "isbn": "9781844676828",
+        "publisher": "Verso",
+        "publicationYear": 2010,
+        "lcc": "E--0839.00000000",
+        "genreTags": [
+          "American history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2fb71496-de15-41bb-817c-c700b5fdfacd",
+      "spineRead": {
+        "position": 21,
+        "rawText": "Digital Religion — Heidi A. Campbell and Wendi Bellar",
+        "title": "Digital Religion",
+        "author": "Heidi A. Campbell and Wendi Bellar",
+        "publisher": "Routledge",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 96,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        },
+        "extractedSeries": "the basics"
+      },
+      "title": "Digital Religion",
+      "author": "Campbell, Heidi",
+      "authorLF": "Campbell, Heidi; Bellar, Wendi; Routledge; Routledge",
+      "isbn": "9781003058465",
+      "publisher": "Taylor & Francis Group",
+      "publicationYear": 2023,
+      "lcc": "BL37.5 .C36 2023",
+      "genreTags": [
+        "Comparative religion"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] LCC BL37.5 places this in comparative religion/sociology of religion. The book examines how digital media transforms religious practice across religions, fitting comparative religion. Subject headings confirm religious aspects of mass/digital media. The 'basics' series suggests introductory academic treatment but doesn't match our form tag vocabulary.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCADcABADASIAAhEBAxEB/8QAHAABAAEFAQEAAAAAAAAAAAAABgABAwUHCAIE/8QANhAAAQMCBAQDBQYHAAAAAAAAAQIDEQAFBBIhMQYTMkEiUWEUFSNxkQczQkNygSU1obGy8PH/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAQIF/8QAIxEAAgIBAwMFAAAAAAAAAAAAAAECEQUDMXEEQVESISIyQv/aAAwDAQACEQMRAD8A5pD7szzVz55jULzqvzVkfqNW9O9SalI3ZMu9SK9VO9AVINUUPWpJ8hVNfSgLy2XG1FLjakkdiCKtnSsg5qhWg2mvgNH7ETszLD2FbDynmCsKaWlKZnKspgK+Un/YrDedbpvn2eWDA27HFGJuqsY3gH8Y3mWgoltI38G0kbfUSJ0saSdmYRo6X4ox7hwd6tycN8MWTEPl8v5RqFDKG48R0EntPqJ5orpzihxCOGLy4SuTbH0RmOXoPbafXeuYldWU70ZpDC7MZrBi8Utp8nmKbD3OTkmOnLGaYMzP7UMQfBPemd2ViF8O4oL9qWw26Qn4hLSDr+HLE675h1bb0LaPw/2rENjp5F3KIuuqWE224FWHUp8rUlLhWYSN9gIJ3Gp/FtRBsjl6in19Xi08MY5KXG04I4xaFJSpWZS8pMnWIiPoPWtf7NCrpkyLtxFd+WoHHICiGytZKZ0kTB/rRQCW4mlPEv8AMLhtGZztrue9GG/u9Kmn3LknbhwKeKFEXO5oCTl5jpzduo6UawiQqc20ClHFiD71ui5H3joiNeo96M4IST6AVIbMmRv4X4E3FwT74uq9MxdeAj9RoxhDH0FJuLj/ABm6dMcx7Tv1GjOCGZYHypHZkyP54E3FgWbvdSVeHmu+H1zGjtuHiM+VKOKwn2y8kwVB9wDxQRqrt32/tRfAASflSOzGRSXorwK+LFMhV5SFr5xxbhyQMuUFes7zr/3sNbc5YGtKeLoF1u2v573+RoksS2nTvV0+5ckvpwL7lZsZjcTiMS6XQt9xTikpByyokkAeWtYtXDlwGiGVOJHcJM1s1RKW9Kieoa771zF1s0JdOpbtn//Z",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781003058465-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Digital Religion",
+      "allAuthors": [
+        "Campbell, Heidi",
+        "Bellar, Wendi",
+        "Routledge",
+        "Routledge"
+      ],
+      "synopsis": "Digital Religion: The Basics Explores How Digital Media And Internet Platforms Are Transforming Religious Practice In A Digital Age And The Impact This Has Had On Religious Culture In Contemporary Society. Through Exploring Six Defining Characteristics Of How Religion Is Acted Out Online, Including-multisite Reality, Convergence Practice, Networked Community, Storied Identity, Shifting Authority And Experiential Authenticity, The Book Considers How Digital Religion Both Shapes, And Is Influenced By, Religion Offline. Questions Asked Include: How Is Religion Being Performed And Reimagined Through Digital Media And Cultures? In What Ways Do The Practices Of Religion Online Merge Or Correspond With Shifts In Perspective Taking Place In Offline Religious Practice? How Do The Key Findings Of Religion Online Reflect Broader Social, Cultural And Structural Practices Observed Within Mobile, Networked Society? With Case Studies And Further Readings, Digital Religion: The Basics Is A Must-read For Students Wanting To Come To Grips With How Religion Is Changing And Experienced Through Digital Media-- Provided By Publisher.",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781003058465-M.jpg?default=false",
+        "https://images.isbndb.com/covers/3049103482545.jpg"
+      ],
+      "original": {
+        "title": "Digital Religion",
+        "author": "Campbell, Heidi",
+        "isbn": "9781003058465",
+        "publisher": "Taylor & Francis Group",
+        "publicationYear": 2023,
+        "lcc": "BL37.5 .C36 2023",
+        "genreTags": [
+          "Comparative religion"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "7856.jpg",
+  "sourceDimensions": {
+    "width": 3759,
+    "height": 2700
+  }
+}
