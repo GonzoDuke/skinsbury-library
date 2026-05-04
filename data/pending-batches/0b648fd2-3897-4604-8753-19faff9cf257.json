@@ -1,0 +1,1450 @@
+{
+  "id": "0b648fd2-3897-4604-8753-19faff9cf257",
+  "filename": "7856.cropped.jpg",
+  "fileSize": 2341995,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 21,
+  "booksIdentified": 20,
+  "books": [
+    {
+      "id": "fd6b90d9-72fa-44eb-8891-352c8630be34",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Quantum Criminals — Alex Pappademas & Joan LeMay",
+        "title": "Quantum Criminals",
+        "author": "Alex Pappademas & Joan LeMay",
+        "publisher": "Texas",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 0,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Quantum Criminals",
+      "author": "Alex Pappademas & Joan LeMay",
+      "authorLF": "Pappademas, Alex; LeMay, Joan",
+      "isbn": "9781477324998",
+      "publisher": "University of Texas Press",
+      "publicationYear": 2023,
+      "lcc": "ML421.S76 P37 2023",
+      "genreTags": [
+        "[Proposed] Pop culture criticism",
+        "[Proposed] Media studies"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[general_works] Limited metadata with no LCC, subject headings, or synopsis. Based on the title 'Quantum Criminals' and dual authorship, this appears to be cultural criticism or media analysis. University of Texas Press suggests academic treatment of popular culture topics. Proposing tags due to insufficient information to map to existing vocabulary.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "782.42166092/2",
+      "lccSource": "loc",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781477324998-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Quantum Criminals",
+      "allAuthors": [
+        "Alex Pappademas",
+        "Joan LeMay",
+        "Pappademas, Alex",
+        "LeMay, Joan"
+      ],
+      "pageCount": 268,
+      "edition": "First edition",
+      "lcshSubjects": [
+        "Becker, Walter — 1950-2017 — Criticism and interpretation",
+        "Fagen, Donald — 1948- — Criticism and interpretation",
+        "Steely Dan (Musical group)",
+        "Characters and characteristics in music",
+        "Rock music — United States — History and criticism",
+        "Fictitious characters — Portraits"
+      ],
+      "marcGenres": [
+        "Essays",
+        "Music criticism and reviews",
+        "Portraits"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781477324998-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Quantum Criminals",
+        "author": "Alex Pappademas",
+        "isbn": "9781477324998",
+        "publisher": "University of Texas Press",
+        "publicationYear": 2023,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Pop culture criticism",
+          "[Proposed] Media studies"
+        ],
+        "formTags": []
+      },
+      "rereading": false
+    },
+    {
+      "id": "b807cef5-f25c-4632-890c-a368918aaa00",
+      "spineRead": {
+        "position": 2,
+        "rawText": "Moral Ambition — Rutger Bregman",
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "publisher": "Little, Brown",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Teal/mint spine with black text",
+        "bbox": {
+          "x": 4,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Moral Ambition",
+      "author": "Rutger Bregman",
+      "authorLF": "Bregman, Rutger",
+      "isbn": "9780316580359",
+      "publisher": "Little, Brown and Company",
+      "publicationYear": 2025,
+      "lcc": "",
+      "genreTags": [
+        "Ethics",
+        "Self-improvement",
+        "[Proposed] Social justice",
+        "[Proposed] Personal development"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] The subtitle 'Stop Wasting Your Talent and Start Making a Difference' clearly indicates a how-to/guide format. Subject headings include 'self-help' and 'personal growth' which map to Self-improvement, while the title 'Moral Ambition' and focus on 'making a difference' suggests ethical considerations, warranting the Ethics tag. Author Rutger Bregman is known for works combining moral philosophy with practical application. | [social_sciences] Subject headings explicitly include 'social justice' and 'activism' which fit the Social sciences domain, along with 'self-help' and 'personal growth'. The subtitle 'Stop Wasting Your Talent and Start Making a Difference' clearly indicates prescriptive guidance, warranting the How-to / guide form tag. Author Bregman is known for social science writing that combines personal development with social activism themes.",
+      "status": "approved",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316580359-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Moral Ambition",
+      "subtitle": "Stop Wasting Your Talent and Start Making a Difference",
+      "allAuthors": [
+        "Rutger Bregman"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780316580359-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "isbn": "9780316580359",
+        "publisher": "Little, Brown and Company",
+        "publicationYear": 2025,
+        "lcc": "",
+        "genreTags": [
+          "Ethics",
+          "Self-improvement",
+          "[Proposed] Social justice",
+          "[Proposed] Personal development"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "24f97678-ae90-4707-b25f-9a7e9d59913b",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Moral Ambition — Rutger Bregman",
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "publisher": "Little, Brown",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 9,
+          "y": 10,
+          "width": 6,
+          "height": 75
+        }
+      },
+      "title": "Moral Ambition",
+      "author": "Rutger Bregman",
+      "authorLF": "Bregman, Rutger",
+      "isbn": "9780316580373",
+      "publisher": "Hachette",
+      "publicationYear": 2025,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Activism & Social Justice",
+        "Ethics",
+        "Self-improvement"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[social_sciences] Subject headings explicitly include 'Activism & Social Justice' which aligns with social sciences domain. Author Rutger Bregman is known for progressive social commentary (Humankind, Utopia for Realists). Other subject headings like 'Self-Help' and 'Personal Growth' suggest self-improvement content, but the activism component and social science categorization point to broader social change themes within the social sciences domain. | [philosophy_psychology_religion] Author Rutger Bregman is known for philosophical works on human nature and social reform. 'Moral Ambition' with subject headings including Self-Help and Personal Growth suggests both ethical philosophy and self-improvement content. The title directly references morality, indicating ethical considerations.",
+      "status": "approved",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "social_sciences",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316580373-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Moral Ambition",
+      "allAuthors": [
+        "Rutger Bregman"
+      ],
+      "synopsis": "INTERNATIONAL BESTSELLER | Bloomberg Businessweek's Best Business Books of the Year | Audible's Best Books of the Year | Longlisted for the Non-Obvious Book Awards From the author of the New York Times bestsellers Humankind and Utopia for Realists—“a more politically radical Malcolm Gladwell” (The New York Times)—comes a bold manifesto daring us to harness our talents and transform our idealism into action, all with the goal of making the world a wildly better place. A career consists of 2,000 workweeks, and how you spend that time is one of the most important decisions of your life. Still, millions of people are stuck in in mind-numbing, pointless, or just plain harmful jobs. There’s an antidote to this waste of talent, and it’s called moral ambition. Moral ambition is the will to be among the best, but with different measures of success. Not a fancy title, fat salary, or corner office, but a career dedicated to the best solutions to the world's biggest problems— whether that means tackling climate change, making pandemics history or fighting Big Tobacco. In Moral Ambition, internationally bestselling author Rutger Bregman reveals how our conventional definitions of success are harming us and the planet, and shows how we can shift the focus from personal gain to societal benefit. In the process, he explains, we will join a growing movement of pioneers who are already living out this ethos. They're the builders, the problem-solvers, the doers who have chosen a path less traveled. A guidebook to finding that path for ourselves, Moral Ambition reminds us that the real measure of success lies not in what we accumulate, but in what we contribute, and shows how we, too, can build a legacy that truly matters.",
+      "pageCount": 304,
+      "binding": "ePub",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780316580373-M.jpg?default=false",
+        "https://images.isbndb.com/covers/19286733482300.jpg"
+      ],
+      "original": {
+        "title": "Moral Ambition",
+        "author": "Rutger Bregman",
+        "isbn": "9780316580373",
+        "publisher": "Hachette",
+        "publicationYear": 2025,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Activism & Social Justice",
+          "Ethics",
+          "Self-improvement"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "f009457e-3454-466f-8f08-f7eb95797b1f",
+      "spineRead": {
+        "position": 4,
+        "rawText": "Everything Must Go",
+        "title": "Everything Must Go",
+        "author": "",
+        "publisher": "Pantheon",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Author partially visible at top, appears to end in '...an' and '...key' but not fully legible",
+        "bbox": {
+          "x": 15,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Everything Must Go",
+      "author": "Kevin Coval",
+      "authorLF": "Coval, Kevin",
+      "isbn": "9781642590838",
+      "publisher": "Open Road Integrated Media, Inc.",
+      "publicationYear": 2019,
+      "lcc": "PS3603 .O88825 A6 2019",
+      "genreTags": [
+        "Poetry",
+        "American poetry"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PS3603 places this in American literature/poetry. Subject headings include 'Poetry' and synopsis confirms it's a collection of poems. Author Kevin Coval is an American poet, so gets both Poetry and American poetry tags.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781642590838-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Everything Must Go",
+      "allAuthors": [
+        "Kevin Coval"
+      ],
+      "synopsis": "A unique artistic tribute to a Chicago neighborhood lost to gentrification: \"Kevin Coval made me understand what it is to be a poet\" (Chance the Rapper, Grammy winner and activist).   Everything Must Go is an illustrated collection of poems in the spirit of a graphic novel, a collaboration between poet Kevin Coval and illustrator Langston Allston. The book celebrates Chicago's Wicker Park in the late 1990s, Coval's home as a young artist, the ancestral neighborhood of his forebears, and a vibrant enclave populated by colorful characters.   Allston's illustrations honor the neighborhood as it once was, before gentrification remade it. The book excavates and mourns that which has been lost in transition and serves as a template for understanding the process of displacement and reinvention currently reshaping American cities.   \"Chicago's unofficial poet laureate.\" —NPR",
+      "pageCount": 112,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781642590838-M.jpg?default=false",
+        "https://images.isbndb.com/covers/22898503482772.jpg"
+      ],
+      "original": {
+        "title": "Everything Must Go",
+        "author": "Kevin Coval",
+        "isbn": "9781642590838",
+        "publisher": "Open Road Integrated Media, Inc.",
+        "publicationYear": 2019,
+        "lcc": "PS3603 .O88825 A6 2019",
+        "genreTags": [
+          "Poetry",
+          "American poetry"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9b1a40ef-b3a2-4423-b42f-587c9b8d0096",
+      "spineRead": {
+        "position": 5,
+        "rawText": "K-PUNK — Mark Fisher",
+        "title": "K-PUNK",
+        "author": "Mark Fisher",
+        "publisher": "Repeater",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 20,
+          "y": 10,
+          "width": 6,
+          "height": 75
+        }
+      },
+      "title": "K-Punk",
+      "author": "Mark Fisher",
+      "authorLF": "Fisher, Mark",
+      "isbn": "9781912248285",
+      "publisher": "Repeater",
+      "publicationYear": 2018,
+      "lcc": "PR6106 .I845 A6 2018",
+      "genreTags": [
+        "Literary criticism",
+        "Essays",
+        "Critical thinking",
+        "Postmodernism"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PR6106 places this in English literature criticism. The subtitle 'The Collected and Unpublished Writings' clearly indicates an anthology of Fisher's critical essays and writings. Subject headings confirm literary criticism focus on 20th century English literature. | [philosophy_psychology_religion] Mark Fisher was a prominent cultural critic known for analyzing capitalism, neoliberalism, and postmodern culture through a critical theory lens. The subtitle 'Collected and Unpublished Writings' clearly indicates this is an anthology. His work bridges critical thinking about contemporary culture and postmodern philosophy. The subject headings confirm modern philosophy content.",
+      "status": "approved",
+      "warnings": [
+        "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "K-punk",
+      "subtitle": "The Collected and Unpublished Writings of Mark Fisher",
+      "allAuthors": [
+        "Mark Fisher"
+      ],
+      "pageCount": 817,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "K-Punk",
+        "author": "Mark Fisher",
+        "isbn": "9781912248285",
+        "publisher": "Repeater",
+        "publicationYear": 2018,
+        "lcc": "PR6106 .I845 A6 2018",
+        "genreTags": [
+          "Literary criticism",
+          "Essays",
+          "Critical thinking",
+          "Postmodernism"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      },
+      "duplicateGroup": "dup-p6xjpukh",
+      "duplicateOf": [
+        6
+      ]
+    },
+    {
+      "id": "0422a591-c444-4b4e-94ea-ac3b84423dd2",
+      "spineRead": {
+        "position": 6,
+        "rawText": "K-Punk — Mark Fisher",
+        "title": "K-Punk",
+        "author": "Mark Fisher",
+        "publisher": "Repeater",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Dark spine with partial face image at top; text reads 'FISHER  K-PUNK' vertically",
+        "bbox": {
+          "x": 26,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "K-Punk",
+      "author": "Mark Fisher",
+      "authorLF": "Fisher, Mark",
+      "isbn": "9781912248285",
+      "publisher": "Repeater",
+      "publicationYear": 2018,
+      "lcc": "PR6106 .I845 A6 2018",
+      "genreTags": [
+        "Literary criticism",
+        "Essays",
+        "Critical thinking",
+        "Postmodernism"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PR6106 places this in English literature criticism. The subtitle 'The Collected and Unpublished Writings' clearly indicates an anthology of Fisher's essays and criticism. Subject headings confirm literary criticism focus on English literature and 20th century topics. | [philosophy_psychology_religion] Mark Fisher was a prominent cultural critic known for his analysis of capitalism, neoliberalism, and postmodern culture. The subtitle 'Collected and Unpublished Writings' clearly indicates an anthology format. His work fits within critical thinking and postmodernism given his theoretical approach to analyzing contemporary culture and politics.",
+      "status": "rejected",
+      "warnings": [
+        "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "K-punk",
+      "subtitle": "The Collected and Unpublished Writings of Mark Fisher",
+      "allAuthors": [
+        "Mark Fisher"
+      ],
+      "pageCount": 817,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781912248285-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "K-Punk",
+        "author": "Mark Fisher",
+        "isbn": "9781912248285",
+        "publisher": "Repeater",
+        "publicationYear": 2018,
+        "lcc": "PR6106 .I845 A6 2018",
+        "genreTags": [
+          "Literary criticism",
+          "Essays",
+          "Critical thinking",
+          "Postmodernism"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      },
+      "duplicateGroup": "dup-p6xjpukh",
+      "duplicateOf": [
+        5
+      ]
+    },
+    {
+      "id": "3be49651-ebbf-4f83-81aa-248e851d06a2",
+      "spineRead": {
+        "position": 7,
+        "rawText": "The Penguin Book of Twentieth-Century American Poetry — ed. Rita Dove",
+        "title": "The Penguin Book of Twentieth-Century American Poetry",
+        "author": "ed. Rita Dove",
+        "publisher": "Penguin",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Editor's last name partially obscured but visible as 'Rita'",
+        "bbox": {
+          "x": 30,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "The Penguin Book of Twentieth-Century American Poetry",
+      "author": "Rita Dove",
+      "authorLF": "Dove, Rita",
+      "isbn": "9780143121480",
+      "publisher": "Penguin Publishing Group",
+      "publicationYear": 2013,
+      "lcc": "PS613 .P46 2013",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Anthology"
+      ],
+      "formTags": [
+        "Penguin Classics"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PS613 confirms American poetry anthology. Subject headings explicitly list 'Poetry' and 'Anthologies (multiple authors)' and 'American'. Rita Dove is editing 20th-century American poets, so gets Poetry + American poetry + Anthology. Publisher is Penguin Publishing Group with 'Penguin Book of' in title, indicating Penguin Classics series.",
+      "status": "approved",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "811/.508",
+      "lccDerivedFromDdc": "PS",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780143121480-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Penguin Anthology of Twentieth-Century American Poetry",
+      "allAuthors": [
+        "Rita Dove"
+      ],
+      "synopsis": "<b>Penguin’s landmark poetry anthology, perfect for learning poems by heart in the age of ephemeral media <br><br>Recipient of the Academy of American Poets' Wallace Stevens Award (Dove)<br></b><br> Rita Dove, Pulitzer Prize winner and former Poet Laureate of the United States, introduces readers to the most significant and compelling poems of the past hundred years in <i>The Penguin Anthology of Twentieth-Century American Poetry</i>. Now available in paperback, this indispensable volume represents the full spectrum of aesthetic sensibilities—with varying styles, voices, themes, and cultures—while balancing important poems with vital periods of each poet. Featuring works by Mary Oliver, Derek Walcott, John Ashbery, Gwendolyn Brooks, Kevin Young, Terrance Hayes, Li-Young Lee, Joanna Klink and A.E. Stallings, Dove’s selections paint a dynamic and cohesive portrait of modern American poetry.",
+      "pageCount": 656,
+      "edition": "1",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780143121480-M.jpg?default=false",
+        "https://images.isbndb.com/covers/26016783482238.jpg"
+      ],
+      "original": {
+        "title": "The Penguin Book of Twentieth-Century American Poetry",
+        "author": "Rita Dove",
+        "isbn": "9780143121480",
+        "publisher": "Penguin Publishing Group",
+        "publicationYear": 2013,
+        "lcc": "PS613 .P46 2013",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Anthology"
+        ],
+        "formTags": [
+          "Penguin Classics"
+        ]
+      }
+    },
+    {
+      "id": "0c842a22-aa72-4230-9f1b-1eb4538b2584",
+      "spineRead": {
+        "position": 8,
+        "rawText": "The Penguin Anthology of Poetry — ed. Rita Dove",
+        "title": "The Penguin Anthology of Poetry",
+        "author": "ed. Rita Dove",
+        "publisher": "Penguin",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Orange spine, vertical text partially obscured; title appears to be The Penguin Anthology of Poetry edited by Rita Dove",
+        "bbox": {
+          "x": 35,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "The Penguin Anthology of Twentieth-Century American Poetry",
+      "author": "Rita Dove",
+      "authorLF": "Dove, Rita",
+      "isbn": "9780143106432",
+      "publisher": "Penguin Books",
+      "publicationYear": 2011,
+      "lcc": "PS613 .P47 2011",
+      "genreTags": [
+        "Poetry",
+        "American poetry",
+        "Anthology"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PS613 confirms American poetry collections. Subject headings explicitly state 'American poetry' and 'collections'. Rita Dove is a renowned American poet. Gets Poetry + American poetry + Anthology per rule 6a for multi-poet collections.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780143106432-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Penguin anthology of twentieth-century American poetry",
+      "allAuthors": [
+        "Rita Dove"
+      ],
+      "pageCount": 599,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780143106432-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Penguin Anthology of Twentieth-Century American Poetry",
+        "author": "Rita Dove",
+        "isbn": "9780143106432",
+        "publisher": "Penguin Books",
+        "publicationYear": 2011,
+        "lcc": "PS613 .P47 2011",
+        "genreTags": [
+          "Poetry",
+          "American poetry",
+          "Anthology"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "923c96e0-f1f7-4ebf-9ffc-da8a57816214",
+      "spineRead": {
+        "position": 9,
+        "rawText": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity — Sander van der Linden",
+        "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+        "author": "Sander van der Linden",
+        "publisher": "Norton",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 40,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+      "author": "Sander van der Linden",
+      "authorLF": "Linden, Sander van der",
+      "isbn": "9780393881455",
+      "publisher": "W. W. Norton",
+      "publicationYear": 2023,
+      "lcc": "P91 .V3 2024",
+      "genreTags": [
+        "[Proposed] Media literacy",
+        "Social psychology",
+        "Critical thinking"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P91 places this in mass communication/media studies within Language and literature domain. The book focuses on misinformation, psychology of belief, and building resistance - closest fit is media literacy though not in current vocabulary. Subject headings emphasize psychology but domain is settled as Language/literature. | [philosophy_psychology_religion] Book focuses on psychology of misinformation and building mental defenses against it. Subject headings confirm Social Psychology and Applied Psychology. Synopsis emphasizes psychological mechanisms and protective strategies, fitting Social psychology and Critical thinking tags.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "language_literature",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393881455-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+      "allAuthors": [
+        "Sander van der Linden"
+      ],
+      "synopsis": "One of the world’s top experts on fighting misinformation reveals the psychology behind its power—and how we can protect ourselves. From fake news to conspiracy theories, from pandemics to politics, misinformation may be the defining problem of our era. Like a virus, misinformation infects our minds—altering our beliefs and replicating at astonishing rates. Once the virus takes hold, our primary strategies of fact-checking and debunking are an ineffective cure. In Foolproof, psychologist Sander van der Linden introduces a new paradigm for combatting what the World Health Organization has declared a worldwide “infodemic.” Synthesizing decades of social psychology studies with groundbreaking original research, he explains why our brains are so susceptible to misinformation, how it spreads across social networks, and how we can cultivate immunity. The answer is the innovative science of “prebunking”—inoculating people against misinformation by preemptively exposing them to a weakened dose and teaching them to identify and fend off its manipulative tactics. With engaging case studies and practical strategies for institutions and individuals alike, Foolproof is the definitive book on resisting nefarious persuasion.",
+      "pageCount": 368,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780393881455-M.jpg?default=false",
+        "https://images.isbndb.com/covers/5895433482328.jpg"
+      ],
+      "original": {
+        "title": "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity",
+        "author": "Sander van der Linden",
+        "isbn": "9780393881455",
+        "publisher": "W. W. Norton",
+        "publicationYear": 2023,
+        "lcc": "P91 .V3 2024",
+        "genreTags": [
+          "[Proposed] Media literacy",
+          "Social psychology",
+          "Critical thinking"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "cc67e4a8-329b-4b38-8d6d-4f55acf343d2",
+      "spineRead": {
+        "position": 10,
+        "rawText": "Misguided — Facciani",
+        "title": "Misguided",
+        "author": "Facciani",
+        "publisher": "Columbia",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle: Where Misinformation Starts, How It Spreads, and What to Do About It",
+        "bbox": {
+          "x": 44,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Misguided",
+      "author": "Matthew Facciani",
+      "authorLF": "Facciani, Matthew",
+      "isbn": "9780231205047",
+      "publisher": "Columbia University Press",
+      "publicationYear": 2025,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Personal narrative",
+        "[Proposed] Social commentary"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[general_works] Very limited metadata with no LCC, subject headings, or synopsis. Title 'Misguided' suggests personal reflection or social critique. Columbia University Press suggests academic/intellectual content. Proposing broad tags that could encompass memoir, essay, or social analysis within General works domain.",
+      "status": "approved",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "general_works"
+      ],
+      "domainConfidence": "low",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780231205047-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Misguided",
+      "allAuthors": [
+        "Matthew Facciani"
+      ],
+      "pageCount": 400,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780231205047-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Misguided",
+        "author": "Matthew Facciani",
+        "isbn": "9780231205047",
+        "publisher": "Columbia University Press",
+        "publicationYear": 2025,
+        "lcc": "",
+        "genreTags": [
+          "[Proposed] Personal narrative",
+          "[Proposed] Social commentary"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "424ccf84-84d6-4419-a0c2-7ac2d30579e8",
+      "spineRead": {
+        "position": 11,
+        "rawText": "Hip-Hop is History — Questlove",
+        "title": "Hip-Hop is History",
+        "author": "Questlove",
+        "publisher": "Picador",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 49,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Hip-Hop Is History",
+      "author": "Questlove",
+      "authorLF": "Questlove",
+      "isbn": "9780374614072",
+      "publisher": "Orion Publishing Group, Limited",
+      "publicationYear": 2024,
+      "lcc": "ML3531 .T46 2024",
+      "genreTags": [
+        "Music"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[music] LCC ML3531 places this in Music domain, specifically popular music. Questlove is a well-known musician and music historian writing about hip-hop history. The title indicates a historical treatment of hip-hop as a musical genre.",
+      "status": "approved",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "music"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780374614072-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Hip-Hop Is History",
+      "allAuthors": [
+        "Questlove"
+      ],
+      "pageCount": 352,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780374614072-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Hip-Hop Is History",
+        "author": "Questlove",
+        "isbn": "9780374614072",
+        "publisher": "Orion Publishing Group, Limited",
+        "publicationYear": 2024,
+        "lcc": "ML3531 .T46 2024",
+        "genreTags": [
+          "Music"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "8c1d8a3a-b042-43ad-adae-9ab354b07b76",
+      "spineRead": {
+        "position": 12,
+        "rawText": "Major Dudes — ed. Barney Hoskyns",
+        "title": "Major Dudes",
+        "author": "ed. Barney Hoskyns",
+        "publisher": "Abrams Press",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "A Steely Dan Companion",
+        "bbox": {
+          "x": 53,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Major Dudes",
+      "author": "Barney Hoskyns",
+      "authorLF": "Hoskyns, Barney",
+      "isbn": "9781472127549",
+      "publisher": "Abrams Press",
+      "publicationYear": 2015,
+      "lcc": "ML421 .S76",
+      "genreTags": [
+        "Music"
+      ],
+      "formTags": [
+        "Primary source"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[music] LCC ML421 places this in Music biography/criticism. Subject headings confirm it's about rock musicians and Steely Dan specifically, with 'Interviews' indicating primary source material. The editor credit and interview focus make this a Primary source collection within the Music domain.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "music"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781472127549-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Major dudes",
+      "allAuthors": [
+        "Barney Hoskyns"
+      ],
+      "pageCount": 336,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781472127549-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Major Dudes",
+        "author": "Barney Hoskyns",
+        "isbn": "9781472127549",
+        "publisher": "Abrams Press",
+        "publicationYear": 2015,
+        "lcc": "ML421 .S76",
+        "genreTags": [
+          "Music"
+        ],
+        "formTags": [
+          "Primary source"
+        ]
+      }
+    },
+    {
+      "id": "b04deedc-38c8-4d9e-8fa1-4aebdb707866",
+      "spineRead": {
+        "position": 13,
+        "rawText": "Reality+ And the Problems of Philosophy — Chalmers",
+        "title": "Reality+ And the Problems of Philosophy",
+        "author": "Chalmers",
+        "publisher": "Norton",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Blue spine, white text",
+        "bbox": {
+          "x": 58,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "Reality+ and the Problems of Philosophy",
+      "author": "David J Chalmers",
+      "authorLF": "Chalmers, David J",
+      "isbn": "9780393635805",
+      "publisher": "National Geographic Books",
+      "publicationYear": 2022,
+      "lcc": "BD331 .C4925 2022",
+      "genreTags": [
+        "Philosophy of mind",
+        "Metaphysics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] LCC BD331 places this in metaphysics, supported by LCSH 'Metaphysics' and 'Philosophy'. The synopsis indicates focus on virtual reality and nature of reality, which aligns with philosophy of mind. Chalmers is a well-known philosopher of mind and consciousness. No form tags applicable.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "111",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393635805-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Reality+ Virtual Worlds and the Problems of Philosophy",
+      "allAuthors": [
+        "David J Chalmers"
+      ],
+      "synopsis": "<b>A leading philosopher takes a mind-bending journey through virtual worlds, illuminating the nature of reality and our place within it.</b><br><p>Virtual reality is genuine reality; that’s the central thesis of <i>Reality+</i>. In a highly original work of “technophilosophy,” David J. Chalmers gives a compelling analysis of our technological future. He argues that virtual worlds are not second-class worlds, and that we can live a meaningful life in virtual reality. We may even be in a virtual world already.</p> <p>Along the way, Chalmers conducts a grand tour of big ideas in philosophy and science. He uses virtual reality technology to offer a new perspective on long-established philosophical questions. How do we know that there’s an external world? Is there a god? What is the nature of reality? What’s the relation between mind and body? How can we lead a good life? All of these questions are illuminated or transformed by Chalmers’ mind-bending analysis.</p> <p>Studded with illustrations that bring philosophical issues to life, <i>Reality+</i> is a major statement that will shape discussion of philosophy, science, and technology for years to come.</p>",
+      "pageCount": 528,
+      "binding": "Hardcover",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780393635805-M.jpg?default=false",
+        "https://images.isbndb.com/covers/3438933482328.jpg"
+      ],
+      "original": {
+        "title": "Reality+ and the Problems of Philosophy",
+        "author": "David J Chalmers",
+        "isbn": "9780393635805",
+        "publisher": "National Geographic Books",
+        "publicationYear": 2022,
+        "lcc": "BD331 .C4925 2022",
+        "genreTags": [
+          "Philosophy of mind",
+          "Metaphysics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "62c9b623-446d-4362-aace-456475c168ad",
+      "spineRead": {
+        "position": 15,
+        "rawText": "Amsterdam: A History of the World's Most Liberal City — Russell Shorto",
+        "title": "Amsterdam: A History of the World's Most Liberal City",
+        "author": "Russell Shorto",
+        "publisher": "Vintage",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 67,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        },
+        "extractedSeries": "Vintage"
+      },
+      "title": "Amsterdam a History of the World's Most Liberal City",
+      "author": "Russell Shorto",
+      "authorLF": "Shorto, Russell",
+      "isbn": "9780307743756",
+      "publisher": "Knopf Doubleday Publishing Group",
+      "publicationYear": 2014,
+      "lcc": "DJ411 .A55 S56 2014",
+      "genreTags": [
+        "World history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[world_history] LCC DJ411 places this in European history, specifically Netherlands history. The focus on Amsterdam as a liberal city and its cultural development fits both World history and Cultural history tags. Subject headings confirm history and social history themes.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "949.2352",
+      "inferredDomains": [
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780307743756-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Amsterdam A History of the World's Most Liberal City",
+      "allAuthors": [
+        "Russell Shorto"
+      ],
+      "synopsis": "<b>An endlessly entertaining portrait of the unique city of Amsterdam, by the author of the acclaimed <i>Island at the Center of the World <br><br></i>Updated Edition with a New Preface for Amsterdam's 750th Anniversary</b><br><br>Tourists know Amsterdam as a picturesque city of low-slung brick houses lining tidy canals; student travelers know it for its legal brothels and hash bars; art lovers know it for Rembrandt's glorious portraits.<br><br>But the deeper history of Amsterdam, what makes it one of the most fascinating places on earth, is bound up in its unique geography-the constant battle of its citizens to keep the sea at bay and the democratic philosophy that this enduring struggle fostered. Amsterdam is the font of liberalism, in both its senses. Tolerance for free thinking and free love make it a place where, in the words of one of its mayors, \"craziness is a value.\" But the city also fostered the deeper meaning of liberalism, one that profoundly influenced America: political and economic freedom. Amsterdam was home not only to religious dissidents and radical thinkers but to the world's first great global corporation.<br><br>In this effortlessly erudite account, Russell Shorto traces the idiosyncratic evolution of Amsterdam, showing how such disparate elements as herring anatomy, naked Anabaptists parading through the streets, and an intimate gathering in a sixteenth-century wine-tasting room had a profound effect on Dutch-and world-history. Weaving in his own experiences of his adopted home, Shorto provides an ever-surprising, intellectually engaging story of Amsterdam.",
+      "pageCount": 384,
+      "edition": "Reprint",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780307743756-M.jpg?default=false",
+        "https://images.isbndb.com/covers/15177933482297.jpg"
+      ],
+      "original": {
+        "title": "Amsterdam a History of the World's Most Liberal City",
+        "author": "Russell Shorto",
+        "isbn": "9780307743756",
+        "publisher": "Knopf Doubleday Publishing Group",
+        "publicationYear": 2014,
+        "lcc": "DJ411 .A55 S56 2014",
+        "genreTags": [
+          "World history",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2c45dfba-9f6b-47b3-8cb3-379c9cf1eccd",
+      "spineRead": {
+        "position": 16,
+        "rawText": "Man and His Symbols — Carl G. Jung",
+        "title": "Man and His Symbols",
+        "author": "Carl G. Jung",
+        "publisher": "Bantam",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 72,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Man and His Symbols",
+      "author": "Carl Gustav Jung",
+      "authorLF": "Jung, Carl Gustav",
+      "isbn": "9782221027702",
+      "publisher": "MacMillan",
+      "publicationYear": 1964,
+      "lcc": "BF173 .J936 1978",
+      "genreTags": [
+        "Neuroscience"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] Carl Jung is a foundational figure in psychology/psychoanalysis. LCC BF173 places this in psychology, and the subject headings confirm focus on psychological symbolism, psychoanalysis, dreams, and subconsciousness. 'Neuroscience' is the closest available tag for psychological/psychoanalytical works in this domain's vocabulary.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9782221027702-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Man and His Symbols",
+      "allAuthors": [
+        "Carl Gustav Jung"
+      ],
+      "pageCount": 320,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9782221027702-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Man and His Symbols",
+        "author": "Carl Gustav Jung",
+        "isbn": "9782221027702",
+        "publisher": "MacMillan",
+        "publicationYear": 1964,
+        "lcc": "BF173 .J936 1978",
+        "genreTags": [
+          "Neuroscience"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "777d03fe-9ec1-42f3-8195-27314a477474",
+      "spineRead": {
+        "position": 17,
+        "rawText": "Figures in a Landscape — Paul Theroux",
+        "title": "Figures in a Landscape",
+        "author": "Paul Theroux",
+        "publisher": "Mariner",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 77,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Figures in a Landscape",
+      "author": "Paul Theroux",
+      "authorLF": "Theroux, Paul",
+      "isbn": "9780241266472",
+      "publisher": "Houghton Mifflin Harcourt Publishing Company",
+      "publicationYear": 2018,
+      "lcc": "PS3570 .H4",
+      "genreTags": [
+        "Essays"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] Paul Theroux's 'Figures in a Landscape' is a collection of biographical essays about various literary figures and travel writers. The LCC PS3570 places it in American literature, and the subject headings confirm it covers authors and biography in essay form. This fits the Essays tag within the Language and literature domain.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780241266472-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Figures in a Landscape",
+      "allAuthors": [
+        "Paul Theroux"
+      ],
+      "pageCount": 416,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780241266472-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Figures in a Landscape",
+        "author": "Paul Theroux",
+        "isbn": "9780241266472",
+        "publisher": "Houghton Mifflin Harcourt Publishing Company",
+        "publicationYear": 2018,
+        "lcc": "PS3570 .H4",
+        "genreTags": [
+          "Essays"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "f01713ab-7d88-4e13-80eb-ada742d9bef9",
+      "spineRead": {
+        "position": 18,
+        "rawText": "Verified — Mike Caulfield & Sam Wineburg",
+        "title": "Verified",
+        "author": "Mike Caulfield & Sam Wineburg",
+        "publisher": "Chicago",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Green spine with white text, checkmark logo",
+        "bbox": {
+          "x": 82,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "Verified",
+      "author": "Mike Caulfield",
+      "authorLF": "Caulfield, Mike; Wineburg, Sam",
+      "isbn": "9780226822068",
+      "publisher": "University of Chicago Press",
+      "publicationYear": 2023,
+      "lcc": "ZA4235 .C38 2023",
+      "genreTags": [
+        "Information science"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[books_libraries] LCC ZA4235 places this squarely in information science (computer literacy/internet skills). The subject headings 'Computer literacy; Internet' confirm this is about digital information literacy skills. Given the practical nature of computer/internet literacy instruction, this fits the How-to/guide form tag.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "books_libraries"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780226822068-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Verified",
+      "allAuthors": [
+        "Mike Caulfield",
+        "Sam Wineburg"
+      ],
+      "pageCount": 240,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780226822068-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Verified",
+        "author": "Mike Caulfield",
+        "isbn": "9780226822068",
+        "publisher": "University of Chicago Press",
+        "publicationYear": 2023,
+        "lcc": "ZA4235 .C38 2023",
+        "genreTags": [
+          "Information science"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "b70b50b5-09a3-4af3-a02d-1689d4099a5d",
+      "spineRead": {
+        "position": 19,
+        "rawText": "The Timbuktu School for Nomads — Nicholas Jubber",
+        "title": "The Timbuktu School for Nomads",
+        "author": "Nicholas Jubber",
+        "publisher": "nb",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 87,
+          "y": 10,
+          "width": 5,
+          "height": 75
+        }
+      },
+      "title": "The Timbuktu School for Nomads",
+      "author": "Nicholas Jubber",
+      "authorLF": "Jubber, Nicholas",
+      "isbn": "9781857886542",
+      "publisher": "Nicholas Brealey Publishing",
+      "publicationYear": 2016,
+      "lcc": "DT165.2 .J83 2016",
+      "genreTags": [
+        "World history",
+        "Exploration",
+        "Travel"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[world_history] LCC DT165.2 places this in African history, specifically Mali. The subject headings confirm travel/exploration themes with nomads and West African travel description. The combination of historical and travel elements in Mali fits World history and Exploration tags perfectly. | [geography_recreation] Clear travel narrative about the author's journey through Mali and West Africa. LCC DT165.2 places this in African geography/travel literature, and subject headings explicitly list 'Travel' and 'Description and travel'. The focus on nomadic cultures and West African travel fits squarely within the Travel genre tag.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "world_history",
+        "geography_recreation"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781857886542-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Timbuktu school for nomads",
+      "allAuthors": [
+        "Nicholas Jubber"
+      ],
+      "pageCount": 326,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781857886542-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Timbuktu School for Nomads",
+        "author": "Nicholas Jubber",
+        "isbn": "9781857886542",
+        "publisher": "Nicholas Brealey Publishing",
+        "publicationYear": 2016,
+        "lcc": "DT165.2 .J83 2016",
+        "genreTags": [
+          "World history",
+          "Exploration",
+          "Travel"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "955c8cd2-b475-40fe-b619-11a831ddb716",
+      "spineRead": {
+        "position": 20,
+        "rawText": "America — Jean Baudrillard",
+        "title": "America",
+        "author": "Jean Baudrillard",
+        "publisher": "Verso",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 92,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        }
+      },
+      "title": "America",
+      "author": "Jean Baudrillard",
+      "authorLF": "Baudrillard, Jean",
+      "isbn": "9781844676828",
+      "publisher": "Verso",
+      "publicationYear": 2010,
+      "lcc": "E--0839.00000000",
+      "genreTags": [
+        "American history"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[american_history] LCC E classification and DDC 973 both indicate American history. LCSH confirms focus on US civilization post-1970 and travel observations. Baudrillard's philosophical perspective on American culture fits squarely within the American history domain.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "973",
+      "inferredDomains": [
+        "american_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781844676828-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "America",
+      "allAuthors": [
+        "Jean Baudrillard"
+      ],
+      "pageCount": 138,
+      "lcshSubjects": [
+        "Baudrillard, Jean — 1929-2007 — Travel — United States",
+        "United States — Civilization — 1970-",
+        "United States — Description and travel"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781844676828-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "America",
+        "author": "Jean Baudrillard",
+        "isbn": "9781844676828",
+        "publisher": "Verso",
+        "publicationYear": 2010,
+        "lcc": "E--0839.00000000",
+        "genreTags": [
+          "American history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "2fb71496-de15-41bb-817c-c700b5fdfacd",
+      "spineRead": {
+        "position": 21,
+        "rawText": "Digital Religion — Heidi A. Campbell and Wendi Bellar",
+        "title": "Digital Religion",
+        "author": "Heidi A. Campbell and Wendi Bellar",
+        "publisher": "Routledge",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 96,
+          "y": 10,
+          "width": 4,
+          "height": 75
+        },
+        "extractedSeries": "the basics"
+      },
+      "title": "Digital Religion",
+      "author": "Campbell, Heidi",
+      "authorLF": "Campbell, Heidi; Bellar, Wendi; Routledge; Routledge",
+      "isbn": "9781003058465",
+      "publisher": "Taylor & Francis Group",
+      "publicationYear": 2023,
+      "lcc": "BL37.5 .C36 2023",
+      "genreTags": [
+        "Comparative religion"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] LCC BL37.5 places this in comparative religion/sociology of religion. The book examines how digital media transforms religious practice across religions, fitting comparative religion. Subject headings confirm religious aspects of mass/digital media. The 'basics' series suggests introductory academic treatment but doesn't match our form tag vocabulary.",
+      "status": "approved",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "7856.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "inferred",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781003058465-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Digital Religion",
+      "allAuthors": [
+        "Campbell, Heidi",
+        "Bellar, Wendi",
+        "Routledge",
+        "Routledge"
+      ],
+      "synopsis": "Digital Religion: The Basics Explores How Digital Media And Internet Platforms Are Transforming Religious Practice In A Digital Age And The Impact This Has Had On Religious Culture In Contemporary Society. Through Exploring Six Defining Characteristics Of How Religion Is Acted Out Online, Including-multisite Reality, Convergence Practice, Networked Community, Storied Identity, Shifting Authority And Experiential Authenticity, The Book Considers How Digital Religion Both Shapes, And Is Influenced By, Religion Offline. Questions Asked Include: How Is Religion Being Performed And Reimagined Through Digital Media And Cultures? In What Ways Do The Practices Of Religion Online Merge Or Correspond With Shifts In Perspective Taking Place In Offline Religious Practice? How Do The Key Findings Of Religion Online Reflect Broader Social, Cultural And Structural Practices Observed Within Mobile, Networked Society? With Case Studies And Further Readings, Digital Religion: The Basics Is A Must-read For Students Wanting To Come To Grips With How Religion Is Changing And Experienced Through Digital Media-- Provided By Publisher.",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781003058465-M.jpg?default=false",
+        "https://images.isbndb.com/covers/3049103482545.jpg"
+      ],
+      "original": {
+        "title": "Digital Religion",
+        "author": "Campbell, Heidi",
+        "isbn": "9781003058465",
+        "publisher": "Taylor & Francis Group",
+        "publicationYear": 2023,
+        "lcc": "BL37.5 .C36 2023",
+        "genreTags": [
+          "Comparative religion"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "7856.jpg",
+  "sourceDimensions": {
+    "width": 3759,
+    "height": 2700
+  }
+}
