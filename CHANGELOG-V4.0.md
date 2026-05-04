@@ -1,7 +1,7 @@
 # Carnegie — retrospective changelog (v4.0)
 
-**Window:** 2026-04-30 (initial commit) → 2026-05-03
-**Total commits:** 184 (182 source/data + v4 bump + merge commit)
+**Window:** 2026-04-30 (initial commit) → 2026-05-04
+**Total commits:** 191 (182 source/data + v4 bump + merge commit + 7 post-merge enhancement commits)
 **Generated from:** `git log --pretty=format:'%h %ad %s' --date=short --reverse`
 
 This is the development arc of Carnegie, organized into chronological phases and grouped by feature area within each phase. Where the path took a detour or a previously-shipped approach was reversed, those moments are called out explicitly. Auto-generated cross-device sync commits (`Pending batch unlabeled/removed: …`) are present in the history as background noise — they document the phone-capture sync working but don't represent feature changes, so they're aggregated rather than listed individually.
@@ -399,6 +399,70 @@ Vercel auto-deployed `main` to production. `carnegielib.vercel.app` finally caug
 
 ---
 
+## Phase 7 — Audit-driven enhancement series (2026-05-03, post-merge → 2026-05-04)
+
+Seven commits beyond the v4.0 merge, all on `main`. The throughline: a five-strategy plan (later four, after Bowker pricing killed the LibraryThing tier) for sharper LCC and tag inference — gated on a data-extraction audit that found Phase 5 had only fixed half the problem. The audit identified silent drops between API responses and the tag prompt; the leak-plug commit closed those before any new tiers landed; then four enhancement commits shipped sticker extraction, DDC→LCC fallback, author-similarity backfill, and the two-step domain-then-tag inference refactor.
+
+### Cover-fix for scanned books
+
+- `667fc68` Barcode scanner: carry preview cover forward + fix OL placeholder issue
+
+Two compounding bugs caused barcode-scanned books to show no cover on the Review page. First: the preview cover URL from `/api/preview-isbn` was discarded when the user tapped "Use this ISBN" — only the ISBN string passed forward, so the slower rebuild lookup had to rediscover the cover from scratch. Second: the rebuild path's OL cover URL omitted `?default=false`, so OL returned a 1×1 grey placeholder with HTTP 200. The `<Cover>` `onError` handler only fires on real errors, so the fallback chain never engaged — the row was loading and displaying invisible nothing.
+
+Fix: thread the preview result through `BarcodeScanner` → `app/page.tsx` → `processIsbnScan` as a typed `BarcodeScanPreview` seed. Lookup result wins the primary cover slot if present; preview cover goes into `coverUrlFallbacks` (deduped). If the lookup found no cover, the preview cover takes primary. Added `?default=false` to both OL URLs in `lib/scan-pipeline.ts`. Audit confirmed `preview-isbn` and `book-lookup` already had it; archive and doc references were left untouched.
+
+### The data-extraction audit
+
+- `c393352` docs: data extraction audit across all lookup tiers
+
+Before adding new tiers, audit the existing ones. The lesson from Phase 5 — where the enrichment series persisted enrichment fields onto BookRecord but didn't deliver them to the tag prompt — was top of mind. The audit was committed as `docs/extraction-audit.md` (381 lines) and gated the rest of the four-step plan.
+
+What it found:
+
+1. **Persistence ≠ delivery.** The Phase 5 enrichment series put `ddc`, `lcshSubjects`, `synopsis`, `pageCount`, `edition`, `binding`, `language`, `series`, `allAuthors`, `subtitle`, `coverUrlFallbacks` on `BookRecord` and surfaced most in the Review UI — but never wired them into `/api/infer-tags`'s user-message builder. So `series` would be persisted (visible in Review) but the prompt-side rule for "Penguin Classics → form tag" was being told nothing about the series field.
+2. **MARC 655 (genre/form term) never parsed.** `lookupFullMarcByIsbn` parsed 050/082/100/245/250/260/264/300/600/610/611/630/650/651/700/710 — but not 655, the field that exists specifically for cataloger-applied genre vocabulary (e.g. "Detective and mystery fiction", "Bildungsromans", "Cookbooks"). The biggest single missing signal.
+3. **Wikidata title-search merge bug.** The by-ISBN path correctly merged Wikidata's `genre` (P136) and `subject` (P921) into `result.subjects`. The title-search path silently dropped them. Exactly when the title path fires (no ISBN, no LCC) is when those signals matter most.
+4. **OL work-record `subjects` silently dropped.** `OpenLibraryWorkFull` typed it but no code assigned it. The search-level `subject` was the only OL signal making it through.
+5. **Google Books inline interfaces too narrow.** Both GB tiers (search + by-ISBN) declared TypeScript interfaces that omitted `description`, `pageCount`, `subtitle`, `language`, `mainCategory`, `authors` — fields present in the response but invisible to the code.
+6. **MARC 300 page-count regex required a trailing period.** Caught `"384 p."` but missed `"vii, 384 pages"` — a common LoC formatting variant.
+7. **External-ID passthroughs unused.** OL `/search.json` exposes `id_librarything`, `id_amazon`, `id_goodreads`, `oclc`, `lccn` when requested — none were. Wikidata exposes P1085, P5331, P2969 — none were.
+
+The audit also outlined two non-blocking recommendations: that the eventual two-step inference commit MUST also fix the prompt-side delivery gap (otherwise the architectural split runs on the same partial data) and that the Wikidata title-search merge bug was a 5-line fix worth folding into the leak-plug pass.
+
+### Plugging the leaks
+
+- `8885f27` lookup: plug data leaks identified in extraction audit
+
+Five fixes in one commit, all closing audit-identified gaps. Same pattern as Phase 5's lesson: audit what's actually flowing through, don't assume the spec was implemented.
+
+1. Wikidata title-search now merges `genre` and `subject` into `result.subjects` — mirrors the by-ISBN path.
+2. OL work-record `subjects` now merge into `result.subjects` (deduped, capped 10).
+3. MARC 655 parsing in `lookupFullMarcByIsbn`. New `MarcResult.marcGenres` field. Threaded through `BookLookupResult.marcGenres` → `BookRecord.marcGenres` → `infer-tags` prompt as the new `marcGenreTerms` argument. System-prompt rule 10a names it the SINGLE most authoritative signal for genre/form classification (LCC = domain; MARC 655 = form within domain).
+4. Google Books interfaces widened in both tiers. `description` → `synopsis` gap-fill; `pageCount`, `subtitle`, `language` gap-fill the BookRecord fields that already existed; `mainCategory` (BISAC-ish top-level category) prepended to `result.subjects`; `authors` (gbEnrichByIsbn) deduped into `allAuthors`.
+5. MARC 300 regex tightened — matches `"384 p."` and `"vii, 384 pages"` both, case-insensitive.
+
+### The four-step post-audit plan
+
+The original brainstorm in `lcc-and-tag-strategies.md` (project root) was a five-step plan: Pass B sticker extraction, DDC→LCC fallback, author-similarity backfill, **LibraryThing API tier**, two-step inference. Step 4 — LibraryThing — was investigated and dropped after their developer hub turned out to explicitly redirect bibliographic-data developers to Bowker (paid commercial). The old `librarything.ck.getwork` REST endpoint still partially responds but is unsupported and ISBN-10-only (anything starting with 979 fails). Bowker pricing is enterprise-tier and not cost-effective for a personal cataloging tool. Decision: drop, don't defer. Carnegie's compensating signals — MARC 655 from the leak-plug, author-similarity backfill, the sharper two-step inference — cover most of the gap LT would have filled.
+
+The remaining four steps shipped in order:
+
+- `44aeb8b` Pass B: extract call number stickers, edition, and series from spines. New `SpineRead` fields: `extractedCallNumber`, `extractedCallNumberSystem` (`'lcc'`/`'ddc'`/`'unknown'`), `extractedEdition`, `extractedSeries`. A sticker-extracted call number takes `'spine'` provenance — same priority as a printed-on-spine LCC, outranking every network tier. Sticker DDC gap-fills `lookup.ddc`; edition gap-fills `lookup.edition`; series feeds form-tag inference at HIGH confidence (system-prompt rule 7a). ISBN extraction was deliberately NOT added — ISBN-13s live on back-cover barcode blocks, not on spines. Earlier handoffs flagged this as a gap; this commit re-categorized it as a wrong premise.
+
+- `bce6e62` lookup: DDC→LCC class-letter fallback for ISBN-only DDC sources. New `lib/ddc-to-lcc.json` (full DDC second-summary mapping, 100 entries). New `deriveLccFromDdc(ddc)` in `lib/lookup-utils.ts`. Fires only when network LCC is empty AND DDC is present. Writes the derived class letter to `result.lccDerivedFromDdc` — NOT `result.lcc`. System-prompt rule 11a explicitly classifies it as a domain anchor for rule-1 detection but NOT as authoritative for subgenre tagging.
+
+- `86d7a38` lookup: author-similarity backfill from local export ledger. New `getAuthorPattern(authorLF)` in `lib/export-ledger.ts`. Reads the local ledger (no GitHub round-trip), returns `{ dominantLccLetter, frequentTags, sampleSize }`. Author normalization handles initials, middle-name variants, multi-word lastnames, multi-author independent matching. Minimum sample size 3 enforced at call sites — below that, two books prove nothing. New `BookRecord.lccDerivedFromAuthorPattern` field; new `LedgerEntry.lcc` so future exports vote on the dominant class letter. Threaded into all four orchestrators (`buildBookFromCrop`, `addManualBook`, `rereadBook`, `retagBook`). System-prompt rule 11b is sample-size-aware: ≥5 = strong pattern, 3–4 = tiebreaker. The personalization-from-your-own-data play.
+
+- `bab5d6e` tag inference: two-step domain detection then focused tagging. The biggest architectural change of the four. `/api/infer-tags` refactored from one Sonnet call into a two-call orchestrator. Call 1 (`lib/system-prompt-domain.md`) detects primary domain(s) from the 12 in `lib/tag-domains.ts`; up to 3 domains; per-domain confidence; primary-domain LOW confidence flags `BookRecord.domainConfidence = 'low'`. Call 2 (`lib/system-prompt-tags.md` template, `{{domainName}}`/`{{domainVocabulary}}`/`{{formVocabulary}}` placeholders) runs focused per-domain tag inference IN PARALLEL — the architectural split lets each call see only its domain's vocabulary. The same commit also lands the user-message-builder fix the audit flagged (`subtitle`, `allAuthors`, `edition`, `series`, `binding`, `language`, `pageCount` now reach the prompt). Corrections-log split: new `kind: 'tag' | 'domain'` and optional `domain` context — call 1 gets `kind === 'domain'` few-shot, call 2 gets `kind === 'tag'` filtered to the current call's domain. Review row surfaces a `?domain` chip when domainConfidence is low. New BookRecord fields: `inferredDomains`, `domainConfidence`.
+
+### What four steps moved
+
+Sticker extraction caught the ex-library wins — books with library-sticker call numbers now get authoritative LCC/DDC straight off the physical artifact, no network round-trip needed. DDC→LCC fallback rescues books where ISBN sources only have DDC (ISBNdb's Dewey-only books were the immediate target; the crosswalk fires anywhere the network DDC tier hit but the LCC tiers missed). Author-similarity is the personalization-from-your-own-data play — once a user has exported ≥3 books by an author, the eighth book by that author benefits from the user's editorial pattern, not just generic catalog signal. Two-step inference is the architectural improvement that lets focused per-domain tagging operate on the FULL available signal — and the user-message-builder fix in the same commit ensures that "full signal" actually means the audit-flagged 7 missing fields plus everything that was already wired.
+
+The audit was load-bearing. Each of the four enhancement commits would have been less effective — or in the two-step refactor's case, half-wasted — if they'd shipped before the leak-plug. The four-step plan is the work, but the audit is the gate.
+
+---
+
 ## Notable patterns across the arc
 
 ### Reversals that stuck
@@ -409,6 +473,8 @@ Vercel auto-deployed `main` to production. `carnegielib.vercel.app` finally caug
 - **Separate edit screen → inline edit.** Tried for one commit and rolled back the same day.
 - **ISBNdb-as-third-tier → ISBNdb-first → Phase-1 unified scoring.** Three architectural visions for the lookup, each abandoning the prior. The current Phase 1 / Phase 2 design with parallel candidate discovery is meant to be terminal.
 - **`/api/lookup-book` HTML 500 → structured JSON 502.** A small but high-leverage fix.
+- **Five-step plan → four-step plan after LibraryThing investigation.** Phase 7's brainstorm doc proposed an LT API tier as one of five strategies for sharper LCC + tags. The investigation revealed LT's developer hub has explicitly walked away from offering bibliographic data — it now redirects developers to Bowker (paid commercial). The old `librarything.ck.getwork` endpoint still partially responds but is unsupported and ISBN-10-only. Bowker pricing was investigated and ruled out as not cost-effective for a personal tool. Decision was to drop entirely, not defer — the compensating signals from MARC 655, author-similarity, and two-step inference cover most of the gap.
+- **"Spine-printed ISBN extraction" as a high-priority gap → wrong premise.** Carried for weeks across the handoff docs as the "biggest single quality + speed win available." The audit-driven Step 1 correctly re-categorized it: ISBN-13s live on back covers, not spines. The actual spine-side win that DID land is sticker call-number extraction for ex-library books.
 
 ### What survived without question
 - **The two-pass spine pipeline** (Pass A detection → per-spine Pass B OCR) is from commit two and unchanged in shape.
@@ -417,11 +483,13 @@ Vercel auto-deployed `main` to production. `carnegielib.vercel.app` finally caug
 - **The 5-level type scale + 8px grid + 3-zone BookCard** from the day-two polish series.
 - **The sidebar nav + content column** layout from the v3 redesign.
 - **GitHub Contents API as the cross-device backend.** Once the ledger went there, every subsequent shared resource (corrections, vocabulary, pending batches) followed.
+- **The "audit before adding new tiers" principle from Phase 5 was applied again in Phase 7 and caught real bugs both times.** Phase 5's audit caught the silent-drop pattern; Phase 7's audit caught it again (still happening — Phase 5 had only fixed half) plus uncovered MARC 655 entirely missing from the parser. The pattern looks durable: every tier added without an audit pass after-the-fact loses signal somewhere on the way to the prompt.
 
 ### Notably absent from the history
 - **No Google Vision experiment commits.** The repo has a `GOOGLE_VISION_API_KEY` env var lingering in `.env.local`, but no commit references Google Vision, Tesseract, OpenAI Vision, Azure Vision, or any other OCR-vision experiment. Anthropic Vision via the Claude API has been the only spine-OCR provider since the initial commit.
 - **No OCLC Classify integration.** Mentioned in PROJECT-SPEC.md as a planned free LCC tier. Never built.
-- **No spine-printed ISBN extraction.** Carried as an open capability gap throughout the project. Despite the lookup pipeline being heavily ISBN-centric in Phase 5, the spine-read prompt still doesn't extract the printed barcode digits.
+- **No spine-printed ISBN extraction.** Carried as an open capability gap for weeks of handoff docs. Phase 7's audit correctly re-categorized this as a wrong premise — ISBN-13s live on the back cover, not the spine — and the spine-side win was redirected to library-sticker call-number extraction.
+- **No LibraryThing API integration.** Investigated in Phase 7 and decisively dropped after their developer hub redirected to paid Bowker. Compensating signals (MARC 655, author-similarity, two-step inference) cover most of the LT-shaped gap.
 
 ---
 
@@ -434,5 +502,6 @@ Vercel auto-deployed `main` to production. `carnegielib.vercel.app` finally caug
 | v3.0 | `5f257dd` | 2026-05-02 | Sidebar redesign + phone capture + cross-device sync |
 | v3.5 | `733d969` | 2026-05-02 | Drop silent dedup + Add copy + corrections feedback loop |
 | v4.0 | `a55be78` | 2026-05-03 | Phase 1 / Phase 2 lookup + Next 16 / React 19 + barcode preview. Branch `next-16-upgrade` merged to `main` later same day via `--no-ff` merge commit. package.json bumped to 4.0.0. |
+| v4.1 | `bab5d6e` | 2026-05-04 | Audit-driven enhancement series — leak plug, sticker extraction, DDC→LCC fallback, author-similarity backfill, two-step domain-then-tag inference. package.json bumped to 4.1.0. |
 
-The package.json version is `4.0.0`. v4 is live in production at carnegielib.vercel.app.
+The package.json version is `4.1.0`. v4.1 is live in production at carnegielib.vercel.app.

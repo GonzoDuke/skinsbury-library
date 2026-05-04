@@ -1,8 +1,8 @@
 # Carnegie — Status v4.0
 
-**Date of writing:** 2026-05-03 (updated later same day)
+**Date of writing:** 2026-05-04 (post-merge enhancement series)
 **Active branch:** `main`
-**Latest commit:** merge commit — "Merge next-16-upgrade: v4.0 lookup pipeline + Next 16 / React 19 + barcode preview". `next-16-upgrade` retained for reference.
+**Latest commit:** `bab5d6e` — "tag inference: two-step domain detection then focused tagging". Caps the four-step audit-driven enhancement series. v4.1 tag.
 
 This is a handoff document. If you are picking this project up cold, read it linearly. Every fact below was verified against the working tree at the date above.
 
@@ -17,7 +17,7 @@ This is a handoff document. If you are picking this project up cold, read it lin
 | **Hard rule** | No book ever leaves Carnegie without explicit human approval on the Review screen. The pipeline has a stop here by design. |
 | **Repo URL** | https://github.com/GonzoDuke/carnegie |
 | **Live URL** | https://carnegielib.vercel.app — production. Vercel auto-deploys from `main`. |
-| **Version (package.json)** | `4.0.0`. Footer on the About page reads `ver. 4.0` and is wired to read from package.json (see `app/about/page.tsx`). When you bump, the footer updates automatically. |
+| **Version (package.json)** | `4.1.0`. Footer on the About page reads `ver. 4.1` and is wired to read from package.json (see `app/about/page.tsx`). When you bump, the footer updates automatically. |
 | **Deployment platform** | Vercel. CI is the default Vercel GitHub integration — push to `main` deploys production; PRs and other branches get preview URLs. |
 | **License** | None declared (private). |
 
@@ -156,7 +156,8 @@ Tablet capture supports a multi-photo loop (`components/CropModal.tsx`) and the 
   - `claude-sonnet-4-20250514` (Sonnet) for "easy" spines (≥2% of image area, aspect ratio < 3).
   - `claude-opus-4-7` (Opus) for narrow / vertical / hard spines. Opus is ~5× the per-token cost; using Sonnet everywhere produced confident hallucinations on hard spines, so this hybrid sticks.
 - Prompt: extracts `title`, `author`, `publisher`, `lcc` (only when actually printed/stickered on the spine), `confidence` (HIGH/MEDIUM/LOW). Strict canonical-LCC formatting rules. Editor prefix: `ed. Barney Hoskyns`.
-- **Important:** the read-spine prompt does NOT extract ISBN. Even when the spine has a printed barcode, we currently don't read it from spine OCR — that's a known gap (§9).
+- **Sticker extractions (post-merge enhancement):** the read-spine prompt now also returns `extractedCallNumber` (raw sticker text), `extractedCallNumberSystem` (`'lcc'` | `'ddc'` | `'unknown'`), `extractedEdition`, and `extractedSeries`. A sticker-extracted LCC takes `'spine'` provenance — same priority as a printed-on-spine LCC, **outranking every network tier**. A sticker-extracted DDC gap-fills `lookup.ddc` when network DDC is empty. The series field feeds the form-tag inference at call 2 (Penguin Classics / Library of America / Folio Society etc. with HIGH confidence).
+- **Note on ISBN:** the prompt deliberately does NOT extract ISBN. ISBN-13s live in the back-cover barcode block, not on the spine. Earlier handoffs flagged this as a gap; the audit-driven enhancement series re-categorized it as a wrong premise.
 
 ### Step 4 — Lookup pipeline (`lib/book-lookup.ts:lookupBook`)
 
@@ -183,24 +184,54 @@ Four parallel exact lookups, all gap-fill (never overwrite Phase 1):
 | Wikidata by ISBN | `lookupWikidataByIsbn` | `https://query.wikidata.org/sparql?…?item wdt:P212 "{isbn}"` |
 | OL by ISBN | `enrichFromIsbn` | `https://openlibrary.org/search.json?isbn={isbn}` |
 
-MARC parses 050 (LCC), 082 (DDC), 100 (main author), 245 (title), 250 (edition), 260/264 (publisher), 300 (page count), 600/610/611/630/650/651 (LCSH subject headings — capped 25), 700/710 (co-authors).
+MARC parses 050 (LCC), 082 (DDC), 100 (main author), 245 (title), 250 (edition), 260/264 (publisher), 300 (page count, regex now matches `"384 p."` and `"vii, 384 pages"` both — the original regex required the trailing period), 600/610/611/630/650/651 (LCSH subject headings — capped 25), **655 (genre/form term — capped 15, populated as `result.marcGenres`; the SINGLE most authoritative signal for genre/form classification per system-prompt rule 10a)**, 700/710 (co-authors).
+
+GB-by-ISBN response interface widened: `description`, `pageCount`, `subtitle`, `language`, `mainCategory`, `authors` are now read in addition to publisher / publishedDate / categories / imageLinks (the audit found these vanished into a too-narrow inline TypeScript interface).
+
+OL work-record subjects are now merged into `result.subjects` (deduped, capped 10) — they were silently dropped before the audit.
 
 **Fallbacks** when Phase 1 produced no winner:
-1. GB title-search (`q=intitle:…+inauthor:…`) — single attempt.
+1. GB title-search (`q=intitle:…+inauthor:…`) — single attempt. The same widened interface applies here.
 2. LoC SRU title+author for residual LCC.
-3. Wikidata title-search via SPARQL CONTAINS filter.
+3. Wikidata title-search via SPARQL CONTAINS filter. Wikidata `genre` (P136) and `subject` (P921) values are NOW merged into `result.subjects` on this path — they were silently dropped before the audit-driven leak-plug.
 4. (At pipeline layer) `/api/identify-book` Sonnet call from raw spine fragments, then re-run lookup with the corrected title.
+
+**Post-network class-letter fallbacks** (run inside `lookupBook`, gap-fill only):
+
+5. **DDC → LCC class-letter crosswalk** (`deriveLccFromDdc` in `lib/lookup-utils.ts`, mapping in `lib/ddc-to-lcc.json`). Fires only when `!result.lcc && result.ddc`. Writes the derived class letter to `result.lccDerivedFromDdc` — **NOT** `result.lcc`. Tag inference uses it as a domain anchor; the Review surface flags it distinctly. ~100 entries covering DDC second-summary level (000–990 by tens) plus the exact-3-digit refinements.
+6. **Author-similarity backfill** (applied at the pipeline layer, in `applyAuthorPatternEnrichment` inside `lib/pipeline.ts`). Reads the user's local export ledger via `getAuthorPattern(authorLF)` from `lib/export-ledger.ts`. When the ledger contains ≥3 books by the same author AND no LCC AND no DDC-derived class letter, the dominant LCC class letter across those books goes into `result.lccDerivedFromAuthorPattern`. Frequent tags (top 5 across matched books) flow into the tag prompt as `authorPatternTags` with the sample size. Author normalization handles initials, middle-name variants, multi-word lastnames, and multi-author book matches independently.
+
+**Three distinct LCC fields:** keep all three separate and pass all three to the tag prompt:
+- `lcc` — sourced from a network tier or the spine. Authoritative.
+- `lccDerivedFromDdc` — class-letter only, from the DDC crosswalk. Domain anchor.
+- `lccDerivedFromAuthorPattern` — class-letter only, from the user's own collection. Domain anchor with personalization.
+
+The `/api/infer-lcc` Sonnet model-guess is the LAST-RESORT tier after all three are empty.
 
 **Verbose logging:** every tier emits a structured trace to the dev terminal. `process.env.VERBOSE_LOOKUP=0` silences. See `createLookupLogger` in `lib/book-lookup.ts`.
 
-### Step 5 — Tag inference
+### Step 5 — Tag inference (two-call orchestrator)
 
 - Route: `app/api/infer-tags/route.ts`
-- Model: `claude-sonnet-4-20250514`.
-- System prompt: `lib/system-prompt.md`. Loaded once and module-cached — restart the dev server if you edit it.
-- The user's last 20 corrections (from `lib/corrections-log.ts`) are appended to the system prompt on every call as few-shot examples (see §8).
-- Inputs: title, author, ISBN, publisher, year, LCC, free-text subject headings (OL `subject` + ISBNdb `subjects` + Wikidata genre/subject), and optionally DDC, LCSH headings, synopsis (first 300 chars).
-- Output: `{ genreTags: string[], formTags: string[], confidence, reasoning }`.
+- Model: `claude-sonnet-4-20250514` for both calls.
+- The route refactored from a single Sonnet call into a two-call orchestrator. The single-call `lib/system-prompt.md` is no longer loaded — its content was split across the two new prompts below.
+
+**Call 1 — domain detection** (`lib/system-prompt-domain.md`):
+- Receives the full book metadata (see Inputs below) and identifies the primary domain from the 12 in `lib/tag-domains.ts`. Multi-domain output is allowed (cap 3) for genuinely cross-domain books.
+- Returns `{ domains: [{ domain, confidence }], reasoning }`. Per-domain confidence is HIGH/MEDIUM/LOW. The primary domain's confidence becomes `BookRecord.domainConfidence` (`'low'` triggers a Review-surface marker).
+- Few-shot context: the 20 most recent corrections with `kind === 'domain'` (see §8).
+
+**Call 2 — focused tag inference, per domain, in parallel** (`lib/system-prompt-tags.md` — template):
+- Template variables: `{{domainName}}`, `{{domainVocabulary}}` (only the named domain's tags), `{{formVocabulary}}` (all form tags, domain-independent). Rendered server-side per call.
+- For each domain returned by call 1, fires a focused Sonnet call with ONLY that domain's vocabulary loaded. Multi-domain books fan out via `Promise.all` so the latency is one call wide, not N calls deep.
+- Each call's response is `{ genre_tags, form_tags, confidence, reasoning }`. The route merges across calls: case-sensitive dedupe on tags; merged confidence = WORST across calls; reasoning prefixed with the per-call domain.
+- Few-shot context: the 20 most recent corrections with `kind: 'tag'` (default), filtered to `domain === current_call_domain` when possible.
+
+**Inputs (audit-fixed):** title, author, **subtitle, allAuthors** (when >1), ISBN, publisher, publication year, **edition, series, binding, language, pageCount**, lcc / lccDerivedFromDdc / lccDerivedFromAuthorPattern (passed distinctly), free-text subject headings, LCSH, MARC genre/form (655), DDC, **extractedSeries** (from spine), **authorPatternTags + sampleSize**, synopsis (first 300 chars). The audit found seven of these were on `BookRecord` but never reached the prompt — fixed in the same commit as the two-step refactor.
+
+**Output:** `InferTagsResult` extended with `inferredDomains: string[]` and `domainConfidence: 'high' | 'medium' | 'low'` so the BookRecord can persist call 1's output for the Review surface.
+
+**Performance:** typical book = 2–3 Sonnet calls per record (1 domain + 1 focused) with `Promise.all` for the per-domain fan-out. Cross-domain books (rare) → up to 4 calls. `maxDuration = 60` covers all of it.
 
 ### Step 6 — Final BookRecord assembly
 
@@ -255,7 +286,7 @@ MARC parses 050 (LCC), 082 (DDC), 100 (main author), 245 (title), 250 (edition),
 | `/api/process-photo` | POST | Pass A spine detection. | Anthropic Sonnet Vision. |
 | `/api/read-spine` | POST | Pass B per-spine OCR. | Anthropic Sonnet or Opus. |
 | `/api/lookup-book` | POST | Full Phase-1+Phase-2 metadata lookup. | OL, ISBNdb, GB, LoC, Wikidata. |
-| `/api/infer-tags` | POST | Tag inference with last-20 corrections. | Anthropic Sonnet. |
+| `/api/infer-tags` | POST | Two-call orchestrator: call 1 detects primary domain(s) (`system-prompt-domain.md`), call 2 runs focused per-domain tag inference (`system-prompt-tags.md`, template-driven) in parallel. Merges genre+form tags across calls, dedupes, returns `InferTagsResult` with `inferredDomains` + `domainConfidence`. Domain corrections feed call 1; tag corrections (filtered to current-call domain) feed call 2. | Anthropic Sonnet × {1 + N} where N = domains identified. |
 | `/api/infer-lcc` | POST | LCC inference fallback (model-guess). | Anthropic Sonnet. |
 | `/api/identify-book` | POST | Last-resort book identification from raw spine fragments. | Anthropic Sonnet. |
 | `/api/preview-isbn` | GET | Fast preview for the barcode-scanner confirm card. ISBNdb → OL fallback. 3s client timeout, 4.5s server. | ISBNdb, OL. |
@@ -356,7 +387,7 @@ Installable via `public/manifest.json`. Service worker (`public/sw.js`) is inten
 | React store (`lib/store.tsx`) | `batches`, `allBooks`, `processing` | localStorage key `carnegie:state:v1` (images stripped before write). HYDRATE on mount. |
 | Pending files | `Map<batchId, File>` ref inside StoreProvider | In-memory only. Lost on hard reload. |
 | Export ledger | Every exported book — title, author, ISBN, date, batch label, tags | localStorage key `carnegie:export-ledger:v1` + GitHub at `lib/export-ledger.json`. |
-| Corrections log | Tag add/remove events for inference few-shot | localStorage key `carnegie:corrections-log:v1` + GitHub at `data/corrections-log.json`. |
+| Corrections log | Tag add/remove events for inference few-shot. Entries now carry `kind: 'tag' \| 'domain'` (default `'tag'` for back-compat) and an optional `domain` context — split corrections feed call 1 vs call 2 of the two-step inference, with call 2 further filtering to the current-call domain when possible. | localStorage key `carnegie:corrections-log:v1` + GitHub at `data/corrections-log.json`. |
 | Pending batches | Cross-device snapshots — phone capture → desktop pickup | GitHub at `data/pending-batches/{batchId}.json` (one file per batch). |
 | Vocabulary | Genre + form tags | `tag-vocabulary.json` (root) and `lib/tag-vocabulary.json` — both written by `/api/commit-vocabulary`. The lib copy is the live one read by the app. |
 | Dark mode flag | `'1'` / `'0'` | localStorage key `carnegie:dark`. |
@@ -398,37 +429,55 @@ Each domain has a list of genre tags. Form tags are separate, applied alongside 
 - **series**: Penguin Classics, Portable Library
 - **collectible**: First edition, Signed
 
-### Inference (`/api/infer-tags`)
+### Inference (`/api/infer-tags`) — two-call orchestrator
 
-System prompt at `lib/system-prompt.md`. Loaded once per server warm-up and cached. Restart the dev server when you edit it.
+The route splits inference into TWO Sonnet calls. The single-call `lib/system-prompt.md` is deprecated (still on disk but no longer loaded by the route).
 
-The route accepts the book's metadata + the user's last 20 corrections (forwarded by the client from `recentCorrections(20)`). Corrections are formatted as few-shot examples and appended to the system prompt:
+**Call 1 — domain detection.** System prompt at `lib/system-prompt-domain.md`. Loaded once per warm-up. Returns `{ domains: [{ domain, confidence }], reasoning }` — up to 3 primary domains drawn from the 12 in `lib/tag-domains.ts` plus `_unclassified`. Per-domain confidence is HIGH/MEDIUM/LOW; primary-domain confidence becomes `BookRecord.domainConfidence` (`'low'` triggers a Review-row `?domain` chip).
 
+**Call 2 — focused tag inference, per domain.** System prompt template at `lib/system-prompt-tags.md`. Loaded once and rendered per call with `{{domainName}}`, `{{domainVocabulary}}` (only this domain's tags), `{{formVocabulary}}` (all form tags). Per-domain calls fire in parallel via `Promise.all`. Each returns `{ genre_tags, form_tags, confidence, reasoning }`. The route merges across calls (case-sensitive dedupe; merged confidence = WORST across calls; reasoning lines tagged by domain).
+
+Inputs to BOTH calls (the same user message — only system prompts differ):
+title, author, **subtitle, all-authors** (when >1), ISBN, publisher, publication year, **edition, series, binding, language, page count**, lcc / lccDerivedFromDdc / lccDerivedFromAuthorPattern (each on its own line), free-text subject headings, LCSH, MARC genre/form (655), DDC, spine-printed series (extractedSeries), authorPatternTags + sample size (when ≥3), synopsis (300 chars).
+
+Corrections are split by `kind`:
+- `kind: 'domain'` → call 1's few-shot context.
+- `kind: 'tag'` → call 2's few-shot context, further filtered to the current call's domain when possible.
+
+Format used (slightly different per kind):
 ```
 CORRECTION: For "Title" by Author (LCC: ...), the system suggested [tag1, tag2]
             but the user removed "tag1" — do not suggest this tag for similar books.
 CORRECTION: For "Title" by Author (LCC: ...), the system missed "tag3"
             — suggest this tag for similar books.
+CORRECTION: For "Title" by Author (LCC: ...), the system inferred domain "X"
+            but the user removed it — be more cautious about that domain for similar books.
 ```
 
-Tag-inference rules in the system prompt (abbreviated):
-1. LCC code determines primary domain.
-2. 2–4 tags per book; >5 is over-tagging.
-3. Cross-domain expected — a music/neuroscience book gets tags from both.
+Tag-inference rules in the new prompts (abbreviated; full list in `system-prompt-tags.md`):
+1. The domain is settled by call 1 — don't second-guess it in call 2.
+2. 1–4 genre tags from this domain; cap 5 across genre+form.
+3. Form tags independent of content.
 4. Author knowledge applied (Sam Harris → Atheism).
 5. Subtitles parsed for type signals.
-6. Fiction is a Literature tag, not a separate domain.
+6. Drama vs Fiction (plays → "Drama", Shakespeare gets both).
 6a. Every poetry book gets "Poetry" + nationality sub-tag.
-7. Form tags independent of content.
-8. Series form tags require publisher confirmation.
+7. Series form tags require publisher confirmation.
+7a. **Spine-printed publisher series, when provided in metadata, IS conclusive** — apply the matching form tag with HIGH confidence and skip the publisher guard.
+8. Edition statements inform "First edition" / "Annotated" form tags.
 9. Thin metadata → confidence LOW.
-10. **LCSH headings outweigh LCC** (added in enrichment commit 8).
+10. **LCSH headings are authoritative** for genre selection within the domain.
+10a. **MARC 655 (genre/form term) is the SINGLE most authoritative signal** for genre/form classification (outranks LCSH AND LCC for that purpose specifically).
 11. DDC supplements LCC.
-12. Synopsis disambiguates ambiguous titles.
+11a. **Derived LCC class letter (from DDC) is a domain anchor**, not a full call number — don't propose tags that would only follow from the rest of the call number.
+11b. **Author-pattern tags are personalization signal.** Override generic LCSH-derived suggestions when they conflict; do NOT override LCC domain assignment. ≥5 sample = strong pattern; 3–4 = tiebreaker.
+12. Synopsis disambiguates.
 
 ### Correction feedback loop
 
-Wired in commits 4d4-feb…-ish. When the user removes a tag from a book that was system-inferred (i.e. it appears in `book.original.genreTags` ∪ `book.original.formTags`), `logCorrection({ removedTag })` fires. When they add a tag the system didn't suggest, `logCorrection({ addedTag })`. Undoing a prior correction (re-adding a removed tag, removing an added one) cancels the prior entry rather than logging a contradicting one.
+When the user removes a tag from a book that was system-inferred (i.e. it appears in `book.original.genreTags` ∪ `book.original.formTags`), `logCorrection({ removedTag })` fires. When they add a tag the system didn't suggest, `logCorrection({ addedTag })`. Undoing a prior correction (re-adding a removed tag, removing an added one) cancels the prior entry rather than logging a contradicting one.
+
+Each entry now carries an optional `kind: 'tag' | 'domain'` (default `'tag'` for back-compat) and an optional `domain` context. Today's UI fires `kind: 'tag'` only; the `kind: 'domain'` infrastructure is in place for a future Review-surface "this book's primary domain is wrong" control. `recentCorrections(limit, { kind, domain })` is the typed filter the route uses to split corrections between the two calls.
 
 Storage: localStorage + GitHub at `data/corrections-log.json`. Both `BookCard`-style components (`BookTableRow.tsx` and `MobileBookCard.tsx`) wire `logCorrection` into `addTag` / `removeTag`.
 
@@ -454,9 +503,14 @@ The two PUTs are sequential — if the second fails, the vocabulary is updated b
 ### Pipeline
 - Pass-A spine detection (Sonnet Vision).
 - Pass-B per-spine OCR with **per-spine model selection** — easy spines on Sonnet, hard on Opus.
+- **Sticker call number extraction** — Pass-B reads library-sticker LCC/DDC off ex-library spines and overrides every network LCC tier (provenance: `'spine'`). Edition statements and publisher series ("Penguin Classics", "Folio Society", etc.) come off the spine the same way and feed form tags directly.
 - Phase-1 parallel candidate discovery — ISBNdb + OL queried simultaneously, unified scoring.
 - Phase-2 parallel ISBN-direct enrichment — MARC + GB-by-ISBN + Wikidata-by-ISBN + OL-by-ISBN in parallel.
 - LCSH subject headings extracted from MARC and fed into the tag-inference prompt as the most authoritative cataloger signal.
+- **MARC 655 (genre/form term)** parsed and fed into the tag prompt as the SINGLE most authoritative signal for genre/form classification specifically — outranks LCSH and LCC for that purpose.
+- **DDC → LCC class-letter fallback** — when network sources only return DDC, a static crosswalk in `lib/ddc-to-lcc.json` derives the LCC class letter as a domain anchor (written to `lccDerivedFromDdc`, kept distinct from a sourced `lcc`).
+- **Author-similarity backfill** — uses the user's own export ledger as a personalization signal at sample size ≥3. Dominant LCC class letter and frequent tags from previously-exported books by the same author flow into the lookup result and the tag prompt.
+- **Two-step domain-then-tag inference** — call 1 detects primary domain(s) from the 12-domain vocabulary; call 2 runs focused per-domain tag inference in parallel with only that domain's tags loaded. Domain confidence flagged on the BookRecord; LOW domain confidence surfaces a Review-row marker.
 - Levenshtein-based **shorter-title rule** — keeps "The Hobbit" instead of "The Hobbit, Or, There and Back Again" when canonical title is a series-bloated variant.
 - **Multi-author splitting** — `Last1, First1; Last2, First2` for LibraryThing. Spine-read author strings like "Mike Caulfield & Sam Wineburg" split correctly.
 - **In-memory ISBN cache** — same ISBN within a session skips network entirely.
@@ -503,7 +557,8 @@ The two PUTs are sequential — if the second fails, the vocabulary is updated b
 | Issue | Severity | Notes |
 |---|---|---|
 | `next` Vercel CVE persistence | medium | 5 high-severity advisories on 14.x cleared by upgrading to 16.2.4. Postcss inside `next/node_modules/postcss` (transitive) still flags moderate. Vercel's platform layer mitigates most exposure. Re-run `npm audit` after each Next bump. |
-| **No spine-printed ISBN extraction** | high (capability gap) | Pass-B prompt doesn't read the printed ISBN-13 barcode digits at the spine foot. Books with that printed go through fuzzy title-search instead of direct ISBN lookup. Fix: extend `read-spine` prompt + plumb ISBN through. |
+| Spine-side data-extraction (note, not a gap) | informational | The earlier "no spine-printed ISBN extraction" entry was a misframing — ISBN-13s live in the back-cover barcode block, not on the spine. The audit-driven enhancement series re-categorized this. Real spine win that DID land: sticker call-number extraction for ex-library books. Pass B now reads LCC/DDC stickers and overrides every network LCC tier (provenance: `'spine'`). |
+| No "domain wrong" Review-surface control | medium | The corrections-log infrastructure supports `kind: 'domain'` corrections so a future UI can teach call 1 of the two-step inference. Today no UI fires this kind — only `kind: 'tag'`. Wiring is one new control on the BookCard plus a `logCorrection({ kind: 'domain', removedTag, addedTag })` call. |
 | `commit-vocabulary` non-atomic | medium | The route writes `lib/tag-vocabulary.json` and `lib/vocabulary-changelog.md` sequentially with no rollback. If the second PUT fails, vocab is updated but changelog is stale. |
 | GitHub 409 conflict UX | medium | `pending-batches` POST has 409-retry. `ledger`, `corrections`, `commit-vocabulary` don't — concurrent writes from two devices surface as user-facing 502s. |
 | Wikidata title-search timeout-prone | low | The CONTAINS-LCASE filter is occasionally slow. Now mostly bypassed thanks to ISBN-direct via `lookupWikidataByIsbn`. |
@@ -532,12 +587,19 @@ From the backend audit (CHANGELOG entries, commits `5aa8878` through `1bdb7bd`).
 - pending-batches 409-retry shim.
 - `@zxing/library` peer-dep mismatch — pinned to ^0.22.0 to satisfy `@zxing/browser`'s peer constraint (Vercel's strict installer).
 - `next-16-upgrade` merged to `main` — v4 is now live on production at carnegielib.vercel.app. The branch sat unmerged longer than intended; production was running v3.5 the whole time the v4 work appeared on the branch preview URL. Merge was `--no-ff` to preserve both histories cleanly. Branch retained for SHA reference (CHANGELOG-V4_0 cites commits from it).
+- **Barcode-scanned book covers fixed (`667fc68`).** Two compounding bugs: the preview cover URL from `/api/preview-isbn` was discarded when the user tapped "Use this ISBN" (only the ISBN string passed forward), AND the rebuild path's OL cover URL omitted `?default=false` so OL returned a 1×1 grey placeholder with HTTP 200 — the `<img>` onError chain never fired. Threaded the preview through `BarcodeScanner` → `app/page.tsx` → `processIsbnScan` as a typed `BarcodeScanPreview` seed, added `?default=false` to both OL URLs in `lib/scan-pipeline.ts`. Audit confirmed `preview-isbn` and `book-lookup` already had `?default=false`.
+- **Data-extraction audit** (`docs/extraction-audit.md`, `c393352`). 381-line side-by-side audit of every meaningful field returned by every lookup tier vs. what the code actually consumes. Found that the Phase-5 enrichment series fixed BookRecord persistence but not tag-prompt delivery — multiple fields land on records but never reach `/api/infer-tags`. Identified MARC 655 (genre/form) as never-parsed, OL work-record `subjects` as silently dropped, Wikidata title-search `genre`/`subject` as silently dropped on the title-path while the by-ISBN-path merged them, GB inline interfaces as too narrow (`description`, `pageCount`, `subtitle`, `language`, `mainCategory`, `authors` vanishing), MARC 300 page-count regex requiring a trailing period. Audit committed BEFORE any code changed — it's the gate on the four-step plan.
+- **Leak-plug commit (`8885f27`).** Five fixes for fields silently dropped between API responses and the tag prompt: (1) Wikidata title-search merge bug (genre + subject now merge into `result.subjects` like the by-ISBN path); (2) OL work-record `subjects` now merge into `result.subjects` (deduped, capped 10); (3) MARC 655 parsing in `lookupFullMarcByIsbn` (new `MarcResult.marcGenres`, threaded through `BookLookupResult.marcGenres` → `BookRecord.marcGenres` → `infer-tags` prompt; system-prompt rule 10a names it the SINGLE most authoritative signal for genre/form); (4) Google Books interfaces widened in both `gbEnrichByIsbn` and the `gb-fallback` block — `description` → synopsis, `pageCount`, `subtitle`, `language`, `mainCategory` (prepended to subjects), `authors` (deduped into `allAuthors`); (5) MARC 300 regex tightened to match both `"384 p."` and `"vii, 384 pages"`.
+- **Pass B sticker extraction (`44aeb8b`).** New `SpineRead` fields: `extractedCallNumber`, `extractedCallNumberSystem` (`'lcc'|'ddc'|'unknown'`), `extractedEdition`, `extractedSeries`. Sticker-extracted call numbers override network-tier LCC/DDC (provenance: `'spine'`). Series feeds form-tag inference at HIGH confidence. ISBN extraction was deliberately NOT added — ISBNs live on back-cover barcode blocks, not on spines.
+- **DDC → LCC class-letter fallback (`bce6e62`).** New `lib/ddc-to-lcc.json` (full DDC second-summary mapping, 100 entries). New `deriveLccFromDdc` in `lib/lookup-utils.ts`. New `BookLookupResult.lccDerivedFromDdc` field — class-letter only, NOT a full call number. Fires only when network LCC is empty AND DDC is present. System-prompt rule 11a explains it's a domain anchor for rule-1 detection but NOT authoritative for subgenre tagging.
+- **Author-similarity backfill (`86d7a38`).** New `getAuthorPattern(authorLF)` in `lib/export-ledger.ts`. Reads the local ledger, returns `{ dominantLccLetter, frequentTags, sampleSize }`. Author normalization handles initials, middle names, multi-word lastnames, multi-author independent matching. Minimum sample size 3 enforced at the call sites. New `BookRecord.lccDerivedFromAuthorPattern` field. New ledger `lcc` field so future exports vote on the dominant class letter. Threaded into all 4 orchestrators (`buildBookFromCrop`, `addManualBook`, `rereadBook`, `retagBook`). System-prompt rule 11b is sample-size-aware (≥5 strong, 3–4 tiebreaker).
+- **Two-step domain-then-tag inference (`bab5d6e`).** `/api/infer-tags` refactored from one Sonnet call into two. Call 1 (`lib/system-prompt-domain.md`) detects primary domain(s); call 2 (`lib/system-prompt-tags.md`, template-driven with `{{domainName}}`/`{{domainVocabulary}}`/`{{formVocabulary}}`) runs focused per-domain tag inference in parallel. New `BookRecord` fields `domainConfidence` and `inferredDomains`. LOW domain confidence surfaces a `?domain` chip in the Review row + joins the `hasWarning` predicate. User-message builder now passes the audit-flagged previously-missing fields (`subtitle`, `allAuthors`, `edition`, `series`, `binding`, `language`, `pageCount`). Corrections-log split into `kind: 'domain'` vs `kind: 'tag'` with optional `domain` context for filtering call 2's few-shot to the current call's domain.
 
 ### Open
-- Spine-printed ISBN extraction (capability, not a regression).
 - 409 retry coverage on `ledger`, `corrections`, `commit-vocabulary` routes.
 - Postcss inside `next/node_modules/postcss` — transitive, fix has to come upstream from Next.
 - GitHub `glob` chain (high-severity command injection) — fix is `eslint-config-next@16.2.4`, already updated. Re-run `npm audit` to confirm clear.
+- No Review-surface UI for `kind: 'domain'` corrections (see §10). Wiring is one BookCard control + a typed `logCorrection` call.
 
 ---
 
@@ -675,18 +737,24 @@ lib/
 ├── export-ledger.ts                   Export ledger (localStorage + GitHub) + duplicate detection + previously-exported flagging
 ├── json-backup.ts                     JSON backup helper (manual/admin use)
 ├── librarything-import.ts             Parse a LibraryThing CSV export into ledger entries
-├── lookup-utils.ts                    Levenshtein, sanitizeForSearch, normalizeLcc, lookupLccByIsbn, lookupFullMarcByIsbn
+├── lookup-utils.ts                    Levenshtein, sanitizeForSearch, normalizeLcc, lookupLccByIsbn, lookupFullMarcByIsbn (incl. MARC 655), deriveLccFromDdc
+├── ddc-to-lcc.json                    Static DDC second-summary → LCC class-letter crosswalk (100 entries) — backs deriveLccFromDdc
 ├── pending-batches.ts                 Cross-device pending-batch sync helpers
-├── pipeline.ts                        Per-spine orchestration, client wrappers around /api/* routes, USE_CANONICAL_TITLES flag
+├── pipeline.ts                        Per-spine orchestration, client wrappers around /api/* routes, USE_CANONICAL_TITLES flag, applyAuthorPatternEnrichment
 ├── scan-pipeline.ts                   Barcode-scan flow (ISBN → metadata via OL → GB → server fallback)
 ├── session.ts                         confirmDiscardSession helper for clear-session UX
 ├── store.tsx                          StoreProvider, reducer, all store actions, processQueue, HYDRATE pattern
-├── system-prompt.md                   Tag-inference system prompt (cached at module-load)
+├── system-prompt.md                   Legacy single-call tag prompt (DEPRECATED — kept on disk for reference; no route loads it)
+├── system-prompt-domain.md            Two-step inference call 1 — domain detection prompt (12 domains + LCC mappings)
+├── system-prompt-tags.md              Two-step inference call 2 — focused per-domain tag prompt template ({{domainName}}/{{domainVocabulary}}/{{formVocabulary}})
 ├── tag-domains.ts                     Domain definitions + LCC-prefix mapping
 ├── tag-vocabulary.json                Live tag vocabulary read by the app
 ├── types.ts                           BookRecord, BookLookupResult, SpineRead, PhotoBatch, etc.
 ├── vocabulary-changelog.md            Append-only log of vocabulary edits
 └── vocabulary-update.ts               Vocabulary mutation helpers (add/rename/remove)
+
+docs/
+└── extraction-audit.md                Side-by-side audit of every meaningful field every lookup tier returns vs. what the code consumes — gates the four-step post-merge plan
 
 data/
 └── pending-batches/                   Per-batch JSON files (also written to GitHub at the same path)
@@ -824,11 +892,10 @@ git push -u origin my-feature
 Things discussed in planning docs and conversations but not yet built. Not a commitment — a tracked backlog.
 
 ### Pipeline / lookup
-- **Spine-printed ISBN extraction** (high priority). Extend `read-spine` prompt to read the printed ISBN-13 barcode digits at the spine foot when present. Plumb through to use exact-ISBN tiers from the start. Biggest single quality + speed win available.
-- **OCLC Classify integration** — was in PROJECT-SPEC.md as a free no-key LCC gap-filler. Never built.
+- **OCLC Classify integration** — was in PROJECT-SPEC.md as a free no-key LCC gap-filler. Never built. (OCLC Classify was discontinued 2024-01-31; the modern equivalent is the WorldCat Metadata API, paid.)
 - **Match-uncertainty warning** — when the Phase-1 winner's title diverges from the spine read by Levenshtein < 0.6, optionally re-run via `identify-book` instead of trusting the match.
-- **Worldcat / OCLC API** as another LCC source.
 - **HathiTrust** for full-text matching of partially-OCR'd titles.
+- **NOT pursuing: LibraryThing API** as a Phase-2 enrichment tier. Investigated as part of the four-step post-merge plan; LT's developer hub now explicitly says "LibraryThing does not offer bibliographic data" and redirects to Bowker (paid commercial). The old `librarything.ck.getwork` REST endpoint still partially responds but is unsupported and ISBN-10-only. Bowker pricing is enterprise-tier and not cost-effective for a personal tool. Compensating signals — MARC 655 from the leak-plug, author-similarity backfill, and the sharper two-step inference — cover most of the gap LT would have filled.
 
 ### Capture
 - **Live spine-detection preview** — show bounding boxes overlaid on the camera feed before commit, so the user knows whether the photo is good before processing.
@@ -848,8 +915,8 @@ Things discussed in planning docs and conversations but not yet built. Not a com
 
 ### Tag system
 - **Confidence-weighted tag merging** — when bulk re-tagging, weight inferred tags by confidence + LCSH presence.
-- **Domain-specific tag-inference prompts** — once a book's domain is settled, switch to a focused prompt with that domain's full vocabulary in the context.
 - **Tag co-occurrence stats** — show which tags appear together in the user's library.
+- **Review-surface "domain wrong" control** — a control on the BookCard that lets the user reassign a book's primary domain. Logged via `logCorrection({ kind: 'domain', removedTag: oldDomain, addedTag: newDomain })` so call 1 of the two-step inference learns from it. Today the corrections-log infrastructure supports this but no UI fires it.
 
 ### Export / integration
 - **Direct LibraryThing API integration** — currently the user uploads a CSV manually. LT has an import API, but the user explicitly wants the human-approval CSV workflow to stay; this would be opt-in.
@@ -874,4 +941,8 @@ Things discussed in planning docs and conversations but not yet built. Not a com
 
 ---
 
-End of status doc. If you hit something that surprises you, it's probably in the CHANGELOG (read newest first) or the per-commit messages on `main` (or on `next-16-upgrade`, which is preserved for reference). The lookup pipeline restructure (commit `a028295`) and the React 19 / Next 16 upgrade (commit `857939f`) are the two biggest recent shifts — start there if behavior diverges from your expectations.
+End of status doc. If you hit something that surprises you, it's probably in the CHANGELOG (read newest first) or the per-commit messages on `main`. The most recent shifts a returning AI should orient to:
+
+1. The **data-extraction audit** at `docs/extraction-audit.md` and the **leak-plug commit (`8885f27`)** that fixed the silent drops it identified — MARC 655 parsing, OL work-record subjects, Wikidata title-search merge bug, GB widened interfaces, MARC 300 regex.
+2. The **four-step post-audit enhancement series** (`44aeb8b` → `bce6e62` → `86d7a38` → `bab5d6e`): sticker call-number extraction, DDC→LCC class-letter fallback, author-similarity backfill from the local ledger, and the two-step domain-then-tag inference refactor. The original five-step plan dropped LibraryThing after their developer hub turned out to redirect to paid Bowker.
+3. The earlier **lookup pipeline restructure** (`a028295`) and the **React 19 / Next 16 upgrade** (`857939f`) are still load-bearing — read those if behavior in older sections of the pipeline diverges from your expectations.
