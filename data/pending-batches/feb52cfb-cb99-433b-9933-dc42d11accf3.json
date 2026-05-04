@@ -156,27 +156,40 @@
       "title": "The F***ing History of Swearing",
       "author": "Anna Maria Kiosse",
       "authorLF": "Kiosse, Anna Maria",
-      "isbn": "",
-      "publisher": "BIS",
-      "publicationYear": 0,
-      "lcc": "",
+      "isbn": "9789063694678",
+      "publisher": "Laurence King Publishing",
+      "publicationYear": 2018,
+      "lcc": "PE1449 .K56 2018",
       "genreTags": [
         "[Proposed] Profanity studies",
         "Linguistics",
         "History of language"
       ],
       "formTags": [],
-      "confidence": "LOW",
+      "confidence": "HIGH",
       "reasoning": "[language_literature] Title clearly indicates this is about the history and linguistic aspects of swearing/profanity. Falls under linguistics and language history within the domain, though profanity as a specific subfield may warrant a proposed tag.",
       "status": "pending",
       "warnings": [
-        "No metadata match in Open Library or Google Books — verify title and author."
+        "LCC code missing — tags inferred from title and author only."
       ],
       "sourcePhoto": "20260501_070036.jpg",
-      "lookupSource": "none",
-      "lccSource": "none",
+      "lookupSource": "isbndb",
+      "lccSource": "inferred",
       "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9789063694678-M.jpg?default=false",
       "ocrModel": "o",
+      "canonicalTitle": "The F***ing History of Swearing",
+      "allAuthors": [
+        "Anna Maria Kiosse"
+      ],
+      "synopsis": "<b>This book is a treasure trove of information about the history of swearing. With its bold and expressive design, <i>The F***ing History of Swearing</i> is an outstanding visual feast.</b> <p> Swearing is and always has been regarded as undereducated, obscene, rude and profane in society. Yet despite your mum's best efforts, cussing is mainstream. It's even more than that, it's an integrated part of our culture. <br>The number of times we swear is huge. Most often it occurs naturally and you would have to force yourself not to swear. We don't think twice about shouting the word 'FUCK' if we hurt ourselves or miss the bus in the morning. It just happens automatically and that's where it gets interesting. <p> Is swearing an instinct?<br> When and why did it become such a bad thing?<br> WHAT IS THE FUCKING HISTORY OF SWEARING <br> Where does the hidden power of these words come from?<br> Why does it make you feel so great sometimes? <br> Could we use the power of swearing wisely as a tool in our daily life and make life easier?<br> <p> All the answers to these questions and more you will find in this swearing atlas...<br> Lean back, relax and start swearing.",
+      "pageCount": 168,
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9789063694678-M.jpg?default=false",
+        "https://images.isbndb.com/covers/3193933485415.jpg"
+      ],
       "original": {
         "title": "The Pi$*@ing History of Swearing",
         "author": "Anna-Maria Hesse",
@@ -191,7 +204,7 @@
         ],
         "formTags": []
       },
-      "rereading": true
+      "rereading": false
     },
     {
       "id": "c759e000-a3ae-4993-8ddf-c14f64d00efe",
