@@ -1,18 +1,41 @@
 {
-  "schema_version": "1.0",
-  "updated": "2026-05-02",
-  "description": "Tag vocabulary and inference rules for Carnegie. Used by the tagging pipeline to auto-generate tags for LibraryThing import.",
+  "schema_version": "2.0",
+  "updated": "2026-05-04",
+  "description": "Tag vocabulary for Carnegie. The domain taxonomy is now strict-LCC-aligned: 21 domains corresponding 1:1 to the Library of Congress Classification's top-level class letters (A–Z minus the unused W/X/Y). LCC class-letter is THE domain identifier — no splits, no promotions, no personal preferences. Subdiscipline information lives in the rest of the call number, not in the domain name.",
+  "_migration_notes_v1_to_v2": {
+    "summary": "Schema 1.0 (pre-2026-05-04) used 12 closed-world domains with personal-preference splits. Schema 2.0 collapses to a strict 21-domain LCC-aligned taxonomy. Tags from old domains were migrated to new domains by content; some required judgment calls — flagged below for the user to review.",
+    "merges": {
+      "philosophy + religion + psychology": "→ philosophy_psychology_religion (B)",
+      "literature + language": "→ language_literature (P)",
+      "biography": "→ auxiliary_history (CT is a subclass of C)",
+      "media_tech": "→ technology (T)",
+      "history": "→ world_history (D); American-history-flavored tags moved to american_history (E)",
+      "social_political": "→ social_sciences (H); explicitly political tags moved to political_science (J)",
+      "arts_culture": "→ split between music (M) and fine_arts (N)",
+      "science": "→ science (Q)",
+      "books_libraries": "→ books_libraries (Z)",
+      "_unclassified": "→ general_works (A) at hydration"
+    },
+    "judgment_calls_to_review": [
+      "Counterculture: placed in american_history — historically tied to mid-20th-century US, but argument for world_history if user catalogs international counterculture works.",
+      "Music biography: kept in auxiliary_history (biography pool) because the biography genre is the dominant signal — but a music-biography heavy collection might prefer it in music.",
+      "Sports / Travel / Dance / Comedy & humor: routed to fine_arts per spec ('music-related to music, everything else to fine_arts'). LCC-strict would put Sports + Travel under geography_recreation (G) and leave Dance under fine_arts (N) — flag if user wants strict-LCC routing.",
+      "Visual culture: placed in fine_arts (N) — could arguably belong in technology (T) if focused on screens / surveillance.",
+      "Civil liberties / Free speech / Protest & activism: placed in political_science (J) per 'explicitly political' rule.",
+      "Drugs / Identity & tribalism / Social criticism: placed in social_sciences (H) — judgment call, all could lean political."
+    ]
+  },
   "domains": {
-    "philosophy": {
-      "label": "Philosophy",
-      "lcc_prefixes": [
-        "B1",
-        "B4",
-        "B5",
-        "B8",
-        "BC",
-        "BD"
-      ],
+    "general_works": {
+      "label": "General works",
+      "lcc_letter": "A",
+      "description": "Encyclopedias, almanacs, general reference works, periodicals not classed elsewhere.",
+      "tags": []
+    },
+    "philosophy_psychology_religion": {
+      "label": "Philosophy, psychology, religion",
+      "lcc_letter": "B",
+      "description": "Philosophy, psychology, religion — all of LCC class B without splits. Subdiscipline lives in the call number (BJ ethics, BF psychology, BL–BX religion subclasses).",
       "tags": [
         "Stoicism",
         "Ethics",
@@ -23,50 +46,133 @@
         "Critical thinking",
         "Philosophy of mind",
         "Philosophy of science",
-        "Ancient philosophy"
-      ]
-    },
-    "religion": {
-      "label": "Religion & spirituality",
-      "lcc_prefixes": [
-        "BL",
-        "BM",
-        "BP",
-        "BQ",
-        "BR",
-        "BS",
-        "BT",
-        "BV",
-        "BX"
-      ],
-      "tags": [
+        "Ancient philosophy",
         "Atheism",
         "Buddhism",
         "Comparative religion",
         "Sacred texts",
-        "Spirituality"
-      ]
-    },
-    "psychology": {
-      "label": "Psychology",
-      "lcc_prefixes": [
-        "BF"
-      ],
-      "tags": [
+        "Spirituality",
         "Behavioral psychology",
         "Addiction",
         "Neuroscience",
         "Self-improvement"
       ]
     },
-    "literature": {
-      "label": "Literature",
-      "lcc_prefixes": [
-        "PN",
-        "PQ",
-        "PR",
-        "PS"
-      ],
+    "auxiliary_history": {
+      "label": "Auxiliary sciences of history",
+      "lcc_letter": "C",
+      "description": "Auxiliary sciences of history — biography (CT), genealogy, archaeology, archives, chronology. Biography lives here as a subclass of C, NOT as a separate domain.",
+      "tags": [
+        "Literary biography",
+        "Beat biography",
+        "Music biography",
+        "Political memoir",
+        "Personal memoir",
+        "Intellectual biography"
+      ]
+    },
+    "world_history": {
+      "label": "World history",
+      "lcc_letter": "D",
+      "description": "World history excluding the Americas. British, European, Asian, African, ancient and medieval history.",
+      "tags": [
+        "British history",
+        "World history",
+        "Cultural history",
+        "Exploration"
+      ]
+    },
+    "american_history": {
+      "label": "History of the Americas (general)",
+      "lcc_letter": "E",
+      "description": "History of the Americas as a whole and the United States in particular. North America, Indigenous Americas, US national history.",
+      "tags": [
+        "American history",
+        "Counterculture"
+      ]
+    },
+    "local_american_history": {
+      "label": "Local history of the Americas",
+      "lcc_letter": "F",
+      "description": "Local history of the Americas — US states, Canada, Mexico, Central / South America at the regional or municipal level.",
+      "tags": []
+    },
+    "geography_recreation": {
+      "label": "Geography, anthropology, recreation",
+      "lcc_letter": "G",
+      "description": "Geography, anthropology, recreation, sports, dance, customs, manners. LCC G + GV.",
+      "tags": []
+    },
+    "social_sciences": {
+      "label": "Social sciences",
+      "lcc_letter": "H",
+      "description": "Social sciences — sociology, economics, statistics, social pathology, demography, social criticism.",
+      "tags": [
+        "Drugs",
+        "Identity & tribalism",
+        "Social criticism"
+      ]
+    },
+    "political_science": {
+      "label": "Political science",
+      "lcc_letter": "J",
+      "description": "Political science — political theory, government, public administration, civil rights, international relations.",
+      "tags": [
+        "Civil liberties",
+        "Free speech",
+        "Protest & activism"
+      ]
+    },
+    "law": {
+      "label": "Law",
+      "lcc_letter": "K",
+      "description": "Law — international, national, comparative; legal theory, case studies, legal history.",
+      "tags": [
+        "Constitutional law",
+        "Criminal law",
+        "International law",
+        "Legal theory",
+        "Case studies",
+        "Legal reference"
+      ]
+    },
+    "education": {
+      "label": "Education",
+      "lcc_letter": "L",
+      "description": "Education — theory, practice, history of education, pedagogy, curriculum design.",
+      "tags": [
+        "Educational theory",
+        "Pedagogy",
+        "Curriculum",
+        "History of education",
+        "Educational psychology",
+        "Reference"
+      ]
+    },
+    "music": {
+      "label": "Music",
+      "lcc_letter": "M",
+      "description": "Music — scores, performance, theory, history, criticism. LCC M (music itself) + ML (literature about music) + MT (instruction).",
+      "tags": [
+        "Music"
+      ]
+    },
+    "fine_arts": {
+      "label": "Fine arts",
+      "lcc_letter": "N",
+      "description": "Fine arts — visual arts, architecture, sculpture, drawing, painting, photography. Plus the legacy arts_culture catchalls (sports, dance, travel, humor) the user may want to relocate later.",
+      "tags": [
+        "Sports",
+        "Comedy & humor",
+        "Dance",
+        "Visual culture",
+        "Travel"
+      ]
+    },
+    "language_literature": {
+      "label": "Language and literature",
+      "lcc_letter": "P",
+      "description": "Language and literature — philology, linguistics, world literatures of all national traditions. LCC class P without splits. The call number identifies the language family (PA Greek/Latin, PE English, PQ Romance, PR English literature, PS American literature, PJ–PM Asian/African).",
       "tags": [
         "Poetry",
         "American poetry",
@@ -82,52 +188,45 @@
         "Anthology",
         "Harlem Renaissance",
         "French literature",
-        "language"
-      ]
-    },
-    "language": {
-      "label": "Language & linguistics",
-      "lcc_prefixes": [
-        "P1",
-        "PA",
-        "PE",
-        "PF",
-        "PG",
-        "PH",
-        "PJ",
-        "PK",
-        "PL",
-        "PM"
-      ],
-      "tags": [
         "Linguistics",
         "Etymology",
         "History of language"
       ]
     },
-    "history": {
-      "label": "History",
-      "lcc_prefixes": [
-        "C",
-        "D",
-        "E",
-        "F"
-      ],
+    "science": {
+      "label": "Science",
+      "lcc_letter": "Q",
+      "description": "Science — mathematics, astronomy, physics, chemistry, geology, natural history, biology, zoology, botany, microbiology.",
       "tags": [
-        "American history",
-        "British history",
-        "World history",
-        "Cultural history",
-        "Counterculture",
-        "Exploration"
+        "Evolution",
+        "Mathematics",
+        "Complexity & systems",
+        "Nature writing"
       ]
     },
-    "media_tech": {
-      "label": "Media, technology & information",
-      "lcc_prefixes": [
-        "TK",
-        "T1"
-      ],
+    "medicine": {
+      "label": "Medicine",
+      "lcc_letter": "R",
+      "description": "Medicine — clinical, public health, nursing, pharmacology, anatomy, physiology, pathology.",
+      "tags": [
+        "Clinical reference",
+        "Medical history",
+        "Public health",
+        "Anatomy & physiology",
+        "Pharmacology",
+        "Patient care"
+      ]
+    },
+    "agriculture": {
+      "label": "Agriculture",
+      "lcc_letter": "S",
+      "description": "Agriculture — farming, animal husbandry, forestry, fisheries, hunting, food science.",
+      "tags": []
+    },
+    "technology": {
+      "label": "Technology",
+      "lcc_letter": "T",
+      "description": "Technology — engineering, computing, manufacturing, communications, transportation, environmental tech, home economics. LCC T as a whole.",
       "tags": [
         "Media literacy",
         "Disinformation",
@@ -137,83 +236,31 @@
         "Cybersecurity"
       ]
     },
-    "social_political": {
-      "label": "Social & political",
-      "lcc_prefixes": [
-        "H",
-        "J",
-        "K"
-      ],
-      "tags": [
-        "Civil liberties",
-        "Drugs",
-        "Free speech",
-        "Identity & tribalism",
-        "Protest & activism",
-        "Social criticism"
-      ]
+    "military_science": {
+      "label": "Military science",
+      "lcc_letter": "U",
+      "description": "Military science — strategy, tactics, military history (when classed primarily as military rather than national history), military organization.",
+      "tags": []
     },
-    "science": {
-      "label": "Science & mathematics",
-      "lcc_prefixes": [
-        "Q"
-      ],
-      "tags": [
-        "Evolution",
-        "Mathematics",
-        "Complexity & systems",
-        "Nature writing"
-      ]
-    },
-    "biography": {
-      "label": "Biography & memoir",
-      "lcc_prefixes": [
-        "CT"
-      ],
-      "tags": [
-        "Literary biography",
-        "Beat biography",
-        "Music biography",
-        "Political memoir",
-        "Personal memoir",
-        "Intellectual biography"
-      ]
-    },
-    "arts_culture": {
-      "label": "Arts & culture",
-      "lcc_prefixes": [
-        "GV",
-        "ML",
-        "N"
-      ],
-      "tags": [
-        "Music",
-        "Sports",
-        "Comedy & humor",
-        "Dance",
-        "Visual culture",
-        "Travel"
-      ]
+    "naval_science": {
+      "label": "Naval science",
+      "lcc_letter": "V",
+      "description": "Naval science — naval strategy, naval history, navigation, maritime topics classed as naval.",
+      "tags": []
     },
     "books_libraries": {
-      "label": "Books & libraries",
-      "lcc_prefixes": [
-        "Z"
-      ],
+      "label": "Bibliography, library science, information",
+      "lcc_letter": "Z",
+      "description": "Bibliography, library science, information resources. LCC class Z.",
       "tags": [
         "Library science",
         "Book culture",
         "Information science"
       ]
-    },
-    "_unclassified": {
-      "label": "Unclassified (file into correct domain during review)",
-      "lcc_prefixes": [],
-      "tags": []
     }
   },
   "form_tags": {
-    "description": "Describe the physical object or series, applied alongside genre tags. These are additive.",
+    "description": "Describe the physical object or series, applied alongside genre tags. These are additive and domain-independent.",
     "content_forms": [
       "Reference",
       "Anthology",
@@ -230,21 +277,20 @@
     ]
   },
   "inference_rules": {
-    "lcc_mapping": "The LCC code determines the primary domain. Use the first matching prefix from the domain definitions above. If the LCC prefix doesn't match any domain, infer domain from title keywords and genre tags.",
-    "multi_tag": "Most books should receive 2-4 tags. Single-tag assignments are fine for clean cases (e.g., a pure Buddhism introduction). More than 5 tags suggests over-tagging — reconsider.",
-    "cross_domain": "Books frequently cross domains. A book about music and neuroscience gets tags from both Arts & culture and Psychology. Do not force a single domain.",
+    "lcc_mapping": "The first letter of the LCC call number IS the domain. No second-letter inspection, no special cases. If the LCC is missing, the book defaults to general_works (A) — the user re-files via Review.",
+    "multi_tag": "Most books should receive 2-4 tags. Single-tag assignments are fine for clean cases. More than 5 tags suggests over-tagging.",
+    "cross_domain": "Books frequently cross domains. A book about music and neuroscience gets tags from both music and philosophy_psychology_religion. Do not force a single domain.",
     "author_knowledge": "Use knowledge of the author's intellectual identity to infer tags that metadata alone cannot provide. Examples: Sam Harris → Atheism; Kerouac → Counterculture; Oliver Sacks → Neuroscience. Only apply when the association is strong and well-known.",
-    "title_parsing": "Subtitles are rich signals. 'A Field Guide to...' → How-to / guide. 'A History of...' → Cultural history or relevant history tag. 'A Memoir' → Personal memoir.",
-    "fiction_nonfiction": "Fiction is a genre tag within the Literature domain. Do not create a separate Fiction/Nonfiction domain. Novels get 'Fiction' plus any relevant thematic tags (Existentialism, Counterculture, etc.).",
-    "form_tags_independent": "Form tags describe the object, not the content. A signed first edition of a Buddhism book gets 'Buddhism' + 'First edition' + 'Signed'. The form tags do not change based on subject.",
-    "new_tag_proposal": "If no existing tag fits, propose a new one. Format: '[Proposed] Tag name'. The reviewer approves or renames. Once approved, it is automatically added to the vocabulary JSON by the approve command.",
-    "vocabulary_growth": "The tag vocabulary is a living document. The _unclassified domain in the JSON holds newly approved tags that haven't been filed into a domain yet. Periodically review _unclassified and move tags to the correct domain, or create new domains as the collection grows.",
-    "publisher_check": "Only apply series form tags (Penguin Classics, Portable Library) when confirmed by publisher data. Do not infer from LCC code or genre.",
-    "fallback": "If LCC code is missing and no genre tags exist, rely on title + author + publisher. Flag confidence as LOW in the output."
+    "title_parsing": "Subtitles are rich signals. 'A Field Guide to...' → How-to / guide. 'A History of...' → relevant history domain. 'A Memoir' → Personal memoir.",
+    "form_tags_independent": "Form tags describe the object, not the content. A signed first edition of any book gets 'First edition' + 'Signed'.",
+    "new_tag_proposal": "If no existing tag fits, propose a new one prefixed '[Proposed] '. The reviewer approves or renames. Once approved, it lands in the right domain's tag list automatically.",
+    "open_world_taxonomy": "The 21 domains are FIXED — they mirror LCC's top-level class letters and never expand or contract. Tags within each domain are open-world and grow organically via [Proposed] tag promotion as the user catalogs books in that domain.",
+    "publisher_check": "Only apply series form tags (Penguin Classics, Portable Library) when confirmed by publisher data.",
+    "fallback": "If LCC code is missing AND no genre tags exist, rely on title + author + publisher. Flag confidence as LOW. Domain defaults to general_works."
   },
   "confidence_levels": {
     "HIGH": "LCC code matches, multiple metadata signals agree, author is well-known",
-    "MEDIUM": "Some metadata signals present but incomplete — e.g., genre tags exist but no LCC, or LCC exists but no subject headings",
-    "LOW": "Minimal metadata — relying primarily on title parsing and author knowledge. Needs human review."
+    "MEDIUM": "Some metadata signals present but incomplete",
+    "LOW": "Minimal metadata — relying primarily on title parsing and author knowledge"
   }
 }

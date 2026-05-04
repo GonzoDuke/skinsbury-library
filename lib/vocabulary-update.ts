@@ -1,4 +1,4 @@
-import { VOCAB, domainForTag, type DomainKey } from './tag-domains';
+import { VOCAB, domainForLcc, domainForTag, type DomainKey } from './tag-domains';
 import type { BookRecord } from './types';
 
 export interface ProposedTagPromotion {
@@ -50,19 +50,9 @@ export function findProposedTagsToPromote(books: BookRecord[]): ProposedTagPromo
 }
 
 function inferDomainForTag(book: BookRecord): DomainKey {
-  // 1) LCC prefix match — most reliable when available.
+  // 1) LCC class-letter match — first letter of LCC IS the domain.
   if (book.lcc) {
-    const lccPrefix = book.lcc
-      .toUpperCase()
-      .match(/^[A-Z]{1,3}/)?.[0];
-    if (lccPrefix) {
-      for (const [key, def] of Object.entries(VOCAB.domains) as [DomainKey, typeof VOCAB.domains[DomainKey]][]) {
-        if (key === '_unclassified') continue;
-        for (const prefix of def.lcc_prefixes) {
-          if (lccPrefix.startsWith(prefix)) return key;
-        }
-      }
-    }
+    return domainForLcc(book.lcc);
   }
 
   // 2) Majority vote of the book's existing (non-proposed) tags.
@@ -70,7 +60,7 @@ function inferDomainForTag(book: BookRecord): DomainKey {
   for (const t of book.genreTags) {
     if (/^\[Proposed\]/i.test(t)) continue;
     const d = domainForTag(t);
-    if (d && d !== '_unclassified') counts.set(d, (counts.get(d) ?? 0) + 1);
+    if (d) counts.set(d, (counts.get(d) ?? 0) + 1);
   }
   let best: DomainKey | null = null;
   let bestCount = 0;
@@ -82,8 +72,8 @@ function inferDomainForTag(book: BookRecord): DomainKey {
   }
   if (best) return best;
 
-  // 3) Fallback.
-  return '_unclassified';
+  // 3) Fallback to general_works (the LCC A catchall).
+  return 'general_works';
 }
 
 /**

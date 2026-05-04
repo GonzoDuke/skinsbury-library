@@ -30,7 +30,7 @@ import vocabSeed from '@/lib/tag-vocabulary.json';
 interface VocabShape {
   domains: Record<
     DomainKey,
-    { label: string; lcc_prefixes: string[]; tags: string[] }
+    { label: string; lcc_letter: string; description?: string; tags: string[] }
   >;
   form_tags: { content_forms: string[]; series: string[]; collectible: string[] };
   updated?: string;
@@ -45,9 +45,7 @@ interface ChangelogEntry {
   source?: string;
 }
 
-const DOMAIN_KEYS: DomainKey[] = (Object.keys(VOCAB.domains) as DomainKey[]).filter(
-  (k) => k !== '_unclassified'
-);
+const DOMAIN_KEYS: DomainKey[] = Object.keys(VOCAB.domains) as DomainKey[];
 
 /**
  * Order DOMAIN_KEYS by the human-readable label of each domain. The
@@ -857,6 +855,11 @@ function DomainPill({
   active: boolean;
   onClick: () => void;
 }) {
+  // Empty domains are de-emphasized but never hidden — the user must
+  // always see the full 21-class taxonomy, not just the subset their
+  // collection happens to fill. Lower opacity + smaller text + a
+  // sentinel "—" count when zero.
+  const isEmpty = count === 0;
   return (
     <button
       type="button"
@@ -864,16 +867,16 @@ function DomainPill({
       className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] transition border ${
         active
           ? 'bg-navy text-white border-navy font-medium'
-          : 'bg-surface-card text-text-secondary border-line'
+          : `bg-surface-card text-text-secondary border-line ${isEmpty ? 'opacity-55' : ''}`
       }`}
     >
-      <span>{label}</span>
+      <span className={isEmpty && !active ? 'text-[11px]' : ''}>{label}</span>
       <span
         className={`text-[10px] font-mono ${
           active ? 'text-white/75' : 'text-text-quaternary'
         }`}
       >
-        {count}
+        {isEmpty ? '—' : count}
       </span>
     </button>
   );
@@ -890,6 +893,11 @@ function DomainRow({
   active: boolean;
   onClick: () => void;
 }) {
+  // Empty domains stay visible — clickable, with a "—" sentinel and
+  // softened color treatment — so the user always sees the full
+  // 21-class taxonomy. Clicking an empty domain reveals an empty
+  // state on the right pane (rendered by the body, not here).
+  const isEmpty = count === 0;
   return (
     <button
       type="button"
@@ -897,7 +905,7 @@ function DomainRow({
       className={`w-full flex items-center justify-between text-left px-3 py-[7px] text-[13px] transition ${
         active
           ? 'bg-navy-soft text-navy font-medium border-l-2 border-l-navy'
-          : 'text-text-secondary hover:bg-surface-card-hover border-l-2 border-l-transparent'
+          : `text-text-secondary hover:bg-surface-card-hover border-l-2 border-l-transparent ${isEmpty ? 'opacity-55' : ''}`
       }`}
     >
       <span>{label}</span>
@@ -906,7 +914,7 @@ function DomainRow({
           active ? 'text-navy' : 'text-text-quaternary'
         }`}
       >
-        {count}
+        {isEmpty ? '—' : count}
       </span>
     </button>
   );

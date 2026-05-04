@@ -95,19 +95,32 @@ const config: Config = {
         tartan: '#B83232',             // dark-mode reject — now red
         marble: '#F6F6F4',             // page background — new neutral
         limestone: '#FFFFFF',          // card surface — now white
-        // ---- Tag domain colors (slightly muted v3 set) ------------------
-        philosophy: { bg: '#EEF0FF', fg: '#4547A9' },
-        religion: { bg: '#E6F5EE', fg: '#1A6B45' },
-        psychology: { bg: '#FFF0F0', fg: '#A33030' },
-        literature: { bg: '#E8F2FC', fg: '#2A5F9E' },
-        language: { bg: '#FFF6E0', fg: '#7A5B14' },
-        history: { bg: '#FFF0E8', fg: '#8B3A1D' },
-        media_tech: { bg: '#F0F0EC', fg: '#4A4840' },
-        social_political: { bg: '#EEF6E6', fg: '#3A6B1A' },
-        science: { bg: '#E8F2FC', fg: '#2A5F9E' },
-        biography: { bg: '#EEF0FF', fg: '#4547A9' },
-        arts_culture: { bg: '#FFF0E8', fg: '#8B3A1D' },
-        books_libraries: { bg: '#F0F0EC', fg: '#4A4840' },
+        // ---- Tag domain colors (21-class LCC-aligned palette) -----------
+        // Each domain corresponds to one LCC top-level class letter.
+        // The bg is a soft tint, the fg is the saturated version used
+        // for text + dark-mode swap. Empty domains use the same colors;
+        // the UI applies opacity / scale to indicate emptiness.
+        general_works: { bg: '#EFEFEF', fg: '#5C5C5C' },             // A — neutral gray (catchall)
+        philosophy_psychology_religion: { bg: '#EEF0FF', fg: '#4547A9' }, // B — indigo (was philosophy)
+        auxiliary_history: { bg: '#F2EBE3', fg: '#6B4D2E' },         // C — muted brown (incl. CT biography)
+        world_history: { bg: '#FFF0E8', fg: '#8B3A1D' },             // D — red-brown (was history)
+        american_history: { bg: '#FFE5DD', fg: '#A03517' },          // E — bright russet
+        local_american_history: { bg: '#F5E2D8', fg: '#8A4F38' },    // F — muted russet
+        geography_recreation: { bg: '#E5EDDA', fg: '#44663B' },      // G — forest green
+        social_sciences: { bg: '#EEF6E6', fg: '#3A6B1A' },           // H — leaf green (was social_political)
+        political_science: { bg: '#D9E6CC', fg: '#294E18' },         // J — deeper green
+        law: { bg: '#E2E5EC', fg: '#3A4A6B' },                       // K — slate
+        education: { bg: '#FAF1D9', fg: '#8C6A1A' },                 // L — warm tan
+        music: { bg: '#FBE6EE', fg: '#A33D5E' },                     // M — rose
+        fine_arts: { bg: '#FFEEE2', fg: '#B05030' },                 // N — terracotta (distinct from world_history)
+        language_literature: { bg: '#E8F2FC', fg: '#2A5F9E' },       // P — blue (was literature)
+        science: { bg: '#E0EAF7', fg: '#1F4F87' },                   // Q — denim (slightly distinct from P)
+        medicine: { bg: '#E0F0EC', fg: '#2D6E60' },                  // R — clinical teal
+        agriculture: { bg: '#E0E5D0', fg: '#4F5C24' },               // S — sage
+        technology: { bg: '#F0F0EC', fg: '#4A4840' },                // T — graphite (was media_tech)
+        military_science: { bg: '#E5E0BF', fg: '#6F6427' },          // U — olive
+        naval_science: { bg: '#DDE5F0', fg: '#2D4A6B' },             // V — navy (distinct from law's slate)
+        books_libraries: { bg: '#F2EFE2', fg: '#6B5E3D' },           // Z — beige (distinct from technology)
         gold: { bg: '#FFF6E0', fg: '#7A5B14' },
       },
       fontFamily: {

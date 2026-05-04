@@ -47,7 +47,7 @@ function renderDomainVocabulary(domain: DomainKey): string {
   if (entry.tags.length === 0) {
     return `(no tags defined yet for ${entry.label} — propose new tags as needed with the [Proposed] prefix)`;
   }
-  return `**${entry.label}** (LCC prefixes: ${entry.lcc_prefixes.join(', ') || 'none'})\nTags: ${entry.tags.join(', ')}`;
+  return `**${entry.label}** (LCC class letter: ${entry.lcc_letter || '—'})\nTags: ${entry.tags.join(', ') || '(none yet — propose new tags as needed with the [Proposed] prefix)'}`;
 }
 
 function renderFormVocabulary(): string {
@@ -291,7 +291,6 @@ function parseDomainResponse(parsed: unknown): { domains: DomainPick[]; reasonin
         const dd = d as { domain?: unknown; confidence?: unknown };
         const domain = typeof dd.domain === 'string' ? (dd.domain.toLowerCase() as DomainKey) : null;
         if (!domain || !VALID_DOMAINS.has(domain)) continue;
-        if (domain === '_unclassified') continue; // never useful as a tagging anchor
         const confidence =
           dd.confidence === 'HIGH' || dd.confidence === 'MEDIUM' || dd.confidence === 'LOW'
             ? dd.confidence

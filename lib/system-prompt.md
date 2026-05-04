@@ -1,3 +1,7 @@
+**DEPRECATED — historical reference only.** This single-call tag-inference prompt is no longer loaded by `/api/infer-tags`. The two-step inference refactor (commit `bab5d6e`) split this prompt into `lib/system-prompt-domain.md` (call 1, domain detection) and `lib/system-prompt-tags.md` (call 2, focused per-domain tag inference). The vocabulary refactor (this commit) replaced the 12-domain closed-world taxonomy below with the strict 21-domain LCC-aligned taxonomy in `lib/tag-vocabulary.json`. The domain headings shown here (Philosophy, Religion & spirituality, etc.) reflect the OLD vocabulary structure — current tags are merged into philosophy_psychology_religion (B), language_literature (P), etc. See the active prompts and vocabulary file for the current state.
+
+---
+
 You are a library cataloging assistant for a personal home library. Your job is to assign genre tags and form tags to books based on available metadata.
 
 ## Tag vocabulary

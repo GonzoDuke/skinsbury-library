@@ -9,19 +9,27 @@ import {
 } from '@/lib/tag-domains';
 
 const DOMAIN_CLASSES: Record<DomainKey, string> = {
-  philosophy: 'bg-philosophy-bg text-philosophy-fg dark:bg-philosophy-fg/45 dark:text-philosophy-bg',
-  religion: 'bg-religion-bg text-religion-fg dark:bg-religion-fg/45 dark:text-religion-bg',
-  psychology: 'bg-psychology-bg text-psychology-fg dark:bg-psychology-fg/45 dark:text-psychology-bg',
-  literature: 'bg-literature-bg text-literature-fg dark:bg-literature-fg/45 dark:text-literature-bg',
-  language: 'bg-language-bg text-language-fg dark:bg-language-fg/45 dark:text-language-bg',
-  history: 'bg-history-bg text-history-fg dark:bg-history-fg/45 dark:text-history-bg',
-  media_tech: 'bg-media_tech-bg text-media_tech-fg dark:bg-media_tech-fg/45 dark:text-media_tech-bg',
-  social_political: 'bg-social_political-bg text-social_political-fg dark:bg-social_political-fg/45 dark:text-social_political-bg',
+  general_works: 'bg-general_works-bg text-general_works-fg dark:bg-general_works-fg/45 dark:text-general_works-bg',
+  philosophy_psychology_religion: 'bg-philosophy_psychology_religion-bg text-philosophy_psychology_religion-fg dark:bg-philosophy_psychology_religion-fg/45 dark:text-philosophy_psychology_religion-bg',
+  auxiliary_history: 'bg-auxiliary_history-bg text-auxiliary_history-fg dark:bg-auxiliary_history-fg/45 dark:text-auxiliary_history-bg',
+  world_history: 'bg-world_history-bg text-world_history-fg dark:bg-world_history-fg/45 dark:text-world_history-bg',
+  american_history: 'bg-american_history-bg text-american_history-fg dark:bg-american_history-fg/45 dark:text-american_history-bg',
+  local_american_history: 'bg-local_american_history-bg text-local_american_history-fg dark:bg-local_american_history-fg/45 dark:text-local_american_history-bg',
+  geography_recreation: 'bg-geography_recreation-bg text-geography_recreation-fg dark:bg-geography_recreation-fg/45 dark:text-geography_recreation-bg',
+  social_sciences: 'bg-social_sciences-bg text-social_sciences-fg dark:bg-social_sciences-fg/45 dark:text-social_sciences-bg',
+  political_science: 'bg-political_science-bg text-political_science-fg dark:bg-political_science-fg/45 dark:text-political_science-bg',
+  law: 'bg-law-bg text-law-fg dark:bg-law-fg/45 dark:text-law-bg',
+  education: 'bg-education-bg text-education-fg dark:bg-education-fg/45 dark:text-education-bg',
+  music: 'bg-music-bg text-music-fg dark:bg-music-fg/45 dark:text-music-bg',
+  fine_arts: 'bg-fine_arts-bg text-fine_arts-fg dark:bg-fine_arts-fg/45 dark:text-fine_arts-bg',
+  language_literature: 'bg-language_literature-bg text-language_literature-fg dark:bg-language_literature-fg/45 dark:text-language_literature-bg',
   science: 'bg-science-bg text-science-fg dark:bg-science-fg/45 dark:text-science-bg',
-  biography: 'bg-biography-bg text-biography-fg dark:bg-biography-fg/45 dark:text-biography-bg',
-  arts_culture: 'bg-arts_culture-bg text-arts_culture-fg dark:bg-arts_culture-fg/45 dark:text-arts_culture-bg',
+  medicine: 'bg-medicine-bg text-medicine-fg dark:bg-medicine-fg/45 dark:text-medicine-bg',
+  agriculture: 'bg-agriculture-bg text-agriculture-fg dark:bg-agriculture-fg/45 dark:text-agriculture-bg',
+  technology: 'bg-technology-bg text-technology-fg dark:bg-technology-fg/45 dark:text-technology-bg',
+  military_science: 'bg-military_science-bg text-military_science-fg dark:bg-military_science-fg/45 dark:text-military_science-bg',
+  naval_science: 'bg-naval_science-bg text-naval_science-fg dark:bg-naval_science-fg/45 dark:text-naval_science-bg',
   books_libraries: 'bg-books_libraries-bg text-books_libraries-fg dark:bg-books_libraries-fg/45 dark:text-books_libraries-bg',
-  _unclassified: 'bg-cream-200 text-ink dark:bg-ink-soft dark:text-cream-200',
 };
 
 const FORM_CLASSES: Record<FormCategory, string> = {
@@ -42,7 +50,7 @@ export function TagChip({ tag, variant, onRemove, size = 'md' }: TagChipProps) {
   const proposed = isProposedTag(tag);
   let classes = '';
   if (variant === 'genre') {
-    const domain = domainForTag(tag) ?? '_unclassified';
+    const domain = domainForTag(tag) ?? 'general_works';
     classes = DOMAIN_CLASSES[domain];
   } else {
     const cat = formCategory(tag) ?? 'content';

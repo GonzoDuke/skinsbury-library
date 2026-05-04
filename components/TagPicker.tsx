@@ -136,30 +136,48 @@ export function TagPicker({ variant, existing, onAdd, onClose }: TagPickerProps)
 
         {variant === 'genre' &&
           (Object.keys(VOCAB.domains) as Array<keyof typeof VOCAB.domains>)
-            .filter((k) => k !== '_unclassified')
             .map((dKey) => {
               const domain = VOCAB.domains[dKey];
               const matches = filteredGenre.filter((g) => g.domain === dKey);
-              if (matches.length === 0) return null;
+              const totalDomainTags = domain.tags.length;
+              const isEmpty = totalDomainTags === 0;
+              // When a search query is active, suppress empty / non-matching
+              // domains so the picker stays tight. Empty-domain visibility
+              // matters in the unfiltered "browse" state — all 21 domains
+              // present, the empty ones de-emphasized — but a search for
+              // "buddh" shouldn't dump 14 empty rows below the hit.
+              if (matches.length === 0 && trimmed) return null;
+              if (matches.length === 0 && !isEmpty) return null;
               return (
-                <div key={String(dKey)}>
-                  <div className="text-[10px] uppercase tracking-wider font-semibold text-ink/50 dark:text-cream-300/50 mb-1 px-1">
-                    {domain.label}
+                <div key={String(dKey)} className={isEmpty ? 'opacity-50' : ''}>
+                  <div className="text-[10px] uppercase tracking-wider font-semibold text-ink/50 dark:text-cream-300/50 mb-1 px-1 flex items-center gap-1.5">
+                    <span>{domain.label}</span>
+                    {isEmpty && (
+                      <span className="text-[9px] font-mono text-ink/40 dark:text-cream-300/40 lowercase tracking-tight normal-case">
+                        — 0 tags
+                      </span>
+                    )}
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {matches.map((g) => (
-                      <button
-                        key={g.tag}
-                        onClick={() => {
-                          onAdd(g.tag);
-                          onClose();
-                        }}
-                        className="text-xs px-2 py-1 rounded-full bg-cream-100 dark:bg-ink hover:bg-accent-soft dark:hover:bg-accent/30 transition"
-                      >
-                        {g.tag}
-                      </button>
-                    ))}
-                  </div>
+                  {isEmpty ? (
+                    <div className="text-[11px] italic text-ink/40 dark:text-cream-300/40 px-1">
+                      No tags yet — propose one with the new-tag input below.
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {matches.map((g) => (
+                        <button
+                          key={g.tag}
+                          onClick={() => {
+                            onAdd(g.tag);
+                            onClose();
+                          }}
+                          className="text-xs px-2 py-1 rounded-full bg-cream-100 dark:bg-ink hover:bg-accent-soft dark:hover:bg-accent/30 transition"
+                        >
+                          {g.tag}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}

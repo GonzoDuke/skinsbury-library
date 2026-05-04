@@ -8,7 +8,7 @@ import { MobileBookCard } from '@/components/MobileBookCard';
 import { DebugErrorBoundary } from '@/components/DebugErrorBoundary';
 import { SpineSelector } from '@/components/SpineSelector';
 import { useStore } from '@/lib/store';
-import { VOCAB, type DomainKey } from '@/lib/tag-domains';
+import { VOCAB, domainForLcc, type DomainKey } from '@/lib/tag-domains';
 import type { PhotoBatch } from '@/lib/types';
 import { flagIfPreviouslyExported, syncLedgerFromRepo } from '@/lib/export-ledger';
 import { confirmDiscardSession } from '@/lib/session';
@@ -116,10 +116,8 @@ export default function ReviewPage() {
   }
 
   function bookMatchesDomain(bookLcc: string, domainKey: DomainKey): boolean {
-    if (!bookLcc || domainKey === '_unclassified') return false;
-    const prefix = bookLcc.toUpperCase().match(/^[A-Z]{1,3}/)?.[0];
-    if (!prefix) return false;
-    return VOCAB.domains[domainKey].lcc_prefixes.some((p) => prefix.startsWith(p));
+    if (!bookLcc) return false;
+    return domainForLcc(bookLcc) === domainKey;
   }
 
   const counts = useMemo(() => {
@@ -384,7 +382,6 @@ export default function ReviewPage() {
           {retagDomainOpen && (
             <div className="absolute right-0 top-full mt-1 z-20 w-72 bg-cream-50 border border-cream-300 dark:border-ink-soft rounded-md shadow-lg p-2 space-y-0.5">
               {(Object.entries(VOCAB.domains) as [DomainKey, typeof VOCAB.domains[DomainKey]][])
-                .filter(([k]) => k !== '_unclassified')
                 .map(([key, def]) => {
                   const matchingIds = state.allBooks
                     .filter((b) => bookMatchesDomain(b.lcc, key))

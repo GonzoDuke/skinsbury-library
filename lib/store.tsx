@@ -23,7 +23,8 @@ import {
 } from './pipeline';
 import { toTitleCase } from './csv-export';
 import { flagIfPreviouslyExported, loadLedger, syncLedgerFromRepo } from './export-ledger';
-import { syncCorrectionsFromRepo } from './corrections-log';
+import { syncCorrectionsFromRepo, loadCorrections, setCorrectionsCache } from './corrections-log';
+import { migrateLegacyDomain } from './tag-domains';
 import {
   deletePendingBatchFromRepo,
   pushBatchToRepo,
@@ -102,6 +103,20 @@ function sanitizeBook<
     formTags: toStringArr(book.formTags),
     duplicateOf: Array.isArray(book.duplicateOf)
       ? book.duplicateOf.map(toIntSafe).filter((n) => n > 0)
+      : undefined,
+    // v2 vocabulary migration: inferredDomains may contain legacy
+    // schema-1.0 keys (philosophy, religion, biography, etc.). Translate
+    // to current keys at hydration so downstream UI never sees a stale
+    // domain string. migrateLegacyDomain returns the input unchanged if
+    // it's already a valid current key.
+    inferredDomains: Array.isArray(book.inferredDomains)
+      ? Array.from(
+          new Set(
+            book.inferredDomains
+              .filter((d): d is string => typeof d === 'string')
+              .map((d) => migrateLegacyDomain(d))
+          )
+        )
       : undefined,
     original: book.original
       ? {
@@ -551,7 +566,59 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const allBooks = Array.isArray(parsed.allBooks)
           ? parsed.allBooks.map(sanitizeBook)
           : [];
+
+        // One-time v1→v2 vocabulary migration audit. The actual
+        // translation happens inside sanitizeBook (per-book
+        // inferredDomains) and the corrections-log migration below.
+        // This loop just summarizes the routing decisions for the
+        // dev console so a returning user can sanity-check the
+        // migration without diffing localStorage by hand. Idempotent:
+        // re-routing an already-current key is a no-op.
+        const routedCounts = new Map<string, number>();
+        for (const b of allBooks) {
+          if (!Array.isArray(b.inferredDomains)) continue;
+          for (const d of b.inferredDomains) {
+            const k = `${d}`;
+            routedCounts.set(k, (routedCounts.get(k) ?? 0) + 1);
+          }
+        }
+        if (routedCounts.size > 0) {
+          // eslint-disable-next-line no-console
+          console.log(
+            '[domain-migration] hydrated %d books; current-schema domain routing: %o',
+            allBooks.length,
+            Object.fromEntries(routedCounts)
+          );
+        }
+
         dispatch({ type: 'HYDRATE', batches, allBooks });
+      }
+
+      // Migrate the corrections-log too: each entry's optional `domain`
+      // field may carry a legacy schema-1.0 key. Read the cache, map
+      // each through migrateLegacyDomain, write back. Same idempotency
+      // guarantee as the BookRecord path. localStorage-only — the
+      // remote cache will pick up the new keys on the next push.
+      try {
+        const corrections = loadCorrections();
+        let migratedCount = 0;
+        const migrated = corrections.map((c) => {
+          if (!c.domain) return c;
+          const next = migrateLegacyDomain(c.domain);
+          if (next === c.domain) return c;
+          migratedCount += 1;
+          return { ...c, domain: next };
+        });
+        if (migratedCount > 0) {
+          setCorrectionsCache(migrated);
+          // eslint-disable-next-line no-console
+          console.log(
+            '[domain-migration] re-routed %d corrections-log entries to current schema',
+            migratedCount
+          );
+        }
+      } catch {
+        // ignore — corrections log is best-effort
       }
     } catch {
       // ignore — corrupt cache, fall through with empty initial state
