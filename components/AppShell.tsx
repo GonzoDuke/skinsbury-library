@@ -277,7 +277,7 @@ function SectionLabel({
   return (
     <div
       style={{
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 500,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
@@ -302,7 +302,7 @@ function NavItem({ item, active }: { item: NavItemDef; active: boolean }) {
         color: active ? SIDE_TEXT_ACTIVE : SIDE_TEXT,
         background: active ? SIDE_ACTIVE : 'transparent',
         borderLeft: `2px solid ${active ? NAVY : 'transparent'}`,
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: 500,
       }}
       onMouseEnter={(e) => {
