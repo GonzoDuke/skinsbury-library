@@ -1,0 +1,984 @@
+{
+  "id": "eeeaed30-b84a-451b-9c02-62108bb25fe4",
+  "filename": "shelf-capture-001.jpg",
+  "fileSize": 1833423,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 12,
+  "booksIdentified": 12,
+  "books": [
+    {
+      "id": "8be9a2ce-8259-4f13-a2e2-4e82959697a3",
+      "spineRead": {
+        "position": 1,
+        "rawText": "HISTORY AS ART, ART AS HISTORY",
+        "title": "HISTORY AS ART, ART AS HISTORY",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Red spine with white text reading 'HISTORY AS ART, ART AS HISTORY'. Author not visible/legible.",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        }
+      },
+      "title": "History as Art, Art as History : Contemporary Art and Social Studies Education",
+      "author": "Dipti Desai",
+      "authorLF": "Desai, Dipti",
+      "isbn": "9780415993760",
+      "publisher": "Routledge",
+      "publicationYear": 2009,
+      "lcc": "N380 .D47 2009",
+      "genreTags": [
+        "[Proposed] Art history",
+        "[Proposed] Art education",
+        "Educational theory",
+        "Pedagogy"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[fine_arts] LCC N380 places this in art education/study and teaching. Subject headings confirm focus on art education, teaching methods, and the relationship between art and history. The title and subjects clearly indicate this is about art historical pedagogy and educational approaches. | [education] Subject headings explicitly mention 'Study and teaching', 'Art, study and teaching', and 'Critical pedagogy', clearly indicating this is about educational methods and theory. The focus on teaching art and history places it squarely in pedagogy within the Education domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "fine_arts",
+        "education"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780415993760-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "History as art, art as history : contemporary art and social studies education",
+      "allAuthors": [
+        "Dipti Desai"
+      ],
+      "pageCount": 288,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780415993760-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "History as Art, Art as History : Contemporary Art and Social Studies Education",
+        "author": "Dipti Desai",
+        "isbn": "9780415993760",
+        "publisher": "Routledge",
+        "publicationYear": 2009,
+        "lcc": "N380 .D47 2009",
+        "genreTags": [
+          "[Proposed] Art history",
+          "[Proposed] Art education",
+          "Educational theory",
+          "Pedagogy"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "4eb9eec9-c71f-4ef0-9533-4887fe4d7738",
+      "spineRead": {
+        "position": 2,
+        "rawText": "History as Art, Art as History — Desai, Hamlin, and Mattson",
+        "title": "History as Art, Art as History",
+        "author": "Desai, Hamlin, and Mattson",
+        "publisher": "",
+        "lcc": "N380 .D47 2010",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 8,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        "extractedCallNumber": "N 380 D47 2010",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "History as Art, Art as History",
+      "author": "Dipti Desai",
+      "authorLF": "Desai, Dipti; Hamlin, Jessica; Mattson, Rachel",
+      "isbn": "9781135203788",
+      "publisher": "Taylor & Francis",
+      "publicationYear": 2009,
+      "lcc": "N 380 D47 2010",
+      "genreTags": [
+        "Visual culture",
+        "Curriculum",
+        "Pedagogy"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[fine_arts] LCC N 380 places this in art education/instruction. The synopsis clearly describes it as a 'teaching toolkit' providing pedagogical methods, making it definitively a How-to/guide. Visual culture fits as it focuses on understanding visual culture through contemporary art. | [education] The book is explicitly described as an 'interdisciplinary teaching toolkit' and 'pedagogical resource' that provides methods for using art in educational settings. This clearly fits Curriculum (content of what is taught) and Pedagogy (methods of teaching). The synopsis indicating it provides methods and is a toolkit makes it a How-to / guide form.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "fine_arts",
+        "education"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781135203788-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "History as Art, Art as History",
+      "allAuthors": [
+        "Dipti Desai",
+        "Jessica Hamlin",
+        "Rachel Mattson"
+      ],
+      "synopsis": "History as Art, Art as History pioneers methods for using contemporary works of art in the social studies and art classroom to enhance an understanding of visual culture and history. The fully-illustrated interdisciplinary teaching toolkit provides an invaluable pedagogical resource—complete with theoretical background and practical suggestions for teaching U.S. history topics through close readings of both primary sources and provocative works of contemporary art. History as Art, Art as History is an experientially grounded, practically minded pedagogical investigation meant to push teachers and students to think critically without sacrificing their ability to succeed in a standards-driven educational climate. Amid the educational debate surrounding rigid, unimaginative tests, classroom scripts, and bureaucratic mandates, this innovative book insists on an alternate set of educational priorities that promotes engagement with creative and critical thinking. Features include: A thought-provoking series of framing essays and interviews with contemporary artists address the pivotal questions that arise when one attempts to think about history and contemporary visual art together. An 8-page, full color insert of contemporary art, plus over 50 black and white illustrations throughout. A Teaching Toolkit covering major themes in U.S. history provides an archive of suggested primary documents, plus discussion suggestions and activities for putting theory into practice. Teaching activities keyed to the social studies and art curricula and teaching standards Resources include annotated bibliographies for further study and lists of arts and media organizations. This sophisticated yet accessible textbook is a must-read resource for any teacher looking to draw upon visual and historical texts in their teaching and to develop innovative curriculum and meaningful student engagement.",
+      "pageCount": 288,
+      "edition": "1",
+      "binding": "ePub",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781135203788-M.jpg?default=false",
+        "https://images.isbndb.com/covers/4470203482592.jpg"
+      ],
+      "original": {
+        "title": "History as Art, Art as History",
+        "author": "Dipti Desai",
+        "isbn": "9781135203788",
+        "publisher": "Taylor & Francis",
+        "publicationYear": 2009,
+        "lcc": "N 380 D47 2010",
+        "genreTags": [
+          "Visual culture",
+          "Curriculum",
+          "Pedagogy"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "5a86e3d9-be24-41ad-bc01-fcc9bf7beb39",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Collective Wisdom — Katerina Cizek & William Uricchio",
+        "title": "Collective Wisdom",
+        "author": "Katerina Cizek & William Uricchio",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 16,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        "extractedCallNumber": "P 96 .A5 C5",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Collective Wisdom",
+      "author": "Katerina Cizek",
+      "authorLF": "Cizek, Katerina; Uricchio, William; Anderson, Juanita; Carter, Maria Agui; Age, Detriot Narrative Detriot Narrative; Cizek, Katerina; Uricchio, William",
+      "isbn": "9780262543774",
+      "publisher": "MIT Press",
+      "publicationYear": 2022,
+      "lcc": "P 96 .A5 C5",
+      "genreTags": [
+        "Writing craft",
+        "[Proposed] Media studies",
+        "[Proposed] Social justice"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P96 places this in mass communication/media studies within Language and literature. LCSH 'Mass media — Authorship' and 'Creation (Literary, artistic, etc.)' suggest writing craft elements. The 'How to co-create' opening and subtitle suggest practical guidance. DDC 808 (rhetoric/writing) supports writing craft classification. | [social_sciences] LCC P96 indicates communication/media studies within social sciences. LCSH terms 'Mass media — Authorship' and 'Social justice' directly support these tags. The subtitle 'Co-Creating Media for Equity and Justice' confirms both media focus and social justice orientation.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #3 and #4. Merge or keep both?"
+      ],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "808.06/6302",
+      "inferredDomains": [
+        "language_literature",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780262543774-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Collective Wisdom",
+      "subtitle": "Co-Creating Media for Equity and Justice",
+      "allAuthors": [
+        "Katerina Cizek",
+        "William Uricchio",
+        "Juanita Anderson",
+        "Maria Agui Carter",
+        "Detriot Narrative Detriot Narrative Age",
+        "Cizek, Katerina",
+        "Uricchio, William"
+      ],
+      "synopsis": "How to co-create—and why: the emergence of media co-creation as a concept and as a practice grounded in equity and justice. Co-creation is everywhere: It’s how the internet was built; it generated massive prehistoric rock carvings; it powered the development of vaccines for COVID-19 in record time. Co-creation offers alternatives to the idea of the solitary author privileged by top-down media. But co-creation is easy to miss, as individuals often take credit for—and profit from—collective forms of authorship, erasing whole cultures and narratives as they do so. Collective Wisdom offers the first guide to co-creation as a concept and as a practice, tracing co-creation in a media-making that ranges from collaborative journalism to human–AI partnerships. Why co-create—and why now? The many coauthors, drawing on a remarkable array of professional and personal experience, focus on the radical, sustained practices of co-creating media within communities and with social movements. They explore the urgent need for co-creation across disciplines and organization, and the latest methods for collaborating with nonhuman systems in biology and technology. The idea of “collective intelligence” is not new, and has been applied to such disparate phenomena as decision making by consensus and hived insects. Collective wisdom goes further. With conceptual explanation and practical examples, this book shows that co-creation only becomes wise when it is grounded in equity and justice. With Coauthors Juanita Anderson, Maria Agui Carter, Detroit Narrative Agency, Thomas Allen Harris, Maori Karmael Holmes, Richard Lachman, Louis Massiah, Cara Mertes, Sara Rafsky, Michèle Stephenson, Amelia Winger-Bearskin, and Sarah Wolozin",
+      "pageCount": 385,
+      "language": "en",
+      "lcshSubjects": [
+        "Mass media — Authorship",
+        "Creation (Literary, artistic, etc.)",
+        "Artistic collaboration",
+        "Social justice"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780262543774-M.jpg?default=false",
+        "https://books.google.com/books/content?id=XjlcEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+      ],
+      "original": {
+        "title": "Collective Wisdom",
+        "author": "Katerina Cizek",
+        "isbn": "9780262543774",
+        "publisher": "MIT Press",
+        "publicationYear": 2022,
+        "lcc": "P 96 .A5 C5",
+        "genreTags": [
+          "Writing craft",
+          "[Proposed] Media studies",
+          "[Proposed] Social justice"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      },
+      "duplicateGroup": "dup-033u1gcv",
+      "duplicateOf": [
+        4
+      ]
+    },
+    {
+      "id": "bd745f49-cdbb-4668-a9d1-b04eddd1ae65",
+      "spineRead": {
+        "position": 4,
+        "rawText": "Collective Wisdom — Katerina Cizek &",
+        "title": "Collective Wisdom",
+        "author": "Katerina Cizek &",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Focusing on the white/blue spine on the left; author line appears truncated with '&' suggesting a co-author not visible. Library sticker at foot shows partial text.",
+        "bbox": {
+          "x": 26,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        "extractedCallNumber": "96 .A86 C59 2022",
+        "extractedCallNumberSystem": "unknown"
+      },
+      "title": "Collective Wisdom",
+      "author": "Katerina Cizek",
+      "authorLF": "Cizek, Katerina; Uricchio, William; Anderson, Juanita; Carter, Maria Agui; Age, Detriot Narrative Detriot Narrative; Cizek, Katerina; Uricchio, William",
+      "isbn": "9780262543774",
+      "publisher": "MIT Press",
+      "publicationYear": 2022,
+      "lcc": "P96.A86 C59 2022",
+      "genreTags": [
+        "Writing craft",
+        "[Proposed] Media studies"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P96 places this in mass communication studies within the language/literature domain. LCSH 'Mass media — Authorship' and 'Creation (Literary, artistic, etc.)' strongly suggest writing craft content. DDC 808.06 (rhetoric for specific subjects) reinforces the writing craft aspect. The collaboration and social justice themes suggest media studies as a secondary focus.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #3 and #4. Merge or keep both?"
+      ],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "808.06/6302",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "loc",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780262543774-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Collective Wisdom",
+      "allAuthors": [
+        "Katerina Cizek",
+        "William Uricchio",
+        "Juanita Anderson",
+        "Maria Agui Carter",
+        "Detriot Narrative Detriot Narrative Age",
+        "Cizek, Katerina",
+        "Uricchio, William"
+      ],
+      "pageCount": 385,
+      "lcshSubjects": [
+        "Mass media — Authorship",
+        "Creation (Literary, artistic, etc.)",
+        "Artistic collaboration",
+        "Social justice"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780262543774-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Collective Wisdom",
+        "author": "Katerina Cizek",
+        "isbn": "9780262543774",
+        "publisher": "MIT Press",
+        "publicationYear": 2022,
+        "lcc": "P96.A86 C59 2022",
+        "genreTags": [
+          "Writing craft",
+          "[Proposed] Media studies"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-033u1gcv",
+      "duplicateOf": [
+        3
+      ]
+    },
+    {
+      "id": "83505d40-42e1-4092-81c3-d26f9e901153",
+      "spineRead": {
+        "position": 5,
+        "rawText": "The Story Paradox — Jonathan Gottschall",
+        "title": "The Story Paradox",
+        "author": "Jonathan Gottschall",
+        "publisher": "",
+        "lcc": "P301.P47 G68 2021",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 34,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        "extractedCallNumber": "P 301 .P47 G68 2021",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "The Story Paradox",
+      "author": "Jonathan Gottschall",
+      "authorLF": "Gottschall, Jonathan",
+      "isbn": "9781541645974",
+      "publisher": "Hachette",
+      "publicationYear": 2021,
+      "lcc": "P 301 .P47 G68 2021",
+      "genreTags": [
+        "Writing craft",
+        "Literary criticism",
+        "[Proposed] Storytelling",
+        "[Proposed] Social psychology"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P301 places this in rhetoric/persuasion within Language and literature. LCSH confirms focus on storytelling, persuasion, and rhetoric. The book analyzes the craft and social function of storytelling from a critical perspective, fitting both Writing craft and Literary criticism tags. | [social_sciences] LCC P301 places this in language/communication studies within social sciences. LCSH terms 'Storytelling — Social aspects' and 'Storytelling — Psychological aspects' indicate focus on storytelling's social impact. Synopsis confirms analysis of storytelling's effects on civilization. No existing tags fit precisely, so proposing new ones for this interdisciplinary topic.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
+      ],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "808",
+      "inferredDomains": [
+        "language_literature",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781541645974-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Story Paradox",
+      "allAuthors": [
+        "Jonathan Gottschall"
+      ],
+      "synopsis": "Storytelling, a tradition that built human civilization, may soon destroy it Humans are storytelling animals. Stories are what make our societies possible. Countless books celebrate their virtues. But Jonathan Gottschall, an expert on the science of stories, argues that there is a dark side to storytelling we can no longer ignore. Storytelling, the very tradition that built human civilization, may be the thing that destroys it. In The Story Paradox, Gottschall explores how a broad consortium of psychologists, communications specialists, neuroscientists, and literary quants are using the scientific method to study how stories affect our brains. The results challenge the idea that storytelling is an obvious force for good in human life. Yes, storytelling can bind groups together, but it is also the main force dragging people apart. And it’s the best method we’ve ever devised for manipulating each other by circumventing rational thought. Behind all civilization’s greatest ills—environmental destruction, runaway demagogues, warfare—you will always find the same master factor: a mind-disordering story. Gottschall argues that societies succeed or fail depending on how they manage these tensions. And it has only become harder, as new technologies that amplify the effects of disinformation campaigns, conspiracy theories, and fake news make separating fact from fiction nearly impossible. With clarity and conviction, Gottschall reveals why our biggest asset has become our greatest threat, and what, if anything, can be done. It is a call to stop asking, “How we can change the world through stories?” and start asking, “How can we save the world from stories?” ",
+      "pageCount": 272,
+      "edition": "9",
+      "binding": "ePub",
+      "language": "English",
+      "lcshSubjects": [
+        "Persuasion (Rhetoric)",
+        "Storytelling — Social aspects",
+        "Storytelling — Psychological aspects",
+        "Rhetoric — Social aspects"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781541645974-M.jpg?default=false",
+        "https://images.isbndb.com/covers/24538303482736.jpg"
+      ],
+      "original": {
+        "title": "The Story Paradox",
+        "author": "Jonathan Gottschall",
+        "isbn": "9781541645974",
+        "publisher": "Hachette",
+        "publicationYear": 2021,
+        "lcc": "P 301 .P47 G68 2021",
+        "genreTags": [
+          "Writing craft",
+          "Literary criticism",
+          "[Proposed] Storytelling",
+          "[Proposed] Social psychology"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-ff5jjjbd",
+      "duplicateOf": [
+        6
+      ]
+    },
+    {
+      "id": "775a137f-d3a7-45c8-a2a2-58419e85495a",
+      "spineRead": {
+        "position": 6,
+        "rawText": "The Story Paradox — Jonathan Gottschall",
+        "title": "The Story Paradox",
+        "author": "Jonathan Gottschall",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Red spine; sticker at foot shows numeric lines",
+        "bbox": {
+          "x": 44,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        "extractedCallNumber": "11.5 47 58 21",
+        "extractedCallNumberSystem": "ddc"
+      },
+      "title": "The Story Paradox",
+      "author": "Jonathan Gottschall",
+      "authorLF": "Gottschall, Jonathan",
+      "isbn": "9781541645974",
+      "publisher": "Hachette",
+      "publicationYear": 2021,
+      "lcc": "P301.5 .P47G68 2021",
+      "genreTags": [
+        "Literary criticism",
+        "[Proposed] Storytelling & narrative"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P301.5 places this in the Language and literature domain, specifically in the area of linguistic analysis and storytelling theory. The book analyzes the nature and impact of storytelling on society, which fits best under Literary criticism as it's examining narrative theory and the cultural role of stories. The subtitle and synopsis confirm this is academic analysis of storytelling rather than creative writing or pure linguistics. | [social_sciences] The book examines storytelling's role in building and destroying societies from a social science perspective. The LCC P301.5 (psycholinguistics/language and society) and subject headings confirm social science domain. The subtitle and synopsis clearly focus on storytelling's social impact, warranting a new genre tag since no existing social sciences tags capture this specific focus.",
+      "status": "pending",
+      "warnings": [
+        "Possible duplicate — same title found at spine #5 and #6. Merge or keep both?"
+      ],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "11.5 47 58 21",
+      "inferredDomains": [
+        "language_literature",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781541645974-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Story Paradox",
+      "subtitle": "How Our Love of Storytelling Builds Societies and Tears them Down",
+      "allAuthors": [
+        "Jonathan Gottschall"
+      ],
+      "synopsis": "Storytelling, a tradition that built human civilization, may soon destroy it Humans are storytelling animals. Stories are what make our societies possible. Countless books celebrate their virtues. But Jonathan Gottschall, an expert on the science of stories, argues that there is a dark side to storytelling we can no longer ignore. Storytelling, the very tradition that built human civilization, may be the thing that destroys it. In The Story Paradox, Gottschall explores how a broad consortium of psychologists, communications specialists, neuroscientists, and literary quants are using the scientific method to study how stories affect our brains. The results challenge the idea that storytelling is an obvious force for good in human life. Yes, storytelling can bind groups together, but it is also the main force dragging people apart. And it’s the best method we’ve ever devised for manipulating each other by circumventing rational thought. Behind all civilization’s greatest ills—environmental destruction, runaway demagogues, warfare—you will always find the same master factor: a mind-disordering story. Gottschall argues that societies succeed or fail depending on how they manage these tensions. And it has only become harder, as new technologies that amplify the effects of disinformation campaigns, conspiracy theories, and fake news make separating fact from fiction nearly impossible. With clarity and conviction, Gottschall reveals why our biggest asset has become our greatest threat, and what, if anything, can be done. It is a call to stop asking, “How we can change the world through stories?” and start asking, “How can we save the world from stories?” ",
+      "pageCount": 272,
+      "edition": "9",
+      "binding": "ePub",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781541645974-M.jpg?default=false",
+        "https://books.google.com/books/content?id=EOcREAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+        "https://images.isbndb.com/covers/24538303482736.jpg"
+      ],
+      "original": {
+        "title": "The Story Paradox",
+        "author": "Jonathan Gottschall",
+        "isbn": "9781541645974",
+        "publisher": "Hachette",
+        "publicationYear": 2021,
+        "lcc": "P301.5 .P47G68 2021",
+        "genreTags": [
+          "Literary criticism",
+          "[Proposed] Storytelling & narrative"
+        ],
+        "formTags": []
+      },
+      "duplicateGroup": "dup-ff5jjjbd",
+      "duplicateOf": [
+        5
+      ]
+    },
+    {
+      "id": "260a3b17-2049-4f0a-9e44-c36dbbca9e97",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Rereading America — Colombo · Cullen · Lisle",
+        "title": "Rereading America",
+        "author": "Colombo · Cullen · Lisle",
+        "publisher": "",
+        "lcc": "PE1127.H5 R4 2016",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 52,
+          "y": 0,
+          "width": 10,
+          "height": 100
+        },
+        "extractedCallNumber": "PE 1127 .H5 R4 2016",
+        "extractedCallNumberSystem": "lcc",
+        "extractedEdition": "Tenth Edition"
+      },
+      "title": "Rereading America",
+      "author": "Gary Colombo",
+      "authorLF": "Colombo, Gary; Cullen, Robert J.; Lisle, Bonnie",
+      "isbn": "9780312405540",
+      "publisher": "Bedford/st Martins",
+      "publicationYear": 2004,
+      "lcc": "PE 1127 .H5 R4 2016",
+      "genreTags": [
+        "Essays",
+        "Anthology"
+      ],
+      "formTags": [
+        "Reference"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PE1127 indicates college-level English composition and rhetoric. Subject headings confirm this is a college reader with essays for rhetoric/critical thinking instruction. The anthology of essays for academic study fits 'Essays' + 'Anthology', with 'Reference' form tag for its textbook function.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780312405540-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Rereading America",
+      "allAuthors": [
+        "Gary Colombo",
+        "Robert J. Cullen",
+        "Bonnie Lisle"
+      ],
+      "pageCount": 704,
+      "edition": "Tenth Edition",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780312405540-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Rereading America",
+        "author": "Gary Colombo",
+        "isbn": "9780312405540",
+        "publisher": "Bedford/st Martins",
+        "publicationYear": 2004,
+        "lcc": "PE 1127 .H5 R4 2016",
+        "genreTags": [
+          "Essays",
+          "Anthology"
+        ],
+        "formTags": [
+          "Reference"
+        ]
+      }
+    },
+    {
+      "id": "cc12e5a1-fdb3-4c75-a5c8-99812763540c",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Encountering Cultures — Holeton",
+        "title": "Encountering Cultures",
+        "author": "Holeton",
+        "publisher": "",
+        "lcc": "PE1417 .E46 1995",
+        "confidence": "HIGH",
+        "note": "Subtitle: Reading and Writing in a Changing World",
+        "bbox": {
+          "x": 62,
+          "y": 0,
+          "width": 12,
+          "height": 100
+        },
+        "extractedCallNumber": "PE 1417 .E46 1995",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Encountering Cultures",
+      "author": "Richard Holeton",
+      "authorLF": "Holeton, Richard",
+      "isbn": "9780132763875",
+      "publisher": "Prentice Hall",
+      "publicationYear": 1991,
+      "lcc": "PE 1417 .E46 1995",
+      "genreTags": [
+        "Writing craft",
+        "[Proposed] Intercultural communication"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC PE 1417 places this in English language rhetoric/composition. Subject headings emphasize 'Rhetoric', 'Report writing', and 'Intercultural communication'. The subtitle 'Reading and Writing in a Changing World' and 'Problems, exercises' indicate instructional content. Writing craft covers the rhetoric/composition aspect, while intercultural communication addresses the cultural focus. How-to/guide form tag fits the educational/exercise format.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780132763875-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Encountering Cultures",
+      "subtitle": "Reading and Writing in a Changing World",
+      "allAuthors": [
+        "Richard Holeton"
+      ],
+      "pageCount": 636,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780132763875-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Encountering Cultures",
+        "author": "Richard Holeton",
+        "isbn": "9780132763875",
+        "publisher": "Prentice Hall",
+        "publicationYear": 1991,
+        "lcc": "PE 1417 .E46 1995",
+        "genreTags": [
+          "Writing craft",
+          "[Proposed] Intercultural communication"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "176d7188-0a94-4bc2-bdab-adf694c90da2",
+      "spineRead": {
+        "position": 9,
+        "rawText": "Write Like You Teach — James M. Lang",
+        "title": "Write Like You Teach",
+        "author": "James M. Lang",
+        "publisher": "Professional",
+        "lcc": "PN147 .L323 2025",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 74,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        "extractedCallNumber": "PN 147 .L323 2025",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Write Like You Teach",
+      "author": "James M. Lang",
+      "authorLF": "Lang, James M.; Lang, James M",
+      "isbn": "9780226839677",
+      "publisher": "University of Chicago Press",
+      "publicationYear": 2025,
+      "lcc": "PN 147 .L323 2025",
+      "genreTags": [
+        "Writing craft",
+        "Pedagogy",
+        "[Proposed] Academic writing"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] LCC PN 147 (authorship/writing craft) and subtitle 'Taking Your Classroom Skills to a Bigger Audience' clearly indicate this is a writing instruction book. The synopsis confirms it's practical advice for teachers to improve their public writing skills, fitting both Writing craft genre and How-to/guide form. | [education] The subtitle 'Taking Your Classroom Skills to a Bigger Audience' and synopsis clearly indicate this is a practical guide for teachers on writing, combining pedagogical expertise with writing instruction. The 'How-to / guide' form tag fits the practical advice format described in the synopsis.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature",
+        "education"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780226839677-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Write Like You Teach",
+      "subtitle": "Taking Your Classroom Skills to a Bigger Audience",
+      "allAuthors": [
+        "James M. Lang",
+        "James M Lang"
+      ],
+      "synopsis": "This engaging guide offers practical advice to teachers on how to utilize their existing classroom skills to become more effective public writers. After years spent cultivating their expertise and passion for a subject, scholars are uniquely positioned to write great books. Yet, accustomed to writing for an audience of their peers, many scholars find it challenging to adapt their writing to a style that is accessible and engaging to the general public. But what many academics frequently overlook is that they are regularly called on to pitch their research to a general audience: their undergraduates. If only there were a way to translate the skills they use in the classroom into their writing... James M. Lang is just the person to help. In Write Like You Teach, Lang--a veteran writer and teacher--distills the elements of good classroom teaching into guidelines for writing for a general audience. He encourages authors to take an interest in how their readers learn, and to embrace exploration, experimentation, and creativity when writing books, just as they might in the classroom. Lang asks his readers to consider the questions that all great teachers ask themselves: How will I get the attention of my students? How do I make them curious about the subject? What stories or examples will illustrate the more difficult concepts or theories in the course? When will I pause in the class and give students a break from hard thinking? What will I do at the end of the class to remind students about my key messages, and leave them wanting to learn more about my fascinating subject? Write Like You Teach includes examples from successful writers and useful anecdotes from Lang's own classroom and writing career. Indeed, Lang takes his own advice to heart: like a good teacher, he varies the form of each chapter, making sure to introduce some surprises to keep the reader engaged. Each chapter ends with writing prompts to help readers practice their newly acquired skills, and an appendix provides additional advice on publishing and promoting one's work. Teachers who follow Lang's suggestions will find new ways to connect with their readers--and like any good student, they will never approach writing the same way again.",
+      "pageCount": 224,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780226839677-M.jpg?default=false",
+        "https://books.google.com/books/content?id=2ObV0AEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "Write Like You Teach",
+        "author": "James M. Lang",
+        "isbn": "9780226839677",
+        "publisher": "University of Chicago Press",
+        "publicationYear": 2025,
+        "lcc": "PN 147 .L323 2025",
+        "genreTags": [
+          "Writing craft",
+          "Pedagogy",
+          "[Proposed] Academic writing"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "5bd89bda-6952-4b94-a6fb-c28982cec988",
+      "spineRead": {
+        "position": 10,
+        "rawText": "Teaching Reading with YA Literature — Buehler",
+        "title": "Teaching Reading with YA Literature",
+        "author": "Buehler",
+        "publisher": "",
+        "lcc": "PN1008.A1 .B84 2016",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 82,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        },
+        "extractedCallNumber": "PN 1008 .A1 B84 2016",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Teaching Reading with Ya Literature",
+      "author": "Jennifer Buehler",
+      "authorLF": "Buehler, Jennifer",
+      "isbn": "9780814157268",
+      "publisher": "National Council of Teachers of English",
+      "publicationYear": 2016,
+      "lcc": "PN 1008 .A1 B84 2016",
+      "genreTags": [
+        "Writing craft",
+        "Pedagogy",
+        "Curriculum"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] This is a pedagogical guide for teachers on using YA literature in reading instruction. The LCC PN classification places it in literature, the subtitle and synopsis clearly indicate it's instructional material ('shows how to implement'), making it both writing craft (teaching literature) and a how-to guide in form. | [education] Book focuses on teaching methodology (pedagogy) and curriculum design for secondary English education. The subtitle 'Complex Texts, Complex Lives' and synopsis describing implementation of YA pedagogy clearly indicate instructional guidance, warranting the how-to/guide form tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature",
+        "education"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780814157268-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Teaching Reading with YA Literature",
+      "subtitle": "Complex Texts, Complex Lives",
+      "allAuthors": [
+        "Jennifer Buehler"
+      ],
+      "synopsis": "Jennifer Buehler shows how to implement a YA pedagogy--one that revolves around student motivation while upholding the goals of rigor and complexity. Jennifer Buehler knows young adult literature. A teacher educator, former high school teacher, and host of ReadWriteThink.org's Text Messages podcast, she has shared her enthusiasm for this vibrant literature with thousands of teachers and adolescents. She knows that middle and high school students run the gamut as readers, from nonreaders to struggling readers to reluctant readers to dutiful readers to enthusiastic readers. And in a culture where technological distractions are constant, finding a way to engage all of these different kinds of readers is challenging, no matter the form of delivery. More and more, literacy educators are turning to YA lit as a way to transform all teens into enthusiastic readers. If we want to meet the needs of all students as readers, we have to offer books they can--and want to--read. Today's YA lit provides the books that speak to the world of teens even as they draw them out into the larger world. But we have to do more than put YA titles in front of students and teach these books as we've traditionally taught more canonical works. Instead, we can implement a YA pedagogy--one that revolves around student motivation while upholding the goals of rigor and complexity. Buehler explores the three core elements of a YA pedagogy with proven success in practice: (1) a classroom that cultivates reading community; (2) a teacher who serves as book matchmaker and guide; and (3) tasks that foster complexity, agency, and autonomy in teen readers. With a supporting explication of NCTE's Policy Research Brief Reading Instruction for All Students and lively vignettes of teachers and students reading with passion and purpose, this book is designed to help teachers develop their own version of YA pedagogy and a vision for teaching YA lit in the middle and secondary classroom.",
+      "pageCount": 173,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780814157268-M.jpg?default=false",
+        "https://books.google.com/books/content?id=C_AFkAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "Teaching Reading with Ya Literature",
+        "author": "Jennifer Buehler",
+        "isbn": "9780814157268",
+        "publisher": "National Council of Teachers of English",
+        "publicationYear": 2016,
+        "lcc": "PN 1008 .A1 B84 2016",
+        "genreTags": [
+          "Writing craft",
+          "Pedagogy",
+          "Curriculum"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "825dd6bb-79dd-4592-b6ea-cf5320792f29",
+      "spineRead": {
+        "position": 11,
+        "rawText": "The Write Thing — Alexander",
+        "title": "The Write Thing",
+        "author": "Alexander",
+        "publisher": "",
+        "lcc": "PR33 .A66 2015",
+        "confidence": "HIGH",
+        "note": "Adjacent spine shows 'Teaching Literary Theory to Adolescents' but this book is 'The Write Thing' by Alexander",
+        "bbox": {
+          "x": 90,
+          "y": 0,
+          "width": 5,
+          "height": 100
+        },
+        "extractedCallNumber": "PR 33 .A66 2015",
+        "extractedCallNumberSystem": "lcc",
+        "extractedEdition": "Third Edition"
+      },
+      "title": "The Write Thing",
+      "author": "Kwame Alexander",
+      "authorLF": "Alexander, Kwame; Foxx, Nina",
+      "isbn": "9780967895963",
+      "publisher": "Manisy WIllows Books",
+      "publicationYear": 2002,
+      "lcc": "PR 33 .A66 2015",
+      "genreTags": [
+        "Writing craft"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[language_literature] Subtitle '7 Steps to Publishing Success' and synopsis describing 'point-by-point instruction manual' clearly indicate a how-to guide format. Subject headings include 'Authorship' and content focuses on writing/publishing craft, fitting Writing craft genre within Language and literature domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780967895963-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Do The Write Thing",
+      "subtitle": "7 Steps to Publishing Success",
+      "allAuthors": [
+        "Kwame Alexander",
+        "Nina Foxx"
+      ],
+      "synopsis": "This guide provides a definitive point-by-point instruction manual for getting into print whether users want to publish a family memoir, the next great American novel, or simply learn the ins-and-outs of the self-publishing world. Detailed worksheets provide a guide through the process.",
+      "pageCount": 151,
+      "edition": "Third Edition",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780967895963-M.jpg?default=false",
+        "https://books.google.com/books/content?id=yWjgAAAAMAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "The Write Thing",
+        "author": "Kwame Alexander",
+        "isbn": "9780967895963",
+        "publisher": "Manisy WIllows Books",
+        "publicationYear": 2002,
+        "lcc": "PR 33 .A66 2015",
+        "genreTags": [
+          "Writing craft"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    },
+    {
+      "id": "b0cb6c25-6fb4-4487-8ddc-dad20191d211",
+      "spineRead": {
+        "position": 12,
+        "rawText": "Critical Encounters in Secondary English — Appleman",
+        "title": "Critical Encounters in Secondary English",
+        "author": "Appleman",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Third Edition visible on spine",
+        "bbox": {
+          "x": 95,
+          "y": 0,
+          "width": 5,
+          "height": 100
+        },
+        "extractedEdition": "3rd ed."
+      },
+      "title": "Critical Encounters in Secondary English",
+      "author": "Deborah Appleman",
+      "authorLF": "Appleman, Deborah",
+      "isbn": "9780807764305",
+      "publisher": "Teachers College Press",
+      "publicationYear": 2015,
+      "lcc": "PR33 .A66 2015",
+      "genreTags": [
+        "Pedagogy",
+        "Curriculum",
+        "Literary criticism",
+        "[Proposed] English education"
+      ],
+      "formTags": [
+        "How-to / guide"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[education] Book focuses on teaching methods and curriculum design for secondary English education. Subject headings emphasize 'study and teaching' at secondary level, and Teachers College Press is a specialized educational publisher. The pedagogical approach to literature instruction fits both Pedagogy and Curriculum tags. | [language_literature] LCC PR33 indicates English literature education/pedagogy. Subject headings emphasize 'study and teaching' of English and American literature at secondary level, plus literary criticism and theory. This is clearly a pedagogical guide for teaching literature, combining literary criticism with educational methodology.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "education",
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780807764305-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Critical Encounters in Secondary English",
+      "allAuthors": [
+        "Deborah Appleman"
+      ],
+      "pageCount": 272,
+      "edition": "3rd ed.",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780807764305-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Critical Encounters in Secondary English",
+        "author": "Deborah Appleman",
+        "isbn": "9780807764305",
+        "publisher": "Teachers College Press",
+        "publicationYear": 2015,
+        "lcc": "PR33 .A66 2015",
+        "genreTags": [
+          "Pedagogy",
+          "Curriculum",
+          "Literary criticism",
+          "[Proposed] English education"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    }
+  ],
+  "sourceDimensions": {
+    "width": 2160,
+    "height": 3840
+  }
+}
