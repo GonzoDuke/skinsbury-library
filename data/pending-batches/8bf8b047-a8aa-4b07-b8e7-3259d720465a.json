@@ -1,0 +1,497 @@
+{
+  "id": "8bf8b047-a8aa-4b07-b8e7-3259d720465a",
+  "filename": "7880.jpg",
+  "fileSize": 2898479,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 8,
+  "booksIdentified": 8,
+  "books": [
+    {
+      "id": "e05eb081-4a2f-423f-9d7e-bd5b33ee8f9b",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Cultish — Montell",
+        "title": "Cultish",
+        "author": "Montell",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Subtitle partially visible: 'The Language of Fanaticism'",
+        "bbox": {
+          "x": 2,
+          "y": 15,
+          "width": 12,
+          "height": 70
+        }
+      },
+      "title": "Cultish",
+      "author": "Amanda Montell",
+      "authorLF": "Montell, Amanda",
+      "isbn": "9780062993151",
+      "publisher": "HarperCollins B and Blackstone Publishing",
+      "publicationYear": 2021,
+      "lcc": "P301.5 .P75M66 2021",
+      "genreTags": [
+        "Linguistics",
+        "Social criticism",
+        "[Proposed] Cults & religious movements"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC P301.5 → Linguistics/sociolinguistics. Subject headings confirm language focus + Scientology (cult context). Title 'Cultish' suggests analysis of cult language/manipulation. Proposed new tag for cult studies domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Cultish",
+      "subtitle": "The Language of Fanaticism",
+      "allAuthors": [
+        "Amanda Montell"
+      ],
+      "pageCount": 320,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780062993151-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Cultish",
+        "author": "Amanda Montell",
+        "isbn": "9780062993151",
+        "publisher": "HarperCollins B and Blackstone Publishing",
+        "publicationYear": 2021,
+        "lcc": "P301.5 .P75M66 2021",
+        "genreTags": [
+          "Linguistics",
+          "Social criticism",
+          "[Proposed] Cults & religious movements"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "ba0722f7-9e86-48c3-ba77-587d6e316977",
+      "spineRead": {
+        "position": 2,
+        "rawText": "The Language of Butterflies — Amanda Hurtado",
+        "title": "The Language of Butterflies",
+        "author": "Amanda Hurtado",
+        "publisher": "Harper Wave",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Title appears to be 'The Language of...' partially visible; author reads 'Amanda' with surname partly obscured",
+        "bbox": {
+          "x": 14,
+          "y": 15,
+          "width": 8,
+          "height": 70
+        }
+      },
+      "title": "The Language of Butterflies",
+      "author": "Wendy Williams",
+      "authorLF": "Williams, Wendy",
+      "isbn": "9781501178085",
+      "publisher": "Simon & Schuster",
+      "publicationYear": 2020,
+      "lcc": "QL544 .W55 2020",
+      "genreTags": [
+        "Nature writing",
+        "Evolution"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "LCC QL544 → Entomology/Biology. Subject headings include Evolution, Environmental Science. Synopsis describes 'deeply personal and lyrical' approach to butterflies → Nature writing. Evolution confirmed by subject headings.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "isbndb",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781501178085-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Language of Butterflies",
+      "allAuthors": [
+        "Wendy Williams"
+      ],
+      "synopsis": "In this “deeply personal and lyrical book” (Publishers Weekly) from the New York Times bestselling author of The Horse, Wendy Williams explores the lives of one of the world’s most resilient creatures—the butterfly—shedding light on the role that they play in our ecosystem and in our human lives. “[A] glorious and exuberant celebration of these biological flying machines…Williams takes us on a humorous and beautifully crafted journey” (The Washington Post). From butterfly gardens to zoo exhibits, these “flying flowers” are one of the few insects we’ve encouraged to infiltrate our lives. Yet, what has drawn us to these creatures in the first place? And what are their lives really like? In this “entertaining look at ‘the world’s favorite insect’” (Booklist, starred review), New York Times bestselling author and science journalist Wendy Williams reveals the inner lives of these delicate creatures, who are far more intelligent and tougher than we give them credit for. Monarch butterflies migrate thousands of miles each year from Canada to Mexico. Other species have learned how to fool ants into taking care of them. Butterflies’ scales are inspiring researchers to create new life-saving medical technology. Williams takes readers to butterfly habitats across the globe and introduces us to not only various species, but “digs deeply into the lives of both butterflies and [the] scientists” (Science magazine) who have spent decades studying them. Coupled with years of research and knowledge gained from experts in the field, this accessible “butterfly biography” explores the ancient partnership between these special creatures and humans, and why they continue to fascinate us today. “Informative, thought-provoking,” (BookPage, starred review) and extremely profound, The Language of Butterflies is a “fascinating book [that] will be of interest to anyone who has ever admired a butterfly, and anyone who cares about preserving these stunning creatures” (Library Journal).",
+      "pageCount": 240,
+      "edition": "1",
+      "binding": "Kindle Edition",
+      "language": "English",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781501178085-M.jpg?default=false",
+        "https://images.isbndb.com/covers/13060473482722.jpg"
+      ],
+      "original": {
+        "title": "The Language of Butterflies",
+        "author": "Wendy Williams",
+        "isbn": "9781501178085",
+        "publisher": "Simon & Schuster",
+        "publicationYear": 2020,
+        "lcc": "QL544 .W55 2020",
+        "genreTags": [
+          "Nature writing",
+          "Evolution"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "e55ffdfe-85fd-4861-9523-ca1f6e384068",
+      "spineRead": {
+        "position": 3,
+        "bbox": {
+          "x": 22,
+          "y": 15,
+          "width": 8,
+          "height": 70
+        },
+        "rawText": "",
+        "confidence": "LOW"
+      },
+      "title": "",
+      "author": "",
+      "authorLF": "",
+      "isbn": "",
+      "publisher": "",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "",
+      "status": "pending",
+      "warnings": [
+        "Pipeline timeout — try rereading"
+      ],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "original": {
+        "title": "",
+        "author": "",
+        "isbn": "",
+        "publisher": "",
+        "publicationYear": 0,
+        "lcc": "",
+        "genreTags": [],
+        "formTags": []
+      }
+    },
+    {
+      "id": "f37aba1d-c9fe-4c5a-bee4-ff713a54d472",
+      "spineRead": {
+        "position": 4,
+        "rawText": "THE F WORD — Sheidlower",
+        "title": "THE F WORD",
+        "author": "Sheidlower",
+        "publisher": "Oxford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 30,
+          "y": 15,
+          "width": 12,
+          "height": 70
+        }
+      },
+      "title": "The F Word",
+      "author": "Jesse Sheidlower",
+      "authorLF": "Sheidlower, Jesse",
+      "isbn": "9780375706349",
+      "publisher": "Random House Information Group",
+      "publicationYear": 1999,
+      "lcc": "PE1599 .F83 F2 1999",
+      "genreTags": [
+        "Etymology",
+        "Linguistics"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PE → English language/linguistics. Subject headings explicitly list Etymology and English language semantics. Study of specific word usage fits both Etymology and broader Linguistics.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The F word",
+      "allAuthors": [
+        "Jesse Sheidlower"
+      ],
+      "pageCount": 272,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780375706349-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The F Word",
+        "author": "Jesse Sheidlower",
+        "isbn": "9780375706349",
+        "publisher": "Random House Information Group",
+        "publicationYear": 1999,
+        "lcc": "PE1599 .F83 F2 1999",
+        "genreTags": [
+          "Etymology",
+          "Linguistics"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "4f4de8fa-2bf2-4f05-a559-c22b5ee55186",
+      "spineRead": {
+        "position": 5,
+        "rawText": "F You Very Much — Danny Wallace",
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "publisher": "tarcher perigee",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 42,
+          "y": 15,
+          "width": 8,
+          "height": 70
+        }
+      },
+      "title": "F You Very Much",
+      "author": "Danny Wallace",
+      "authorLF": "Wallace, Danny",
+      "isbn": "9781473559165",
+      "publisher": "Penguin Random House",
+      "publicationYear": 2018,
+      "lcc": "BJ-1853.00000000",
+      "genreTags": [
+        "Ethics",
+        "Social criticism"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC BJ → Ethics. Subject headings 'Interpersonal relations; Courtesy' indicate examination of social behavior and manners. Title suggests critical approach to social interactions.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "F*** You Very Much",
+      "allAuthors": [
+        "Danny Wallace"
+      ],
+      "pageCount": 352,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781473559165-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "F You Very Much",
+        "author": "Danny Wallace",
+        "isbn": "9781473559165",
+        "publisher": "Penguin Random House",
+        "publicationYear": 2018,
+        "lcc": "BJ-1853.00000000",
+        "genreTags": [
+          "Ethics",
+          "Social criticism"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "b31c683f-2222-4dfd-860d-d86c9f248e71",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Holy Sh*t — Mohr",
+        "title": "Holy Sh*t",
+        "author": "Mohr",
+        "publisher": "Oxford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 50,
+          "y": 15,
+          "width": 12,
+          "height": 70
+        }
+      },
+      "title": "Holy Sh*t",
+      "author": "Melissa Mohr",
+      "authorLF": "Mohr, Melissa",
+      "isbn": "9780190491680",
+      "publisher": "Oxford University Press, Incorporated",
+      "publicationYear": 2013,
+      "lcc": "PE3724 .S85.M65 2016",
+      "genreTags": [
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PE → Linguistics. Subject headings confirm English language history and social aspects. Study of swearing/profanity as linguistic phenomenon → Linguistics + History of language.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Holy Sh*t",
+      "allAuthors": [
+        "Melissa Mohr"
+      ],
+      "pageCount": 336,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780190491680-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Holy Sh*t",
+        "author": "Melissa Mohr",
+        "isbn": "9780190491680",
+        "publisher": "Oxford University Press, Incorporated",
+        "publicationYear": 2013,
+        "lcc": "PE3724 .S85.M65 2016",
+        "genreTags": [
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9454d78b-b0fe-42ed-86d8-283821b8b465",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Sh*t is F*cked Up and Bullsh*t — Malcolm Harris",
+        "title": "Sh*t is F*cked Up and Bullsh*t",
+        "author": "Malcolm Harris",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "HIGH",
+        "note": "Image shows two book spines; reading the left one as instructed for a single spine",
+        "bbox": {
+          "x": 62,
+          "y": 15,
+          "width": 12,
+          "height": 70
+        }
+      },
+      "title": "Shit Is Fucked up and Bullshit",
+      "author": "Malcolm Harris",
+      "authorLF": "Harris, Malcolm",
+      "isbn": "9781612198361",
+      "publisher": "Melville House Publishing",
+      "publicationYear": 2020,
+      "lcc": "D862 .H37 2020",
+      "genreTags": [
+        "Social criticism",
+        "Essays"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC D862 → Modern world history/civilization. Subject 'Modern Civilization' + provocative title suggest critical essays about contemporary society. Harris is known for millennial social criticism.",
+      "status": "pending",
+      "warnings": [
+        "Identified by AI from partial spine read: Distinctive title and author combination clearly identifies this specific work by Malcolm Harris."
+      ],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781612198361-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Shit Is Fucked up and Bullshit",
+      "allAuthors": [
+        "Malcolm Harris"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781612198361-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Shit Is Fucked up and Bullshit",
+        "author": "Malcolm Harris",
+        "isbn": "9781612198361",
+        "publisher": "Melville House Publishing",
+        "publicationYear": 2020,
+        "lcc": "D862 .H37 2020",
+        "genreTags": [
+          "Social criticism",
+          "Essays"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "a6b99c5e-8928-4150-9d8c-8f3384311314",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Ascent of the A-Word — Geoffrey Nunberg",
+        "title": "Ascent of the A-Word",
+        "author": "Geoffrey Nunberg",
+        "publisher": "PublicAffairs",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 74,
+          "y": 15,
+          "width": 12,
+          "height": 70
+        }
+      },
+      "title": "Ascent of the A-Word",
+      "author": "Geoffrey Nunberg",
+      "authorLF": "Nunberg, Geoffrey",
+      "isbn": "9781610391764",
+      "publisher": "PublicAffairs",
+      "publicationYear": 2012,
+      "lcc": "PE3724 .O3 N86 2012",
+      "genreTags": [
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "LCC PE → Linguistics. Subject headings confirm obscene words and English language focus. Nunberg is a known linguist. Historical treatment of language evolution.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "7880.jpg",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "data:image/jpeg;base64,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",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781610391764-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Ascent of the A-word",
+      "allAuthors": [
+        "Geoffrey Nunberg"
+      ],
+      "pageCount": 251,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781610391764-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Ascent of the A-Word",
+        "author": "Geoffrey Nunberg",
+        "isbn": "9781610391764",
+        "publisher": "PublicAffairs",
+        "publicationYear": 2012,
+        "lcc": "PE3724 .O3 N86 2012",
+        "genreTags": [
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "sourceDimensions": {
+    "width": 3000,
+    "height": 4000
+  }
+}
