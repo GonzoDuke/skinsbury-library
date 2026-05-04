@@ -25,37 +25,49 @@
         }
       },
       "title": "Quantum Criminals",
-      "author": "Alex Pappademas",
+      "author": "Alex Pappademas & Joan LeMay",
       "authorLF": "Pappademas, Alex; LeMay, Joan",
       "isbn": "9781477324998",
       "publisher": "University of Texas Press",
       "publicationYear": 2023,
-      "lcc": "",
+      "lcc": "ML421.S76 P37 2023",
       "genreTags": [
         "[Proposed] Pop culture criticism",
         "[Proposed] Media studies"
       ],
       "formTags": [],
-      "confidence": "LOW",
+      "confidence": "HIGH",
       "reasoning": "[general_works] Limited metadata with no LCC, subject headings, or synopsis. Based on the title 'Quantum Criminals' and dual authorship, this appears to be cultural criticism or media analysis. University of Texas Press suggests academic treatment of popular culture topics. Proposing tags due to insufficient information to map to existing vocabulary.",
       "status": "pending",
-      "warnings": [
-        "LCC code missing — tags inferred from title and author only."
-      ],
+      "warnings": [],
       "sourcePhoto": "7856.cropped.jpg",
       "lookupSource": "openlibrary",
-      "inferredDomains": [
-        "general_works"
-      ],
-      "domainConfidence": "low",
-      "lccSource": "none",
+      "ddc": "782.42166092/2",
+      "lccSource": "loc",
       "spineThumbnail": "data:image/jpeg;base64,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",
       "coverUrl": "https://covers.openlibrary.org/b/isbn/9781477324998-M.jpg?default=false",
       "ocrModel": "o",
       "canonicalTitle": "Quantum Criminals",
       "allAuthors": [
         "Alex Pappademas",
-        "Joan LeMay"
+        "Joan LeMay",
+        "Pappademas, Alex",
+        "LeMay, Joan"
+      ],
+      "pageCount": 268,
+      "edition": "First edition",
+      "lcshSubjects": [
+        "Becker, Walter — 1950-2017 — Criticism and interpretation",
+        "Fagen, Donald — 1948- — Criticism and interpretation",
+        "Steely Dan (Musical group)",
+        "Characters and characteristics in music",
+        "Rock music — United States — History and criticism",
+        "Fictitious characters — Portraits"
+      ],
+      "marcGenres": [
+        "Essays",
+        "Music criticism and reviews",
+        "Portraits"
       ],
       "coverUrlFallbacks": [
         "https://covers.openlibrary.org/b/isbn/9781477324998-M.jpg?default=false"
@@ -73,7 +85,7 @@
         ],
         "formTags": []
       },
-      "rereading": true
+      "rereading": false
     },
     {
       "id": "b807cef5-f25c-4632-890c-a368918aaa00",
