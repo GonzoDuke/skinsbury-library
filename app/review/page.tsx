@@ -275,7 +275,7 @@ export default function ReviewPage() {
             Nothing to review yet. Upload a shelf photo, or click <span className="font-mono">↻ Refresh from cloud</span> above to pull batches processed on another device.
           </p>
           <Link
-            href="/"
+            href="/upload"
             className="inline-block px-5 py-2.5 rounded-md bg-accent text-cream-50 hover:bg-accent-deep transition"
           >
             Go to upload
@@ -631,7 +631,7 @@ function EmptyState() {
         Upload some shelf photos first.
       </p>
       <Link
-        href="/"
+        href="/upload"
         className="inline-block px-5 py-2.5 rounded-md bg-accent text-cream-50 hover:bg-accent-deep transition"
       >
         Go to upload

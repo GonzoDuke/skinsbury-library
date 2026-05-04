@@ -49,11 +49,16 @@ export function MobileShell() {
     }
   }
 
+  // Tab order: Stacks (the new front door) is first; the rest of the
+  // workflow follows. Vocab dropped from the bottom tab bar to keep it
+  // 4-wide on phones — vocab is reachable from the Stacks page header
+  // links and from the desktop sidebar. Capture relabelled to Upload
+  // and pointed at /upload (the legacy `/` is now a redirect to /stacks).
   const tabs: TabDef[] = [
-    { href: '/', label: 'Capture', icon: <CameraIcon /> },
+    { href: '/stacks', label: 'Stacks', icon: <StacksIcon /> },
+    { href: '/upload', label: 'Upload', icon: <CameraIcon /> },
     { href: '/review', label: 'Review', icon: <ReviewIcon /> },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
-    { href: '/vocabulary', label: 'Vocab', icon: <BooksIcon /> },
   ];
 
   function isActive(href: string) {
@@ -288,14 +293,15 @@ function ExportIcon() {
   );
 }
 
-function BooksIcon() {
-  // Three-spine stack mirroring the desktop sidebar's library glyph,
-  // upscaled to the 24x24 viewBox the other phone tab icons use.
+// Stacks tab icon — 5 short spines, the "all of it" view.
+function StacksIcon() {
   return (
     <IconShell>
-      <rect x="3" y="2" width="4" height="20" rx="0.5" />
-      <rect x="9.5" y="4" width="4" height="18" rx="0.5" />
-      <path d="M16.5 21l4.5-18" />
+      <rect x="2" y="3" width="3" height="18" rx="0.6" />
+      <rect x="6.5" y="5" width="3" height="16" rx="0.6" />
+      <rect x="11" y="3" width="3" height="18" rx="0.6" />
+      <rect x="15.5" y="6" width="3" height="15" rx="0.6" />
+      <rect x="20" y="4" width="2.5" height="17" rx="0.6" />
     </IconShell>
   );
 }

@@ -333,7 +333,7 @@ export default function ExportPage() {
           Upload photos and review books before exporting.
         </p>
         <Link
-          href="/"
+          href="/upload"
           className="inline-block px-5 py-2.5 rounded-md bg-accent text-cream-50 hover:bg-accent-deep transition"
         >
           Go to upload

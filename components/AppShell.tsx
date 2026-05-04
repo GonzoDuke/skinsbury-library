@@ -85,17 +85,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [state.allBooks.length, state.batches.length]);
 
   const workflow: NavItemDef[] = [
-    { href: '/', label: 'Upload', icon: <UploadIcon /> },
+    { href: '/upload', label: 'Upload', icon: <UploadIcon /> },
     { href: '/review', label: 'Review', icon: <ReviewIcon />, badge: pendingCount || undefined },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
   ];
   const library: NavItemDef[] = [
+    { href: '/stacks', label: 'Stacks', icon: <StacksIcon /> },
     { href: '/vocabulary', label: 'Vocabulary', icon: <BooksIcon /> },
     { href: '/history', label: 'History', icon: <ClockIcon /> },
   ];
 
-  // The Upload route is `/` so we match it strictly; everything else uses a
-  // prefix match so nested routes (e.g. /review/<id>) still highlight.
+  // Strict match for the root path (legacy bookmarks redirect to
+  // /stacks server-side); every other route uses a prefix match so
+  // nested routes (e.g. /stacks/duplicates) still highlight.
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(href + '/');
@@ -406,6 +408,21 @@ function BooksIcon() {
   );
 }
 
+// Stacks — a row of densely-packed spines, slightly heavier than
+// BooksIcon so the new top-of-Library entry reads as the "all of it"
+// view rather than the per-tag Vocabulary view.
+function StacksIcon() {
+  return (
+    <IconShell>
+      <rect x="1.5" y="2" width="2" height="12" rx="0.4" />
+      <rect x="4.5" y="3" width="2" height="11" rx="0.4" />
+      <rect x="7.5" y="2" width="2" height="12" rx="0.4" />
+      <rect x="10.5" y="4" width="2" height="10" rx="0.4" />
+      <rect x="13.5" y="2.5" width="1.5" height="11.5" rx="0.4" />
+    </IconShell>
+  );
+}
+
 function ClockIcon() {
   return (
     <IconShell>
@@ -472,7 +489,7 @@ function BrandPanel() {
 
   return (
     <Link
-      href="/"
+      href="/stacks"
       className="cursor-pointer group block relative"
       style={{
         // True square — width matches sidebar (260), height equals
