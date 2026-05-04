@@ -50,4 +50,15 @@ Created baseline vocabulary from 186-book LibraryThing export + 22-book proof of
 - Added `Personal development` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
 - Added `Social justice` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
 
+## 2026-05-04
+
+- Added `Personal narrative` to **General works** — first seen on "Misguided" by Matthew Facciani
+- Added `Social commentary` to **General works** — first seen on "Misguided" by Matthew Facciani
+- Added `Media literacy` to **Language and literature** — first seen on "Foolproof: Why Misinformation Infects Our Minds and How to Build Immunity" by Sander van der Linden
+- Added `Media studies` to **Music** — first seen on "Quantum Criminals" by Alex Pappademas & Joan LeMay
+- Added `Pop culture criticism` to **Music** — first seen on "Quantum Criminals" by Alex Pappademas & Joan LeMay
+- Added `Activism & Social Justice` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
+- Added `Personal development` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
+- Added `Social justice` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
+
 <!-- New entries will be appended below automatically by the approve command -->
