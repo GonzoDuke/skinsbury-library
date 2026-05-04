@@ -181,6 +181,11 @@ export default function CollectionPage() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  // Track narrow-viewport state so the search placeholder can shorten
+  // below the sm breakpoint (640px) — Tailwind doesn't give us a CSS
+  // hook for swapping placeholder text. Initialized to false so SSR
+  // stays consistent; the resize listener flips it on mount as needed.
+  const [isNarrowViewport, setIsNarrowViewport] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -188,6 +193,15 @@ export default function CollectionPage() {
     setLedger(initial);
     setStats(computeStats(initial));
     setHydrated(true);
+  }, []);
+
+  // Watch viewport width so the search placeholder can swap to a
+  // shorter form on phones. Sub-640 = "phone"; sm+ keeps the long copy.
+  useEffect(() => {
+    const check = () => setIsNarrowViewport(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
   useEffect(() => {
@@ -276,6 +290,7 @@ export default function CollectionPage() {
         setQuery={setQuery}
         searchInputRef={searchInputRef}
         covers={heroCovers}
+        isNarrowViewport={isNarrowViewport}
       />
 
       <div className="bg-surface-card">
@@ -331,6 +346,7 @@ interface HeroProps {
   setQuery: (v: string) => void;
   searchInputRef: React.RefObject<HTMLInputElement | null>;
   covers: HeroCover[];
+  isNarrowViewport: boolean;
 }
 
 function Hero({
@@ -342,38 +358,48 @@ function Hero({
   setQuery,
   searchInputRef,
   covers,
+  isNarrowViewport,
 }: HeroProps) {
+  // Reused inside both the desktop-absolute and mobile-inline placements.
+  const utilityCluster = (
+    <>
+      <button
+        type="button"
+        onClick={refreshFromCloud}
+        disabled={refreshing}
+        className="text-[12px] font-medium px-3 py-1.5 rounded-md transition disabled:opacity-50"
+        style={{
+          color: 'rgba(255,255,255,0.85)',
+          background: 'rgba(255,255,255,0.10)',
+          border: '1px solid rgba(255,255,255,0.20)',
+        }}
+        title="Pull the latest ledger + pending batches from the cloud."
+      >
+        {refreshing ? '⟳ Refreshing…' : '↻ Refresh from cloud'}
+      </button>
+      <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+        {refreshMsg ?? `last activity ${timeAgo(lastActivity)}`}
+      </span>
+    </>
+  );
+
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: NAVY, minHeight: 320 }}
+      style={{ background: NAVY }}
     >
-      {/* Top-right utility cluster — refresh button + last-activity. */}
-      <div className="absolute top-5 right-5 sm:top-6 sm:right-7 flex flex-col items-end gap-1.5 z-10">
-        <button
-          type="button"
-          onClick={refreshFromCloud}
-          disabled={refreshing}
-          className="text-[12px] font-medium px-3 py-1.5 rounded-md transition disabled:opacity-50"
-          style={{
-            color: 'rgba(255,255,255,0.85)',
-            background: 'rgba(255,255,255,0.10)',
-            border: '1px solid rgba(255,255,255,0.20)',
-          }}
-          title="Pull the latest ledger + pending batches from the cloud."
-        >
-          {refreshing ? '⟳ Refreshing…' : '↻ Refresh from cloud'}
-        </button>
-        <span
-          className="text-[11px]"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
-        >
-          {refreshMsg ?? `last activity ${timeAgo(lastActivity)}`}
-        </span>
+      {/* Desktop / tablet (sm+): utility cluster pinned top-right. Below
+          sm we render a second instance inline beneath the title block
+          (see below) so the cluster doesn't overlap the YOUR LIBRARY
+          eyebrow on phones. */}
+      <div className="hidden sm:flex absolute top-6 right-7 flex-col items-end gap-1.5 z-10">
+        {utilityCluster}
       </div>
 
-      {/* Left-aligned content block */}
-      <div className="relative pt-9 sm:pt-11 pb-[110px] sm:pb-[120px] px-6 sm:px-8 md:px-11">
+      {/* Left-aligned content block. Bottom padding on mobile is small
+          (cover row is hidden); sm+ reserves room for the cover row
+          that's positioned absolute at the bottom edge. */}
+      <div className="relative pt-9 sm:pt-11 pb-8 sm:pb-[120px] px-6 sm:px-8 md:px-11">
         <div
           className="uppercase mb-2.5"
           style={{
@@ -412,6 +438,14 @@ function Hero({
           “Every library is a kind of autobiography.”
         </p>
 
+        {/* Phone (<sm): inline utility cluster below the title block.
+            Renders ABOVE the search bar so the user sees it without
+            scrolling on a 375px viewport. Hidden at sm+ where the
+            absolute desktop placement takes over. */}
+        <div className="sm:hidden flex flex-col items-start gap-1.5 mt-5">
+          {utilityCluster}
+        </div>
+
         {/* Search bar — same logic as before, white-on-translucent. */}
         <div
           className="mt-5 sm:mt-6 flex items-center gap-2.5 px-4 py-2 rounded-lg max-w-[680px]"
@@ -440,7 +474,11 @@ function Hero({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by title, author, ISBN, or tag — across your entire library"
+            placeholder={
+              isNarrowViewport
+                ? 'Search your library'
+                : 'Search by title, author, ISBN, or tag — across your entire library'
+            }
             aria-label="Search the library"
             style={{
               flex: 1,
@@ -584,10 +622,12 @@ function CollectionOverview({ stats }: { stats: DashboardStats }) {
         </Link>
       </div>
 
-      {/* Stats row — three large numbers, generous gap. The DOMAINS
-          POPULATED stat splits the proportion into primary + muted so
-          the "{N} / 21" reads as a fraction, not a single number. */}
-      <div className="flex flex-wrap gap-x-10 gap-y-5 pb-6 border-b border-line-light">
+      {/* Stats row — three large numbers, generous gap. Stacks vertically
+          on mobile (avoids the 2+1 wrap that read as broken); flexes
+          across on sm+. The DOMAINS POPULATED stat splits the proportion
+          into primary + muted so the "{N} / 21" reads as a fraction,
+          not a single number. */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-10 gap-y-5 pb-6 border-b border-line-light">
         <BigStat label="Total books" value={stats.totalBooks} />
         <BigStat label="Unique works" value={stats.uniqueWorks} />
         <BigStatFraction
