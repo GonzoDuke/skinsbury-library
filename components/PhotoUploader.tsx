@@ -239,7 +239,7 @@ export function PhotoUploader({ onFiles, onScanRequest, onManualEntryRequest, di
           if (disabled) return;
           handleFiles(e.dataTransfer.files);
         }}
-        className={`relative rounded-[10px] border-[1.5px] border-dashed transition-all duration-200 ease-gentle px-8 py-14 text-center cursor-pointer ${
+        className={`relative rounded-[10px] border-[1.5px] border-dashed transition-all duration-200 ease-gentle px-6 py-7 text-center cursor-pointer ${
           isDragging
             ? 'border-navy bg-navy-soft scale-[1.005]'
             : 'border-line hover:border-navy hover:bg-navy-soft/50'
@@ -255,10 +255,10 @@ export function PhotoUploader({ onFiles, onScanRequest, onManualEntryRequest, di
           onChange={(e) => handleFiles(e.target.files)}
         />
 
-        <div className="text-[17px] font-medium text-text-secondary mb-1.5">
+        <div className="text-[16px] font-medium text-text-secondary mb-1">
           Drop bookshelf photos here
         </div>
-        <div className="text-[13px] text-text-quaternary mb-5">
+        <div className="text-[12px] text-text-quaternary mb-3.5">
           JPG, PNG, HEIC up to 30 MB
         </div>
         {/* 2x2 entry grid. All four buttons get the same outlined

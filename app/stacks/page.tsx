@@ -366,10 +366,10 @@ export default function StacksPage() {
 
           <CollectionOverview stats={stats} />
 
-          <div className="text-[11px] uppercase tracking-wider font-semibold text-text-tertiary mt-6 mb-2">
-            Cataloging tools
-          </div>
+          <div className="typo-section-label mt-6 mb-2">Cataloging tools</div>
           <ToolsRow ledger={ledger} />
+
+          <RecentActivityPanel ledger={ledger} />
 
           {pendingBatch && (
             <div className="bg-surface-card border border-line rounded-lg px-5 py-4 flex items-center justify-between gap-3 flex-wrap">
@@ -406,18 +406,29 @@ function CollectionOverview({ stats }: { stats: DashboardStats }) {
   const populated = stats.perDomain.filter((d) => d.count > 0);
   const totalForBar = populated.reduce((s, d) => s + d.count, 0) || 1;
 
+  // For the all-21-domains grid we want canonical taxonomy order (the
+  // VOCAB key order) so the layout is stable even as counts shift between
+  // syncs. perDomain is sorted by count desc — fine for the bar, less
+  // useful for the grid where the user expects the same domain in the
+  // same slot every visit.
+  const allDomainsOrdered = (Object.keys(VOCAB.domains) as DomainKey[]).map(
+    (domain) => ({
+      domain,
+      label: VOCAB.domains[domain].label,
+      count: stats.perDomain.find((d) => d.domain === domain)?.count ?? 0,
+    })
+  );
+
   return (
     <section className="bg-surface-card border border-line rounded-lg p-5">
       <div className="flex items-baseline justify-between mb-4">
-        <div className="text-[11px] uppercase tracking-wider font-semibold text-text-tertiary">
-          Collection overview
-        </div>
-        <Link href="/vocabulary" className="text-[11px] text-navy hover:underline">
-          View all →
+        <div className="typo-section-label">Collection overview</div>
+        <Link href="/vocabulary" className="text-[12px] text-navy hover:underline">
+          View vocabulary →
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-x-8 gap-y-3 mb-5">
+      <div className="flex flex-wrap gap-x-10 gap-y-3 mb-6">
         <Stat label="Total books" value={stats.totalBooks} />
         <Stat label="Unique works" value={stats.uniqueWorks} />
         <Stat label="Domains populated" value={`${stats.domainsPopulated} / 21`} />
@@ -425,14 +436,13 @@ function CollectionOverview({ stats }: { stats: DashboardStats }) {
 
       {populated.length > 0 && (
         <>
-          <div className="text-[10px] uppercase tracking-wider font-semibold text-text-tertiary mb-1.5">
-            Distribution by domain
-          </div>
+          <div className="typo-stat-label mb-2">Distribution by domain</div>
           {/* Stacked bar — each populated domain gets a flex-grow segment
               proportional to its count. Empty domains are omitted from
-              the bar (they'd render zero-width); the legend below picks
-              them up if the user cares. */}
-          <div className="flex h-2 rounded overflow-hidden mb-3 bg-surface-page">
+              the bar (they'd render zero-width). Bumped from 8px to 22px
+              so the bar reads as a substantive distribution view rather
+              than a hairline accent. */}
+          <div className="flex h-[22px] rounded-md overflow-hidden mb-5 bg-surface-page border border-line-light">
             {populated.map((d) => (
               <div
                 key={d.domain}
@@ -440,27 +450,22 @@ function CollectionOverview({ stats }: { stats: DashboardStats }) {
                   background: DOMAIN_COLOR[d.domain],
                   flexGrow: d.count,
                   flexBasis: 0,
-                  minWidth: 1,
+                  minWidth: 2,
                 }}
-                title={`${d.label} — ${d.count}`}
+                title={`${d.label} — ${d.count} (${Math.round((d.count / totalForBar) * 100)}%)`}
                 aria-label={`${d.label}: ${d.count} books, ${Math.round((d.count / totalForBar) * 100)}%`}
               />
             ))}
           </div>
-          {/* Legend — populated domains in count-descending order. */}
-          <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-[12px]">
-            {populated.map((d) => (
-              <span key={d.domain} className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden
-                  className="inline-block w-2.5 h-2.5 rounded-sm"
-                  style={{ background: DOMAIN_COLOR[d.domain] }}
-                />
-                <span className="text-text-secondary">{d.label}</span>
-                <span className="font-mono text-[11px] text-text-tertiary">
-                  {d.count}
-                </span>
-              </span>
+
+          {/* Full 21-domain grid. Replaces the count-ordered legend with
+              taxonomy-ordered cards — populated domains visually loud,
+              empty domains muted with an em-dash so the user sees the
+              shape of their library against the LCC universe at a glance.
+              3 columns on desktop, 2 on tablet, 1 on mobile. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {allDomainsOrdered.map((d) => (
+              <DomainCard key={d.domain} domain={d.domain} label={d.label} count={d.count} />
             ))}
           </div>
         </>
@@ -469,13 +474,46 @@ function CollectionOverview({ stats }: { stats: DashboardStats }) {
   );
 }
 
+function DomainCard({
+  domain,
+  label,
+  count,
+}: {
+  domain: DomainKey;
+  label: string;
+  count: number;
+}) {
+  const empty = count === 0;
+  return (
+    <div
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-md border ${
+        empty
+          ? 'border-line-light bg-surface-page/50 opacity-60'
+          : 'border-line bg-surface-card'
+      }`}
+    >
+      <span
+        aria-hidden
+        className="inline-block w-3 h-3 rounded-sm flex-shrink-0"
+        style={{ background: DOMAIN_COLOR[domain] }}
+      />
+      <span className="flex-1 min-w-0 truncate text-[13px] text-text-secondary">
+        {label}
+      </span>
+      <span
+        className={`font-mono text-[12px] ${empty ? 'text-text-quaternary' : 'text-text-primary font-medium'}`}
+      >
+        {empty ? '—' : count}
+      </span>
+    </div>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div>
-      <div className="text-[26px] font-medium text-text-primary leading-none">{value}</div>
-      <div className="text-[10px] uppercase tracking-wider text-text-tertiary mt-1.5">
-        {label}
-      </div>
+      <div className="typo-stat-number">{value}</div>
+      <div className="typo-stat-label mt-1.5">{label}</div>
     </div>
   );
 }
@@ -625,5 +663,84 @@ function SearchResultRow({ entry }: { entry: LedgerEntry }) {
         </div>
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Recent activity — fills the dead space below the tool cards on the
+// dashboard with the last N books cataloged across all batches. Each row
+// links to /review so the user can pick up where they left off; that route
+// already lists every book in the active session, so the click target is
+// "go look at what I've been working on" rather than scroll-into-view.
+// ---------------------------------------------------------------------------
+
+function RecentActivityPanel({ ledger }: { ledger: LedgerEntry[] }) {
+  // Sort by date descending. Ties on date (multiple books exported the
+  // same day) tiebreak alphabetically on title for stable order across
+  // re-renders.
+  const recent = useMemo(() => {
+    const sorted = [...ledger].sort((a, b) => {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+      const at = a.title ?? a.titleNorm;
+      const bt = b.title ?? b.titleNorm;
+      return at.localeCompare(bt);
+    });
+    return sorted.slice(0, 10);
+  }, [ledger]);
+
+  if (recent.length === 0) return null;
+
+  return (
+    <section className="bg-surface-card border border-line rounded-lg p-5 mt-3">
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="typo-section-label">Recent activity</div>
+        <Link href="/history" className="text-[12px] text-navy hover:underline">
+          View history →
+        </Link>
+      </div>
+      <ul className="divide-y divide-line-light">
+        {recent.map((e) => (
+          <li key={`${e.isbn || 'noisbn'}-${e.titleNorm}-${e.date}-${e.batchLabel ?? ''}`}>
+            <RecentActivityRow entry={e} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function RecentActivityRow({ entry }: { entry: LedgerEntry }) {
+  const cover = entry.isbn
+    ? `https://covers.openlibrary.org/b/isbn/${entry.isbn}-S.jpg?default=false`
+    : '';
+  return (
+    <Link
+      href="/review"
+      className="flex items-center gap-3 py-2.5 hover:bg-surface-page/60 transition rounded-md -mx-2 px-2"
+    >
+      <div className="w-[36px] h-[50px] flex-shrink-0 bg-surface-page rounded overflow-hidden">
+        {cover && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cover}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[14px] font-medium text-text-primary truncate">
+          {entry.title ?? entry.titleNorm}
+        </div>
+        <div className="text-[12px] text-text-secondary truncate">
+          {entry.author ?? entry.authorNorm}
+          {entry.batchLabel ? ` · ${entry.batchLabel}` : ''}
+        </div>
+      </div>
+      <div className="text-[12px] text-text-tertiary flex-shrink-0 hidden sm:block">
+        {timeAgo(entry.date)}
+      </div>
+    </Link>
   );
 }

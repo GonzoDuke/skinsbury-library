@@ -13,7 +13,12 @@ import type { BookRecord, PhotoBatch } from '@/lib/types';
 import { addManualBook, createThumbnail, loadImage, makeId } from '@/lib/pipeline';
 import { processIsbnScan } from '@/lib/scan-pipeline';
 import { pushBatchToRepo, syncPendingBatchesFromRepo } from '@/lib/pending-batches';
-import { getLedgerBatches } from '@/lib/export-ledger';
+import {
+  getLedgerBatches,
+  loadLedger,
+  type LedgerBatch,
+  type LedgerEntry,
+} from '@/lib/export-ledger';
 import { fireUndo } from '@/components/UndoToast';
 
 // 1200px wide is the realistic floor we still get useful spine-detection
@@ -627,6 +632,15 @@ export default function UploadPage() {
         disabled={isProcessing}
       />
 
+      {/* Below the dropzone splits into a two-column desktop layout:
+          LEFT (col-span-7) — the active workflow (batch inputs, queue,
+          progress, action row). RIGHT (col-span-5, lg:block only) —
+          informational sidecar (recent batches + cataloging tips).
+          Mobile + tablet collapse to a single column with the right
+          sidecar hidden entirely; phone users have no screen real-
+          estate budget for it. */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="lg:col-span-7 space-y-4">
       {scanError && (
         <div className="bg-mahogany/10 dark:bg-tartan/30 border border-mahogany/40 dark:border-tartan/50 text-mahogany dark:text-orange-100 rounded-md px-3 py-2 text-[12px]">
           Barcode lookup failed: {scanError}
@@ -862,6 +876,17 @@ export default function UploadPage() {
           {isDark ? '☀ Light' : '☾ Dark'}
         </button>
       </div>
+      </div>
+
+      {/* Right informational sidecar — desktop / large-tablet only.
+          Renders independent of session state; reads from the export
+          ledger directly so it shows useful content even on a fresh
+          load with no in-flight batches. */}
+      <aside className="hidden lg:block lg:col-span-5 space-y-4">
+        <RecentBatchesPanel />
+        <CatalogingTipsPanel />
+      </aside>
+      </div>
 
       {/* Sticky phone CTA — only Process-all button on phone. Pinned
           above the 56px bottom tab bar (plus iOS home-indicator inset)
@@ -945,6 +970,104 @@ export default function UploadPage() {
         />
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Right-column panels for the desktop layout. Both read directly from the
+// localStorage-cached ledger — no remote calls. The panels render even on
+// a fresh load with no in-flight session because their entire purpose is to
+// give the user something useful to look at while their workflow is empty.
+// ---------------------------------------------------------------------------
+
+function RecentBatchesPanel() {
+  const [batches, setBatches] = useState<LedgerBatch[]>([]);
+  const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  useEffect(() => {
+    setBatches(getLedgerBatches().slice(0, 6));
+    setLedger(loadLedger());
+  }, []);
+
+  if (batches.length === 0) return null;
+
+  return (
+    <section className="bg-surface-card border border-line rounded-lg p-4">
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="typo-section-label">Recent batches</div>
+        <Link href="/history" className="text-[12px] text-navy hover:underline">
+          View all →
+        </Link>
+      </div>
+      <ul className="space-y-2.5">
+        {batches.map((b) => {
+          const inBatch = ledger.filter((e) => e.batchLabel === b.batchLabel);
+          const covers = inBatch
+            .filter((e) => !!e.isbn)
+            .slice(0, 3)
+            .map((e) => e.isbn);
+          return (
+            <li key={(b.batchLabel ?? '__unlabeled__') + b.latestDate}>
+              <Link
+                href="/history"
+                className="block rounded-md hover:bg-surface-page transition px-2 py-2 -mx-2"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="flex -space-x-2 flex-shrink-0">
+                    {covers.length > 0 ? (
+                      covers.map((isbn) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={isbn}
+                          src={`https://covers.openlibrary.org/b/isbn/${isbn}-S.jpg?default=false`}
+                          alt=""
+                          className="w-7 h-10 rounded-sm object-cover bg-surface-page border border-surface-card shadow-sm"
+                          loading="lazy"
+                        />
+                      ))
+                    ) : (
+                      <div className="w-7 h-10 rounded-sm bg-surface-page border border-line" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[14px] font-medium text-text-primary truncate">
+                      {b.batchLabel ?? <em className="text-text-tertiary not-italic">Unlabeled</em>}
+                    </div>
+                    <div className="text-[12px] text-text-tertiary">
+                      {b.bookCount} {b.bookCount === 1 ? 'book' : 'books'} · {b.latestDate}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function CatalogingTipsPanel() {
+  // Static copy — these don't change per session and don't need state.
+  // The treatment is deliberately quiet: muted text, no CTA, just useful
+  // information that earns its place in the empty real estate.
+  const tips = [
+    'Spine photos: keep the camera parallel to the shelf, fill the frame with one shelf at a time.',
+    'Good lighting matters more than camera quality.',
+    'Glossy or plastic covers may produce glare — angle slightly to avoid reflection.',
+    'Books packed tightly photograph better than half-empty shelves.',
+  ];
+  return (
+    <section className="bg-surface-card border border-line rounded-lg p-4">
+      <div className="typo-section-label mb-3">Cataloging tips</div>
+      <ul className="space-y-2.5 text-[13px] text-text-secondary leading-relaxed">
+        {tips.map((tip, i) => (
+          <li key={i} className="flex gap-2">
+            <span aria-hidden className="text-text-quaternary mt-[1px]">·</span>
+            <span>{tip}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
