@@ -16,19 +16,23 @@
         "author": "",
         "confidence": "HIGH"
       },
-      "title": "",
+      "title": "On Character",
       "author": "",
       "authorLF": "",
       "isbn": "9780593852958",
       "publisher": "Penguin Publishing Group",
       "publicationYear": 2025,
       "lcc": "",
-      "genreTags": [],
+      "genreTags": [
+        "Ethics"
+      ],
       "formTags": [],
-      "confidence": "LOW",
-      "reasoning": "",
+      "confidence": "MEDIUM",
+      "reasoning": "[philosophy_psychology_religion] Title 'On Character' strongly suggests ethical philosophy focused on moral character development. Without additional metadata like author, LCC, or subject headings, confidence is medium, but character is a core concept in virtue ethics.",
       "status": "pending",
-      "warnings": [],
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
       "sourcePhoto": "manual-entry",
       "lookupSource": "openlibrary",
       "lccSource": "none",
@@ -43,7 +47,12 @@
         "genreTags": [],
         "formTags": []
       },
-      "spineThumbnail": ""
+      "spineThumbnail": "",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "rereading": false,
+      "domainConfidence": "medium"
     }
   ]
 }
