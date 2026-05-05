@@ -7,7 +7,12 @@ import type {
 } from './types';
 import { toAuthorLastFirst, toTitleCase } from './csv-export';
 import { getAuthorPattern, type AuthorPatternResult } from './export-ledger';
-import { inferFictionTag, normalizeLcc, stringSimilarity } from './lookup-utils';
+import {
+  inferFictionTag,
+  isCompleteLcc,
+  normalizeLcc,
+  stringSimilarity,
+} from './lookup-utils';
 
 /**
  * When true, prefer canonical title / author from the lookup chain
@@ -844,7 +849,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
   // title+author) returned nothing. Marked 'inferred' so the BookCard
   // can show a clearly distinct badge — this is best-guess, not
   // authoritative.
-  if (!finalLcc && grounded.keep && read.title && read.author) {
+  if (!isCompleteLcc(finalLcc) && grounded.keep && read.title && read.author) {
     try {
       const inferred = await inferLccClient({
         title: read.title,
@@ -853,8 +858,13 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         publicationYear: lookup.publicationYear,
       });
       if (inferred.lcc && inferred.confidence !== 'LOW') {
-        finalLcc = normalizeLcc(inferred.lcc);
-        lccSource = 'inferred';
+        const normalized = normalizeLcc(inferred.lcc);
+        // Don't downgrade: only overwrite a partial LCC with a complete one,
+        // or fill an empty LCC with whatever the model returned.
+        if (isCompleteLcc(normalized) || !finalLcc) {
+          finalLcc = normalized;
+          lccSource = 'inferred';
+        }
       }
     } catch {
       // ignore — leave LCC empty
@@ -1272,7 +1282,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
   let lccSource: BookRecord['lccSource'] = finalLcc ? lookup.lccSource ?? 'ol' : 'none';
 
   // Tier 6 inference for manual entries that come back without an LCC.
-  if (!finalLcc && title && author) {
+  if (!isCompleteLcc(finalLcc) && title && author) {
     try {
       const inferred = await inferLccClient({
         title,
@@ -1281,8 +1291,13 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
         publicationYear: lookup.publicationYear,
       });
       if (inferred.lcc && inferred.confidence !== 'LOW') {
-        finalLcc = normalizeLcc(inferred.lcc);
-        lccSource = 'inferred';
+        const normalized = normalizeLcc(inferred.lcc);
+        // Don't downgrade: only overwrite a partial LCC with a complete one,
+        // or fill an empty LCC with whatever the model returned.
+        if (isCompleteLcc(normalized) || !finalLcc) {
+          finalLcc = normalized;
+          lccSource = 'inferred';
+        }
       }
     } catch {
       // ignore
@@ -1556,7 +1571,7 @@ export async function rereadBook(
   const rereadPattern = applyAuthorPatternEnrichment(lookup, rereadAuthorLF);
 
   // Tier 6 inference (same fallback as buildBookFromCrop).
-  if (!finalLcc && title && author) {
+  if (!isCompleteLcc(finalLcc) && title && author) {
     try {
       const inferred = await inferLccClient({
         title,
@@ -1565,8 +1580,13 @@ export async function rereadBook(
         publicationYear: lookup.publicationYear,
       });
       if (inferred.lcc && inferred.confidence !== 'LOW') {
-        finalLcc = normalizeLcc(inferred.lcc);
-        lccSource = 'inferred';
+        const normalized = normalizeLcc(inferred.lcc);
+        // Don't downgrade: only overwrite a partial LCC with a complete one,
+        // or fill an empty LCC with whatever the model returned.
+        if (isCompleteLcc(normalized) || !finalLcc) {
+          finalLcc = normalized;
+          lccSource = 'inferred';
+        }
       }
     } catch {
       // ignore

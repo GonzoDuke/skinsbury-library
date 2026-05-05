@@ -198,6 +198,28 @@ export function normalizeLcc(s: string | undefined | null): string {
 }
 
 /**
+ * True only when the LCC string carries both a class number AND a
+ * cutter portion. Catches the "we got a class-number-only stub from
+ * Open Library" case so the post-cascade LoC / Wikidata / Sonnet
+ * fallbacks can fire to fill in the cutter and date.
+ *
+ * Definition of "complete" here: a space followed by a dot, an
+ * uppercase letter, and a digit (the canonical cutter shape, e.g.
+ * `" .A36"`, `" .S8925"`). Class-number-only strings ("HV5825",
+ * "BD221") never contain that pattern. Empty/falsy → false.
+ *
+ * Inputs are run through normalizeLcc first so a malformed
+ * "HV-5825.00000000" can't slip through as "complete" on a
+ * raw-string match.
+ */
+export function isCompleteLcc(lcc: string | undefined | null): boolean {
+  if (!lcc) return false;
+  const normalized = normalizeLcc(lcc);
+  if (!normalized) return false;
+  return /\s\.[A-Z]\d/.test(normalized);
+}
+
+/**
  * Library of Congress SRU lookup by ISBN. Returns canonical-format LCC
  * or empty string. Free, no API key, ~0.5–2s typical.
  *
@@ -522,6 +544,28 @@ if (process.env.NODE_ENV !== 'production') {
     if (got !== c.out) {
       throw new Error(
         `normalizeLcc regression: ${JSON.stringify(c.in)} → ${JSON.stringify(got)} (expected ${JSON.stringify(c.out)})`
+      );
+    }
+  }
+
+  // isCompleteLcc — same module-load gate. The post-cascade fallbacks
+  // (LoC title+author, Wikidata title-search, Sonnet infer-lcc) all
+  // depend on this judgement, so a regression here would silently
+  // re-suppress them.
+  const completeCases: { in: string; out: boolean }[] = [
+    { in: '', out: false },
+    { in: 'HV5825', out: false },
+    { in: 'HV-5825.00000000', out: false }, // partial after normalize
+    { in: 'BD221 .A36 2008', out: true },
+    { in: 'GV200.5 .S8925 2009', out: true },
+    { in: 'P140 .F57 1999', out: true },
+    { in: 'Z659 .H22 2016', out: true },
+  ];
+  for (const c of completeCases) {
+    const got = isCompleteLcc(c.in);
+    if (got !== c.out) {
+      throw new Error(
+        `isCompleteLcc regression: ${JSON.stringify(c.in)} → ${got} (expected ${c.out})`
       );
     }
   }

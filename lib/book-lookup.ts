@@ -1,6 +1,7 @@
 import type { BookLookupResult } from './types';
 import {
   normalizeLcc,
+  isCompleteLcc,
   lookupLccByIsbn,
   lookupLccByTitleAuthor,
   lookupFullMarcByIsbn,
@@ -2044,29 +2045,48 @@ export async function lookupBook(
     }
   }
 
-  // LoC SRU by title + author — last-resort LCC gap-fill when no ISBN
-  // ever surfaced.
-  if (!result.lcc && searchTitle && searchAuthor) {
+  // LoC SRU by title + author — gap-fill when no LCC was set OR when the
+  // existing LCC is partial (class-number only, no cutter). Open Library
+  // frequently returns class-number-only stubs ("HV5825", "BD221"); LoC's
+  // title+author SRU often has the canonical "HV5825 .T67 2005" form.
+  // Don't downgrade: only overwrite when the new LCC is itself complete
+  // OR the existing one was empty.
+  if (!isCompleteLcc(result.lcc) && searchTitle && searchAuthor) {
     const sruLcc = await lookupLccByTitleAuthor(searchTitle, cleanedAuthor);
     if (sruLcc) {
-      result.lcc = normalizeLcc(sruLcc);
-      lccSource = 'loc';
-      log.tier('loc-by-title', `lx2.loc.gov/sru by title+author → matched lcc=${JSON.stringify(result.lcc)}`);
+      const normalized = normalizeLcc(sruLcc);
+      if (isCompleteLcc(normalized) || !result.lcc) {
+        result.lcc = normalized;
+        lccSource = 'loc';
+        log.tier(
+          'loc-by-title',
+          `lx2.loc.gov/sru by title+author → matched lcc=${JSON.stringify(result.lcc)}`
+        );
+      } else {
+        log.tier(
+          'loc-by-title',
+          `lx2.loc.gov/sru by title+author → returned partial lcc=${JSON.stringify(normalized)}, keeping existing partial (${lccSource})`
+        );
+      }
     } else {
       log.tier('loc-by-title', 'lx2.loc.gov/sru by title+author → no LCC');
     }
   } else if (result.lcc) {
-    log.tier('loc-by-title', `skipped — LCC already set (${lccSource})`);
+    log.tier('loc-by-title', `skipped — LCC already complete (${lccSource})`);
   }
 
-  // Wikidata title-search — only when we still have nothing useful AND
-  // no ISBN to do the exact P212 lookup with.
-  if (!result.lcc && !result.isbn) {
+  // Wikidata title-search — gap-fill when LCC is empty/partial AND no ISBN
+  // (when an ISBN exists, Phase 2's exact P212 lookup already ran). Same
+  // don't-downgrade rule as the LoC fallback above.
+  if (!isCompleteLcc(result.lcc) && !result.isbn) {
     const wd = await lookupWikidata(searchTitle, searchAuthor, log);
     if (wd) {
       if (wd.lcc) {
-        result.lcc = normalizeLcc(wd.lcc);
-        lccSource = 'wikidata';
+        const normalized = normalizeLcc(wd.lcc);
+        if (isCompleteLcc(normalized) || !result.lcc) {
+          result.lcc = normalized;
+          lccSource = 'wikidata';
+        }
       }
       if (!result.ddc && wd.ddc) result.ddc = wd.ddc;
       if (!result.isbn && wd.isbn) result.isbn = wd.isbn;
@@ -2093,8 +2113,8 @@ export async function lookupBook(
         result.subjects = merged.slice(0, 15);
       }
     }
-  } else if (result.lcc) {
-    log.tier('wikidata-title', `skipped — LCC already set (${lccSource})`);
+  } else if (result.lcc && !result.isbn) {
+    log.tier('wikidata-title', `skipped — LCC already complete (${lccSource})`);
   } else {
     log.tier('wikidata-title', 'skipped — already have ISBN, exact P212 ran in Phase 2');
   }
