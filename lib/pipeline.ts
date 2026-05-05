@@ -7,7 +7,7 @@ import type {
 } from './types';
 import { toAuthorLastFirst, toTitleCase } from './csv-export';
 import { getAuthorPattern, type AuthorPatternResult } from './export-ledger';
-import { stringSimilarity } from './lookup-utils';
+import { inferFictionTag, stringSimilarity } from './lookup-utils';
 
 /**
  * When true, prefer canonical title / author from the lookup chain
@@ -92,6 +92,27 @@ export const SPINE_MODEL_CONFIG = {
   easyAreaThreshold: 2.0, // % of image area
   easyAspectMaxRatio: 3, // height / width
 };
+
+/**
+ * Merge a deterministic Fiction form tag into the model-output formTags
+ * when LCC + LCSH satisfy the rule (see lib/lookup-utils.ts:inferFictionTag).
+ * Idempotent — re-running on already-tagged formTags is a no-op.
+ *
+ * Called at every site that assembles formTags from /api/infer-tags so
+ * the model never has to know about Fiction; the deterministic helper
+ * owns the decision and the system prompt instructs the model not to
+ * suggest or remove it.
+ */
+function applyFictionFormTag(
+  formTags: string[],
+  lcc: string | undefined,
+  subjects: string[] | undefined
+): string[] {
+  const tag = inferFictionTag(lcc, subjects);
+  if (!tag) return formTags;
+  if (formTags.includes(tag)) return formTags;
+  return [...formTags, tag];
+}
 
 export function pickSpineModel(bbox: { width: number; height: number }): 's' | 'o' {
   const area = bbox.width * bbox.height; // bbox is in image-percent already, so this is roughly % of image area × 100
@@ -893,6 +914,16 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     }
   }
 
+  // Deterministic Fiction tag — applied AFTER model inference so the
+  // model output stays subject/genre-only and Fiction is owned by the
+  // LCC+LCSH rule. lcshSubjects (when present) wins over the older
+  // generic subjects field for the LCSH check.
+  tags.formTags = applyFictionFormTag(
+    tags.formTags,
+    finalLcc,
+    lookup.lcshSubjects ?? lookup.subjects
+  );
+
   // Combined confidence: take the worse of OCR confidence (post-grounding) and tag confidence.
   const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
   const combinedConfidence =
@@ -1258,6 +1289,16 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     }
   }
 
+  // Deterministic Fiction tag (manual-entry path). Same rule as the
+  // crop-pipeline path: LCC literary-fiction range AND LCSH lacks a
+  // poetry/drama signal. Runs AFTER the Tier-6 LCC fallback so the
+  // inferred LCC is in scope.
+  tags.formTags = applyFictionFormTag(
+    tags.formTags,
+    finalLcc,
+    lookup.lcshSubjects ?? lookup.subjects
+  );
+
   return {
     id: makeId(),
     spineRead: {
@@ -1576,6 +1617,17 @@ export async function rereadBook(
     } catch {
       grounded.warnings.push('Tag inference failed.');
     }
+  }
+
+  // Deterministic Fiction tag — only when fresh inference ran (tags
+  // is non-null). Reread paths that skipped inference because the user
+  // already had curated tags should leave their formTags alone.
+  if (tags) {
+    tags.formTags = applyFictionFormTag(
+      tags.formTags,
+      finalLcc,
+      lookup.lcshSubjects ?? lookup.subjects
+    );
   }
 
   const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;

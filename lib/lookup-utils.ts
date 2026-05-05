@@ -404,3 +404,64 @@ export async function lookupLccByTitleAuthor(title: string, author: string): Pro
     `&query=${encodeURIComponent(cql)}&maximumRecords=1&recordSchema=marcxml`;
   return loFetch050(url, 7000);
 }
+
+// ---------------------------------------------------------------------------
+// Fiction tag inference — deterministic helper applied locally in the
+// pipeline before AI tag inference runs. The model is instructed not
+// to suggest or remove Fiction; this function owns the decision.
+//
+// Rule: apply Fiction when LCC sits in the literary-fiction ranges AND
+// LCSH headings don't include explicit poetry / drama signals. Poetry
+// and drama live in the same LCC ranges as fiction for many authors,
+// so LCSH is the disambiguator. When LCSH is empty we fall through and
+// apply Fiction; the user can manually correct on Review if wrong.
+// ---------------------------------------------------------------------------
+
+const FICTION_LCSH_EXCLUSIONS = ['poetry', 'poems', 'drama'];
+
+export function inferFictionTag(
+  lcc: string | undefined,
+  subjects: string[] | undefined
+): 'Fiction' | null {
+  if (!lcc) return null;
+
+  // Class letters + leading numeric portion. PR1804.5 → ['PR', '1804'].
+  const m = lcc.match(/^([A-Z]+)(\d+)/);
+  if (!m) return null;
+  const letters = m[1];
+  const numeric = parseInt(m[2], 10);
+  if (Number.isNaN(numeric)) return null;
+
+  let lccMatchesFiction = false;
+  if (letters === 'PQ' || letters === 'PT' || letters === 'PZ') {
+    // Romance lit (PQ), Germanic/Scandinavian lit (PT), and children's
+    // lit / fiction in foreign languages (PZ) are fiction-dominant.
+    lccMatchesFiction = true;
+  } else if (letters === 'PR' && numeric >= 1804) {
+    // English literature, individual authors. Below 1804 covers
+    // history of English literature, anthologies, etc. — non-fiction
+    // about literature, not fiction itself.
+    lccMatchesFiction = true;
+  } else if (letters === 'PS' && numeric >= 500) {
+    // American literature, individual authors. Below 500 covers
+    // history of American literature.
+    lccMatchesFiction = true;
+  } else if (letters === 'PN' && numeric >= 6071 && numeric <= 6079) {
+    // Anthologies of fiction (PN6071-PN6079).
+    lccMatchesFiction = true;
+  }
+
+  if (!lccMatchesFiction) return null;
+
+  // LCSH disambiguation. When LCSH is missing or empty, fall through
+  // and apply Fiction — the spec's fallback case.
+  if (subjects && subjects.length > 0) {
+    const hasFormSignal = subjects.some((heading) => {
+      const lower = heading.toLowerCase();
+      return FICTION_LCSH_EXCLUSIONS.some((signal) => lower.includes(signal));
+    });
+    if (hasFormSignal) return null;
+  }
+
+  return 'Fiction';
+}
