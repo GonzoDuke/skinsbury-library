@@ -1217,10 +1217,14 @@ export async function lookupSpecificEdition(
             out.coverUrl = cover.primary || undefined;
             out.coverUrlFallbacks =
               cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
-            attachProvenance(
-              out,
-              inferProvenanceFromResult(out, out.lccSource ?? 'none')
-            );
+            // Gap-fill on the Reread / matchEdition path. Without this,
+            // every Reread bypassed the post-Phase-2 gap-fill pass and
+            // landed records with empty lcshSubjects / pageCount / ddc /
+            // synopsis even when MARC and OL would have filled them.
+            const gapFillProv: BookRecordProvenance = {};
+            await runGapFill(out, log, gapFillProv);
+            const baseProv = inferProvenanceFromResult(out, out.lccSource ?? 'none');
+            attachProvenance(out, { ...baseProv, ...gapFillProv });
             log.finish({ ...out, tier: 'ol-by-isbn' });
             return out;
           }
@@ -1324,10 +1328,11 @@ export async function lookupSpecificEdition(
           out.coverUrl = cover.primary || undefined;
           out.coverUrlFallbacks =
             cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
-          attachProvenance(
-            out,
-            inferProvenanceFromResult(out, out.lccSource ?? 'none')
-          );
+          // Gap-fill on the Reread / matchEdition path — see tier 1.
+          const gapFillProv: BookRecordProvenance = {};
+          await runGapFill(out, log, gapFillProv);
+          const baseProv = inferProvenanceFromResult(out, out.lccSource ?? 'none');
+          attachProvenance(out, { ...baseProv, ...gapFillProv });
           log.finish({ ...out, tier: 'ol-year-scoped' });
           return out;
         }
@@ -1393,10 +1398,11 @@ export async function lookupSpecificEdition(
         out.coverUrl = cover.primary || hit.coverUrl || undefined;
         out.coverUrlFallbacks =
           cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
-        attachProvenance(
-          out,
-          inferProvenanceFromResult(out, out.lccSource ?? 'none')
-        );
+        // Gap-fill on the Reread / matchEdition path — see tier 1.
+        const gapFillProv: BookRecordProvenance = {};
+        await runGapFill(out, log, gapFillProv);
+        const baseProv = inferProvenanceFromResult(out, out.lccSource ?? 'none');
+        attachProvenance(out, { ...baseProv, ...gapFillProv });
         log.finish({ ...out, tier: 'isbndb-direct' });
         return out;
       }
