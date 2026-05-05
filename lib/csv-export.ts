@@ -104,14 +104,31 @@ function capitalizeWord(word: string): string {
   if (word.includes('-')) {
     return word.split('-').map(capitalizeWord).join('-');
   }
-  // Apostrophes: "alice's" → "Alice's"; "o'brien" → "O'Brien".
+  // Apostrophes: distinguish Irish/Scottish/French name prefixes
+  // ("O'Brien", "D'Angelo" — single-letter prefix, next letter is the
+  // start of the proper-noun stem, so capitalize it) from contractions
+  // and possessives ("Can't", "won't", "Alice's" — multi-letter prefix,
+  // next letter is a particle and stays lowercase). The single- vs.
+  // multi-letter heuristic captures real-world usage cleanly:
+  //   "o'brien"   → 1 char before "'" → "O'Brien"
+  //   "d'angelo"  → 1 char before "'" → "D'Angelo"
+  //   "can't"     → 3 chars before "'" → "Can't"
+  //   "won't"     → 3 chars before "'" → "Won't"
+  //   "alice's"   → 5 chars before "'" → "Alice's"
   if (word.includes("'")) {
-    return word
-      .split("'")
-      .map((seg, i) => (i === 0 ? capitalizeWord(seg) : seg.toLowerCase().replace(/^./, (c) => c.toUpperCase())))
-      .join("'")
-      // Common possessive ("Alice's") shouldn't capitalize the s.
-      .replace(/'S\b/, "'s");
+    const segs = word.split("'");
+    return segs
+      .map((seg, i) => {
+        if (i === 0) return capitalizeWord(seg);
+        const prev = segs[i - 1];
+        if (prev.length === 1) {
+          // Name-prefix convention: capitalize first letter of this seg.
+          return seg.charAt(0).toUpperCase() + seg.slice(1).toLowerCase();
+        }
+        // Contraction / possessive: keep this seg lowercase.
+        return seg.toLowerCase();
+      })
+      .join("'");
   }
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
@@ -236,4 +253,29 @@ export function exportFilename(
   const dd = String(date.getDate()).padStart(2, '0');
   const slug = label ? `-${slugify(label)}` : '';
   return `carnegie-lt-import-${yyyy}-${mm}-${dd}${slug}-${count}books.${extension}`;
+}
+
+// ---------------------------------------------------------------------------
+// toTitleCase dev assertions — fire at module load in dev. The
+// apostrophe-handling regression that prompted this commit is the
+// most-tested case; a future "fix" that reverts the heuristic will
+// throw here loudly instead of silently mangling user titles again.
+// ---------------------------------------------------------------------------
+if (process.env.NODE_ENV !== 'production') {
+  const cases: { in: string; out: string }[] = [
+    { in: "can't find my way home", out: "Can't Find My Way Home" },
+    { in: "o'brien's pub", out: "O'Brien's Pub" },
+    { in: "d'angelo and the vanguard", out: "D'Angelo and the Vanguard" },
+    { in: 'first-class travel', out: 'First-Class Travel' },
+    { in: 'the lord of the rings', out: 'The Lord of the Rings' },
+    { in: "CAN'T FIND MY WAY HOME", out: "Can't Find My Way Home" },
+  ];
+  for (const c of cases) {
+    const got = toTitleCase(c.in);
+    if (got !== c.out) {
+      throw new Error(
+        `toTitleCase regression: ${JSON.stringify(c.in)} → ${JSON.stringify(got)} (expected ${JSON.stringify(c.out)})`
+      );
+    }
+  }
 }

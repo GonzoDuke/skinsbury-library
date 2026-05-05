@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { BookRecord } from '@/lib/types';
 import { useStore } from '@/lib/store';
-import { toAuthorLastFirst, toTitleCase } from '@/lib/csv-export';
+import { toAuthorLastFirst } from '@/lib/csv-export';
 import { TagChip } from './TagChip';
 import { TagPicker } from './TagPicker';
 import { Cover } from './Cover';
@@ -281,7 +281,8 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
             label="Title"
             value={book.title}
             placeholder="Untitled spine"
-            onSave={(v) => updateBook(book.id, { title: toTitleCase(v.trim()) })}
+            // Save the user's typed value verbatim — see BookTableRow.tsx for rationale.
+            onSave={(v) => updateBook(book.id, { title: v.trim() })}
           />
           <Editable
             label="Author"
