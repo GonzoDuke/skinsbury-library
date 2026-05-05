@@ -1,1 +1,160 @@
-[]
+[
+  {
+    "isbn": "9781410490070",
+    "titleNorm": "paper",
+    "authorNorm": "mark kurlansky",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "History of technology",
+      "World history",
+      "Cultural history"
+    ],
+    "title": "Paper",
+    "author": "Mark Kurlansky",
+    "authorLF": "Kurlansky, Mark",
+    "publisher": "W. W. Norton & Company",
+    "publicationYear": 2016,
+    "lcc": "TS1090 .K87 2017"
+  },
+  {
+    "isbn": "9780804759014",
+    "titleNorm": "agnotology",
+    "authorNorm": "proctor robert",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Epistemology",
+      "Anthology"
+    ],
+    "title": "Agnotology",
+    "author": "Proctor, Robert",
+    "authorLF": "Proctor, Robert; Schiebinger, Londa L.; Proctor, Robert; Schiebinger, Londa",
+    "publisher": "Stanford University Press",
+    "publicationYear": 2008,
+    "lcc": "BD221 .A36 2008"
+  },
+  {
+    "isbn": "9780061373510",
+    "titleNorm": "survive essential skills and tactics to get you out of anywhere alive",
+    "authorNorm": "les stroud",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Survival skills",
+      "How-to / guide",
+      "First edition"
+    ],
+    "title": "Survive! Essential Skills and Tactics to Get You Out of Anywhere—alive",
+    "author": "Les Stroud",
+    "authorLF": "Stroud, Les",
+    "publisher": "HarperCollins",
+    "publicationYear": 2008,
+    "lcc": "GV200.5 .S8925 2009"
+  },
+  {
+    "isbn": "9781476777412",
+    "titleNorm": "the bad ass librarians of timbuktu",
+    "authorNorm": "joshua hammer",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Library science",
+      "Book culture"
+    ],
+    "title": "The Bad-Ass Librarians of Timbuktu",
+    "author": "Joshua Hammer",
+    "authorLF": "Hammer, Joshua; Boehmer, Paul",
+    "publisher": "HighBridge Audio",
+    "publicationYear": 2016,
+    "lcc": "Z659 .H22 2016"
+  },
+  {
+    "isbn": "9781400069224",
+    "titleNorm": "zealot",
+    "authorNorm": "reza aslan",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Comparative religion",
+      "Ancient philosophy"
+    ],
+    "title": "Zealot",
+    "author": "Reza Aslan",
+    "authorLF": "Aslan, Reza; Moussa, Dr Mounir; Moussa, Dr Hoda Abbas; Killany, Mr Ashraf",
+    "publisher": "Indicios",
+    "publicationYear": 2013,
+    "lcc": "BT301.3 .A85 2013"
+  },
+  {
+    "isbn": "9781780239460",
+    "titleNorm": "a history of language",
+    "authorNorm": "steven roger fischer",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Linguistics",
+      "History of language"
+    ],
+    "title": "A History of Language",
+    "author": "Steven Roger Fischer",
+    "authorLF": "Fischer, Steven Roger",
+    "publisher": "Reaktion Books",
+    "publicationYear": 2018,
+    "lcc": "P140 .F57 1999"
+  },
+  {
+    "isbn": "9780300276091",
+    "titleNorm": "psychonauts",
+    "authorNorm": "mike jay",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Psychopharmacology",
+      "Medical history",
+      "Drugs",
+      "Counterculture"
+    ],
+    "title": "Psychonauts",
+    "author": "Mike Jay",
+    "authorLF": "Jay, Mike",
+    "publisher": "Yale University Press",
+    "publicationYear": 2023,
+    "lcc": "RC568.P75 J39 2023"
+  },
+  {
+    "isbn": "9780743230117",
+    "titleNorm": "can t find my way home america in the great stoned age 1945 2000",
+    "authorNorm": "martin torgoff",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Drugs",
+      "Counterculture"
+    ],
+    "title": "Can'T Find My Way Home: America in the Great Stoned Age, 1945-2000",
+    "author": "Martin Torgoff",
+    "authorLF": "Torgoff, Martin",
+    "publisher": "Simon & Schuster",
+    "publicationYear": 2005,
+    "lcc": "HV-5825.00000000"
+  },
+  {
+    "isbn": "9780063228252",
+    "titleNorm": "the subtle art of not giving a f ck",
+    "authorNorm": "mark manson",
+    "date": "2026-05-05",
+    "batchLabel": "Shelf 2026-05-05",
+    "tags": [
+      "Self-improvement",
+      "Personal development",
+      "pop psychology"
+    ],
+    "title": "The Subtle Art of Not Giving a F*ck",
+    "author": "Mark Manson",
+    "authorLF": "Manson, Mark",
+    "publisher": "Macmillan",
+    "publicationYear": 2016,
+    "lcc": "BJ-1589.00000000"
+  }
+]
