@@ -297,6 +297,61 @@ export async function pushLedgerDelta(
   }
 }
 
+/**
+ * Push an export run as a single atomic commit: every JSON backup file
+ * lands under `data/export-backups/`, and the ledger gets the run's
+ * additions merged in — all in one Git Trees commit through
+ * /api/export-backup. Replaces the per-export `pushLedgerDelta` call so
+ * the backup files and the ledger update never drift relative to each
+ * other (one commit, both writes succeed or neither does).
+ *
+ * Local-only mode short-circuits — the caller is expected to fall back
+ * to client-side JSON downloads in that case so the user never loses a
+ * backup. We still log the skipped write so the no-write trace is
+ * complete.
+ */
+export async function pushExportCommit(input: {
+  backups: { filename: string; content: string }[];
+  additions: LedgerEntry[];
+  commitMessage: string;
+}): Promise<RemoteLedgerResponse> {
+  if (typeof window === 'undefined') return { available: false };
+  if (isNoWriteMode()) {
+    logSkippedWrite('pushExportCommit', {
+      backupCount: input.backups.length,
+      additionCount: input.additions.length,
+      commitMessage: input.commitMessage,
+    });
+    return { available: true };
+  }
+  try {
+    const res = await fetch('/api/export-backup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    const data = (await res.json().catch(() => ({}))) as RemoteLedgerResponse;
+    if (res.status === 501) {
+      rememberRemoteAvailability(false);
+      return { available: false, error: data.error };
+    }
+    if (!res.ok) {
+      return {
+        available: data.available ?? true,
+        error: data.error ?? `HTTP ${res.status}`,
+      };
+    }
+    rememberRemoteAvailability(true);
+    if (Array.isArray(data.entries)) saveLedger(data.entries);
+    return data;
+  } catch (err) {
+    return {
+      available: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 function rememberRemoteAvailability(on: boolean): void {
   if (typeof window === 'undefined') return;
   try {

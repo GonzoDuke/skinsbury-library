@@ -9,7 +9,7 @@ import { generateBackupJson } from '@/lib/json-backup';
 import {
   appendToLedger,
   bookToLedgerEntry,
-  pushLedgerDelta,
+  pushExportCommit,
   renameBatchLabelInLocalLedger,
 } from '@/lib/export-ledger';
 import { isNoWriteMode, logSkippedWrite } from '@/lib/no-write-mode';
@@ -137,8 +137,18 @@ export default function ExportPage() {
     URL.revokeObjectURL(url);
   }
 
-  function downloadOne(books: BookRecord[], label?: string) {
-    if (books.length === 0) return;
+  /**
+   * One CSV pass. Runs the CSV download immediately (the CSV flow is
+   * sacred — keep it client-side). Returns the JSON backup envelope
+   * paired with that CSV; the caller bundles all backups from a single
+   * export run into one atomic repo commit (or, in local-only mode,
+   * triggers per-file client downloads as the fallback).
+   */
+  function exportOne(
+    books: BookRecord[],
+    label?: string
+  ): { backupFilename: string; backupContent: string; bookCount: number; label?: string } | null {
+    if (books.length === 0) return null;
     // Share one timestamp between the CSV and JSON so the filename roots
     // line up exactly — important when split-by-batch writes several pairs
     // in the same second.
@@ -153,17 +163,16 @@ export default function ExportPage() {
 
     // Companion JSON backup. Same name root, .json extension. Captures the
     // full BookRecord shape so the user has a permanent record of every
-    // export, independent of localStorage.
-    const jsonName = exportFilename(books.length, date, label, 'json');
-    const json = generateBackupJson(books, {
+    // export. Now writes to data/export-backups/ via atomic commit instead
+    // of downloading to the user's machine — local-only mode falls back to
+    // the original client download path in the caller.
+    const backupFilename = exportFilename(books.length, date, label, 'json');
+    const backupContent = generateBackupJson(books, {
       csvCompanion: csvName,
       batchLabel: label,
       date,
     });
-    triggerDownload(
-      new Blob([json], { type: 'application/json;charset=utf-8' }),
-      jsonName
-    );
+    return { backupFilename, backupContent, bookCount: books.length, label };
   }
 
   // Brief "Downloaded ✓" state for the primary CTA after a successful export.
@@ -173,33 +182,90 @@ export default function ExportPage() {
     if (booksToExport.length === 0) return;
     setDownloadFlash(true);
     window.setTimeout(() => setDownloadFlash(false), 2000);
+
+    // Run each CSV download synchronously and collect the paired JSON
+    // backup envelope for the bundled commit (or local fallback) below.
+    const backups: { filename: string; content: string; label?: string }[] = [];
     if (splitByBatch) {
-      // One file per selected batch, downloaded sequentially.
       for (const b of batches.filter((g) => selectedBatches.has(g.key))) {
         const labelForFilename = b.key === UNCATEGORIZED ? undefined : b.label;
-        downloadOne(b.books, labelForFilename);
+        const result = exportOne(b.books, labelForFilename);
+        if (result) {
+          backups.push({
+            filename: result.backupFilename,
+            content: result.backupContent,
+            label: result.label,
+          });
+        }
       }
     } else {
-      downloadOne(booksToExport);
+      const result = exportOne(booksToExport);
+      if (result) {
+        backups.push({
+          filename: result.backupFilename,
+          content: result.backupContent,
+          label: result.label,
+        });
+      }
     }
+
     // Record everything we just shipped so future batches can flag duplicates.
     // Triggering the download triggers the ledger write — there's no separate
     // "confirm import" step, so this is the most reliable signal we have.
     appendToLedger(booksToExport);
 
-    // Fan the same delta out to the repo so other devices see the export
-    // on their next load. Fire-and-forget — the local cache is already
-    // updated, so the user can keep working even if the network call is
-    // slow or fails. State surfaces through ledgerSyncState below.
+    // Local-only mode: fall back to client-side downloads for each backup
+    // so the user never loses a permanent record. The CSV flow above
+    // already ran; here we just download the paired JSON envelopes.
+    if (isNoWriteMode()) {
+      logSkippedWrite('export-backup commit (POST /api/export-backup)', {
+        backupCount: backups.length,
+        bookCount: booksToExport.length,
+      });
+      for (const b of backups) {
+        triggerDownload(
+          new Blob([b.content], { type: 'application/json;charset=utf-8' }),
+          b.filename
+        );
+      }
+      setLedgerSyncState({ kind: 'local-only' });
+      return;
+    }
+
+    // Default path — bundle every JSON backup file + the ledger delta into
+    // a single atomic commit so other devices see the export on next load,
+    // and the repo carries a durable record of exactly what each export
+    // contained. Fire-and-forget; state surfaces through ledgerSyncState.
     setLedgerSyncState({ kind: 'pending' });
     const date = new Date();
-    pushLedgerDelta({ add: booksToExport.map((b) => bookToLedgerEntry(b, date)) })
+    const additions = booksToExport.map((b) => bookToLedgerEntry(b, date));
+    pushExportCommit({
+      backups: backups.map((b) => ({ filename: b.filename, content: b.content })),
+      additions,
+      commitMessage: buildExportCommitMessage(backups, booksToExport.length),
+    })
       .then((res) => {
         if (!res.available) {
+          // GITHUB_TOKEN missing on the server. Fall back to a client-side
+          // download per backup so the user still has a permanent record.
+          for (const b of backups) {
+            triggerDownload(
+              new Blob([b.content], { type: 'application/json;charset=utf-8' }),
+              b.filename
+            );
+          }
           setLedgerSyncState({ kind: 'local-only' });
           return;
         }
         if (res.error) {
+          // Repo write failed. Same reasoning as the local-only branch:
+          // download the JSON locally so the user doesn't lose the backup.
+          for (const b of backups) {
+            triggerDownload(
+              new Blob([b.content], { type: 'application/json;charset=utf-8' }),
+              b.filename
+            );
+          }
           setLedgerSyncState({ kind: 'error', message: res.error });
           return;
         }
@@ -209,12 +275,36 @@ export default function ExportPage() {
           unchanged: !res.commit?.sha,
         });
       })
-      .catch((err: unknown) =>
+      .catch((err: unknown) => {
+        for (const b of backups) {
+          triggerDownload(
+            new Blob([b.content], { type: 'application/json;charset=utf-8' }),
+            b.filename
+          );
+        }
         setLedgerSyncState({
           kind: 'error',
           message: err instanceof Error ? err.message : String(err),
-        })
-      );
+        });
+      });
+  }
+
+  // Compose the per-export commit message. Single backup → "Export backup:
+  // {label} (N books)" per spec. Multi-backup (split-by-batch) → list each
+  // label, capping at 3 with "+N more" so a 12-batch export doesn't blow
+  // up the commit subject line.
+  function buildExportCommitMessage(
+    backups: { label?: string }[],
+    totalBooks: number
+  ): string {
+    const labels = backups.map((b) => b.label || 'unlabeled');
+    const summary =
+      labels.length === 1
+        ? labels[0]
+        : labels.length <= 3
+          ? labels.join(', ')
+          : `${labels.slice(0, 2).join(', ')}, +${labels.length - 2} more`;
+    return `Export backup: ${summary} (${totalBooks} ${totalBooks === 1 ? 'book' : 'books'})`;
   }
 
   // Ledger sync state for the post-export confirmation banner.
