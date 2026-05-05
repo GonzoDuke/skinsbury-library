@@ -79,4 +79,11 @@ Created baseline vocabulary from 186-book LibraryThing export + 22-book proof of
 - Added `Digital spirituality` to **Philosophy, psychology, religion** — first seen on "Digital Dharma" by Deepak Chopra
 - Added `Human geography` to **Philosophy, psychology, religion** — first seen on "Space and Place the Perspective of Experience" by Yi-Fu Tuan
 
+## 2026-05-05
+
+- Added `Survival skills` to **Geography, anthropology, recreation** (batch "Shelf 2026-05-05") — first seen on "Survive! Essential Skills and Tactics to Get You Out of Anywhere—alive" by Les Stroud
+- Added `Psychopharmacology` to **Medicine** (batch "Shelf 2026-05-05") — first seen on "Psychonauts" by Mike Jay
+- Added `pop psychology` to **Philosophy, psychology, religion** (batch "Shelf 2026-05-05") — first seen on "The Subtle Art of Not Giving a F*ck" by Mark Manson
+- Added `History of technology` to **Technology** (batch "Shelf 2026-05-05") — first seen on "Paper" by Mark Kurlansky
+
 <!-- New entries will be appended below automatically by the approve command -->
