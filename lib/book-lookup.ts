@@ -497,6 +497,214 @@ async function enrichFromIsbn(
 }
 
 /**
+ * Phase 2 ISBN-direct fan-out + gap-fill merge.
+ *
+ * Given a partially-populated `BookLookupResult` that already carries an
+ * ISBN, run four exact-by-ISBN lookups in parallel — LoC MARC, Google
+ * Books, Wikidata, Open Library — then strict gap-fill onto `result`
+ * (only fields that are empty/undefined; never overwrite). Mutates
+ * `result` in place.
+ *
+ * Extracted from the inline Phase-2 block in lookupBook so the
+ * Reread / matchEdition path (lookupSpecificEdition) can call it too.
+ * Without this, that path returns immediately after its OL-by-ISBN /
+ * year-scoped / ISBNdb-direct hit and `lcshSubjects` (sourced only
+ * from MARC) never populates.
+ *
+ * Returns the updated `lccSource` provenance tag and the GB-by-ISBN
+ * cover URL (caller folds it into `buildCoverChain` so the cover-art
+ * fallback chain reflects the GB thumbnail in the correct position).
+ *
+ * No-op when result.isbn is empty.
+ */
+async function enrichWithIsbnFanout(
+  result: BookLookupResult,
+  log: LookupLogger,
+  prevLccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none'
+): Promise<{
+  lccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none';
+  gbCoverUrl: string;
+}> {
+  let lccSource = prevLccSource;
+  let gbCoverUrl = '';
+  if (!result.isbn) {
+    return { lccSource, gbCoverUrl };
+  }
+
+  log.tier(
+    'phase-2',
+    `isbn=${result.isbn} → exact lookups: MARC + GB + Wikidata + OL-by-isbn`
+  );
+  const [marc, gbEnrich, wdHit, olEnrich] = await Promise.all([
+    lookupFullMarcByIsbn(result.isbn).catch((err) => {
+      log.tier(
+        'phase-2',
+        `  marc error ${err instanceof Error ? err.message : String(err)}`
+      );
+      return null as MarcResult | null;
+    }),
+    gbEnrichByIsbn(result.isbn).catch(() => null as GbIsbnEnrichment | null),
+    lookupWikidataByIsbn(result.isbn, log).catch(() => null),
+    enrichFromIsbn(result.isbn).catch(() => ({ firstPublishYear: 0, lcc: '' })),
+  ]);
+
+  // MARC merge — the richest LoC payload (LCSH headings + 655 genre
+  // forms + DDC + page count + edition + co-authors + canonical
+  // title/author).
+  if (marc) {
+    if (marc.lcc && !result.lcc) {
+      result.lcc = normalizeLcc(marc.lcc);
+      lccSource = 'loc';
+      log.tier('phase-2', `  marc filled lcc=${JSON.stringify(result.lcc)}`);
+    }
+    if (
+      marc.lcshSubjects.length > 0 &&
+      !(result.lcshSubjects && result.lcshSubjects.length > 0)
+    ) {
+      result.lcshSubjects = marc.lcshSubjects;
+      log.tier('phase-2', `  marc filled lcsh=${marc.lcshSubjects.length}`);
+    }
+    if (
+      marc.marcGenres.length > 0 &&
+      !(result.marcGenres && result.marcGenres.length > 0)
+    ) {
+      result.marcGenres = marc.marcGenres;
+      log.tier(
+        'phase-2',
+        `  marc filled 655 genre/form=${marc.marcGenres.length}`
+      );
+    }
+    if (!result.ddc && marc.ddc) result.ddc = marc.ddc;
+    if (!result.pageCount && marc.pageCount) result.pageCount = marc.pageCount;
+    if (!result.edition && marc.edition) result.edition = marc.edition;
+    if (!result.publisher && marc.publisher) result.publisher = marc.publisher;
+    if (!result.canonicalAuthor && marc.author) {
+      result.canonicalAuthor = marc.author;
+    }
+    if (!result.canonicalTitle && marc.title) {
+      result.canonicalTitle = marc.title;
+    }
+    if (marc.coAuthors.length > 0) {
+      const merged = new Set<string>(result.allAuthors ?? []);
+      if (marc.author) merged.add(marc.author);
+      for (const a of marc.coAuthors) merged.add(a);
+      if (merged.size > (result.allAuthors?.length ?? 0)) {
+        result.allAuthors = Array.from(merged);
+      }
+    }
+  } else {
+    log.tier('phase-2', '  marc no record');
+  }
+
+  // GB-by-ISBN merge — picks up cover, categories, sometimes a year.
+  if (gbEnrich) {
+    if (!result.publisher && gbEnrich.publisher) {
+      result.publisher = gbEnrich.publisher;
+      log.tier(
+        'phase-2',
+        `  gb-by-isbn filled publisher=${JSON.stringify(gbEnrich.publisher)}`
+      );
+    }
+    if (!result.publicationYear && gbEnrich.publicationYear) {
+      result.publicationYear = gbEnrich.publicationYear;
+    }
+    if (gbEnrich.coverUrl && !gbCoverUrl) gbCoverUrl = gbEnrich.coverUrl;
+    // mainCategory is GB's top-level category (BISAC-ish); when it
+    // exists, prepend it ahead of the ranked categories so it has the
+    // most weight in subject prompting.
+    const gbSubjects = [
+      ...(gbEnrich.mainCategory ? [gbEnrich.mainCategory] : []),
+      ...gbEnrich.subjects,
+    ];
+    if (gbSubjects.length > 0) {
+      const existing = new Set(
+        (result.subjects ?? []).map((s) => s.toLowerCase())
+      );
+      const merged = [...(result.subjects ?? [])];
+      for (const s of gbSubjects) {
+        if (!existing.has(s.toLowerCase())) merged.push(s);
+      }
+      result.subjects = merged.slice(0, 15);
+    }
+    if (!result.synopsis && gbEnrich.description) {
+      result.synopsis = gbEnrich.description;
+    }
+    if (!result.pageCount && gbEnrich.pageCount) {
+      result.pageCount = gbEnrich.pageCount;
+    }
+    if (!result.subtitle && gbEnrich.subtitle) {
+      result.subtitle = gbEnrich.subtitle;
+    }
+    if (!result.language && gbEnrich.language) {
+      result.language = gbEnrich.language;
+    }
+    if (gbEnrich.authors && gbEnrich.authors.length > 0) {
+      const existing = new Set(
+        (result.allAuthors ?? []).map((a) => a.toLowerCase())
+      );
+      const merged = [...(result.allAuthors ?? [])];
+      for (const a of gbEnrich.authors) {
+        if (a && !existing.has(a.toLowerCase())) {
+          merged.push(a);
+          existing.add(a.toLowerCase());
+        }
+      }
+      if (merged.length > (result.allAuthors?.length ?? 0)) {
+        result.allAuthors = merged;
+      }
+    }
+  }
+
+  // Wikidata-by-ISBN merge — exact match via P212. LCC gap-fill +
+  // genre/subject signal for tag inference.
+  if (wdHit) {
+    if (wdHit.lcc && !result.lcc) {
+      result.lcc = normalizeLcc(wdHit.lcc);
+      lccSource = 'wikidata';
+      log.tier(
+        'phase-2',
+        `  wikidata filled lcc=${JSON.stringify(result.lcc)}`
+      );
+    }
+    if (!result.ddc && wdHit.ddc) result.ddc = wdHit.ddc;
+    if (!result.publisher && wdHit.publisher) result.publisher = wdHit.publisher;
+    if (!result.publicationYear && wdHit.publicationYear) {
+      result.publicationYear = wdHit.publicationYear;
+    }
+    if (!result.pageCount && wdHit.pageCount) {
+      result.pageCount = wdHit.pageCount;
+    }
+    if (!result.series && wdHit.series) result.series = wdHit.series;
+    if (wdHit.genre || wdHit.subject) {
+      const existing = new Set(
+        (result.subjects ?? []).map((s) => s.toLowerCase())
+      );
+      const merged = [...(result.subjects ?? [])];
+      for (const v of [wdHit.genre, wdHit.subject]) {
+        if (v && !existing.has(v.toLowerCase())) {
+          merged.push(v);
+          existing.add(v.toLowerCase());
+        }
+      }
+      result.subjects = merged.slice(0, 15);
+    }
+  }
+
+  // OL-by-ISBN merge — last gap-filler for year/LCC.
+  if (olEnrich) {
+    if (!result.publicationYear && olEnrich.firstPublishYear) {
+      result.publicationYear = olEnrich.firstPublishYear;
+    }
+    if (!result.lcc && olEnrich.lcc) {
+      result.lcc = normalizeLcc(olEnrich.lcc);
+      lccSource = 'ol';
+    }
+  }
+
+  return { lccSource, gbCoverUrl };
+}
+
+/**
  * Build the deduped cover-URL chain for a book.
  *
  * Order (highest priority first, all optional):
@@ -601,7 +809,15 @@ export async function lookupSpecificEdition(
                 ''
             );
             const finalLcc = lcc || normalizeLcc(await lookupLccByIsbn(cleaned));
-            const cover = buildCoverChain(cleaned);
+            // Initial provenance for LCC: OL doc was the primary source,
+            // SRU was the fallback. enrichWithIsbnFanout may upgrade to
+            // 'loc' or 'wikidata' if a stronger source fills an empty LCC.
+            const initialLccSource: 'ol' | 'loc' | 'wikidata' | 'none' =
+              doc.lcc?.[0] || doc.lc_classifications?.[0]
+                ? 'ol'
+                : finalLcc
+                  ? 'loc'
+                  : 'none';
             const out: BookLookupResult = {
               isbn: cleaned,
               publisher: doc.publisher?.[0] ?? hints.publisher ?? '',
@@ -619,10 +835,25 @@ export async function lookupSpecificEdition(
                 doc.author_name && doc.author_name.length > 0
                   ? [...doc.author_name]
                   : undefined,
-              coverUrl: cover.primary || undefined,
-              coverUrlFallbacks: cover.fallbacks.length > 0 ? cover.fallbacks : undefined,
             };
-            log.tier('ol-by-isbn', `GET ${url} → ${res.status} → matched ${describeFilled(out)}`);
+            log.tier(
+              'ol-by-isbn',
+              `GET ${url} → ${res.status} → matched ${describeFilled(out)}`
+            );
+            // Phase-2 fan-out so MARC populates lcshSubjects, etc. The
+            // OL-by-ISBN tier alone never had this enrichment, which is
+            // why every Reread'd record was missing lcshSubjects.
+            const fanout = await enrichWithIsbnFanout(out, log, initialLccSource);
+            out.lccSource = fanout.lccSource;
+            const cover = buildCoverChain(
+              cleaned,
+              fanout.gbCoverUrl || undefined,
+              undefined,
+              out.coverUrlFallbacks
+            );
+            out.coverUrl = cover.primary || undefined;
+            out.coverUrlFallbacks =
+              cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
             log.finish({ ...out, tier: 'ol-by-isbn' });
             return out;
           }
@@ -688,8 +919,15 @@ export async function lookupSpecificEdition(
               (best.lc_classifications && best.lc_classifications[0]) ||
               ''
           );
+          const docHadLcc =
+            !!(best.lcc && best.lcc[0]) ||
+            !!(best.lc_classifications && best.lc_classifications[0]);
           if (!lcc && isbn) lcc = normalizeLcc(await lookupLccByIsbn(isbn));
-          const cover = buildCoverChain(isbn);
+          const initialLccSource: 'ol' | 'loc' | 'wikidata' | 'none' = docHadLcc
+            ? 'ol'
+            : lcc
+              ? 'loc'
+              : 'none';
           const out: BookLookupResult = {
             isbn,
             publisher: best.publisher?.[0] ?? hints.publisher ?? '',
@@ -705,10 +943,20 @@ export async function lookupSpecificEdition(
               best.author_name && best.author_name.length > 0
                 ? [...best.author_name]
                 : undefined,
-            coverUrl: cover.primary || undefined,
-            coverUrlFallbacks: cover.fallbacks.length > 0 ? cover.fallbacks : undefined,
           };
           log.tier('ol-year-scoped', `matched ${describeFilled(out)}`);
+          // Phase-2 fan-out — see tier 1 above for the same fix rationale.
+          const fanout = await enrichWithIsbnFanout(out, log, initialLccSource);
+          out.lccSource = fanout.lccSource;
+          const cover = buildCoverChain(
+            isbn,
+            fanout.gbCoverUrl || undefined,
+            undefined,
+            out.coverUrlFallbacks
+          );
+          out.coverUrl = cover.primary || undefined;
+          out.coverUrlFallbacks =
+            cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
           log.finish({ ...out, tier: 'ol-year-scoped' });
           return out;
         }
@@ -732,11 +980,10 @@ export async function lookupSpecificEdition(
       const hit = await lookupIsbndb(title, author, cleaned, log);
       if (hit && (hit.isbn || hit.publisher || hit.publicationYear)) {
         const sruLcc = await lookupLccByIsbn(cleaned);
-        // ISBNdb returns the cover image directly; OL covers API still
-        // gets prepended (it's higher quality on average), with the
-        // ISBNdb image as the first fallback.
-        const cover = buildCoverChain(hit.isbn || cleaned, undefined, hit.coverUrl || undefined);
         const isbndbTitle = hit.titleLong || hit.title || undefined;
+        const initialLccSource: 'ol' | 'loc' | 'wikidata' | 'none' = sruLcc
+          ? 'loc'
+          : 'none';
         const out: BookLookupResult = {
           isbn: hit.isbn || cleaned,
           publisher: hit.publisher || hints.publisher || '',
@@ -744,8 +991,6 @@ export async function lookupSpecificEdition(
           lcc: normalizeLcc(sruLcc) || '',
           subjects: hit.subjects.length > 0 ? hit.subjects.slice(0, 10) : undefined,
           source: 'isbndb',
-          coverUrl: cover.primary || hit.coverUrl || undefined,
-          coverUrlFallbacks: cover.fallbacks.length > 0 ? cover.fallbacks : undefined,
           ddc: hit.ddc || undefined,
           // Canonical title/author/all-authors from the ISBNdb hit —
           // previously dropped. ISBNdb's title_long is preferred when
@@ -762,6 +1007,21 @@ export async function lookupSpecificEdition(
           synopsis: hit.synopsis,
         };
         log.tier('isbndb-fallback', `matched ${describeFilled(out)}`);
+        // Phase-2 fan-out — see tier 1 above for the same fix rationale.
+        const fanout = await enrichWithIsbnFanout(out, log, initialLccSource);
+        out.lccSource = fanout.lccSource;
+        // ISBNdb cover comes directly off the hit; the chain prepends
+        // the OL Covers API URL (higher avg quality), folds in any GB
+        // cover the fan-out surfaced, then ISBNdb image as a fallback.
+        const cover = buildCoverChain(
+          out.isbn || cleaned,
+          fanout.gbCoverUrl || undefined,
+          hit.coverUrl || undefined,
+          out.coverUrlFallbacks
+        );
+        out.coverUrl = cover.primary || hit.coverUrl || undefined;
+        out.coverUrlFallbacks =
+          cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
         log.finish({ ...out, tier: 'isbndb-direct' });
         return out;
       }
@@ -1643,145 +1903,15 @@ export async function lookupBook(
   }
 
   // -------------------------------------------------------------------------
-  // PHASE 2 — targeted enrichment by ISBN.
-  //
-  // When Phase 1 produced a winner WITH an ISBN, take that ISBN and
-  // run direct ISBN lookups on LoC MARC, Google Books, and Wikidata
-  // in parallel. These are exact lookups, not fuzzy searches — they
-  // can't return wrong books. Merge with strict gap-fill (only fill
-  // empty fields, never overwrite Phase-1's values).
+  // PHASE 2 — targeted enrichment by ISBN. Delegates to the shared
+  // enrichWithIsbnFanout helper so the Reread / matchEdition path picks
+  // up the same fan-out (MARC LCSH/genre, GB cover/synopsis, Wikidata
+  // LCC, OL year/LCC) instead of returning early after Phase 1.
   // -------------------------------------------------------------------------
   if (result.isbn) {
-    log.tier('phase-2', `isbn=${result.isbn} → exact lookups: MARC + GB + Wikidata + OL-by-isbn`);
-    const [marc, gbEnrich, wdHit, olEnrich] = await Promise.all([
-      lookupFullMarcByIsbn(result.isbn).catch((err) => {
-        log.tier('phase-2', `  marc error ${err instanceof Error ? err.message : String(err)}`);
-        return null as MarcResult | null;
-      }),
-      gbEnrichByIsbn(result.isbn).catch(() => null as GbIsbnEnrichment | null),
-      lookupWikidataByIsbn(result.isbn, log).catch(() => null),
-      // OL by ISBN gets us first_publish_year + an LCC fallback when
-      // MARC misses. enrichFromIsbn is intentionally narrow.
-      enrichFromIsbn(result.isbn).catch(() => ({ firstPublishYear: 0, lcc: '' })),
-    ]);
-
-    // MARC merge — the richest LoC payload (LCSH headings + 655 genre
-    // forms + DDC + page count + edition + co-authors + canonical
-    // title/author).
-    if (marc) {
-      if (marc.lcc && !result.lcc) {
-        result.lcc = normalizeLcc(marc.lcc);
-        lccSource = 'loc';
-        log.tier('phase-2', `  marc filled lcc=${JSON.stringify(result.lcc)}`);
-      }
-      if (marc.lcshSubjects.length > 0 && !(result.lcshSubjects && result.lcshSubjects.length > 0)) {
-        result.lcshSubjects = marc.lcshSubjects;
-        log.tier('phase-2', `  marc filled lcsh=${marc.lcshSubjects.length}`);
-      }
-      if (marc.marcGenres.length > 0 && !(result.marcGenres && result.marcGenres.length > 0)) {
-        result.marcGenres = marc.marcGenres;
-        log.tier('phase-2', `  marc filled 655 genre/form=${marc.marcGenres.length}`);
-      }
-      if (!result.ddc && marc.ddc) result.ddc = marc.ddc;
-      if (!result.pageCount && marc.pageCount) result.pageCount = marc.pageCount;
-      if (!result.edition && marc.edition) result.edition = marc.edition;
-      if (!result.publisher && marc.publisher) result.publisher = marc.publisher;
-      if (!result.canonicalAuthor && marc.author) result.canonicalAuthor = marc.author;
-      if (!result.canonicalTitle && marc.title) result.canonicalTitle = marc.title;
-      if (marc.coAuthors.length > 0) {
-        const merged = new Set<string>(result.allAuthors ?? []);
-        if (marc.author) merged.add(marc.author);
-        for (const a of marc.coAuthors) merged.add(a);
-        if (merged.size > (result.allAuthors?.length ?? 0)) {
-          result.allAuthors = Array.from(merged);
-        }
-      }
-    } else {
-      log.tier('phase-2', '  marc no record');
-    }
-
-    // GB-by-ISBN merge — picks up cover, categories, sometimes a year.
-    if (gbEnrich) {
-      if (!result.publisher && gbEnrich.publisher) {
-        result.publisher = gbEnrich.publisher;
-        log.tier('phase-2', `  gb-by-isbn filled publisher=${JSON.stringify(gbEnrich.publisher)}`);
-      }
-      if (!result.publicationYear && gbEnrich.publicationYear) {
-        result.publicationYear = gbEnrich.publicationYear;
-      }
-      if (gbEnrich.coverUrl && !gbCoverUrl) gbCoverUrl = gbEnrich.coverUrl;
-      // mainCategory is GB's top-level category (BISAC-ish); when it
-      // exists, prepend it ahead of the ranked categories so it has the
-      // most weight in subject prompting.
-      const gbSubjects = [
-        ...(gbEnrich.mainCategory ? [gbEnrich.mainCategory] : []),
-        ...gbEnrich.subjects,
-      ];
-      if (gbSubjects.length > 0) {
-        const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
-        const merged = [...(result.subjects ?? [])];
-        for (const s of gbSubjects) {
-          if (!existing.has(s.toLowerCase())) merged.push(s);
-        }
-        result.subjects = merged.slice(0, 15);
-      }
-      // Widened-interface gap-fills (audit fix): these were already on the
-      // GB response but the previous interface dropped them.
-      if (!result.synopsis && gbEnrich.description) result.synopsis = gbEnrich.description;
-      if (!result.pageCount && gbEnrich.pageCount) result.pageCount = gbEnrich.pageCount;
-      if (!result.subtitle && gbEnrich.subtitle) result.subtitle = gbEnrich.subtitle;
-      if (!result.language && gbEnrich.language) result.language = gbEnrich.language;
-      if (gbEnrich.authors && gbEnrich.authors.length > 0) {
-        const existing = new Set((result.allAuthors ?? []).map((a) => a.toLowerCase()));
-        const merged = [...(result.allAuthors ?? [])];
-        for (const a of gbEnrich.authors) {
-          if (a && !existing.has(a.toLowerCase())) {
-            merged.push(a);
-            existing.add(a.toLowerCase());
-          }
-        }
-        if (merged.length > (result.allAuthors?.length ?? 0)) result.allAuthors = merged;
-      }
-    }
-
-    // Wikidata-by-ISBN merge — exact match via P212. LCC gap-fill +
-    // genre/subject signal for tag inference.
-    if (wdHit) {
-      if (wdHit.lcc && !result.lcc) {
-        result.lcc = normalizeLcc(wdHit.lcc);
-        lccSource = 'wikidata';
-        log.tier('phase-2', `  wikidata filled lcc=${JSON.stringify(result.lcc)}`);
-      }
-      if (!result.ddc && wdHit.ddc) result.ddc = wdHit.ddc;
-      if (!result.publisher && wdHit.publisher) result.publisher = wdHit.publisher;
-      if (!result.publicationYear && wdHit.publicationYear) {
-        result.publicationYear = wdHit.publicationYear;
-      }
-      if (!result.pageCount && wdHit.pageCount) result.pageCount = wdHit.pageCount;
-      if (!result.series && wdHit.series) result.series = wdHit.series;
-      if (wdHit.genre || wdHit.subject) {
-        const existing = new Set((result.subjects ?? []).map((s) => s.toLowerCase()));
-        const merged = [...(result.subjects ?? [])];
-        for (const v of [wdHit.genre, wdHit.subject]) {
-          if (v && !existing.has(v.toLowerCase())) {
-            merged.push(v);
-            existing.add(v.toLowerCase());
-          }
-        }
-        result.subjects = merged.slice(0, 15);
-      }
-    }
-
-    // OL-by-ISBN merge — last gap-filler for year/LCC.
-    if (olEnrich) {
-      if (!result.publicationYear && olEnrich.firstPublishYear) {
-        result.publicationYear = olEnrich.firstPublishYear;
-      }
-      if (!result.lcc && olEnrich.lcc) {
-        result.lcc = normalizeLcc(olEnrich.lcc);
-        lccSource = 'ol';
-      }
-    }
+    const fanout = await enrichWithIsbnFanout(result, log, lccSource);
+    lccSource = fanout.lccSource;
+    if (fanout.gbCoverUrl && !gbCoverUrl) gbCoverUrl = fanout.gbCoverUrl;
   } else if (result.source !== 'none') {
     log.tier('phase-2', 'skipped — Phase 1 winner had no ISBN');
   }
