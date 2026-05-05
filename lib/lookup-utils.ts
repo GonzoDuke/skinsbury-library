@@ -143,25 +143,58 @@ export function deriveLccFromDdc(
 }
 
 /**
- * Open Library returns LCC in a padded internal form like
- *   "BL-0053.00000000.J36 2012"
- *   "Q--0335.00000000.M6 2024"
- *   "E--0169.12000000.K556 2022"
- * Convert to canonical Library of Congress format:
- *   "BL53 .J36 2012", "Q335 .M6 2024", "E169.12 .K556 2022".
+ * Coerce an LCC string to canonical Library of Congress format.
+ * Idempotent — already-canonical inputs pass through unchanged.
  *
- * Inputs already in canonical or unparseable form pass through trimmed.
+ * Two upstream messes are handled:
+ *
+ *   Open Library padded form (cutter present)
+ *     "BL-0053.00000000.J36 2012"  → "BL53 .J36 2012"
+ *     "Q--0335.00000000.M6 2024"   → "Q335 .M6 2024"
+ *     "E--0169.12000000.K556 2022" → "E169.12 .K556 2022"
+ *
+ *   ISBNdb hyphenated / trailing-zero form (no cutter)
+ *     "HV-5825.00000000"  → "HV5825"
+ *     "BJ-1589.00000000"  → "BJ1589"
+ *
+ * Genuine decimal portions are preserved ("GV200.5" stays). Cutter
+ * numbers and dates are preserved with the canonical single-space
+ * separator before the cutter ("BD221 .A36 2008" stays).
  */
 export function normalizeLcc(s: string | undefined | null): string {
   if (!s) return '';
-  const m = s.match(/^([A-Z]{1,3})[-\s]+(\d+)\.(\d+)\.(.+)$/);
-  if (!m) return s.trim();
-  const klass = m[1];
-  const intPart = String(parseInt(m[2], 10));
-  const decPart = m[3].replace(/0+$/, '');
-  const num = decPart ? `${intPart}.${decPart}` : intPart;
-  const cutter = m[4].trim();
-  return `${klass}${num} .${cutter}`;
+  let normalized = s.trim();
+  if (!normalized) return '';
+
+  // 1. Strip a hyphen between the letter prefix and the digits.
+  //    "HV-5825…" → "HV5825…", "BJ-1589…" → "BJ1589…".
+  normalized = normalized.replace(/^([A-Z]{1,3})-(?=\d)/, '$1');
+
+  // 2. Strip an all-zero decimal portion immediately following the
+  //    main number when no cutter follows (or when whitespace separates
+  //    the cutter). The lookahead keeps us from chewing "GV200.5" or
+  //    a legitimate ".0X.cutter" form (the regex below handles those).
+  //    "HV5825.00000000"     → "HV5825"        (end of string)
+  //    "HV5825.00 .T67 2005" → "HV5825 .T67 2005"  (space-separated cutter)
+  normalized = normalized.replace(/^([A-Z]{1,3}\d+)\.0+(?=\s|$)/, '$1');
+
+  // 3. Open Library padded form: letter prefix, optional hyphen-or-space,
+  //    digits, dot, digits (possibly trailing zeros), dot, cutter+rest.
+  //    Strips trailing zeros from the decimal and re-emits with a single
+  //    space before the cutter. The hyphen-strip in step 1 leaves the
+  //    separator empty, which is why this regex uses [-\s]* (formerly
+  //    [-\s]+) — the older form rejected the post-hyphen-strip case.
+  const m = normalized.match(/^([A-Z]{1,3})[-\s]*(\d+)\.(\d+)\.(.+)$/);
+  if (m) {
+    const klass = m[1];
+    const intPart = String(parseInt(m[2], 10));
+    const decPart = m[3].replace(/0+$/, '');
+    const num = decPart ? `${intPart}.${decPart}` : intPart;
+    const cutter = m[4].trim();
+    return `${klass}${num} .${cutter}`;
+  }
+
+  return normalized;
 }
 
 /**
@@ -464,4 +497,32 @@ export function inferFictionTag(
   }
 
   return 'Fiction';
+}
+
+// ---------------------------------------------------------------------------
+// normalizeLcc dev assertions — run once at module load in dev. A regression
+// here would silently let malformed ISBNdb LCCs leak onto BookRecords again,
+// so failures throw loudly instead of console.warn. NODE_ENV gates this so
+// production runs stay quiet.
+// ---------------------------------------------------------------------------
+if (process.env.NODE_ENV !== 'production') {
+  const cases: { in: string; out: string }[] = [
+    { in: 'HV-5825.00000000', out: 'HV5825' },
+    { in: 'BJ-1589.00000000', out: 'BJ1589' },
+    { in: 'GV200.5 .S8925 2009', out: 'GV200.5 .S8925 2009' },
+    { in: '', out: '' },
+    { in: 'BD221 .A36 2008', out: 'BD221 .A36 2008' },
+    { in: '  P140 .F57 1999  ', out: 'P140 .F57 1999' },
+    // Original OL-padded form the prior implementation handled — preserved.
+    { in: 'BL-0053.00000000.J36 2012', out: 'BL53 .J36 2012' },
+    { in: 'E--0169.12000000.K556 2022', out: 'E169.12 .K556 2022' },
+  ];
+  for (const c of cases) {
+    const got = normalizeLcc(c.in);
+    if (got !== c.out) {
+      throw new Error(
+        `normalizeLcc regression: ${JSON.stringify(c.in)} → ${JSON.stringify(got)} (expected ${JSON.stringify(c.out)})`
+      );
+    }
+  }
 }

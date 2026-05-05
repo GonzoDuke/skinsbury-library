@@ -1996,7 +1996,7 @@ export async function lookupBook(
             isbn,
             publisher,
             publicationYear,
-            lcc: sruLcc || enriched.lcc,
+            lcc: normalizeLcc(sruLcc || enriched.lcc),
             subjects: baseSubjects.length > 0 ? baseSubjects : undefined,
             source: 'googlebooks',
           };

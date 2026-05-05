@@ -7,7 +7,7 @@ import type {
 } from './types';
 import { toAuthorLastFirst, toTitleCase } from './csv-export';
 import { getAuthorPattern, type AuthorPatternResult } from './export-ledger';
-import { inferFictionTag, stringSimilarity } from './lookup-utils';
+import { inferFictionTag, normalizeLcc, stringSimilarity } from './lookup-utils';
 
 /**
  * When true, prefer canonical title / author from the lookup chain
@@ -853,7 +853,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
         publicationYear: lookup.publicationYear,
       });
       if (inferred.lcc && inferred.confidence !== 'LOW') {
-        finalLcc = inferred.lcc;
+        finalLcc = normalizeLcc(inferred.lcc);
         lccSource = 'inferred';
       }
     } catch {
@@ -1281,7 +1281,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
         publicationYear: lookup.publicationYear,
       });
       if (inferred.lcc && inferred.confidence !== 'LOW') {
-        finalLcc = inferred.lcc;
+        finalLcc = normalizeLcc(inferred.lcc);
         lccSource = 'inferred';
       }
     } catch {
@@ -1565,7 +1565,7 @@ export async function rereadBook(
         publicationYear: lookup.publicationYear,
       });
       if (inferred.lcc && inferred.confidence !== 'LOW') {
-        finalLcc = inferred.lcc;
+        finalLcc = normalizeLcc(inferred.lcc);
         lccSource = 'inferred';
       }
     } catch {
