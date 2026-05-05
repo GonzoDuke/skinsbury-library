@@ -103,10 +103,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/review', label: 'Review', icon: <ReviewIcon />, badge: pendingCount || undefined },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
   ];
-  // Library section — Shelflist + Vocabulary. Both are library-scoped
-  // surfaces (browse + per-tag), distinct from the Workflow flow.
+  // Library section — Shelflist + LCSH + Vocabulary. All three are
+  // library-scoped surfaces (browse by call-number, browse by Library
+  // of Congress subject heading, manage the controlled tag vocabulary),
+  // distinct from the Workflow flow.
   const library: NavItemDef[] = [
     { href: '/shelflist', label: 'Shelflist', icon: <ShelfIcon /> },
+    { href: '/lcsh', label: 'LCSH', icon: <SubjectIcon /> },
     { href: '/vocabulary', label: 'Vocabulary', icon: <BooksIcon /> },
   ];
 
@@ -527,6 +530,19 @@ function BooksIcon() {
       <rect x="2" y="1" width="3" height="14" rx="0.5" />
       <rect x="6.5" y="2.5" width="3" height="12.5" rx="0.5" />
       <path d="M11.5 14l3-12.5" />
+    </IconShell>
+  );
+}
+
+// LCSH icon — subject-tag glyph: a small luggage-tag with three lines
+// of "headings." Sits between the shelf-rows of ShelfIcon (call-number
+// browse) and the spine-stack of BooksIcon (per-tag vocabulary).
+function SubjectIcon() {
+  return (
+    <IconShell>
+      <path d="M2 3l5-1 7 7-5 5-7-7z" />
+      <circle cx="5.4" cy="5.4" r="0.9" fill="currentColor" stroke="none" />
+      <path d="M9 7.5h2.5M9 9.5h2.5M9 11.5h1.5" />
     </IconShell>
   );
 }

@@ -249,9 +249,12 @@ export function MobileShell() {
         </div>
       </header>
 
-      {/* Bottom tab bar — four primary tabs evenly spaced. iOS adds a
-          home-indicator inset; honor it via env(safe-area-inset-bottom)
-          so the labels don't get clipped on a real device. */}
+      {/* Bottom tab bar — five primary tabs (Upload, Review, Export,
+          Shelflist, Vocab) evenly spaced. iOS adds a home-indicator
+          inset; honor it via env(safe-area-inset-bottom) so the labels
+          don't get clipped on a real device. LCSH intentionally lives
+          on desktop only (sidebar nav) — adding a sixth column here
+          would compress every existing tab past legibility. */}
       <nav
         className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-5 border-t border-line-light bg-surface-card"
         style={{
