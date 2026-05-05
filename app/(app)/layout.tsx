@@ -1,15 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-
-/**
- * Root layout — minimal. Wraps every route in the app, INCLUDING the
- * splash at `/` and the AppShell-bearing routes under `(app)/`. Holds
- * the html/body/head, font preconnects, dark-mode pre-script, and the
- * service-worker registration.
- *
- * The AppShell + StoreProvider + UndoToast scaffolding lives in
- * `app/(app)/layout.tsx` so the splash page bypasses it entirely.
- */
+import { StoreProvider } from '@/lib/store';
+import { AppShell } from '@/components/AppShell';
+import { UndoToast } from '@/components/UndoToast';
 
 export const metadata: Metadata = {
   title: 'Carnegie',
@@ -26,6 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
+// Next 14 routes themeColor through the viewport export (separate from metadata).
 // Carnegie navy — matches the sidebar accent so the mobile status bar /
 // PWA chrome blends with the app chrome in standalone mode.
 export const viewport: Viewport = {
@@ -43,10 +37,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
         <script
-          // Prevent dark-mode flash. Default to LIGHT on first visit.
-          // Only flip to dark when the user has explicitly chosen it
-          // via the toggle (stored under 'carnegie:dark' === '1').
+          // Prevent dark-mode flash
           dangerouslySetInnerHTML={{
+            // Default to LIGHT on first visit. Only flip to dark when the
+            // user has explicitly chosen it via the toggle (stored under
+            // 'carnegie:dark' === '1'). We don't read prefers-color-scheme.
             __html: `(function(){try{if(localStorage.getItem('carnegie:dark')==='1')document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
@@ -59,7 +54,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <StoreProvider>
+          <AppShell>{children}</AppShell>
+          <UndoToast />
+        </StoreProvider>
+      </body>
     </html>
   );
 }
