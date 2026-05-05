@@ -643,6 +643,223 @@ async function enrichFromIsbn(
 }
 
 /**
+ * Gap-fill OL helper. One ISBN-keyed search + optional work-record
+ * fetch returns every field gap-fill might need from Open Library:
+ * publisher (edition), pageCount (number_of_pages_median), publicationYear
+ * (first_publish_year), and via the work record, synopsis (description)
+ * and subjects. Cheap — single search request, plus one work fetch
+ * only when synopsis or subjects are needed.
+ */
+async function gapFillFromOpenLibrary(
+  isbn: string,
+  needsWorkRecord: boolean
+): Promise<{
+  publisher?: string;
+  pageCount?: number;
+  publicationYear?: number;
+  synopsis?: string;
+  subjects?: string[];
+}> {
+  if (!isbn) return {};
+  try {
+    const url =
+      `https://openlibrary.org/search.json?isbn=${encodeURIComponent(isbn)}` +
+      `&fields=key,publisher,first_publish_year,number_of_pages_median`;
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(8000),
+      cache: 'no-store',
+      headers: DEFAULT_HEADERS,
+    });
+    if (!res.ok) return {};
+    const data = (await res.json()) as {
+      docs?: Array<{
+        key?: string;
+        publisher?: string[];
+        first_publish_year?: number;
+        number_of_pages_median?: number;
+      }>;
+    };
+    const doc = data.docs?.[0];
+    if (!doc) return {};
+    const out: {
+      publisher?: string;
+      pageCount?: number;
+      publicationYear?: number;
+      synopsis?: string;
+      subjects?: string[];
+    } = {};
+    if (doc.publisher && doc.publisher[0]) out.publisher = doc.publisher[0];
+    if (typeof doc.number_of_pages_median === 'number' && doc.number_of_pages_median > 0) {
+      out.pageCount = doc.number_of_pages_median;
+    }
+    if (doc.first_publish_year && doc.first_publish_year > 0) {
+      out.publicationYear = doc.first_publish_year;
+    }
+    if (needsWorkRecord && doc.key) {
+      const work = await fetchWork(doc.key);
+      if (work) {
+        const desc =
+          typeof work.description === 'string'
+            ? work.description
+            : work.description?.value;
+        if (desc && desc.trim()) out.synopsis = desc.trim();
+        if (work.subjects && work.subjects.length > 0) {
+          out.subjects = work.subjects.slice(0, 10);
+        }
+      }
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Post-Phase-2 gap-fill pass. Runs after every existing tier (Phase 1,
+ * Phase 2 fan-out, GB fallback, LoC SRU title+author, Wikidata title-
+ * search, DDC→LCC) has had its turn. Picks up high-value fields that
+ * are STILL empty and runs a single targeted free-source query per
+ * field. v1 covers: lcshSubjects, pageCount, ddc, synopsis,
+ * publicationYear, publisher, isbn. lcc is intentionally excluded —
+ * already handled by the existing fallback chain.
+ *
+ * Sources: MARC by ISBN, Open Library Works/search by ISBN, Wikidata
+ * by ISBN. No paid APIs, no model calls.
+ *
+ * Mutates `result` in place. Records per-field source attribution into
+ * `gapFillProv` so the final provenance map reflects the actual tier
+ * that filled each value (the heuristic end-of-pipeline inference
+ * can't tell gap-fill MARC vs. Phase-2 MARC, etc.).
+ *
+ * Bail-out: when result.source === 'none' (Phase 1 found nothing),
+ * gap-fill is a no-op — there's no book to fill data for.
+ */
+async function runGapFill(
+  result: BookLookupResult,
+  log: LookupLogger,
+  gapFillProv: BookRecordProvenance
+): Promise<void> {
+  if (result.source === 'none') {
+    log.tier('gap-fill', 'skipped — no Phase-1 winner');
+    return;
+  }
+
+  const empties: string[] = [];
+  if (!result.lcshSubjects || result.lcshSubjects.length === 0) empties.push('lcshSubjects');
+  if (!result.pageCount) empties.push('pageCount');
+  if (!result.ddc) empties.push('ddc');
+  if (!result.synopsis) empties.push('synopsis');
+  if (!result.publicationYear) empties.push('publicationYear');
+  if (!result.publisher) empties.push('publisher');
+  if (!result.isbn) empties.push('isbn');
+  // lcc intentionally excluded — handled by post-Phase-2 fallback chain.
+
+  if (empties.length === 0) {
+    log.tier('gap-fill', 'nothing-to-fill');
+    return;
+  }
+
+  log.tier('gap-fill', `empty fields: [${empties.join(',')}]`);
+  const filled: string[] = [];
+  const ts = new Date().toISOString();
+  const stamp = (field: string, source: SourceTag) => {
+    gapFillProv[field] = { source, timestamp: ts };
+    filled.push(field);
+  };
+
+  // ---- MARC (by ISBN) — covers lcshSubjects, pageCount, ddc, publisher.
+  const marcFields = ['lcshSubjects', 'pageCount', 'ddc', 'publisher'];
+  const needsMarc =
+    !!result.isbn && marcFields.some((f) => empties.includes(f));
+  if (needsMarc) {
+    const marc = await lookupFullMarcByIsbn(result.isbn).catch(() => null);
+    if (!marc) {
+      log.tier('gap-fill', '  marc → no record');
+    } else {
+      if (
+        empties.includes('lcshSubjects') &&
+        marc.lcshSubjects.length > 0 &&
+        (!result.lcshSubjects || result.lcshSubjects.length === 0)
+      ) {
+        result.lcshSubjects = marc.lcshSubjects;
+        log.tier('gap-fill', `  lcshSubjects ← marc (${marc.lcshSubjects.length} headings)`);
+        stamp('lcshSubjects', 'marc');
+      }
+      if (empties.includes('pageCount') && marc.pageCount && !result.pageCount) {
+        result.pageCount = marc.pageCount;
+        log.tier('gap-fill', `  pageCount ← marc (${marc.pageCount})`);
+        stamp('pageCount', 'marc');
+      }
+      if (empties.includes('ddc') && marc.ddc && !result.ddc) {
+        result.ddc = marc.ddc;
+        log.tier('gap-fill', `  ddc ← marc (${JSON.stringify(marc.ddc)})`);
+        stamp('ddc', 'marc');
+      }
+      if (empties.includes('publisher') && marc.publisher && !result.publisher) {
+        result.publisher = marc.publisher;
+        log.tier('gap-fill', `  publisher ← marc (${JSON.stringify(marc.publisher)})`);
+        stamp('publisher', 'marc');
+      }
+    }
+  }
+
+  // ---- Open Library (by ISBN) — covers synopsis, pageCount, publicationYear,
+  //      publisher (when MARC missed). Synopsis triggers a work-record fetch.
+  const stillEmpty = (f: string) => empties.includes(f) && !filled.includes(f);
+  const olFields = ['synopsis', 'pageCount', 'publicationYear', 'publisher'];
+  const needsOl = !!result.isbn && olFields.some(stillEmpty);
+  if (needsOl) {
+    const wantsWork = stillEmpty('synopsis');
+    const ol = await gapFillFromOpenLibrary(result.isbn, wantsWork);
+    if (Object.keys(ol).length === 0) {
+      log.tier('gap-fill', '  openlibrary → no record');
+    } else {
+      if (stillEmpty('synopsis') && ol.synopsis) {
+        result.synopsis = ol.synopsis;
+        log.tier('gap-fill', `  synopsis ← openlibrary (${ol.synopsis.length} chars)`);
+        stamp('synopsis', 'openlibrary');
+      }
+      if (stillEmpty('pageCount') && ol.pageCount) {
+        result.pageCount = ol.pageCount;
+        log.tier('gap-fill', `  pageCount ← openlibrary (${ol.pageCount})`);
+        stamp('pageCount', 'openlibrary');
+      }
+      if (stillEmpty('publicationYear') && ol.publicationYear) {
+        result.publicationYear = ol.publicationYear;
+        log.tier('gap-fill', `  publicationYear ← openlibrary (${ol.publicationYear})`);
+        stamp('publicationYear', 'openlibrary');
+      }
+      if (stillEmpty('publisher') && ol.publisher) {
+        result.publisher = ol.publisher;
+        log.tier('gap-fill', `  publisher ← openlibrary (${JSON.stringify(ol.publisher)})`);
+        stamp('publisher', 'openlibrary');
+      }
+    }
+  }
+
+  // ---- Wikidata (by ISBN) — DDC fallback when MARC missed.
+  if (stillEmpty('ddc') && result.isbn) {
+    const wd = await lookupWikidataByIsbn(result.isbn, log).catch(() => null);
+    if (wd?.ddc && !result.ddc) {
+      result.ddc = wd.ddc;
+      log.tier('gap-fill', `  ddc ← wikidata (${JSON.stringify(wd.ddc)})`);
+      stamp('ddc', 'wikidata');
+    }
+  }
+
+  // ISBN gap-fill via Wikidata title-search is cheap-but-noisy; the
+  // existing Wikidata title-search fallback already runs upstream when
+  // result.isbn is empty AND result.lcc is empty (or partial). Adding a
+  // second pass just for ISBN-only would duplicate that. Skip in v1.
+
+  const stillEmptyFinal = empties.filter((f) => !filled.includes(f));
+  log.tier(
+    'gap-fill',
+    `filled=[${filled.join(',') || '∅'}] still-empty=[${stillEmptyFinal.join(',') || '∅'}]`
+  );
+}
+
+/**
  * Phase 2 ISBN-direct fan-out + gap-fill merge.
  *
  * Given a partially-populated `BookLookupResult` that already carries an
@@ -2326,6 +2543,18 @@ export async function lookupBook(
   }
 
   // -------------------------------------------------------------------------
+  // Gap-fill pass — runs AFTER every other tier so it picks up only what
+  // genuinely remained empty. Targeted single-source-per-field queries,
+  // free APIs only (MARC, OL, Wikidata). Sequential per-field so the
+  // typical case (most books need 0–2 fills) stays cheap. Bails out
+  // entirely when Phase 1 found no winner. Tracks per-field source
+  // attribution in `gapFillProv` so the final provenance map reflects
+  // which tier actually filled each value.
+  // -------------------------------------------------------------------------
+  const gapFillProv: BookRecordProvenance = {};
+  await runGapFill(result, log, gapFillProv);
+
+  // -------------------------------------------------------------------------
   // Cover art chain.
   // -------------------------------------------------------------------------
   const cover = buildCoverChain(
@@ -2342,7 +2571,10 @@ export async function lookupBook(
   const final = Object.assign(result, { tier: tier || 'none', lccSource });
   // Attach v1 provenance — heuristic per-field source attribution +
   // any LCC alternates captured during the partial→complete fallback.
-  attachProvenance(final, inferProvenanceFromResult(final, lccSource, lccAlternates));
+  // Gap-fill overrides the heuristic for fields it actually filled,
+  // since it knows the precise source per field.
+  const baseProv = inferProvenanceFromResult(final, lccSource, lccAlternates);
+  attachProvenance(final, { ...baseProv, ...gapFillProv });
   log.finish(final);
 
   // Cache populate. Both keys point at the same record so the next
