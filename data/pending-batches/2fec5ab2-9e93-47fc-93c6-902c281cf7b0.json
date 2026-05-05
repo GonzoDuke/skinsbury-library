@@ -1,0 +1,1018 @@
+{
+  "id": "2fec5ab2-9e93-47fc-93c6-902c281cf7b0",
+  "filename": "shelf-capture-001.cropped.jpg",
+  "fileSize": 992334,
+  "thumbnail": "",
+  "status": "done",
+  "spinesDetected": 13,
+  "booksIdentified": 13,
+  "books": [
+    {
+      "id": "eec78bdd-4d9e-414a-a842-64dc5dc289a0",
+      "spineRead": {
+        "position": 1,
+        "rawText": "Radical Religion from Shakespeare to Milton — Poole",
+        "title": "Radical Religion from Shakespeare to Milton",
+        "author": "Poole",
+        "publisher": "",
+        "lcc": "BX9334 .P66 2000",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 1,
+          "y": 15,
+          "width": 6,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 9334 .P66 2000",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Radical Religion from Shakespeare to Milton",
+      "author": "Kristen Poole",
+      "authorLF": "Poole, Kristen",
+      "isbn": "9780521025447",
+      "publisher": "Cambridge University Press",
+      "publicationYear": 2000,
+      "lcc": "BX 9334 .P66 2000",
+      "genreTags": [
+        "[Proposed] Christian history",
+        "[Proposed] Puritanism",
+        "British history",
+        "[Proposed] Religious history",
+        "Literary criticism",
+        "Shakespeare"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] LCC BX 9334 places this in Christian denominational history, specifically Protestant nonconformist movements. Subject headings emphasize Puritans and religious dissenters in early modern England. The book analyzes religious figures and movements rather than being a primary religious text, requiring proposed tags for this specialized historical study of Christian dissenting traditions. | [history] LCC BX indicates religious studies focus, but the subtitle 'Figures of Nonconformity in Early Modern England' and subject headings clearly establish this as British history covering religious dissenters. The time period (Shakespeare to Milton, early modern England) and focus on English Puritans and religious nonconformists fits British history. Religious history proposed as secondary tag given the specific focus on religious movements and figures. | [literature] This is a scholarly study analyzing religious themes in early modern English literature, specifically from Shakespeare to Milton. The LCC classification BX (Christian denominations) confirms religious focus, but the literary scope (Shakespeare to Milton) and critical approach make this literary criticism. Shakespeare is explicitly mentioned in the title, warranting the specific tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "world_history",
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780521025447-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Radical Religion from Shakespeare to Milton",
+      "subtitle": "Figures of Nonconformity in Early Modern England",
+      "allAuthors": [
+        "Kristen Poole"
+      ],
+      "synopsis": "The figure of the puritan has long been conceived as dour and repressive in character, an image which has been central to ways of reading sixteenth- and seventeenth-century history and literature. Kristen Poole's original study challenges this perception arguing that, contrary to current critical understanding, radical reformers were most often portrayed in literature of the period as deviant, licentious and transgressive. Through extensive analysis of early modern pamphlets, sermons, poetry and plays, the fictional puritan emerges as a grotesque and carnivalesque figure; puritans are extensively depicted as gluttonous, sexually promiscuous, monstrously procreating, and even as worshipping naked. By recovering this lost alternative satirical image, Poole sheds new light on the role played by anti-puritan rhetoric. Her book contends that such representations served an important social role, providing an imaginative framework for discussing familial, communal and political transformations that resulted from the Reformation.",
+      "pageCount": 286,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780521025447-M.jpg?default=false",
+        "https://books.google.com/books/content?id=db-2geA6cjkC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+      ],
+      "original": {
+        "title": "Radical Religion from Shakespeare to Milton",
+        "author": "Kristen Poole",
+        "isbn": "9780521025447",
+        "publisher": "Cambridge University Press",
+        "publicationYear": 2000,
+        "lcc": "BX 9334 .P66 2000",
+        "genreTags": [
+          "[Proposed] Christian history",
+          "[Proposed] Puritanism",
+          "British history",
+          "[Proposed] Religious history",
+          "Literary criticism",
+          "Shakespeare"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "50f181bd-f84f-404c-be7e-94ccbdf86359",
+      "spineRead": {
+        "position": 2,
+        "rawText": "Puritanism",
+        "title": "Puritanism",
+        "author": "",
+        "publisher": "Cambridge",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Black spine with 'PURITANISM' in white. Cambridge logo visible at foot. Author not visible on this spine. Adjacent book has a sticker but it belongs to the next book.",
+        "bbox": {
+          "x": 7,
+          "y": 15,
+          "width": 8,
+          "height": 80
+        }
+      },
+      "title": "Puritanism and Revolution",
+      "author": "Christopher Hill",
+      "authorLF": "Hill, Christopher; NA, NA",
+      "isbn": "9780312174347",
+      "publisher": "Mercury Books",
+      "publicationYear": 1958,
+      "lcc": "DA-0375.00000000",
+      "genreTags": [
+        "British history",
+        "[Proposed] Puritanism"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[history] LCC DA prefix indicates British history. Subject headings confirm focus on Puritans and English Revolution of 17th century. Synopsis describes it as 'collection of essays,' indicating anthology form. | [religion] Book focuses specifically on Puritanism and the English Revolution. The subject headings confirm 'Puritans' and 'Puritanisme' as key topics. The synopsis describes it as a 'collection of essays,' indicating anthology form. While historical in nature, the religious/spiritual dimension of Puritanism fits this domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "world_history",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780312174347-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Puritanism and revolution",
+      "subtitle": "Studies in Interpretation of the English Revolution of the 17th Century",
+      "allAuthors": [
+        "Christopher Hill",
+        "NA NA"
+      ],
+      "synopsis": "This illuminating collection of essays assesses the 17th century, interpreting what used to be called \"The Puritan Revolution,\" the ideas which helped to produce it and resulted from it, and the relations between these ideas and the political events of the day.",
+      "pageCount": 402,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780312174347-M.jpg?default=false",
+        "https://books.google.com/books/content?id=yJPWwAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "Puritanism and Revolution",
+        "author": "Christopher Hill",
+        "isbn": "9780312174347",
+        "publisher": "Mercury Books",
+        "publicationYear": 1958,
+        "lcc": "DA-0375.00000000",
+        "genreTags": [
+          "British history",
+          "[Proposed] Puritanism"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      }
+    },
+    {
+      "id": "5b3fc513-7802-4660-ba83-64c6b6947b40",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Shaker — June Sprigg, David Larkin",
+        "title": "Shaker",
+        "author": "June Sprigg, David Larkin",
+        "publisher": "",
+        "lcc": "BX9771 .S6 19??",
+        "confidence": "MEDIUM",
+        "note": "Sticker shows BX / 977 / S6 / 19.. but partially obscured",
+        "bbox": {
+          "x": 15,
+          "y": 15,
+          "width": 7,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 977 S6 19",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Shaker",
+      "author": "June Sprigg",
+      "authorLF": "Sprigg, June; Larkin, David",
+      "isbn": "9780810982147",
+      "publisher": "Harry N. Abrams",
+      "publicationYear": 2001,
+      "lcc": "BX 977 S6 19",
+      "genreTags": [
+        "[Proposed] Shakers",
+        "Visual culture"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] Book focuses on the Shaker religious community's life, work, and art. LCC BX977 places it squarely in Christian denominations/sects. While Shakers aren't in the existing religion vocabulary, they're a well-documented American religious sect, warranting the proposed tag. | [arts_culture] Book focuses on Shaker design, architecture, furniture, and crafts - clearly visual/material culture. Subject headings confirm this covers Shaker art, architecture, and furniture. The visual emphasis and craft focus fits Visual culture within Arts & culture domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "fine_arts"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780810982147-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Shaker",
+      "subtitle": "Life, Work and Art",
+      "allAuthors": [
+        "June Sprigg",
+        "David Larkin"
+      ],
+      "synopsis": "The Shakers, for more than 200 years America's largest utopian society, are perhaps best known today for the excellence and simplicity of their furniture design. This beautiful book introduces readers to their architecture, furniture, crafts, inventions, and simple way of life.",
+      "pageCount": 272,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780810982147-M.jpg?default=false",
+        "https://books.google.com/books/content?id=suNmAAAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "Shaker",
+        "author": "June Sprigg",
+        "isbn": "9780810982147",
+        "publisher": "Harry N. Abrams",
+        "publicationYear": 2001,
+        "lcc": "BX 977 S6 19",
+        "genreTags": [
+          "[Proposed] Shakers",
+          "Visual culture"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "d886c490-5dd3-4b34-804a-866f3560f34b",
+      "spineRead": {
+        "position": 4,
+        "rawText": "The Price of Redemption — Peterson",
+        "title": "The Price of Redemption",
+        "author": "Peterson",
+        "publisher": "Stanford",
+        "lcc": "BX9355.M4 P48 1997",
+        "confidence": "HIGH",
+        "note": "Subtitle: The Spiritual Economy of Puritan New England",
+        "bbox": {
+          "x": 22,
+          "y": 15,
+          "width": 8,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 9355 M4 P48 1997",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "The Price of Redemption",
+      "author": "Peterson, Mark A.",
+      "authorLF": "Peterson, Mark A.",
+      "isbn": "9780804729123",
+      "publisher": "Stanford University Press",
+      "publicationYear": 1997,
+      "lcc": "BX 9355 M4 P48 1997",
+      "genreTags": [
+        "[Proposed] Church history",
+        "[Proposed] Puritans",
+        "American history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] LCC BX indicates Christianity, and subject headings clearly point to Puritan church history with focus on Great Awakening and specific churches. The religious aspects of economics theme fits within broader religious history context. | [history] LCC BX indicates religious history, but subject headings reference Great Awakening, Westfield Church, Third Church Boston, and Puritans - all American religious/cultural history topics. The economic and spiritual aspects suggest cultural rather than purely political history.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780804729123-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The price of redemption",
+      "allAuthors": [
+        "Peterson, Mark A."
+      ],
+      "pageCount": 325,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780804729123-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Price of Redemption",
+        "author": "Peterson, Mark A.",
+        "isbn": "9780804729123",
+        "publisher": "Stanford University Press",
+        "publicationYear": 1997,
+        "lcc": "BX 9355 M4 P48 1997",
+        "genreTags": [
+          "[Proposed] Church history",
+          "[Proposed] Puritans",
+          "American history",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "cef708eb-a2b2-46e0-8770-b9d473c7ffbe",
+      "spineRead": {
+        "position": 5,
+        "rawText": "THE PRICE OF REDEMPTION",
+        "title": "THE PRICE OF REDEMPTION",
+        "author": "",
+        "publisher": "STANFORD",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Dark blue spine; author partially visible at top ending in 'ON'; sticker partially legible with '55', '8', '97'",
+        "bbox": {
+          "x": 30,
+          "y": 15,
+          "width": 5,
+          "height": 80
+        },
+        "extractedCallNumber": "55 8 97",
+        "extractedCallNumberSystem": "unknown"
+      },
+      "title": "The Price of Redemption",
+      "author": "Gavin R. Dobson",
+      "authorLF": "Dobson, Gavin R.",
+      "isbn": "9781906775285",
+      "publisher": "Librario",
+      "publicationYear": 2011,
+      "lcc": "PR6104 .O376",
+      "genreTags": [
+        "Fiction"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[literature] LCC PR6104 places this in British literature fiction (21st century). Subject headings confirm 'Fiction' and indicate themes of capitalism, avarice, and commercial crimes - all typical fiction subjects rather than separate genre distinctions.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781906775285-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The price of redemption",
+      "allAuthors": [
+        "Gavin R. Dobson"
+      ],
+      "pageCount": 258,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781906775285-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Price of Redemption",
+        "author": "Gavin R. Dobson",
+        "isbn": "9781906775285",
+        "publisher": "Librario",
+        "publicationYear": 2011,
+        "lcc": "PR6104 .O376",
+        "genreTags": [
+          "Fiction"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "b3176b5d-9e11-49c1-9bc7-ee7c0d9b7655",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Zion on the [Hill?] — Fabend",
+        "title": "Zion on the [Hill?]",
+        "author": "Fabend",
+        "publisher": "",
+        "lcc": "BX9498.D87 A4 2000",
+        "confidence": "MEDIUM",
+        "note": "Title partially obscured; appears to read 'Zion on the...'. Call number sticker visible.",
+        "bbox": {
+          "x": 35,
+          "y": 15,
+          "width": 5,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 9498 D87 A4 2000",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Zion on the Hudson Dutch New York and New Jersey in the Age of Revivals",
+      "author": "Firth Haring Fabend",
+      "authorLF": "Fabend, Firth Haring",
+      "isbn": "9780813527710",
+      "publisher": "Rutgers University Press",
+      "publicationYear": 2000,
+      "lcc": "BX 9498 D87 A4 2000",
+      "genreTags": [
+        "[Proposed] Protestant Christianity",
+        "[Proposed] Dutch Reformed tradition",
+        "American history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] LCC BX indicates Christianity, specifically Protestant denominations. LCSH terms point to Dutch Reformed Church history in 19th century America. The existing vocabulary lacks specific tags for Protestant denominations or Reformed traditions, requiring proposed tags. | [history] LCSH headings clearly indicate this is about Dutch Americans in New York and New Jersey during the 19th century, focusing on religious and cultural history. The Reformed Church history and Dutch American experience fits American history and cultural history within the History domain.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "285.7/747/0893931",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780813527710-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Zion on the Hudson Dutch New York and New Jersey in the Age of Revivals",
+      "allAuthors": [
+        "Firth Haring Fabend"
+      ],
+      "synopsis": "<p><b>Winner of the 2001 New Jersey Author's Award by the New Jersey Academic Alliance</b> <p> The Dutch came to the New World in the seventeenth century as explorers and traders, but religion soon followed, for it was accepted in the Netherlands that state and church were mutually benefited by advancing the \"true Christian religion.\" The influence of \"Dutchness\"--defined here as loyalty to what are presumed to be the distinctive qualities of Dutch national character and culture--persisted in New York and New Jersey for more than 200 years after Dutch emigration ended. Why?</p><p>Firth Haring Fabend finds the explanation in the devotion of the Reformed Dutch Church membership to the doctrines and traditions of their church. She looks at the individual and personal beliefs and behaviors of this often-neglected ethnic group. Thus, <i>Zion on the Hudson</i> presents both a broad and an intimate look at the way one mainstream Protestant denomination dealt with the transformative events of the evangelical era.</p><p>As Fabend describes the efforts of the Dutch to preserve the European standards and traditions of their church, while developing a taste for a new kind of theology and a preference for an American identity, she documents how Dutchness finally became a historical memory. The Americanization of the Reformed Dutch Church, Fabend writes, is a microcosm of the story of the Americanization of the United States itself.</p>",
+      "pageCount": 284,
+      "edition": "None",
+      "binding": "Hardcover",
+      "language": "en",
+      "lcshSubjects": [
+        "Dutch Americans — New York — Religion",
+        "Dutch Americans — New Jersey — Religion",
+        "Reformed Church — New York — History — 19th century",
+        "Reformed Church — New Jersey — History — 19th century",
+        "Dutch Americans — New York — History — 19th century",
+        "Dutch Americans — New Jersey — History — 19th century",
+        "New York — Church history — 19th century",
+        "New Jersey — Church history — 19th century"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780813527710-M.jpg?default=false",
+        "https://images.isbndb.com/covers/17575273482477.jpg"
+      ],
+      "original": {
+        "title": "Zion on the Hudson Dutch New York and New Jersey in the Age of Revivals",
+        "author": "Firth Haring Fabend",
+        "isbn": "9780813527710",
+        "publisher": "Rutgers University Press",
+        "publicationYear": 2000,
+        "lcc": "BX 9498 D87 A4 2000",
+        "genreTags": [
+          "[Proposed] Protestant Christianity",
+          "[Proposed] Dutch Reformed tradition",
+          "American history",
+          "Cultural history"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "ac3c3593-9061-4dc7-a7cb-20db3d810eee",
+      "spineRead": {
+        "position": 7,
+        "rawText": "\"The Most Effective Organization in the U.S.\" — R. Watson Brown",
+        "title": "\"The Most Effective Organization in the U.S.\"",
+        "author": "R. Watson Brown",
+        "publisher": "",
+        "lcc": "BX9726 .W38 2001",
+        "confidence": "HIGH",
+        "note": "Subtitle reference: The Salvation Army",
+        "bbox": {
+          "x": 40,
+          "y": 15,
+          "width": 8,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 9726 W38 2001",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Leadership Secrets of the Salvation Army - \"the Most Effective Organization in the U.s.\"",
+      "author": "Robert A. & Brown, Ben Watson",
+      "authorLF": "A., Robert; Brown, Ben Watson",
+      "isbn": "9780892161201",
+      "publisher": "The Salvation Army",
+      "publicationYear": 2006,
+      "lcc": "BX 9726 W38 2001",
+      "genreTags": [
+        "[Proposed] Christian denominations",
+        "[Proposed] Organizational studies"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] LCC BX 9726 indicates Christian denominations/sects, specifically about the Salvation Army. The synopsis describes it as both a religious institution and business organization. No existing domain tags precisely fit this denominational focus, so proposing Christian denominations tag. | [social_political] Book analyzes the Salvation Army as a business/organizational model rather than a religious institution. The LCC BX classification indicates religion, but the synopsis focuses on organizational effectiveness and business structure. No existing Social & political tags directly fit this organizational analysis approach.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780892161201-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Leadership Secrets of the Salvation Army - \"The Most Effective Organization in the U.S.\"",
+      "allAuthors": [
+        "Robert A. & Brown, Ben Watson"
+      ],
+      "synopsis": "Most of us know the Salvation Army from its fundraising efforts and philanthropic programs, but the $2 billion-a-year transcontinental institution, now serving more than 30 million people with a vastly underpaid and overworked staff, is also a model business structure. Under a title taken from the description applied to it by management guru Peter Drucker, The Most Effective Organization in the U.S. outlines the fundamental tenets that the group has prospered under since its founding in the mid- to late 1800s. Written by former National Commander Robert A. Watson and freelancer Ben Brown, the book details eight principles that allow the Army to do so much with so little: focus on \"a purpose that transcends quarterly earnings\"; make \"what you do serve human needs\"; stay publicly accountable to visible standards; encourage feedback and act upon it; \"invest real power and real responsibility\" in top personnel; \"accept the inevitability of change\"; take calculated risks; and motivate employees by ensuring their jobs are both valuable and enjoyable. Some readers may not be comfortable with the organization's overt ties to Christian teachings, but few can argue with the success it consistently enjoys. --Howard Rothman",
+      "binding": "Hardcover",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780892161201-M.jpg?default=false",
+        "https://images.isbndb.com/covers/17508063482505.jpg"
+      ],
+      "original": {
+        "title": "Leadership Secrets of the Salvation Army - \"the Most Effective Organization in the U.s.\"",
+        "author": "Robert A. & Brown, Ben Watson",
+        "isbn": "9780892161201",
+        "publisher": "The Salvation Army",
+        "publicationYear": 2006,
+        "lcc": "BX 9726 W38 2001",
+        "genreTags": [
+          "[Proposed] Christian denominations",
+          "[Proposed] Organizational studies"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "6064ab94-b397-4879-abbc-c1da342c0acf",
+      "spineRead": {
+        "position": 8,
+        "rawText": "The Making of a Moonie",
+        "title": "The Making of a Moonie",
+        "author": "",
+        "publisher": "Blackwell",
+        "lcc": "BX9750.S4 B37 1984",
+        "confidence": "MEDIUM",
+        "note": "Author not visible on spine in cropped image",
+        "bbox": {
+          "x": 48,
+          "y": 15,
+          "width": 6,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 9750 S4 B37 1984",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "The Making of a Moonie",
+      "author": "Eileen Barker",
+      "authorLF": "Barker, Eileen",
+      "isbn": "9780751201369",
+      "publisher": "Gregg Revivals",
+      "publicationYear": 1984,
+      "lcc": "BX 9750 S4 B37 1984",
+      "genreTags": [
+        "[Proposed] New religious movements",
+        "[Proposed] Religious psychology",
+        "[Proposed] Cult studies"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] LCC BX9750 places this in Christian denominations/sects section, specifically about the Unification Church. Subject headings confirm focus on Unification Church and religious psychology. No existing tags in the Religion & spirituality vocabulary directly cover new religious movements or the psychological aspects of religious conversion, so proposing relevant tags. | [psychology] LCC BX indicates religion but subject headings include 'Religion and Psychology' and 'Persuasive Communication' which align with psychological study of religious movements. The Unification Church (Moonies) is often studied from a psychological perspective regarding conversion processes and group dynamics. The psychology domain connection comes through the psychological analysis of religious persuasion and cult behavior.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780751201369-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The making of a Moonie",
+      "allAuthors": [
+        "Eileen Barker"
+      ],
+      "pageCount": 305,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780751201369-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Making of a Moonie",
+        "author": "Eileen Barker",
+        "isbn": "9780751201369",
+        "publisher": "Gregg Revivals",
+        "publicationYear": 1984,
+        "lcc": "BX 9750 S4 B37 1984",
+        "genreTags": [
+          "[Proposed] New religious movements",
+          "[Proposed] Religious psychology",
+          "[Proposed] Cult studies"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9aa41a38-fb5e-4dc4-b935-611fe757131e",
+      "spineRead": {
+        "position": 9,
+        "rawText": "Scholarship and the Christian Church",
+        "title": "Scholarship and the Christian Church",
+        "author": "",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "LOW",
+        "note": "Two book spines visible; focusing on right tan spine reading 'Scholarship and the Christian Church'. Left spine reads 'THE MAKING' (possibly 'The Making of the Moonie...'). Author not legible on either. Bottom sticker on right spine shows partial text 'B... 9... S...' but not clearly readable.",
+        "bbox": {
+          "x": 54,
+          "y": 15,
+          "width": 5,
+          "height": 80
+        }
+      },
+      "title": "Christians at the Heart of Islamic Rule - Church Life and Scholarship in 'Abbasid Iraq",
+      "author": "David Thomas",
+      "authorLF": "Thomas, David",
+      "isbn": "9789047401919",
+      "publisher": "BRILL",
+      "publicationYear": 2003,
+      "lcc": "",
+      "genreTags": [
+        "Christianity",
+        "Comparative religion",
+        "[Proposed] Medieval history",
+        "[Proposed] Islamic history",
+        "[Proposed] Christian history"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "LOW",
+      "reasoning": "[religion] Academic study of Christian church life in Islamic 'Abbasid Iraq fits Christianity as primary focus, with Comparative religion for the interfaith/cross-cultural analysis. Subject headings directly support both tags. | [history] Book covers Christian life in 'Abbasid Iraq (medieval Islamic period). The mention of 'chapters from symposium' indicates anthology format. Proposes specific historical period/religious context tags as none exist in current vocabulary for this specialized intersection of medieval Islamic and Christian history.",
+      "status": "pending",
+      "warnings": [
+        "LCC code missing — tags inferred from title and author only."
+      ],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "world_history"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9789047401919-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Christians at the Heart of Islamic Rule - Church Life and Scholarship in 'Abbasid Iraq",
+      "subtitle": "Church Life and Scholarship in 'Abbasid Iraq",
+      "allAuthors": [
+        "David Thomas"
+      ],
+      "synopsis": "The chapters in this volume, which come from the Fourth Woodbrooke-Mingana Symposium, cover aspects of Christian life in and around Baghdad in the early centuries of 'Abbasid rule.<br>The authors explore both broad themes, such as the place of monasteries in Muslim cultural life, accusations of Islam as crypto-idolatry, and Muslim responses to Christian apologetic arguments, and also specific topics, such as a Nestorian's explanation of the Incarnation, a Jacobite's purpose in composing his guide to moral improvement, and the development of Christian legends about the caliph al-Ma'mun.<br>The volume illustrates the vigour of Iraqi Christian life in 'Abbasid times, and helps show that relations between Christians and Muslims, although strained at times, were often beneficial to followers of both faiths.",
+      "pageCount": 272,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9789047401919-M.jpg?default=false",
+        "https://books.google.com/books/content?id=g7BxEQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+        "https://images.isbndb.com/covers/8781083485409.jpg"
+      ],
+      "original": {
+        "title": "Christians at the Heart of Islamic Rule - Church Life and Scholarship in 'Abbasid Iraq",
+        "author": "David Thomas",
+        "isbn": "9789047401919",
+        "publisher": "BRILL",
+        "publicationYear": 2003,
+        "lcc": "",
+        "genreTags": [
+          "Christianity",
+          "Comparative religion",
+          "[Proposed] Medieval history",
+          "[Proposed] Islamic history",
+          "[Proposed] Christian history"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      }
+    },
+    {
+      "id": "a2e998bd-7fca-4045-9dd4-5af5bd2db685",
+      "spineRead": {
+        "position": 10,
+        "rawText": "Science, Sin, and Scholarship: The Politics of Reverend Moon and the Unification Church",
+        "title": "Science, Sin, and Scholarship: The Politics of Reverend Moon and the Unification Church",
+        "author": "",
+        "publisher": "",
+        "lcc": "BX9750.S4 S35",
+        "confidence": "MEDIUM",
+        "note": "Author name partially visible but not clearly legible",
+        "bbox": {
+          "x": 59,
+          "y": 15,
+          "width": 8,
+          "height": 80
+        },
+        "extractedCallNumber": "BX 9750 S4 S35",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Science, Sin, and Scholarship: The Politics of Reverend Moon and the Unification Church",
+      "author": "Irving Louis Horowitz",
+      "authorLF": "Horowitz, Irving Louis",
+      "isbn": "9780262081009",
+      "publisher": "MIT Press",
+      "publicationYear": 1978,
+      "lcc": "BX 9750 S4 S35",
+      "genreTags": [
+        "[Proposed] New religious movements",
+        "[Proposed] Religious movements",
+        "Identity & tribalism"
+      ],
+      "formTags": [
+        "First edition"
+      ],
+      "confidence": "MEDIUM",
+      "reasoning": "[religion] LCC BX9750 places this in Christian denominations/sects. The book examines the Unification Church (Moon's movement), which fits new religious movements. DDC 289 confirms new Christian sects. First edition stated in metadata. | [social_political] Book examines the political activities and influence of the Unification Church in America. The LCC classification BX (Christian denominations) places it in religious studies, but the subtitle 'The Politics of...' and synopsis describing infiltration of government and universities clearly indicates political analysis. The focus on a specific religious group's political influence fits 'Identity & tribalism'. Edition statement confirms first edition form tag.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "289/.9",
+      "inferredDomains": [
+        "philosophy_psychology_religion",
+        "social_sciences"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780262081009-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Science, Sin, and Scholarship: The Politics of Reverend Moon and the Unification Church",
+      "subtitle": "The Politics of Reverend Moon and the Unification Church",
+      "allAuthors": [
+        "Irving Louis Horowitz"
+      ],
+      "synopsis": "\"A collection of essays documenting the persistence with which Moon has infiltrated powerful groups in America, from the federal government to the universities. It is carefully edited by Irving L. Horowitz... and offers fine summations of the difficult constitutional issues raised by the current practice of kidnapping and deprogramming cult members... Excellent.\"â€” The New York Review of Books\"Some of the essays are highly critical of Moon, including charges about his alleged connection with the Korean CIA, the anti-Jewish thrust of some of his writings, his extensive financial resources, and his controversial tactics in recruiting new members. Other essaysâ€”especially the one by Frederick Sontagâ€”commmend Moon. Editor Irving Horowitz, a well-respected professional sociologist, seeks to put the Unification Church into the perspective of American social history and includes his own chapter, which questions the appropriateness of Moon's sponsorship of the 1976 International Converence on the Unity of Sciences. This book, the first of its kind on Moon, is a well-balanced, highly valuable, comprehensive survey of an unusually aggressive contemporary religious sect.\"â€” Choice\"A valuable work of interdisciplinary scholarship and a useful demonstration that journalism and serious social science may peacefully cohabit the pages of the same book.\"â€” Chronicle of Higher Education",
+      "pageCount": 290,
+      "edition": "First Edition",
+      "binding": "Hardcover",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780262081009-M.jpg?default=false",
+        "https://books.google.com/books/content?id=xY3ZAAAAMAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+        "https://images.isbndb.com/covers/7923103482281.jpg"
+      ],
+      "original": {
+        "title": "Science, Sin, and Scholarship: The Politics of Reverend Moon and the Unification Church",
+        "author": "Irving Louis Horowitz",
+        "isbn": "9780262081009",
+        "publisher": "MIT Press",
+        "publicationYear": 1978,
+        "lcc": "BX 9750 S4 S35",
+        "genreTags": [
+          "[Proposed] New religious movements",
+          "[Proposed] Religious movements",
+          "Identity & tribalism"
+        ],
+        "formTags": [
+          "First edition"
+        ]
+      }
+    },
+    {
+      "id": "da013973-759a-4b59-baab-5db4a36402c1",
+      "spineRead": {
+        "position": 11,
+        "rawText": "The Origins of History — Herbert Butterfield",
+        "title": "The Origins of History",
+        "author": "Herbert Butterfield",
+        "publisher": "Basic Books",
+        "lcc": "CB15 .B158",
+        "confidence": "MEDIUM",
+        "note": "Author appears truncated on spine as 'HERBERT BUTTER' but is Herbert Butterfield; sticker shows CB/15/B158",
+        "bbox": {
+          "x": 67,
+          "y": 15,
+          "width": 6,
+          "height": 80
+        },
+        "extractedCallNumber": "CB 15 B158",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "The Origins of History",
+      "author": "Sir Herbert Butterfield",
+      "authorLF": "Butterfield, Sir Herbert; Butterfield, Herbert; Watson, Adam; Butterfield, Herbert",
+      "isbn": "9780465053445",
+      "publisher": "Methuen",
+      "publicationYear": 1981,
+      "lcc": "CB 15 B158",
+      "genreTags": [
+        "[Proposed] Historiography"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[history] LCSH 'Historiography' and LCC CB (History of Civilization) clearly indicate this is about the study and writing of history itself. The synopsis confirms this traces the development of historical writing from ancient times. Historiography is not in the current History domain vocabulary but is a core historical subdiscipline. | [books_libraries] LCC CB 15 indicates history of civilization/historiography. LCSH 'Historiography' and synopsis about origins and development of historical writing clearly establish this as a study of historiography rather than general library science. No form tags applicable.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "907/.2",
+      "inferredDomains": [
+        "world_history",
+        "books_libraries"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780465053445-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The origins of history",
+      "allAuthors": [
+        "Sir Herbert Butterfield",
+        "Butterfield, Herbert",
+        "Watson, Adam",
+        "Herbert Butterfield"
+      ],
+      "synopsis": "Discusses the origins of history in ancient Mesopotamia, Egypt, and China, tracing its development from the Hebrew Scriptures, the concepts of the Greeks and early Christians, to the birth of modern historical criticism.--Amazon.com.",
+      "pageCount": 252,
+      "language": "en",
+      "lcshSubjects": [
+        "Historiography"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780465053445-M.jpg?default=false",
+        "https://books.google.com/books/content?id=1YMWAQAAIAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "The Origins of History",
+        "author": "Sir Herbert Butterfield",
+        "isbn": "9780465053445",
+        "publisher": "Methuen",
+        "publicationYear": 1981,
+        "lcc": "CB 15 B158",
+        "genreTags": [
+          "[Proposed] Historiography"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "bd14a89b-2019-4e81-b51c-dd3c64748826",
+      "spineRead": {
+        "position": 12,
+        "rawText": "Origin Story: A Big History of Everything — David Christian",
+        "title": "Origin Story: A Big History of Everything",
+        "author": "David Christian",
+        "publisher": "",
+        "lcc": "CB19 .C478 2018",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 73,
+          "y": 15,
+          "width": 8,
+          "height": 80
+        },
+        "extractedCallNumber": "CB 19 .C478 2018",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "Origin Story a Big History of Everything",
+      "author": "David Christian",
+      "authorLF": "Christian, David",
+      "isbn": "9780316392013",
+      "publisher": "Little, Brown",
+      "publicationYear": 2019,
+      "lcc": "CB 19 .C478 2018",
+      "genreTags": [
+        "World history",
+        "[Proposed] Big History",
+        "Complexity & systems"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[history] LCC CB (History of Civilization) with DDC 909 (World history) and subtitle 'A Big History of Everything' clearly indicates comprehensive world history scope. The synopsis confirms this covers universal history from Big Bang to modern globalization. | [science] LCC CB indicates world/civilization history but with science focus. 'Big History' is a specific interdisciplinary field combining cosmology, geology, biology, and human history into unified narrative from Big Bang to present. The subtitle and synopsis confirm this approach. Also fits Complexity & systems given the integrated systems perspective across scales from universe to civilization.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "isbndb",
+      "ddc": "909",
+      "inferredDomains": [
+        "world_history",
+        "science"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316392013-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Origin Story A Big History of Everything",
+      "subtitle": "A Big History of Everything",
+      "allAuthors": [
+        "David Christian"
+      ],
+      "synopsis": "<b>This <i>New York Times</i> bestseller \"elegantly weaves evidence and insights...into a single, accessible historical narrative\" (Bill Gates) and presents a captivating history of the universe -- from the Big Bang to dinosaurs to mass globalization and beyond.</b><br><br>Most historians study the smallest slivers of time, emphasizing specific dates, individuals, and documents. But what would it look like to study the whole of history, from the big bang through the present day -- and even into the remote future? How would looking at the full span of time change the way we perceive the universe, the earth, and our very existence?<br><br>These were the questions David Christian set out to answer when he created the field of \"Big History,\" the most exciting new approach to understanding where we have been, where we are, and where we are going. In <i>Origin Story</i>, Christian takes readers on a wild ride through the entire 13.8 billion years we've come to know as \"history.\" By focusing on defining events (thresholds), major trends, and profound questions about our origins, Christian exposes the hidden threads that tie everything together -- from the creation of the planet to the advent of agriculture, nuclear war, and beyond.<br><br>With stunning insights into the origin of the universe, the beginning of life, the emergence of humans, and what the future might bring, <i>Origin Story</i> boldly reframes our place in the cosmos.<br><br>",
+      "pageCount": 368,
+      "edition": "Reprint",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780316392013-M.jpg?default=false",
+        "https://books.google.com/books/content?id=RlBkuwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+        "https://images.isbndb.com/covers/17403133482300.jpg"
+      ],
+      "original": {
+        "title": "Origin Story a Big History of Everything",
+        "author": "David Christian",
+        "isbn": "9780316392013",
+        "publisher": "Little, Brown",
+        "publicationYear": 2019,
+        "lcc": "CB 19 .C478 2018",
+        "genreTags": [
+          "World history",
+          "[Proposed] Big History",
+          "Complexity & systems"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "9c38dae6-10c8-411c-9acf-1d1e6b0a3358",
+      "spineRead": {
+        "position": 13,
+        "rawText": "A Study of History",
+        "title": "A Study of History",
+        "author": "",
+        "publisher": "",
+        "lcc": "CB63 .T6433 1979",
+        "confidence": "MEDIUM",
+        "note": "Spine shows 'A STUDY OF HISTORY' vertically; author portion not visible in this crop (likely Toynbee based on call number cutter)",
+        "bbox": {
+          "x": 81,
+          "y": 15,
+          "width": 10,
+          "height": 80
+        },
+        "extractedCallNumber": "CB 63 .T6433 1979",
+        "extractedCallNumberSystem": "lcc"
+      },
+      "title": "A Study of History",
+      "author": "Arnold J. Toynbee",
+      "authorLF": "Toynbee, Arnold J.; Somervell, D.C; Toynbee, Arnold; Somervell, D. C",
+      "isbn": "9780195001990",
+      "publisher": "Elsevier Sequoia",
+      "publicationYear": 1900,
+      "lcc": "CB 63 .T6433 1979",
+      "genreTags": [
+        "World history",
+        "Cultural history",
+        "[Proposed] Philosophy of history"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[history] Toynbee's 'A Study of History' is a seminal work analyzing civilizations across world history with philosophical approach to cultural patterns. LCC CB (Social Sciences: History of Civilization) and DDC 909 (World history) confirm world scope, while LCSH 'Civilization' and 'History — Philosophy' indicate cultural-historical analysis. | [philosophy] Clear LCSH 'History — Philosophy' indicates this fits philosophy of history. LCC CB supports civilization/cultural history focus. Toynbee's 'A Study of History' is a foundational work examining patterns and philosophies underlying historical civilizations.",
+      "status": "pending",
+      "warnings": [],
+      "sourcePhoto": "shelf-capture-001.cropped.jpg",
+      "lookupSource": "openlibrary",
+      "ddc": "909",
+      "inferredDomains": [
+        "world_history",
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "spine",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780195001990-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "A Study of History",
+      "allAuthors": [
+        "Arnold J. Toynbee",
+        "D.C Somervell",
+        "Toynbee, Arnold",
+        "Somervell, D. C"
+      ],
+      "pageCount": 576,
+      "lcshSubjects": [
+        "Civilization",
+        "History — Philosophy"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780195001990-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "A Study of History",
+        "author": "Arnold J. Toynbee",
+        "isbn": "9780195001990",
+        "publisher": "Elsevier Sequoia",
+        "publicationYear": 1900,
+        "lcc": "CB 63 .T6433 1979",
+        "genreTags": [
+          "World history",
+          "Cultural history",
+          "[Proposed] Philosophy of history"
+        ],
+        "formTags": []
+      }
+    }
+  ],
+  "croppedFrom": "shelf-capture-001.jpg",
+  "sourceDimensions": {
+    "width": 2084,
+    "height": 2601
+  }
+}
