@@ -14,7 +14,13 @@
  * in the rest by hand. Matches the "manually added" path on Review.
  */
 
-import type { BookRecord, Confidence, InferTagsResult } from './types';
+import type {
+  BookRecord,
+  BookRecordProvenance,
+  Confidence,
+  InferTagsResult,
+  SourceTag,
+} from './types';
 import { lookupLccByIsbn, normalizeLcc } from './lookup-utils';
 import { inferTagsClient, makeId } from './pipeline';
 import { toAuthorLastFirst, toTitleCase } from './csv-export';
@@ -408,6 +414,39 @@ export async function processIsbnScan(args: ProcessIsbnArgs): Promise<BookRecord
     coverUrl = previewCover;
   }
 
+  // v1 provenance for the barcode-scan path. The ISBN was physically
+  // read off the book by the user invoking the scanner — closest tag
+  // we have is 'spine-read' (the back-cover barcode is on the book,
+  // same as a sticker LCC). Other fields come from the lookup tier;
+  // map IsbnLookupResult.source to the SourceTag vocabulary.
+  const scanTs = new Date().toISOString();
+  const scanPrimary: SourceTag =
+    lookup.source === 'openlibrary'
+      ? 'openlibrary'
+      : lookup.source === 'googlebooks'
+        ? 'googlebooks'
+        : 'spine-read';
+  const scanProv: BookRecordProvenance = {};
+  scanProv.isbn = { source: 'spine-read', timestamp: scanTs };
+  if (titleClean) scanProv.title = { source: scanPrimary, timestamp: scanTs };
+  if (authorClean) scanProv.author = { source: scanPrimary, timestamp: scanTs };
+  if (authorClean) scanProv.authorLF = { source: 'derived', timestamp: scanTs };
+  if (lookup.publisher) {
+    scanProv.publisher = { source: scanPrimary, timestamp: scanTs };
+  }
+  if (lookup.publicationYear) {
+    scanProv.publicationYear = { source: scanPrimary, timestamp: scanTs };
+  }
+  if (lookup.lcc) {
+    scanProv.lcc = { source: scanPrimary, timestamp: scanTs };
+  }
+  if (lookup.subjects && lookup.subjects.length > 0) {
+    scanProv.subjects = { source: scanPrimary, timestamp: scanTs };
+  }
+  if (coverUrl) {
+    scanProv.coverUrl = { source: 'openlibrary', timestamp: scanTs };
+  }
+
   return {
     id: makeId(),
     spineRead: {
@@ -434,6 +473,7 @@ export async function processIsbnScan(args: ProcessIsbnArgs): Promise<BookRecord
     sourcePhoto: args.sourcePhoto ?? `barcode-scan-${cleanedIsbn}`,
     batchLabel: args.batchLabel,
     batchNotes: args.batchNotes,
+    provenance: scanProv,
     lookupSource: lookup.source,
     lccSource: lookup.lcc ? 'ol' : 'none',
     coverUrl,

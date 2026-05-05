@@ -23,6 +23,7 @@ import {
 } from './pipeline';
 import { toTitleCase } from './csv-export';
 import { flagIfPreviouslyExported, loadLedger, syncLedgerFromRepo } from './export-ledger';
+import { applyUserEditPatch } from './provenance';
 import { syncCorrectionsFromRepo, loadCorrections, setCorrectionsCache } from './corrections-log';
 import { migrateLegacyDomain } from './tag-domains';
 
@@ -291,19 +292,28 @@ function reducer(state: State, action: Action): State {
         ),
         allBooks: [...state.allBooks, action.book],
       };
-    case 'UPDATE_BOOK':
+    case 'UPDATE_BOOK': {
+      // Auto-stamp user-edit provenance on tracked-field changes when the
+      // caller didn't supply explicit provenance. rereadBook and retagBook
+      // patches include their own `provenance` and bypass the stamp; UI
+      // edits from BookTableRow / MobileBookCard / EditableBatchLabel etc.
+      // never set provenance, so applyUserEditPatch tags the diff for them.
+      const hasExplicitProvenance = 'provenance' in action.patch;
+      const resolvePatch = (bk: BookRecord): Partial<BookRecord> =>
+        hasExplicitProvenance ? action.patch : applyUserEditPatch(bk, action.patch);
       return {
         ...state,
         batches: state.batches.map((b) => ({
           ...b,
           books: b.books.map((bk) =>
-            bk.id === action.id ? { ...bk, ...action.patch } : bk
+            bk.id === action.id ? { ...bk, ...resolvePatch(bk) } : bk
           ),
         })),
         allBooks: state.allBooks.map((bk) =>
-          bk.id === action.id ? { ...bk, ...action.patch } : bk
+          bk.id === action.id ? { ...bk, ...resolvePatch(bk) } : bk
         ),
       };
+    }
     case 'REMOVE_BOOKS': {
       // Bulk hard-removal — drops the named books from every batch
       // and from allBooks, with no Unmerge snapshot retained. Used by

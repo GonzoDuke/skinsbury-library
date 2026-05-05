@@ -1,4 +1,9 @@
-import type { BookLookupResult } from './types';
+import type {
+  BookLookupResult,
+  BookRecordProvenance,
+  FieldProvenance,
+  SourceTag,
+} from './types';
 import {
   normalizeLcc,
   isCompleteLcc,
@@ -9,6 +14,146 @@ import {
   deriveLccFromDdc,
   type MarcResult,
 } from './lookup-utils';
+
+/**
+ * Build a BookRecord provenance map from a finished BookLookupResult.
+ * v1: heuristic end-of-pipeline inference based on `result.source`,
+ * `lccSource`, and which optional fields are populated. Captures the
+ * winning source per field. Alternates are populated only for cases
+ * tracked explicitly during the chain (the LCC partial→complete
+ * upgrade is the headline case; passed via `lccAlternates`).
+ *
+ * Per-tier alternates capture for non-LCC fields is a follow-up — the
+ * data structure supports it, but threading per-tier prov through every
+ * internal mutation site is more invasive than the v1 spec budget.
+ */
+function inferProvenanceFromResult(
+  result: BookLookupResult,
+  lccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none',
+  lccAlternates: Array<{ source: SourceTag; value: unknown }> = []
+): BookRecordProvenance {
+  const ts = new Date().toISOString();
+  const prov: BookRecordProvenance = {};
+
+  // Phase-1 winner determines the primary source for the basic-metadata
+  // fields. When source === 'none' the values that survived came off
+  // the spine read directly (Phase B OCR), so tag them 'spine-read'.
+  const primary: SourceTag =
+    result.source === 'openlibrary'
+      ? 'openlibrary'
+      : result.source === 'isbndb'
+        ? 'isbndb'
+        : result.source === 'googlebooks'
+          ? 'googlebooks'
+          : 'spine-read';
+
+  if (result.isbn) prov.isbn = { source: primary, timestamp: ts };
+  if (result.publisher) prov.publisher = { source: primary, timestamp: ts };
+  if (result.publicationYear) {
+    prov.publicationYear = { source: primary, timestamp: ts };
+  }
+  if (result.canonicalTitle) {
+    prov.canonicalTitle = { source: primary, timestamp: ts };
+  }
+  if (result.allAuthors && result.allAuthors.length > 0) {
+    prov.allAuthors = { source: primary, timestamp: ts };
+  }
+
+  // LCC source tag — derive from the explicit lccSource lifecycle.
+  if (result.lcc) {
+    let lccTag: SourceTag = 'openlibrary';
+    if (lccSource === 'loc') {
+      // 'loc' covers both MARC (Phase 2) and loc-sru (title+author
+      // fallback). MARC fires only with a present LCSH array, so its
+      // presence is the cleanest disambiguator.
+      lccTag = result.lcshSubjects && result.lcshSubjects.length > 0
+        ? 'marc'
+        : 'loc-sru';
+    } else if (lccSource === 'wikidata') {
+      lccTag = 'wikidata';
+    } else if (lccSource === 'inferred') {
+      lccTag = 'sonnet-infer-lcc';
+    } else if (lccSource === 'ol') {
+      lccTag = 'openlibrary';
+    } else {
+      // 'none' — should be unreachable when result.lcc is set; fall
+      // through to primary as a safe default.
+      lccTag = primary;
+    }
+    const entry: FieldProvenance = { source: lccTag, timestamp: ts };
+    if (lccAlternates.length > 0) entry.alternates = [...lccAlternates];
+    prov.lcc = entry;
+  }
+
+  // DDC: MARC supplies it via Phase 2 when MARC fires; ISBNdb otherwise
+  // (it's the only Phase-1 candidate that exposes Dewey directly).
+  if (result.ddc) {
+    const ddcSrc: SourceTag =
+      result.lcshSubjects && result.lcshSubjects.length > 0
+        ? 'marc'
+        : primary === 'isbndb'
+          ? 'isbndb'
+          : 'marc';
+    prov.ddc = { source: ddcSrc, timestamp: ts };
+  }
+
+  // Phase-2 enrichment fields — best-guess attribution by typical source.
+  if (result.lcshSubjects && result.lcshSubjects.length > 0) {
+    prov.lcshSubjects = { source: 'marc', timestamp: ts };
+  }
+  if (result.subjects && result.subjects.length > 0) {
+    prov.subjects = { source: primary, timestamp: ts };
+  }
+  if (result.synopsis) {
+    prov.synopsis = {
+      source: primary === 'isbndb' ? 'isbndb' : 'googlebooks',
+      timestamp: ts,
+    };
+  }
+  if (result.pageCount) {
+    prov.pageCount = {
+      source: primary === 'isbndb' ? 'isbndb' : 'marc',
+      timestamp: ts,
+    };
+  }
+  if (result.edition) {
+    prov.edition = {
+      source: primary === 'isbndb' ? 'isbndb' : 'marc',
+      timestamp: ts,
+    };
+  }
+  if (result.binding) {
+    // binding is ISBNdb-only in practice; MARC and OL don't surface it.
+    prov.binding = { source: 'isbndb', timestamp: ts };
+  }
+  if (result.language) {
+    prov.language = {
+      source: primary === 'isbndb' ? 'isbndb' : 'googlebooks',
+      timestamp: ts,
+    };
+  }
+  if (result.coverUrl) {
+    // The cover-chain primary is always the OL Covers API by ISBN.
+    prov.coverUrl = { source: 'openlibrary', timestamp: ts };
+  }
+
+  return prov;
+}
+
+/**
+ * Attach provenance to the runtime BookLookupResult object as the
+ * non-typed `__provenance` field. Since the type definition stays
+ * unchanged, callers that don't care about provenance ignore it; the
+ * pipeline + API route read it explicitly. The JSON serializer
+ * propagates it automatically through /api/lookup-book.
+ */
+function attachProvenance<T extends BookLookupResult>(
+  result: T,
+  prov: BookRecordProvenance
+): T {
+  (result as unknown as { __provenance: BookRecordProvenance }).__provenance = prov;
+  return result;
+}
 
 // Re-export the env-free helpers so existing callers of this module
 // keep their imports unchanged. The actual implementations now live in
@@ -855,6 +1000,10 @@ export async function lookupSpecificEdition(
             out.coverUrl = cover.primary || undefined;
             out.coverUrlFallbacks =
               cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
+            attachProvenance(
+              out,
+              inferProvenanceFromResult(out, out.lccSource ?? 'none')
+            );
             log.finish({ ...out, tier: 'ol-by-isbn' });
             return out;
           }
@@ -958,6 +1107,10 @@ export async function lookupSpecificEdition(
           out.coverUrl = cover.primary || undefined;
           out.coverUrlFallbacks =
             cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
+          attachProvenance(
+            out,
+            inferProvenanceFromResult(out, out.lccSource ?? 'none')
+          );
           log.finish({ ...out, tier: 'ol-year-scoped' });
           return out;
         }
@@ -1023,6 +1176,10 @@ export async function lookupSpecificEdition(
         out.coverUrl = cover.primary || hit.coverUrl || undefined;
         out.coverUrlFallbacks =
           cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
+        attachProvenance(
+          out,
+          inferProvenanceFromResult(out, out.lccSource ?? 'none')
+        );
         log.finish({ ...out, tier: 'isbndb-direct' });
         return out;
       }
@@ -1807,6 +1964,10 @@ export async function lookupBook(
   let gbCoverUrl = '';
   let isbndbCoverUrl = '';
   let lccSource: 'ol' | 'loc' | 'wikidata' | 'inferred' | 'none' = 'none';
+  // Provenance v1 — captures any LCC value that lost the partial→complete
+  // upgrade so the audit trail keeps the prior source. Other fields rely
+  // on inferProvenanceFromResult's heuristic end-of-function attribution.
+  const lccAlternates: Array<{ source: SourceTag; value: unknown }> = [];
 
   // -------------------------------------------------------------------------
   // PHASE 1 — candidate discovery.
@@ -2056,6 +2217,19 @@ export async function lookupBook(
     if (sruLcc) {
       const normalized = normalizeLcc(sruLcc);
       if (isCompleteLcc(normalized) || !result.lcc) {
+        // Demote the prior partial LCC into the alternates list so the
+        // provenance audit trail captures the losing source's value.
+        if (result.lcc) {
+          const priorSource: SourceTag =
+            lccSource === 'ol'
+              ? 'openlibrary'
+              : lccSource === 'wikidata'
+                ? 'wikidata'
+                : lccSource === 'inferred'
+                  ? 'sonnet-infer-lcc'
+                  : 'openlibrary';
+          lccAlternates.push({ source: priorSource, value: result.lcc });
+        }
         result.lcc = normalized;
         lccSource = 'loc';
         log.tier(
@@ -2084,6 +2258,17 @@ export async function lookupBook(
       if (wd.lcc) {
         const normalized = normalizeLcc(wd.lcc);
         if (isCompleteLcc(normalized) || !result.lcc) {
+          if (result.lcc) {
+            const priorSource: SourceTag =
+              lccSource === 'ol'
+                ? 'openlibrary'
+                : lccSource === 'loc'
+                  ? 'loc-sru'
+                  : lccSource === 'inferred'
+                    ? 'sonnet-infer-lcc'
+                    : 'openlibrary';
+            lccAlternates.push({ source: priorSource, value: result.lcc });
+          }
           result.lcc = normalized;
           lccSource = 'wikidata';
         }
@@ -2155,6 +2340,9 @@ export async function lookupBook(
   }
 
   const final = Object.assign(result, { tier: tier || 'none', lccSource });
+  // Attach v1 provenance — heuristic per-field source attribution +
+  // any LCC alternates captured during the partial→complete fallback.
+  attachProvenance(final, inferProvenanceFromResult(final, lccSource, lccAlternates));
   log.finish(final);
 
   // Cache populate. Both keys point at the same record so the next

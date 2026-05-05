@@ -102,6 +102,52 @@ export interface BookLookupResult {
   coverUrlFallbacks?: string[];
 }
 
+/**
+ * Origin tag for a field's provenance entry. Reuses the same vocabulary
+ * the verbose-lookup trace already speaks ("openlibrary", "isbndb",
+ * "marc", "wikidata", "googlebooks") so log lines and persisted
+ * provenance match by value. The Sonnet origins are explicit ("sonnet-…")
+ * so a glance at the stored data tells you whether a field was
+ * AI-guessed vs. AI-vision-read off a spine.
+ */
+export type SourceTag =
+  | 'openlibrary'
+  | 'isbndb'
+  | 'marc'
+  | 'wikidata'
+  | 'googlebooks'
+  | 'loc-sru'
+  | 'sonnet-infer-lcc'
+  | 'sonnet-identify'
+  | 'spine-read'
+  | 'user-edit'
+  | 'derived';
+
+/**
+ * Source attribution for a single field on a BookRecord. `alternates`
+ * holds prior values from other sources when they disagreed with the
+ * winner — prior winners get demoted here on overwrite so the audit
+ * trail isn't lost.
+ */
+export interface FieldProvenance {
+  source: SourceTag;
+  /** ISO 8601 timestamp the value was assembled / stamped. */
+  timestamp: string;
+  /** Other sources' values for the same field, when they disagreed. */
+  alternates?: Array<{ source: SourceTag; value: unknown }>;
+}
+
+/**
+ * Per-field provenance map keyed by BookRecord field name. Optional —
+ * absence on legacy records is fine; new lookups + Rereads populate it.
+ * Field names tracked: title, canonicalTitle, author, authorLF,
+ * allAuthors, isbn, publisher, publicationYear, lcc, ddc, pageCount,
+ * edition, binding, language, synopsis, lcshSubjects, subjects,
+ * coverUrl. (See PROVENANCE_FIELDS in lib/provenance.ts for the
+ * canonical list used by the user-edit auto-stamper.)
+ */
+export type BookRecordProvenance = Partial<Record<string, FieldProvenance>>;
+
 export interface BookRecord {
   id: string;
   spineRead: SpineRead;
@@ -251,6 +297,13 @@ export interface BookRecord {
    * detectDuplicates, and export as separate CSV rows.
    */
   work_group_id?: string;
+
+  /**
+   * Per-field source attribution. Captured by the lookup pipeline and
+   * extended on user edits. Optional — absence on legacy records is
+   * valid. UI surfacing is intentionally separate (a follow-up commit).
+   */
+  provenance?: BookRecordProvenance;
 
   /** Snapshot of metadata as it came from spine read + lookup, before any user edits. */
   original: {

@@ -13,6 +13,96 @@ import {
   normalizeLcc,
   stringSimilarity,
 } from './lookup-utils';
+import { PROVENANCE_FIELDS } from './provenance';
+import type {
+  BookRecordProvenance,
+  FieldProvenance,
+  SourceTag,
+} from './types';
+
+/**
+ * Read v1 provenance off a BookLookupResult. The data rides as a
+ * non-typed `__provenance` runtime field (book-lookup attaches it
+ * via Object.assign at every return site; the JSON serializer at
+ * /api/lookup-book preserves it across the network). Returns a
+ * fresh, mutation-safe copy so callers can extend without
+ * leaking edits back into the cache.
+ */
+function readLookupProvenance(lookup: BookLookupResult): BookRecordProvenance {
+  const tagged = lookup as unknown as {
+    __provenance?: BookRecordProvenance;
+  };
+  if (!tagged.__provenance) return {};
+  // Shallow clone is sufficient — FieldProvenance entries are
+  // immutable from this point forward in the BookRecord lifecycle.
+  return { ...tagged.__provenance };
+}
+
+/**
+ * Build the BookRecord-level provenance from a finished lookup result.
+ * Layers on top of the lookup's own provenance:
+ *   - `title` / `author`: tagged with the lookup-primary source when
+ *     canonical-from-lookup was used; otherwise tagged 'spine-read'.
+ *   - `authorLF`: always 'derived' (mechanically transformed from author).
+ *   - `lcc`: overridden when lccSource indicates a non-network origin
+ *     (sticker → 'spine-read', Sonnet fallback → 'sonnet-infer-lcc').
+ */
+function buildBookProvenance(args: {
+  lookup: BookLookupResult;
+  displayTitle: string;
+  displayAuthor: string;
+  authorLF: string;
+  useCanonical: boolean;
+  finalLcc: string;
+  lccSource: BookRecord['lccSource'];
+}): BookRecordProvenance {
+  const ts = new Date().toISOString();
+  const prov = readLookupProvenance(args.lookup);
+
+  const primary: SourceTag =
+    args.lookup.source === 'openlibrary'
+      ? 'openlibrary'
+      : args.lookup.source === 'isbndb'
+        ? 'isbndb'
+        : args.lookup.source === 'googlebooks'
+          ? 'googlebooks'
+          : 'spine-read';
+
+  if (args.displayTitle) {
+    const titleSource: SourceTag =
+      args.useCanonical && args.lookup.canonicalTitle ? primary : 'spine-read';
+    prov.title = { source: titleSource, timestamp: ts };
+  }
+  if (args.displayAuthor) {
+    const authorSource: SourceTag =
+      args.useCanonical && args.lookup.canonicalAuthor ? primary : 'spine-read';
+    prov.author = { source: authorSource, timestamp: ts };
+  }
+  if (args.authorLF) {
+    prov.authorLF = { source: 'derived', timestamp: ts };
+  }
+
+  // LCC override when lccSource indicates a non-network origin. The
+  // lookup's own provenance entry for `lcc` covers ol/loc/wikidata/
+  // sonnet-infer-lcc (network paths). Spine-extracted stickers and the
+  // Sonnet model fallback are pipeline-level concerns; surface their
+  // attribution here.
+  if (args.finalLcc && args.lccSource === 'spine') {
+    prov.lcc = { source: 'spine-read', timestamp: ts };
+  } else if (args.finalLcc && args.lccSource === 'inferred') {
+    // Preserve any prior entry's alternates so the model-inferred entry
+    // doesn't drop the partial network LCC that lost the upgrade race.
+    const prior: FieldProvenance | undefined = prov.lcc;
+    const alternates = prior?.alternates ? [...prior.alternates] : undefined;
+    prov.lcc = {
+      source: 'sonnet-infer-lcc',
+      timestamp: ts,
+      ...(alternates && alternates.length > 0 ? { alternates } : {}),
+    };
+  }
+
+  return prov;
+}
 
 /**
  * When true, prefer canonical title / author from the lookup chain
@@ -981,6 +1071,16 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
       ? lookup.allAuthors.map(flipNameLastFirst).filter(Boolean).join('; ')
       : toAuthorLastFirst(displayAuthor);
 
+  const provenance = buildBookProvenance({
+    lookup,
+    displayTitle,
+    displayAuthor,
+    authorLF,
+    useCanonical,
+    finalLcc,
+    lccSource,
+  });
+
   const book: BookRecord = {
     id: makeId(),
     spineRead,
@@ -1001,6 +1101,7 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     batchLabel,
     batchNotes,
     manuallyAdded,
+    provenance,
     lookupSource: lookup.source,
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
@@ -1314,6 +1415,33 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     lookup.lcshSubjects ?? lookup.subjects
   );
 
+  // Manual-entry provenance: the user typed title/author/year/isbn, so
+  // those fields tag as 'user-edit' from the start. Lookup-derived
+  // enrichment fields (lcshSubjects, synopsis, etc.) keep the lookup's
+  // source attribution from buildBookProvenance.
+  const manualAuthorLFFinal = toAuthorLastFirst(author);
+  const manualProv = buildBookProvenance({
+    lookup,
+    displayTitle: titleCased,
+    displayAuthor: author,
+    authorLF: manualAuthorLFFinal,
+    useCanonical: false,
+    finalLcc,
+    lccSource,
+  });
+  const manualTs = new Date().toISOString();
+  if (titleCased) manualProv.title = { source: 'user-edit', timestamp: manualTs };
+  if (author) manualProv.author = { source: 'user-edit', timestamp: manualTs };
+  if (manualAuthorLFFinal) {
+    manualProv.authorLF = { source: 'user-edit', timestamp: manualTs };
+  }
+  // ISBN is the only other field the user typed (publisher / year come
+  // from the post-type lookup). Tag it 'user-edit' only when the user
+  // actually supplied one — finalIsbn falls back to the lookup's value.
+  if (opts.isbn && opts.isbn.trim()) {
+    manualProv.isbn = { source: 'user-edit', timestamp: manualTs };
+  }
+
   return {
     id: makeId(),
     spineRead: {
@@ -1325,7 +1453,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     },
     title: titleCased,
     author,
-    authorLF: toAuthorLastFirst(author),
+    authorLF: manualAuthorLFFinal,
     isbn: finalIsbn,
     publisher: lookup.publisher,
     publicationYear: lookup.publicationYear,
@@ -1342,6 +1470,7 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
     sourcePhoto: opts.sourcePhoto,
     batchLabel: opts.batchLabel,
     batchNotes: opts.batchNotes,
+    provenance: manualProv,
     lookupSource: lookup.source,
     ddc: lookup.ddc,
     lccDerivedFromDdc: lookup.lccDerivedFromDdc,
@@ -1706,6 +1835,31 @@ export async function rereadBook(
     patch.formTags = tags.formTags;
     patch.reasoning = tags.reasoning;
   }
+
+  // Reread provenance: a fresh determination replaces the prior map, but
+  // user-edited fields keep their value AND their 'user-edit' source. The
+  // patch drops any field key the old record had user-edited so the
+  // reducer's spread doesn't overwrite the user's value.
+  const rereadAuthorLFOut = patch.authorLF ?? current.authorLF ?? '';
+  const freshProv = buildBookProvenance({
+    lookup,
+    displayTitle: titleCased,
+    displayAuthor: author,
+    authorLF: rereadAuthorLFOut,
+    useCanonical: USE_CANONICAL_TITLES && lookup.source !== 'none',
+    finalLcc,
+    lccSource,
+  });
+  const mergedProv: BookRecordProvenance = { ...freshProv };
+  const oldProv = current.provenance ?? {};
+  for (const field of PROVENANCE_FIELDS) {
+    const priorEntry = oldProv[field];
+    if (priorEntry?.source === 'user-edit') {
+      delete (patch as Record<string, unknown>)[field];
+      mergedProv[field] = priorEntry;
+    }
+  }
+  patch.provenance = mergedProv;
 
   return { ok: true, patch };
 }
