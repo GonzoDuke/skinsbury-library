@@ -5,6 +5,140 @@ Source documents live in [lib/archive/](lib/archive/). Newest first.
 
 ---
 
+## v5.0.0 — 2026-05-05
+
+Library-surfaces release. The app gains two new ways to browse the cataloged
+collection (Shelflist by LCC class, LCSH by subject heading), the cross-device
+sync model is simplified, and the lookup pipeline becomes deterministic.
+Detailed retrospective in [CHANGELOG-V5.0.md](CHANGELOG-V5.0.md).
+
+### Library surfaces
+- **Shelflist** (`5e00dfc`): two-level LCC-class accordion at `/shelflist`.
+  Top level always shows all 21 LCC class letters (open-world principle);
+  empty classes render at reduced opacity. Sub-classes only appear when
+  populated. Books listed by full LCC ascending. SessionStorage-persistent
+  expand state.
+- **LCSH browse** (`523b864`, `dc3a8bb`): new `/lcsh` route with an index of
+  every Library of Congress Subject Heading drawn from approved books,
+  filterable + sortable A→Z or by book count. `?h={encoded}` flips to a
+  per-heading detail view listing books carrying it, sorted by author last
+  name then title. Headings treated as opaque atoms — no subdivision
+  splitting. Clickable LCSH chips on book detail panels (commit 2) link
+  directly to `/lcsh?h={heading}` so the user can browse siblings of any
+  heading they encounter while reviewing.
+
+### Multi-copy handling
+- **Format-aware copies** (`430977d`): records sharing a `work_group_id`
+  are different physical copies of one work — Hardcover, Paperback,
+  Audiobook etc. as separate rows. Review surfaces show an `X of N · {format}`
+  indicator with a 2px gold left-edge connector grouping siblings visually.
+  `detectDuplicates` exempts groups where every entry shares the same
+  non-empty `work_group_id` so legitimate copies don't get flagged.
+  CSV export gains a BINDING column populated from `book.format`.
+  AddCopyModal is the primary path for creating linked copies.
+
+### Taxonomy refactor
+- **21-domain strict-LCC taxonomy** (`4fd58be`, `18e46f0`): vocabulary
+  refactored from 12 domains to 21 — one per LCC class letter (A–Z, skipping
+  I/O/W/X/Y per LCC). Hand-written starter vocabularies for Law, Medicine,
+  and Education only; other new domains (Agriculture, Technology, Military
+  science, Naval science) start empty and grow organically. Open-world
+  principle: every domain stays visible everywhere it's enumerated, even
+  when empty.
+- **Fiction tag auto-derived** (`f1c5feb`): the `Fiction` form tag is now
+  derived deterministically from `lcc` + `lcshSubjects` post-inference,
+  not asked of Sonnet. Books in the language/literature LCC range with no
+  Drama/Poetry LCSH signal pick up Fiction automatically. Plays and verse
+  excluded.
+
+### Pipeline determinism + correctness
+- **`temperature: 0` across all Anthropic calls** (`4940187`): six call
+  sites — `/api/process-photo`, `/api/read-spine`, `/api/infer-tags` (×2),
+  `/api/infer-lcc`, `/api/identify-book` — now run at temperature 0 for
+  reproducible spine reads, tag inference, LCC inference, and book
+  identification.
+- **Phase 2 fan-out on Reread / matchEdition path** (`d272284`):
+  `lookupSpecificEdition`'s three early-return tiers (OL-by-ISBN,
+  year-scoped, ISBNdb-direct) were short-circuiting before MARC + GB +
+  Wikidata + OL-by-ISBN fired. MARC is the only source of `lcshSubjects`,
+  so any book Reread'd through this path lost its LCSH headings — and books
+  processed before MARC was wired in were never re-enriched. Fix: extracted
+  the fan-out + gap-fill merge into a shared `enrichWithIsbnFanout` helper
+  called from both `lookupBook` and all three `lookupSpecificEdition`
+  branches. The fix shipped between LCSH commit 1 and commit 2 because
+  without it the LCSH browse looked broken on a real library.
+
+### Atomic commits
+- **Vocabulary atomic Git Trees commit** (`28a80f3`): refactored
+  `/api/commit-vocabulary` from sequential PUT-then-PUT to a single Git
+  Trees commit. Both `lib/tag-vocabulary.json` and
+  `lib/vocabulary-changelog.md` now land in one commit, eliminating the
+  drift window the old pattern allowed when the second PUT failed.
+- **Export backups via atomic commit** (`5bee972`): new `/api/export-backup`
+  route writes per-export JSON backups under `data/export-backups/` AND
+  applies the ledger delta in a single atomic Git Trees commit. Replaces
+  the previous client-download-then-fire-and-forget-ledger-PUT pattern.
+  Commit message: `"Export backup: {batch label} ({N} books)"`. Local-only
+  mode and any failure path fall back to client-side JSON download so the
+  user never loses a backup.
+
+### Local-only mode
+- **Sidebar / gear-menu toggle** (`f615dca`): suppresses every GitHub write
+  (ledger, corrections, vocabulary, export-backup) and falls back to
+  localStorage-only behavior. Visible indicator: 2px gold bar fixed to the
+  top of the viewport whenever active. Mobile gear icon also gets a small
+  gold dot in the top-right corner. Built for local iteration without
+  filling commit history with debug data.
+
+### Capture polish
+- **Manual entry modal** (`bd8daec`): 2×2 grid (title/author/year/ISBN)
+  shared by Upload and Review surfaces. Manual books still flow through
+  Phase 1 + Phase 2 lookup so they receive the same enrichment as
+  photo-detected ones.
+- **Auto-default batch labels** (`8cdfc83`): batches without a user-supplied
+  label auto-default to `Shelf {date}`, `Scans {date}`, or `Manual {date}`
+  depending on origin. Inline-editable on Review and Export.
+- **Sync on edit** (`2eb80dd`, `999e0df`): manually-entered and
+  individually-scanned books now push to GitHub on success; debounced
+  post-mutation push for all BookRecord edits. Replaces the old
+  push-once-at-process-end pattern.
+
+### Cross-device sync simplification
+- **Pending-batches removal** (`001fa05`): the phone-capture-then-desktop-
+  pickup workflow built in v3 was removed. The use case had shifted to
+  single-device-per-session, the commit churn was severe (~30+ commits per
+  session was typical), and the alternative paths (export-ledger sync +
+  corrections sync + vocabulary sync + export-backup sync) cover what's
+  actually used. `lib/pending-batches.ts`, `app/api/pending-batches/`, and
+  the related store actions all deleted.
+
+### Reverted experiments
+- **Splash page lived briefly** (`c974023` / `c46c838`): a chrome-free splash
+  establishing Jonathan M. Kelly authorship was live in production for a
+  short window 2026-05-05 before being reverted. Original `/upload`
+  redirect restored; the splash component is preserved as a commented-out
+  block at the top of `app/page.tsx` for future use.
+- **Stacks / Collection landing page** (`6494b43` … `f0b28f9`): a new
+  library landing page with hero, stats, and tool entry points was tried
+  in two iterations and reverted in favor of the layout-density pass and
+  later the History → utility-surface demotion (`14cc706`).
+
+### Misc
+- `390b3e4` populate title/author/cover at all `lookupSpecificEdition`
+  branches that were silently dropping them.
+- `123ff04`/`dee738a` add Duplicates & Editions and Authority Check tools
+  (lived in /stacks; Stacks page reverted).
+- `b3afb67`/`18d4e23`/`97d8e3f` typography + density passes — page titles
+  bumped to 28px, sidebar-nav font 16px, layout density tightened on Upload
+  and Stacks.
+- `28a80f3` vocab commit refactor (atomic Git Trees, foundation for the
+  later export-backup route).
+
+### v5.0.0 release tag
+- `24ddef3` v5.0.0 — bump package.json + footer reads `ver. 5.0`.
+
+---
+
 ## v3.5.0 — 2026-05-02
 
 Separate-copies fix. The dedup flow was silently merging records that were
