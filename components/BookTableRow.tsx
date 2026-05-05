@@ -8,6 +8,7 @@ import { TagChip } from './TagChip';
 import { TagPicker } from './TagPicker';
 import { Cover } from './Cover';
 import { Editable, ReadOnlyField } from './Editable';
+import { LcshChipLink } from './LcshChipLink';
 import { AddCopyModal } from './AddCopyModal';
 import { fireUndo } from './UndoToast';
 import { logCorrection } from '@/lib/corrections-log';
@@ -460,11 +461,15 @@ export function BookTableRow({ book }: { book: BookRecord }) {
           ) : null}
 
           {book.lcshSubjects && book.lcshSubjects.length > 0 ? (
-            <div className="mb-3 text-[11px] text-text-secondary leading-relaxed">
-              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1">
+            <div className="mb-3">
+              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1.5">
                 LCSH
               </span>
-              <span className="font-mono">{book.lcshSubjects.join('; ')}</span>
+              <div className="flex flex-wrap gap-1.5">
+                {book.lcshSubjects.map((h, i) => (
+                  <LcshChipLink key={`${i}-${h}`} heading={String(h)} />
+                ))}
+              </div>
             </div>
           ) : null}
 

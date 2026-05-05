@@ -9,6 +9,7 @@ import { TagPicker } from './TagPicker';
 import { Cover } from './Cover';
 import { ConfidenceBadge } from './ConfidenceBadge';
 import { Editable } from './Editable';
+import { LcshChipLink } from './LcshChipLink';
 import { fireUndo } from './UndoToast';
 import { logCorrection } from '@/lib/corrections-log';
 
@@ -409,11 +410,15 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
             </div>
           ) : null}
           {book.lcshSubjects && book.lcshSubjects.length > 0 ? (
-            <div className="text-[11px] text-text-secondary leading-relaxed">
-              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1">
+            <div>
+              <span className="block uppercase tracking-wider text-[10px] text-text-quaternary mb-1.5">
                 LCSH
               </span>
-              <span className="font-mono">{book.lcshSubjects.join('; ')}</span>
+              <div className="flex flex-wrap gap-1.5">
+                {book.lcshSubjects.map((h, i) => (
+                  <LcshChipLink key={`${i}-${h}`} heading={String(h)} />
+                ))}
+              </div>
             </div>
           ) : null}
 
