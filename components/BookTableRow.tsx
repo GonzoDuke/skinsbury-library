@@ -403,7 +403,14 @@ export function BookTableRow({ book }: { book: BookRecord }) {
               onSave={(v) => updateBook(book.id, { lcc: v.trim() })}
             />
             {book.ddc ? (
-              <ReadOnlyField label="DDC" value={book.ddc} mono />
+              // Force into the right column at sm+ so DDC lands directly
+              // under LCC. Without this, row-major auto-flow drops DDC
+              // into the left column between PUBLISHER and LOCATION,
+              // breaking the LCC/DDC visual pairing. On mobile the grid
+              // collapses to a single column and the override is a no-op.
+              <div className="min-w-0 sm:col-start-2">
+                <ReadOnlyField label="DDC" value={book.ddc} mono />
+              </div>
             ) : null}
             <Editable
               label="Location"
