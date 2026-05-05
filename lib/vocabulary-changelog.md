@@ -72,4 +72,11 @@ Created baseline vocabulary from 186-book LibraryThing export + 22-book proof of
 - Added `Personal development` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
 - Added `Social justice` to **Philosophy, psychology, religion** — first seen on "Moral Ambition" by Rutger Bregman
 
+## 2026-05-05
+
+- Added `Artificial intelligence` to **Language and literature** — first seen on "The Singularity Is Nearer" by Ray Kurzweil
+- Added `Futurology` to **Language and literature** — first seen on "The Singularity Is Nearer" by Ray Kurzweil
+- Added `Digital spirituality` to **Philosophy, psychology, religion** — first seen on "Digital Dharma" by Deepak Chopra
+- Added `Human geography` to **Philosophy, psychology, religion** — first seen on "Space and Place the Perspective of Experience" by Yi-Fu Tuan
+
 <!-- New entries will be appended below automatically by the approve command -->

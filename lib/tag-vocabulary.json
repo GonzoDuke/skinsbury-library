@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "updated": "2026-05-04",
+  "updated": "2026-05-05",
   "description": "Tag vocabulary for Carnegie. The domain taxonomy is now strict-LCC-aligned: 21 domains corresponding 1:1 to the Library of Congress Classification's top-level class letters (A–Z minus the unused W/X/Y). LCC class-letter is THE domain identifier — no splits, no promotions, no personal preferences. Subdiscipline information lives in the rest of the call number, not in the domain name.",
   "_migration_notes_v1_to_v2": {
     "summary": "Schema 1.0 (pre-2026-05-04) used 12 closed-world domains with personal-preference splits. Schema 2.0 collapses to a strict 21-domain LCC-aligned taxonomy. Tags from old domains were migrated to new domains by content; some required judgment calls — flagged below for the user to review.",
@@ -66,7 +66,9 @@
         "Social psychology",
         "Activism & Social Justice",
         "Personal development",
-        "Social justice"
+        "Social justice",
+        "Digital spirituality",
+        "Human geography"
       ]
     },
     "auxiliary_history": {
@@ -207,7 +209,9 @@
         "Etymology",
         "History of language",
         "Profanity studies",
-        "Media literacy"
+        "Media literacy",
+        "Artificial intelligence",
+        "Futurology"
       ]
     },
     "science": {
