@@ -45,5 +45,18 @@
     "addedTag": "Counterculture",
     "timestamp": "2026-05-05T18:14:20.846Z",
     "kind": "tag"
+  },
+  {
+    "title": "The Subtle Art of Not Giving a F*ck",
+    "author": "Mark Manson",
+    "lcc": "BJ-1589.00000000",
+    "systemSuggestedTags": [
+      "Self-improvement",
+      "Personal development",
+      "How-to / guide"
+    ],
+    "removedTag": "How-to / guide",
+    "timestamp": "2026-05-05T18:14:34.444Z",
+    "kind": "tag"
   }
 ]
