@@ -344,7 +344,12 @@ export function BookTableRow({ book }: { book: BookRecord }) {
           existing pill add/remove flow below. */}
       {open && (
         <div className="bg-surface-page px-[66px] py-[14px] border-b border-line">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5 mb-3">
+          {/* Dense flow lets later fields backfill the column-1 hole that
+              DDC's sm:col-start-2 override creates at LCC's row. Without
+              this, LOCATION drops to row 4 and the panel reads with a
+              visible gap above it. Dense flow respects DDC's explicit
+              col-start; it only repacks AUTO-placed fields. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 grid-flow-row-dense gap-x-8 gap-y-2.5 mb-3">
             <Editable
               label="Title"
               value={book.title}
