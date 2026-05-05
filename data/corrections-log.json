@@ -58,5 +58,18 @@
     "removedTag": "How-to / guide",
     "timestamp": "2026-05-05T18:14:34.444Z",
     "kind": "tag"
+  },
+  {
+    "title": "The Subtle Art of Not Giving a F*ck",
+    "author": "Mark Manson",
+    "lcc": "BJ-1589.00000000",
+    "systemSuggestedTags": [
+      "Self-improvement",
+      "Personal development",
+      "How-to / guide"
+    ],
+    "addedTag": "[Proposed] pop psychology",
+    "timestamp": "2026-05-05T18:15:27.179Z",
+    "kind": "tag"
   }
 ]
