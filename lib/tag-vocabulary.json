@@ -93,7 +93,8 @@
         "World history",
         "Cultural history",
         "Exploration",
-        "Modern civilization"
+        "Modern civilization",
+        "History of technology"
       ]
     },
     "american_history": {
@@ -127,7 +128,8 @@
       "tags": [
         "Counterculture",
         "Drugs",
-        "Identity & tribalism"
+        "Identity & tribalism",
+        "Psychopharmacology"
       ]
     },
     "political_science": {
