@@ -140,30 +140,71 @@ export default function ReviewPage() {
     });
     const byPosition = (a: typeof filtered[number], b: typeof filtered[number]) =>
       a.spineRead.position - b.spineRead.position;
+    let sorted: typeof filtered;
     if (sort === 'position') {
-      return [...filtered].sort(byPosition);
-    }
-    if (sort === 'title-asc' || sort === 'title-desc') {
+      sorted = [...filtered].sort(byPosition);
+    } else if (sort === 'title-asc' || sort === 'title-desc') {
       const dir = sort === 'title-desc' ? -1 : 1;
-      return [...filtered].sort((a, b) => {
+      sorted = [...filtered].sort((a, b) => {
         const d = (a.title || '').localeCompare(b.title || '') * dir;
         return d !== 0 ? d : byPosition(a, b);
       });
-    }
-    if (sort === 'tags-asc' || sort === 'tags-desc') {
+    } else if (sort === 'tags-asc' || sort === 'tags-desc') {
       const dir = sort === 'tags-desc' ? -1 : 1;
-      return [...filtered].sort((a, b) => {
+      sorted = [...filtered].sort((a, b) => {
         const aCount = (a.genreTags?.length ?? 0) + (a.formTags?.length ?? 0);
         const bCount = (b.genreTags?.length ?? 0) + (b.formTags?.length ?? 0);
         const d = (aCount - bCount) * dir;
         return d !== 0 ? d : byPosition(a, b);
       });
+    } else {
+      const dir = sort === 'confidence-desc' ? -1 : 1;
+      sorted = [...filtered].sort((a, b) => {
+        const d =
+          (CONFIDENCE_RANK[a.confidence] - CONFIDENCE_RANK[b.confidence]) * dir;
+        return d !== 0 ? d : byPosition(a, b);
+      });
     }
-    const dir = sort === 'confidence-desc' ? -1 : 1;
-    return [...filtered].sort((a, b) => {
-      const d = (CONFIDENCE_RANK[a.confidence] - CONFIDENCE_RANK[b.confidence]) * dir;
-      return d !== 0 ? d : byPosition(a, b);
-    });
+
+    // Multi-copy grouping pass. After the user's chosen sort runs,
+    // pull every work_group_id'd sibling adjacent to its first
+    // appearance in the sorted output. The group's POSITION in the
+    // list is determined by its first sibling under the active sort
+    // (the "representative"); within the group, siblings render in
+    // their state.allBooks insertion order. If the active filter
+    // hides some siblings, the remaining ones still group — but a
+    // group of 1 (filter-reduced) is a no-op and stays in place.
+    const sortedIds = new Set(sorted.map((b) => b.id));
+    const groupMembersByWgId = new Map<string, typeof filtered>();
+    for (const b of state.allBooks) {
+      if (!b.work_group_id) continue;
+      if (!sortedIds.has(b.id)) continue;
+      const list = groupMembersByWgId.get(b.work_group_id) ?? [];
+      list.push(b);
+      groupMembersByWgId.set(b.work_group_id, list);
+    }
+    // Drop singletons — no rearrangement needed for a 1-member group.
+    for (const [wgId, members] of groupMembersByWgId) {
+      if (members.length < 2) groupMembersByWgId.delete(wgId);
+    }
+    if (groupMembersByWgId.size === 0) return sorted;
+    const placed = new Set<string>();
+    const result: typeof filtered = [];
+    for (const book of sorted) {
+      if (placed.has(book.id)) continue;
+      const wgId = book.work_group_id;
+      if (wgId && groupMembersByWgId.has(wgId)) {
+        for (const m of groupMembersByWgId.get(wgId)!) {
+          if (placed.has(m.id)) continue;
+          result.push(m);
+          placed.add(m.id);
+        }
+      } else {
+        result.push(book);
+        placed.add(book.id);
+      }
+    }
+    return result;
   }, [state.allBooks, filter, sort]);
 
   function approveAllHigh() {

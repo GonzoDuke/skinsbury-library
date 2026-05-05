@@ -232,6 +232,26 @@ export interface BookRecord {
    *  Review-row marker when 'low' so the user can intervene. */
   domainConfidence?: 'high' | 'medium' | 'low';
 
+  /**
+   * User-curated physical format for this copy. Distinct from `binding`
+   * (which is auto-populated from lookup-tier metadata). Set via the
+   * Add Copy modal; exported to LibraryThing's BINDING column. Common
+   * canonical values: "Hardcover", "Paperback", "Trade Paperback",
+   * "Mass Market Paperback", "Library Binding", "Spiral-bound". Free
+   * strings allowed for the "Other" fallback.
+   */
+  format?: string;
+  /**
+   * Cross-reference id linking this record to other physical copies of
+   * the same work. Same field name + shape as the LedgerEntry-level
+   * work_group_id used by the duplicates tool — assigned by Add Copy
+   * when a user clones a record into an independent second copy. Two
+   * records sharing this value render adjacent on Review with a left-
+   * edge connector, are treated as intentional multi-copy by
+   * detectDuplicates, and export as separate CSV rows.
+   */
+  work_group_id?: string;
+
   /** Snapshot of metadata as it came from spine read + lookup, before any user edits. */
   original: {
     title: string;

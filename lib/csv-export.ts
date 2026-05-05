@@ -150,6 +150,11 @@ export const CSV_HEADERS = [
   'TITLE',
   'AUTHOR (last, first)',
   'ISBN',
+  // BINDING sits next to ISBN where edition-specific fields cluster.
+  // Populated from book.format (user-set via Add Copy), NOT from
+  // book.binding (auto-detected from lookup tier). Blank when format
+  // is unset.
+  'BINDING',
   'PUBLICATION',
   'DATE',
   'TAGS',
@@ -194,6 +199,7 @@ export function bookToCsvRow(b: BookRecord, options: CsvOptions = {}): string[] 
       ? b.authorLF
       : toAuthorLastFirst(b.author),
     b.isbn,
+    b.format ?? '',
     b.publisher,
     b.publicationYear ? String(b.publicationYear) : '',
     tags,

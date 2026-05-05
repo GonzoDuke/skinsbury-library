@@ -34,7 +34,7 @@ function stringifyWarning(w: unknown): string {
  * special "is this a synced row" flag.
  */
 export function MobileBookCard({ book }: { book: BookRecord }) {
-  const { updateBook, rereadBook } = useStore();
+  const { state, updateBook, rereadBook } = useStore();
   const [open, setOpen] = useState(false);
   const [picker, setPicker] = useState<'genre' | 'form' | null>(null);
   const [rereading, setRereading] = useState(false);
@@ -42,6 +42,21 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
 
   const safeGenre = Array.isArray(book.genreTags) ? book.genreTags : [];
   const safeForm = Array.isArray(book.formTags) ? book.formTags : [];
+
+  // Multi-copy grouping context (mirrors BookTableRow logic).
+  const workGroupId = book.work_group_id;
+  let groupPosition = 0;
+  let groupSize = 0;
+  if (workGroupId) {
+    const siblings = state.allBooks.filter(
+      (b) => b.work_group_id === workGroupId
+    );
+    groupSize = siblings.length;
+    groupPosition = siblings.findIndex((b) => b.id === book.id) + 1;
+  }
+  const isInGroup = groupSize >= 2;
+  const isFirstInGroup = isInGroup && groupPosition === 1;
+  const isLastInGroup = isInGroup && groupPosition === groupSize;
 
   const isApproved = book.status === 'approved';
   const isRejected = book.status === 'rejected';
@@ -140,9 +155,23 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
       ? 'opacity-40'
       : 'bg-surface-card';
 
+  // Multi-copy left-edge connector. 2px gold accent, with rounded
+  // top-left only for the first card in the group, bottom-left only
+  // for the last, square for middles. Override the default border-radius
+  // so the corners read as a continuous group spine.
+  const groupBorderStyle: React.CSSProperties | undefined = isInGroup
+    ? {
+        borderLeftColor: '#C4A35A',
+        borderLeftWidth: 2,
+        borderTopLeftRadius: isFirstInGroup ? undefined : 0,
+        borderBottomLeftRadius: isLastInGroup ? undefined : 0,
+      }
+    : undefined;
+
   return (
     <div
       className={`rounded-lg border border-line overflow-hidden ${tint}`}
+      style={groupBorderStyle}
     >
       {/* Collapsed header. Tap to expand. */}
       <button
@@ -183,6 +212,15 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
               )}
             </div>
           </div>
+          {isInGroup && (
+            <div
+              className="inline-flex items-center self-start text-[10px] font-medium text-text-secondary mt-1 px-1.5 py-0.5 rounded bg-surface-page border border-line-light"
+              title={`Copy ${groupPosition} of ${groupSize} (linked via Add Copy)`}
+            >
+              {groupPosition} of {groupSize}
+              {book.format ? ` · ${book.format}` : ''}
+            </div>
+          )}
           <div className="text-[12px] text-text-tertiary mt-0.5 line-clamp-1">
             {book.author || 'Unknown author'}
           </div>

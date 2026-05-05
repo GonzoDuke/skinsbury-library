@@ -212,7 +212,23 @@ type Action =
   | { type: 'MERGE_DUPLICATES'; winnerId: string; loserIds: string[] }
   | { type: 'UNMERGE_BOOK'; id: string }
   | { type: 'KEEP_BOTH_DUPLICATES'; groupId: string }
-  | { type: 'ADD_COPY'; sourceId: string }
+  | {
+      type: 'ADD_COPY';
+      sourceId: string;
+      /**
+       * Optional payload from the AddCopyModal. When omitted (legacy
+       * call sites), behaves like the old flat-clone path with a
+       * "Copy N." note prefix. With a payload, creates a multi-copy
+       * sibling: format set, work_group_id assigned to both records,
+       * and the parent's format optionally back-filled.
+       */
+      payload?: {
+        format: string;
+        isbn: string;
+        notes: string;
+        retroactiveParentFormat?: string;
+      };
+    }
   | { type: 'SET_PROCESSING'; processing: ProcessingState | null }
   | { type: 'PATCH_PROCESSING'; patch: Partial<ProcessingState> }
   | { type: 'HYDRATE'; batches: PhotoBatch[]; allBooks: BookRecord[] }
@@ -412,37 +428,57 @@ function reducer(state: State, action: Action): State {
       };
     }
     case 'ADD_COPY': {
-      // Manually clone a record into an independent second copy. Use case:
-      // user owns multiple physical copies of the same title (paperback +
-      // hardcover, gift + personal, two prints) and the dedup flow either
-      // never separated them or already collapsed them in a prior session.
-      // The new record carries a fresh id, resets status to pending, and
-      // gets a "Copy N" prefix on its notes so it's distinguishable in the
-      // Review queue and the LT export.
+      // Clone a record into an independent second copy. With `payload`
+      // (Add Copy modal), creates a multi-copy sibling: format set,
+      // work_group_id shared with parent, ISBN/notes overridden when
+      // provided, and parent's format optionally back-filled. Without
+      // a payload (legacy call site), falls back to the flat-clone
+      // path with a "Copy N." note prefix and no work_group_id.
       const source = state.allBooks.find((b) => b.id === action.sourceId);
       if (!source) return state;
       const sourceBatch = state.batches.find((b) =>
         b.books.some((bk) => bk.id === source.id)
       );
       if (!sourceBatch) return state;
-      // Number copies by counting existing books that share the same source
-      // photo + spine position (the original counts as #1, so the new copy
-      // starts at #2 and increments cleanly across repeated clicks).
-      const lineage = state.allBooks.filter(
-        (b) =>
-          b.sourcePhoto === source.sourcePhoto &&
-          b.spineRead.position === source.spineRead.position
-      );
-      const copyNumber = lineage.length + 1;
-      const copyNote = `Copy ${copyNumber}.`;
-      const mergedNote = source.notes
-        ? `${copyNote} ${source.notes}`
-        : copyNote;
+      const payload = action.payload;
+      // Resolve the work_group_id: reuse parent's if present; otherwise
+      // generate one and assign to both. Only the payload path mints
+      // an id — the legacy flat-clone path stays work_group-free for
+      // backwards compatibility with pre-multi-copy session data.
+      let parentWorkGroupId = source.work_group_id;
+      if (payload && !parentWorkGroupId) {
+        parentWorkGroupId =
+          typeof crypto !== 'undefined' && 'randomUUID' in crypto
+            ? crypto.randomUUID()
+            : `wg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      }
+      // Compute the copy's notes. Modal-driven: use the user's input
+      // verbatim (or empty). Legacy: number copies by lineage and stamp
+      // a "Copy N." prefix.
+      let copyNotes: string | undefined;
+      if (payload) {
+        copyNotes = payload.notes ? payload.notes : undefined;
+      } else {
+        const lineage = state.allBooks.filter(
+          (b) =>
+            b.sourcePhoto === source.sourcePhoto &&
+            b.spineRead.position === source.spineRead.position
+        );
+        const copyNumber = lineage.length + 1;
+        const copyNote = `Copy ${copyNumber}.`;
+        copyNotes = source.notes ? `${copyNote} ${source.notes}` : copyNote;
+      }
+      // Resolve copy's ISBN: payload.isbn wins when filled; otherwise
+      // inherit from parent.
+      const copyIsbn = payload && payload.isbn ? payload.isbn : source.isbn;
       const copy: BookRecord = {
         ...source,
         id: makeId(),
         status: 'pending',
-        notes: mergedNote,
+        isbn: copyIsbn,
+        notes: copyNotes,
+        format: payload ? payload.format : source.format,
+        work_group_id: parentWorkGroupId,
         duplicateGroup: undefined,
         duplicateOf: undefined,
         duplicateResolved: undefined,
@@ -452,20 +488,41 @@ function reducer(state: State, action: Action): State {
           (w) => !/^possible duplicate\b/i.test(w)
         ),
       };
+      // Patch the parent: stamp work_group_id when newly minted, and
+      // optionally set its format when the user filled the retroactive
+      // field.
+      const parentPatch: Partial<BookRecord> = {};
+      if (payload && parentWorkGroupId !== source.work_group_id) {
+        parentPatch.work_group_id = parentWorkGroupId;
+      }
+      if (payload && !source.format && payload.retroactiveParentFormat) {
+        parentPatch.format = payload.retroactiveParentFormat;
+      }
+      const updateParent = Object.keys(parentPatch).length > 0;
       return {
         ...state,
         batches: state.batches.map((b) => {
           if (b.id !== sourceBatch.id) return b;
           // Insert the copy right after its source so the two cards sit
-          // adjacent in the Review queue.
+          // adjacent in the Review queue. Apply parentPatch to the
+          // source in the same pass.
           const next: BookRecord[] = [];
           for (const bk of b.books) {
-            next.push(bk);
+            if (bk.id === source.id && updateParent) {
+              next.push({ ...bk, ...parentPatch });
+            } else {
+              next.push(bk);
+            }
             if (bk.id === source.id) next.push(copy);
           }
           return { ...b, books: next, booksIdentified: next.length };
         }),
-        allBooks: [...state.allBooks, copy],
+        allBooks: [
+          ...state.allBooks.map((b) =>
+            b.id === source.id && updateParent ? { ...b, ...parentPatch } : b
+          ),
+          copy,
+        ],
       };
     }
     case 'SET_PROCESSING':
@@ -528,7 +585,15 @@ interface StoreApi {
   /** Clone the named book into an independent second copy with a fresh id
    *  and a "Copy N" notes prefix. Used when the user owns multiple physical
    *  copies of the same title that the dedup flow collapsed or never split. */
-  addCopy: (sourceId: string) => void;
+  addCopy: (
+    sourceId: string,
+    payload?: {
+      format: string;
+      isbn: string;
+      notes: string;
+      retroactiveParentFormat?: string;
+    }
+  ) => void;
 }
 
 const StoreCtx = createContext<StoreApi | null>(null);
@@ -1010,7 +1075,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       unmergeBook: (id) => dispatch({ type: 'UNMERGE_BOOK', id }),
       keepBothDuplicates: (groupId) =>
         dispatch({ type: 'KEEP_BOTH_DUPLICATES', groupId }),
-      addCopy: (sourceId) => dispatch({ type: 'ADD_COPY', sourceId }),
+      addCopy: (sourceId, payload) =>
+        dispatch({ type: 'ADD_COPY', sourceId, payload }),
     }),
     [state, processQueue, rereadBook, bulkRetag]
   );

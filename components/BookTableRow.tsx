@@ -8,6 +8,7 @@ import { TagChip } from './TagChip';
 import { TagPicker } from './TagPicker';
 import { Cover } from './Cover';
 import { Editable, ReadOnlyField } from './Editable';
+import { AddCopyModal } from './AddCopyModal';
 import { fireUndo } from './UndoToast';
 import { logCorrection } from '@/lib/corrections-log';
 
@@ -41,11 +42,32 @@ function stringifyWarning(w: unknown): string {
  * version are gone.
  */
 export function BookTableRow({ book }: { book: BookRecord }) {
-  const { updateBook, rereadBook, addCopy } = useStore();
+  const { state, updateBook, rereadBook, addCopy } = useStore();
   const [open, setOpen] = useState(false);
   const [picker, setPicker] = useState<'genre' | 'form' | null>(null);
   const [rereading, setRereading] = useState(false);
   const [rereadErr, setRereadErr] = useState<string | null>(null);
+  const [addCopyOpen, setAddCopyOpen] = useState(false);
+
+  // Multi-copy grouping context. When the book is part of a
+  // work_group_id'd cluster, compute its 1-based position and the
+  // group total so the row can render the "X of N" chip + left-edge
+  // connector. Insertion order in state.allBooks is the stable
+  // representative-position-then-siblings ordering used by the Review
+  // page's sort, so we can derive position from it directly.
+  const workGroupId = book.work_group_id;
+  let groupPosition = 0;
+  let groupSize = 0;
+  if (workGroupId) {
+    const siblings = state.allBooks.filter(
+      (b) => b.work_group_id === workGroupId
+    );
+    groupSize = siblings.length;
+    groupPosition = siblings.findIndex((b) => b.id === book.id) + 1;
+  }
+  const isInGroup = groupSize >= 2;
+  const isFirstInGroup = isInGroup && groupPosition === 1;
+  const isLastInGroup = isInGroup && groupPosition === groupSize;
 
   const hasWarning =
     (Array.isArray(book.warnings) && book.warnings.length > 0) ||
@@ -176,11 +198,25 @@ export function BookTableRow({ book }: { book: BookRecord }) {
       ? 'opacity-30'
       : 'hover:bg-surface-card-hover';
 
+  // Multi-copy left-edge connector. Rendered as inline-style border so
+  // we can vary the radius per row position (top-left rounded for the
+  // first row in the group, bottom-left for the last, square for the
+  // middle). 2px gold accent — the same Carnegie gold used for the
+  // local-only-mode indicator and approve-pulse.
+  const groupBorderStyle: React.CSSProperties | undefined = isInGroup
+    ? {
+        borderLeft: '2px solid #C4A35A',
+        borderTopLeftRadius: isFirstInGroup ? 6 : 0,
+        borderBottomLeftRadius: isLastInGroup ? 6 : 0,
+      }
+    : undefined;
+
   return (
     <>
       <div
         onClick={() => setOpen((v) => !v)}
         className={`grid grid-cols-[72px_1fr_90px_240px_120px] items-center gap-4 px-[16px] py-[14px] border-b border-line-light cursor-pointer transition-colors ${rowTint}`}
+        style={groupBorderStyle}
         role="button"
         aria-expanded={open}
       >
@@ -216,6 +252,15 @@ export function BookTableRow({ book }: { book: BookRecord }) {
                 title="This book needs attention — open to review."
                 className="inline-block w-[5px] h-[5px] rounded-full bg-carnegie-amber mr-1.5 align-middle"
               />
+            )}
+            {isInGroup && (
+              <span
+                className="inline-flex items-center text-[11px] font-medium text-text-secondary mr-2 px-1.5 py-0.5 rounded bg-surface-page border border-line-light align-middle"
+                title={`Copy ${groupPosition} of ${groupSize} (linked via Add Copy)`}
+              >
+                {groupPosition} of {groupSize}
+                {book.format ? ` · ${book.format}` : ''}
+              </span>
             )}
             {book.title || <span className="italic opacity-60">Untitled spine</span>}
           </div>
@@ -520,9 +565,9 @@ export function BookTableRow({ book }: { book: BookRecord }) {
             </button>
             <button
               type="button"
-              onClick={() => addCopy(book.id)}
+              onClick={() => setAddCopyOpen(true)}
               disabled={rereading}
-              title="Clone this record as an independent second copy. Use when you own multiple physical copies of the same title."
+              title="Add a separate physical copy with its own format and ISBN. The new copy renders next to this one and exports as its own row."
               className="text-xs px-3 py-1.5 rounded border border-line text-text-secondary hover:border-navy hover:text-navy hover:bg-navy-soft transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               + Add copy
@@ -532,6 +577,16 @@ export function BookTableRow({ book }: { book: BookRecord }) {
             )}
           </div>
         </div>
+      )}
+      {addCopyOpen && (
+        <AddCopyModal
+          source={book}
+          onSubmit={(values) => {
+            addCopy(book.id, values);
+            setAddCopyOpen(false);
+          }}
+          onClose={() => setAddCopyOpen(false)}
+        />
       )}
     </>
   );

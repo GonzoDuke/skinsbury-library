@@ -344,6 +344,10 @@ export function bookToLedgerEntry(book: BookRecord, date: Date = new Date()): Le
     publicationYear: book.publicationYear || undefined,
     batchNotes: book.batchNotes || undefined,
     lcc: book.lcc || undefined,
+    // Carry the multi-copy work group id into the ledger so the
+    // duplicates tool's "shared work_group_id → not a duplicate"
+    // exemption applies after export too.
+    work_group_id: book.work_group_id || undefined,
   };
 }
 
@@ -839,6 +843,17 @@ export function detectDuplicates(
     // by an exact group above.
     const isbns = new Set(list.map((e) => e.isbn).filter(Boolean));
     if (isbns.size < 2) continue;
+    // Multi-copy exemption: if every entry in this would-be edition
+    // group already shares the same non-empty work_group_id, the user
+    // explicitly linked them as copies of one work via Add Copy. The
+    // duplicates tool should NOT flag them. Mixed groups (some linked,
+    // some not) still surface so the user can resolve the unlinked
+    // ones.
+    const wgIds = list.map((e) => e.work_group_id ?? '');
+    const firstWg = wgIds[0];
+    const allShareWorkGroup =
+      firstWg !== '' && wgIds.every((id) => id === firstWg);
+    if (allShareWorkGroup) continue;
     editionGroups.push({ type: 'edition', matchKey: key, entries: list });
   }
 
