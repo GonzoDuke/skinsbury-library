@@ -10,5 +10,16 @@
     "removedTag": "First edition",
     "timestamp": "2026-05-04T19:06:55.835Z",
     "kind": "tag"
+  },
+  {
+    "title": "Can'T Find My Way Home: America in the Great Stoned Age, 1945-2000",
+    "author": "Martin Torgoff",
+    "lcc": "HV-5825.00000000",
+    "systemSuggestedTags": [
+      "Drugs"
+    ],
+    "addedTag": "Counterculture",
+    "timestamp": "2026-05-05T18:14:02.351Z",
+    "kind": "tag"
   }
 ]
