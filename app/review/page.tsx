@@ -10,10 +10,15 @@ import { SpineSelector } from '@/components/SpineSelector';
 import { useStore } from '@/lib/store';
 import { VOCAB, domainForLcc, type DomainKey } from '@/lib/tag-domains';
 import type { PhotoBatch } from '@/lib/types';
-import { flagIfPreviouslyExported, syncLedgerFromRepo } from '@/lib/export-ledger';
+import {
+  flagIfPreviouslyExported,
+  renameBatchLabelInLocalLedger,
+  syncLedgerFromRepo,
+} from '@/lib/export-ledger';
 import { syncCorrectionsFromRepo } from '@/lib/corrections-log';
 import { confirmDiscardSession } from '@/lib/session';
 import { fireUndo } from '@/components/UndoToast';
+import { EditableBatchLabel } from '@/components/EditableBatchLabel';
 
 type Filter = 'all' | 'pending' | 'approved' | 'rejected' | 'low';
 type Sort =
@@ -42,7 +47,7 @@ const SORTS: { id: Sort; label: string; title: string }[] = [
 const CONFIDENCE_RANK = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
 
 export default function ReviewPage() {
-  const { state, updateBook, addBook, addBatch, getPendingFile, bulkRetag, clear } = useStore();
+  const { state, updateBook, updateBatch, addBook, addBatch, getPendingFile, bulkRetag, clear } = useStore();
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('position');
   const [addingFor, setAddingFor] = useState<PhotoBatch | null>(null);
@@ -259,6 +264,38 @@ export default function ReviewPage() {
             Verify each book&apos;s metadata and tags. Edit fields by clicking them. Only
             approved books make it into the export.
           </p>
+        )}
+
+        {/* Batch label strip — one editable chip per batch in the
+            session. Click a label to rename; the change updates the
+            local store immediately and rewrites matching ledger entries
+            (local cache) so already-exported books reflect the new
+            label without waiting on a remote write. */}
+        {!isEmpty && state.batches.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-3">
+            <span className="typo-label">
+              {state.batches.length === 1 ? 'Batch' : 'Batches'}
+            </span>
+            {state.batches.map((b, i) => (
+              <span key={b.id} className="inline-flex items-center gap-1.5">
+                {i > 0 && (
+                  <span aria-hidden className="text-text-quaternary">
+                    ·
+                  </span>
+                )}
+                <EditableBatchLabel
+                  size="sm"
+                  value={b.batchLabel ?? ''}
+                  placeholder="Untitled batch"
+                  onSave={(next) => {
+                    const prev = b.batchLabel;
+                    updateBatch(b.id, { batchLabel: next });
+                    renameBatchLabelInLocalLedger(prev, next);
+                  }}
+                />
+              </span>
+            ))}
+          </div>
         )}
       </div>
 

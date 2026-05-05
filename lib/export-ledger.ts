@@ -372,6 +372,34 @@ export function appendToLedger(books: BookRecord[], date: Date = new Date()): vo
   saveLedger(next);
 }
 
+/**
+ * Rename a batch in the local ledger cache only. Touches every entry
+ * whose batchLabel matches `from` (including the unlabeled bucket via
+ * `from = undefined`) and rewrites it to `to`. Persists synchronously.
+ *
+ * Local-only by design: this commit specifically does NOT push the
+ * rename to GitHub. The new label propagates to the repo on the next
+ * regular ledger commit (export, batch-label rename done at history,
+ * etc.). Returns the count of entries renamed so the caller can log.
+ */
+export function renameBatchLabelInLocalLedger(
+  from: string | undefined,
+  to: string
+): number {
+  if (from === to) return 0;
+  const before = loadLedger();
+  let touched = 0;
+  const next = before.map((e) => {
+    if ((e.batchLabel ?? undefined) === from) {
+      touched += 1;
+      return { ...e, batchLabel: to };
+    }
+    return e;
+  });
+  if (touched > 0) saveLedger(next);
+  return touched;
+}
+
 export function entriesMatch(a: LedgerEntry, b: LedgerEntry): boolean {
   if (a.isbn && b.isbn) return a.isbn === b.isbn;
   // ISBN missing on one or both sides — fall back to title+author.

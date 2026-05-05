@@ -10,8 +10,10 @@ import {
   appendToLedger,
   bookToLedgerEntry,
   pushLedgerDelta,
+  renameBatchLabelInLocalLedger,
 } from '@/lib/export-ledger';
 import { isNoWriteMode, logSkippedWrite } from '@/lib/no-write-mode';
+import { EditableBatchLabel } from '@/components/EditableBatchLabel';
 import {
   buildChangelogEntries,
   buildUpdatedVocabularyJson,
@@ -22,7 +24,43 @@ import type { BookRecord } from '@/lib/types';
 const UNCATEGORIZED = '__uncategorized__';
 
 export default function ExportPage() {
-  const { state } = useStore();
+  const { state, updateBook, updateBatch } = useStore();
+
+  // Rename every approved book in a group + every parent PhotoBatch
+  // that carries the same label, then rewrite the local ledger so
+  // already-shipped entries reflect the new label. No remote write —
+  // the rename propagates to the repo on the next regular ledger
+  // commit (export, etc.) per spec.
+  function renameBatch(fromKey: string, to: string) {
+    const trimmed = to.trim();
+    if (!trimmed || trimmed === fromKey) return;
+    for (const book of state.allBooks) {
+      if ((book.batchLabel ?? UNCATEGORIZED) === fromKey) {
+        updateBook(book.id, { batchLabel: trimmed });
+      }
+    }
+    for (const batch of state.batches) {
+      if ((batch.batchLabel ?? UNCATEGORIZED) === fromKey) {
+        updateBatch(batch.id, { batchLabel: trimmed });
+      }
+    }
+    // Local ledger: rewrite matching entries. The unlabeled bucket
+    // (`from === UNCATEGORIZED`) maps to `from = undefined` so we
+    // catch legacy entries that were exported without a label.
+    renameBatchLabelInLocalLedger(
+      fromKey === UNCATEGORIZED ? undefined : fromKey,
+      trimmed
+    );
+    // Selection follows the rename so the user's checkbox state
+    // doesn't silently disappear when the key changes.
+    setSelectedBatches((prev) => {
+      if (!prev.has(fromKey)) return prev;
+      const next = new Set(prev);
+      next.delete(fromKey);
+      next.add(trimmed);
+      return next;
+    });
+  }
 
   const approved = useMemo(
     () => state.allBooks.filter((b) => b.status === 'approved'),
@@ -415,21 +453,35 @@ export default function ExportPage() {
             </div>
             <div className="space-y-1.5">
               {batches.map((b) => (
-                <label
+                <div
                   key={b.key}
-                  className="flex items-center gap-2 text-sm cursor-pointer hover:text-accent transition"
+                  className="flex items-center gap-2 text-sm"
                 >
                   <input
                     type="checkbox"
+                    id={`batch-${b.key}`}
                     checked={selectedBatches.has(b.key)}
                     onChange={() => toggleBatch(b.key)}
-                    className="accent-accent"
+                    className="accent-accent cursor-pointer"
                   />
-                  <span className="font-medium">{b.label}</span>
+                  {b.key === UNCATEGORIZED ? (
+                    <label
+                      htmlFor={`batch-${b.key}`}
+                      className="font-medium cursor-pointer italic text-text-tertiary"
+                    >
+                      {b.label}
+                    </label>
+                  ) : (
+                    <EditableBatchLabel
+                      size="md"
+                      value={b.label}
+                      onSave={(next) => renameBatch(b.key, next)}
+                    />
+                  )}
                   <span className="text-xs text-ink/50 dark:text-cream-300/50">
                     {b.books.length} book{b.books.length !== 1 ? 's' : ''}
                   </span>
-                </label>
+                </div>
               ))}
             </div>
           </div>

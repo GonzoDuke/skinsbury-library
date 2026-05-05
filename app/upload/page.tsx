@@ -20,6 +20,7 @@ import {
   type LedgerEntry,
 } from '@/lib/export-ledger';
 import { syncCorrectionsFromRepo } from '@/lib/corrections-log';
+import { getDefaultBatchLabel } from '@/lib/batch-labels';
 import { fireUndo } from '@/components/UndoToast';
 
 // 1200px wide is the realistic floor we still get useful spine-detection
@@ -59,6 +60,10 @@ export default function UploadPage() {
     if (scanBatchIdRef.current) return scanBatchIdRef.current;
     const id = makeId();
     const now = new Date();
+    const trimmedLabel = batchLabel.trim();
+    const resolvedLabel =
+      trimmedLabel ||
+      getDefaultBatchLabel('scan', stateRef.current.batches, loadLedger(), now);
     const batch: PhotoBatch = {
       id,
       filename: `Barcode scans · ${now.toLocaleString()}`,
@@ -70,7 +75,7 @@ export default function UploadPage() {
       spinesDetected: 0,
       booksIdentified: 0,
       books: [],
-      batchLabel: batchLabel.trim() || undefined,
+      batchLabel: resolvedLabel,
       batchNotes: batchNotes.trim() || undefined,
     };
     addBatch(batch);
@@ -137,6 +142,10 @@ export default function UploadPage() {
     if (manualBatchIdRef.current) return manualBatchIdRef.current;
     const id = makeId();
     const now = new Date();
+    const trimmedLabel = batchLabel.trim();
+    const resolvedLabel =
+      trimmedLabel ||
+      getDefaultBatchLabel('manual', stateRef.current.batches, loadLedger(), now);
     const batch: PhotoBatch = {
       id,
       filename: `Manual entries · ${now.toLocaleString()}`,
@@ -146,7 +155,7 @@ export default function UploadPage() {
       spinesDetected: 0,
       booksIdentified: 0,
       books: [],
-      batchLabel: batchLabel.trim() || undefined,
+      batchLabel: resolvedLabel,
       batchNotes: batchNotes.trim() || undefined,
     };
     addBatch(batch);
@@ -449,6 +458,18 @@ export default function UploadPage() {
     } catch {
       // Surface as an error in the batch
     }
+    // If the user didn't type a label at queue time, auto-default
+    // based on today's date and existing same-type same-day labels.
+    // The default is stable per-batch — once stamped here, subsequent
+    // edits flow through updateBatch on Review/Export.
+    const resolvedLabel =
+      savedLabel ||
+      getDefaultBatchLabel(
+        'photo',
+        stateRef.current.batches,
+        loadLedger(),
+        new Date()
+      );
     const batch: PhotoBatch = {
       id,
       filename: file.name,
@@ -461,7 +482,7 @@ export default function UploadPage() {
       spinesDetected: 0,
       booksIdentified: 0,
       books: [],
-      batchLabel: savedLabel || undefined,
+      batchLabel: resolvedLabel,
       batchNotes: savedNotes || undefined,
       croppedFrom,
       sourceDimensions: dims,
