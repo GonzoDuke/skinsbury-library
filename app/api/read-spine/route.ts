@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
         client.messages.create({
           model: modelId,
           max_tokens: 512,
+          temperature: 0,
           messages: [
             {
               role: 'user',

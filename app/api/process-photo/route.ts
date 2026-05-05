@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
         client.messages.create({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 4096,
+          temperature: 0,
           messages: [
             {
               role: 'user',

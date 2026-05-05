@@ -71,6 +71,7 @@ Publication year: ${body.publicationYear ?? ''}`;
         client.messages.create({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 256,
+          temperature: 0,
           system: PROMPT,
           messages: [{ role: 'user', content: userMsg }],
         }),

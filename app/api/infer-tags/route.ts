@@ -332,6 +332,7 @@ async function runTagCallForDomain(
       client.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
+        temperature: 0,
         system,
         messages: [{ role: 'user', content: userMessage }],
       }),
@@ -405,6 +406,7 @@ export async function POST(req: NextRequest) {
         client.messages.create({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 512,
+          temperature: 0,
           system: domainSystem,
           messages: [{ role: 'user', content: userMessage }],
         }),
