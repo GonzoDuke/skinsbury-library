@@ -156,11 +156,25 @@ export function Editable({
   );
 }
 
-export function ReadOnlyField({ label, value }: { label: string; value: string }) {
+export function ReadOnlyField({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  /** Render the value in JetBrains Mono — useful for fixed-width data
+   *  like DDC numbers, ISBNs, page counts of long classifications. */
+  mono?: boolean;
+}) {
   return (
     <div className="min-w-0">
       <span className="typo-label">{label}</span>
-      <div className="mt-0.5 text-[12px] text-text-secondary truncate">{value}</div>
+      <div
+        className={`mt-0.5 text-[12px] text-text-secondary truncate${mono ? ' font-mono' : ''}`}
+      >
+        {value}
+      </div>
     </div>
   );
 }

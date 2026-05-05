@@ -402,6 +402,9 @@ export function BookTableRow({ book }: { book: BookRecord }) {
               suffix={lccProvenance}
               onSave={(v) => updateBook(book.id, { lcc: v.trim() })}
             />
+            {book.ddc ? (
+              <ReadOnlyField label="DDC" value={book.ddc} mono />
+            ) : null}
             <Editable
               label="Location"
               value={book.batchLabel ?? ''}

@@ -8,7 +8,7 @@ import { TagChip } from './TagChip';
 import { TagPicker } from './TagPicker';
 import { Cover } from './Cover';
 import { ConfidenceBadge } from './ConfidenceBadge';
-import { Editable } from './Editable';
+import { Editable, ReadOnlyField } from './Editable';
 import { LcshChipLink } from './LcshChipLink';
 import { fireUndo } from './UndoToast';
 import { logCorrection } from '@/lib/corrections-log';
@@ -331,6 +331,9 @@ export function MobileBookCard({ book }: { book: BookRecord }) {
             mono
             onSave={(v) => updateBook(book.id, { lcc: v.trim() })}
           />
+          {book.ddc ? (
+            <ReadOnlyField label="DDC" value={book.ddc} mono />
+          ) : null}
           <Editable
             label="Location"
             value={book.batchLabel ?? ''}
