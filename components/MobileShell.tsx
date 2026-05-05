@@ -85,15 +85,18 @@ export function MobileShell() {
     }
   }
 
-  // Bottom tab bar — four primary destinations. Upload is the front
-  // door (legacy `/` redirects there). Vocabulary is the only
-  // library-scoped surface that gets a tab; History is reached via
-  // the Export page's "Past exports →" link, not the tab bar.
+  // Bottom tab bar — five primary destinations. Workflow (Upload /
+  // Review / Export) plus Library (Shelflist / Vocabulary). History
+  // is reached via the Export page's "Past exports →" link, not the
+  // tab bar. Five tabs is tight on phones but each still hits the
+  // 48px iOS-minimum height; labels hide below 360px via the
+  // existing max-[359px]:hidden rule.
   const tabs: TabDef[] = [
     { href: '/upload', label: 'Upload', icon: <CameraIcon /> },
     { href: '/review', label: 'Review', icon: <ReviewIcon /> },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
-    { href: '/vocabulary', label: 'Vocabulary', icon: <VocabIcon /> },
+    { href: '/shelflist', label: 'Shelflist', icon: <ShelfIcon /> },
+    { href: '/vocabulary', label: 'Vocab', icon: <VocabIcon /> },
   ];
 
   function isActive(href: string) {
@@ -250,7 +253,7 @@ export function MobileShell() {
           home-indicator inset; honor it via env(safe-area-inset-bottom)
           so the labels don't get clipped on a real device. */}
       <nav
-        className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-4 border-t border-line-light bg-surface-card"
+        className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-5 border-t border-line-light bg-surface-card"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
@@ -435,6 +438,24 @@ function ExportIcon() {
       <path d="M12 3v12" />
       <path d="M7 8l5-5 5 5" />
       <path d="M3 17v4h18v-4" />
+    </IconShell>
+  );
+}
+
+// Shelflist tab icon — three horizontal shelves with spine ticks on
+// the top one. Reads as "library shelves in order" rather than the
+// per-tag bookshelf view that VocabIcon represents.
+function ShelfIcon() {
+  return (
+    <IconShell>
+      <path d="M3 6h18" />
+      <path d="M3 12h18" />
+      <path d="M3 18h18" />
+      <rect x="5" y="2.5" width="1.5" height="3.5" />
+      <rect x="8" y="2.5" width="1.5" height="3.5" />
+      <rect x="11" y="3" width="1.5" height="3" />
+      <rect x="14" y="2.5" width="1.5" height="3.5" />
+      <rect x="17" y="3" width="1.5" height="3" />
     </IconShell>
   );
 }

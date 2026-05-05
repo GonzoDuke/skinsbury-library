@@ -103,11 +103,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/review', label: 'Review', icon: <ReviewIcon />, badge: pendingCount || undefined },
     { href: '/export', label: 'Export', icon: <ExportIcon /> },
   ];
-  // Vocabulary is the only standalone item left after Collection was
-  // removed and History was demoted to an Export-page utility link.
-  // Rendered as a single row below the WORKFLOW section without its
-  // own section header — one item doesn't need a header.
-  const standalone: NavItemDef[] = [
+  // Library section — Shelflist + Vocabulary. Both are library-scoped
+  // surfaces (browse + per-tag), distinct from the Workflow flow.
+  const library: NavItemDef[] = [
+    { href: '/shelflist', label: 'Shelflist', icon: <ShelfIcon /> },
     { href: '/vocabulary', label: 'Vocabulary', icon: <BooksIcon /> },
   ];
 
@@ -206,8 +205,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <NavItem key={item.href} item={item} active={isActive(item.href)} />
         ))}
 
-        <div style={{ marginTop: 14 }} />
-        {standalone.map((item) => (
+        <SectionLabel topGap>Library</SectionLabel>
+        {library.map((item) => (
           <NavItem key={item.href} item={item} active={isActive(item.href)} />
         ))}
 
@@ -500,6 +499,24 @@ function ExportIcon() {
       <path d="M8 2v8" />
       <path d="M5 7l3 3 3-3" />
       <path d="M2 12v2h12v-2" />
+    </IconShell>
+  );
+}
+
+// Shelflist icon — three horizontal "shelves" with a faint line of
+// spines on the top shelf. Reads as "library shelves in order" rather
+// than the per-tag bookshelf view that BooksIcon represents.
+function ShelfIcon() {
+  return (
+    <IconShell>
+      <path d="M2 4h12" />
+      <path d="M2 8.5h12" />
+      <path d="M2 13h12" />
+      <rect x="3" y="1.5" width="1" height="2.5" />
+      <rect x="5" y="1.5" width="1" height="2.5" />
+      <rect x="7" y="2" width="1" height="2" />
+      <rect x="9" y="1.5" width="1" height="2.5" />
+      <rect x="11" y="2" width="1" height="2" />
     </IconShell>
   );
 }
