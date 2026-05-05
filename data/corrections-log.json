@@ -33,5 +33,17 @@
     "addedTag": "Drugs",
     "timestamp": "2026-05-05T18:14:16.453Z",
     "kind": "tag"
+  },
+  {
+    "title": "Psychonauts",
+    "author": "Mike Jay",
+    "lcc": "RC568.P75 J39 2023",
+    "systemSuggestedTags": [
+      "[Proposed] Psychopharmacology",
+      "Medical history"
+    ],
+    "addedTag": "Counterculture",
+    "timestamp": "2026-05-05T18:14:20.846Z",
+    "kind": "tag"
   }
 ]
