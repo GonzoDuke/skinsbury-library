@@ -11,7 +11,7 @@
  *     constant to forget about).
  */
 
-import pkg from '../../package.json';
+import pkg from '../../../package.json';
 
 const PKG_VERSION = pkg.version;
 
