@@ -1,6 +1,6 @@
 [
   {
-    "isbn": "9781410490070",
+    "isbn": "",
     "titleNorm": "paper",
     "authorNorm": "mark kurlansky",
     "date": "2026-05-05",
@@ -13,9 +13,7 @@
     "title": "Paper",
     "author": "Mark Kurlansky",
     "authorLF": "Kurlansky, Mark",
-    "publisher": "W. W. Norton & Company",
-    "publicationYear": 2016,
-    "lcc": "TS1090 .K87 2017"
+    "publisher": "W. W. Norton & Company"
   },
   {
     "isbn": "9780804759014",
@@ -29,7 +27,7 @@
     ],
     "title": "Agnotology",
     "author": "Proctor, Robert",
-    "authorLF": "Proctor, Robert; Schiebinger, Londa L.; Proctor, Robert; Schiebinger, Londa",
+    "authorLF": "Proctor, Robert",
     "publisher": "Stanford University Press",
     "publicationYear": 2008,
     "lcc": "BD221 .A36 2008"
@@ -70,7 +68,7 @@
     "lcc": "Z659 .H22 2016"
   },
   {
-    "isbn": "9781400069224",
+    "isbn": "",
     "titleNorm": "zealot",
     "authorNorm": "reza aslan",
     "date": "2026-05-05",
@@ -81,10 +79,8 @@
     ],
     "title": "Zealot",
     "author": "Reza Aslan",
-    "authorLF": "Aslan, Reza; Moussa, Dr Mounir; Moussa, Dr Hoda Abbas; Killany, Mr Ashraf",
-    "publisher": "Indicios",
-    "publicationYear": 2013,
-    "lcc": "BT301.3 .A85 2013"
+    "authorLF": "Aslan, Reza",
+    "publisher": "Indicios"
   },
   {
     "isbn": "9781780239460",
@@ -104,7 +100,7 @@
     "lcc": "P140 .F57 1999"
   },
   {
-    "isbn": "9780300276091",
+    "isbn": "",
     "titleNorm": "psychonauts",
     "authorNorm": "mike jay",
     "date": "2026-05-05",
@@ -118,9 +114,7 @@
     "title": "Psychonauts",
     "author": "Mike Jay",
     "authorLF": "Jay, Mike",
-    "publisher": "Yale University Press",
-    "publicationYear": 2023,
-    "lcc": "RC568.P75 J39 2023"
+    "publisher": "Yale University Press"
   },
   {
     "isbn": "9780743230117",

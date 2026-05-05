@@ -1,0 +1,608 @@
+{
+  "schemaVersion": "1.0",
+  "app": "Carnegie",
+  "exportedAt": "2026-05-05T19:23:08.727Z",
+  "csvCompanion": "carnegie-lt-import-2026-05-05-9books.csv",
+  "bookCount": 9,
+  "books": [
+    {
+      "id": "6c911174-85fa-4b4e-8981-9d0049b4fdf0",
+      "spineRead": {
+        "position": 2,
+        "rawText": "Paper — Mark Kurlansky",
+        "title": "Paper",
+        "author": "Mark Kurlansky",
+        "publisher": "Norton",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 12,
+          "y": 0,
+          "width": 8,
+          "height": 100
+        }
+      },
+      "title": "Paper",
+      "author": "Mark Kurlansky",
+      "authorLF": "Kurlansky, Mark",
+      "isbn": "",
+      "publisher": "W. W. Norton & Company",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] History of technology",
+        "World history",
+        "Cultural history"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[technology] LCC TS1090 places this in technology/manufacturing. The book traces paper's historical evolution and technological influence. While 'History of technology' isn't in the current Technology domain vocabulary, it fits the subject matter better than existing tags like 'Media literacy' or 'Internet culture'. The subtitle 'Paging Through History' and synopsis confirm this historical technology focus. | [world_history] The book traces paper's evolution from antiquity to present, fitting World history. The focus on paper as cultural technology and its societal impact aligns with Cultural history. LCSH confirms 'World history' directly. The commodity history approach examining technology's influence on civilization supports both tags.",
+      "status": "approved",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "ocrModel": "o",
+      "original": {
+        "title": "Paper",
+        "author": "Mark Kurlansky",
+        "isbn": "9781410490070",
+        "publisher": "W. W. Norton & Company",
+        "publicationYear": 2016,
+        "lcc": "TS1090 .K87 2017",
+        "genreTags": [
+          "[Proposed] History of technology",
+          "World history",
+          "Cultural history"
+        ],
+        "formTags": []
+      },
+      "rereading": false
+    },
+    {
+      "id": "28970793-160b-416b-8b6b-43d9633698be",
+      "spineRead": {
+        "position": 3,
+        "rawText": "Agnotology — Proctor & Schiebinger",
+        "title": "Agnotology",
+        "author": "Proctor & Schiebinger",
+        "publisher": "Stanford",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 20,
+          "y": 0,
+          "width": 7,
+          "height": 100
+        }
+      },
+      "title": "Agnotology",
+      "author": "Proctor, Robert",
+      "authorLF": "Proctor, Robert",
+      "isbn": "9780804759014",
+      "publisher": "Stanford University Press",
+      "publicationYear": 2008,
+      "lcc": "BD221 .A36 2008",
+      "genreTags": [
+        "Epistemology"
+      ],
+      "formTags": [
+        "Anthology"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] LCC BD221 places this in epistemology/theory of knowledge. Subject headings confirm focus on 'Ignorance (Theory of knowledge)' and 'Knowledge, theory of'. Synopsis indicates this emerged from workshops, and multiple editors suggest an anthology format of collected papers on the philosophical study of ignorance.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "openlibrary",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780804759014-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Agnotology",
+      "allAuthors": [
+        "Proctor, Robert",
+        "Londa L. Schiebinger"
+      ],
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780804759014-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "Agnotology",
+        "author": "Proctor, Robert",
+        "isbn": "9780804759014",
+        "publisher": "Stanford University Press",
+        "publicationYear": 2008,
+        "lcc": "BD221 .A36 2008",
+        "genreTags": [
+          "Epistemology"
+        ],
+        "formTags": [
+          "Anthology"
+        ]
+      },
+      "rereading": false
+    },
+    {
+      "id": "dc74f908-02d0-4360-bb46-55b79aa860c5",
+      "spineRead": {
+        "position": 4,
+        "rawText": "Survive! Essential Skills and Tactics to Get You Out of Anywhere—Alive — Les Stroud",
+        "title": "Survive! Essential Skills and Tactics to Get You Out of Anywhere—Alive",
+        "author": "Les Stroud",
+        "publisher": "Collins",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 27,
+          "y": 0,
+          "width": 6,
+          "height": 100
+        }
+      },
+      "title": "Survive! Essential Skills and Tactics to Get You Out of Anywhere—alive",
+      "author": "Les Stroud",
+      "authorLF": "Stroud, Les",
+      "isbn": "9780061373510",
+      "publisher": "HarperCollins",
+      "publicationYear": 2008,
+      "lcc": "GV200.5 .S8925 2009",
+      "genreTags": [
+        "[Proposed] Survival skills"
+      ],
+      "formTags": [
+        "How-to / guide",
+        "First edition"
+      ],
+      "confidence": "HIGH",
+      "reasoning": "[geography_recreation] LCC GV200.5 places this in outdoor recreation/camping skills. The subtitle 'Essential Skills and Tactics' and subject headings confirm this is a practical survival guide. Les Stroud is known for Survivorman TV series. Edition statement confirms first edition.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "isbndb",
+      "ddc": "613.6/9",
+      "inferredDomains": [
+        "geography_recreation"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780061373510-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Survive! Essential Skills and Tactics to Get You Out of Anywhere - Alive",
+      "subtitle": "Essential Skills and Tactics to Get You Out of Anywhere - Alive",
+      "allAuthors": [
+        "Les Stroud"
+      ],
+      "synopsis": "<p> From the sun-scorched sands of the Kalahari to the snake-infested jungles of the Amazon, Les Stroud has made a life of surviving in the harshest—and most remote—regions on Earth. </p> <p> Now, the creator, producer, and host of the hit television program <i>Survivorman</i> transfers his decades of knowledge and experience to the pages of <i>Survive!</i>, a practical guide that gives everyday readers a no-nonsense look at the real world of survival. </p> <p> Stroud offers readers the essential skills and tactics necessary to endure in any corner of the globe, along with a wealth of insider information born of his own experiences in the outdoors and unavailable in any other book. Readers will learn: </p> <ul> <li>How to make a survival shelter and why a lean-to is largely a waste of time.</li> <li>Why survival kits are important, and why you should make your own.</li> <li>Where to find water and why drinking contaminated water is sometimes warranted.</li> <li>How to locate and trap small animals and why the notion of tracking and hunting large game is largely a pipe dream.</li> </ul> <p> Whether seasoned in the outdoor arts or new to adventuring, all readers will learn something from <i>Survive!</i>. Stroud's many colorful anecdotes and cut-to-the-chase philosophy not only make for an entertaining read, but also enhance anyone's ability to focus on the main goal when everything else has gone wrong—survival. </p>",
+      "pageCount": 384,
+      "edition": "First Edition",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780061373510-M.jpg?default=false",
+        "https://books.google.com/books/content?id=5QDxlgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+        "https://images.isbndb.com/covers/23024993482209.jpg"
+      ],
+      "original": {
+        "title": "Survive! Essential Skills and Tactics to Get You Out of Anywhere—alive",
+        "author": "Les Stroud",
+        "isbn": "9780061373510",
+        "publisher": "HarperCollins",
+        "publicationYear": 2008,
+        "lcc": "GV200.5 .S8925 2009",
+        "genreTags": [
+          "[Proposed] Survival skills"
+        ],
+        "formTags": [
+          "How-to / guide",
+          "First edition"
+        ]
+      }
+    },
+    {
+      "id": "da22bc0d-35d2-4079-98aa-4457ffaf537a",
+      "spineRead": {
+        "position": 5,
+        "rawText": "The Bad-Ass Librarians of Timbuktu — Joshua Hammer",
+        "title": "The Bad-Ass Librarians of Timbuktu",
+        "author": "Joshua Hammer",
+        "publisher": "Simon & Schuster Paperbacks",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 33,
+          "y": 0,
+          "width": 6,
+          "height": 100
+        }
+      },
+      "title": "The Bad-Ass Librarians of Timbuktu",
+      "author": "Joshua Hammer",
+      "authorLF": "Hammer, Joshua; Boehmer, Paul",
+      "isbn": "9781476777412",
+      "publisher": "HighBridge Audio",
+      "publicationYear": 2016,
+      "lcc": "Z659 .H22 2016",
+      "genreTags": [
+        "Library science",
+        "Book culture"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[books_libraries] LCC Z659 places this squarely in library science (library operations and services). The subject headings confirm focus on librarians, libraries, and manuscript preservation. The cultural protection aspect of preserving Arabic manuscripts during conflict relates to both library science practice and broader book culture preservation.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "books_libraries"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781476777412-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The bad-ass librarians of Timbuktu",
+      "allAuthors": [
+        "Joshua Hammer",
+        "Paul Boehmer"
+      ],
+      "pageCount": 354,
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781476777412-M.jpg?default=false"
+      ],
+      "original": {
+        "title": "The Bad-Ass Librarians of Timbuktu",
+        "author": "Joshua Hammer",
+        "isbn": "9781476777412",
+        "publisher": "HighBridge Audio",
+        "publicationYear": 2016,
+        "lcc": "Z659 .H22 2016",
+        "genreTags": [
+          "Library science",
+          "Book culture"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "5516d59f-12b5-48a6-a75b-3ae4453e3e22",
+      "spineRead": {
+        "position": 6,
+        "rawText": "Zealot — Reza Aslan",
+        "title": "Zealot",
+        "author": "Reza Aslan",
+        "publisher": "Random House",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 39,
+          "y": 0,
+          "width": 9,
+          "height": 100
+        }
+      },
+      "title": "Zealot",
+      "author": "Reza Aslan",
+      "authorLF": "Aslan, Reza",
+      "isbn": "",
+      "publisher": "Indicios",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "Comparative religion",
+        "Ancient philosophy"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[philosophy_psychology_religion] LCC BT301.3 places this in Christian biography/historical Jesus studies. Subject headings confirm biographical and historical approach to Jesus. Reza Aslan is known for scholarly comparative religious analysis. The book examines Jesus as historical figure within religious context, fitting 'Comparative religion' for interfaith scholarly approach and 'Ancient philosophy' for examination of Jesus's teachings and historical context.",
+      "status": "approved",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "ocrModel": "o",
+      "original": {
+        "title": "Zealot",
+        "author": "Reza Aslan",
+        "isbn": "9781400069224",
+        "publisher": "Indicios",
+        "publicationYear": 2013,
+        "lcc": "BT301.3 .A85 2013",
+        "genreTags": [
+          "Comparative religion",
+          "Ancient philosophy"
+        ],
+        "formTags": []
+      },
+      "rereading": false
+    },
+    {
+      "id": "25e28067-4bec-47ef-bd42-a62c1a71cbb5",
+      "spineRead": {
+        "position": 7,
+        "rawText": "Steven Roger Fischer",
+        "title": "",
+        "author": "Steven Roger Fischer",
+        "publisher": "",
+        "lcc": "",
+        "confidence": "MEDIUM",
+        "note": "Cream/off-white spine with vertical text. Author 'Steven Roger Fischer' clearly visible at bottom; title text above is too faint/obscured to read confidently. Small circular logo at foot of spine.",
+        "bbox": {
+          "x": 48,
+          "y": 0,
+          "width": 7,
+          "height": 100
+        }
+      },
+      "title": "A History of Language",
+      "author": "Steven Roger Fischer",
+      "authorLF": "Fischer, Steven Roger",
+      "isbn": "9781780239460",
+      "publisher": "Reaktion Books",
+      "publicationYear": 2018,
+      "lcc": "P140 .F57 1999",
+      "genreTags": [
+        "Linguistics",
+        "History of language"
+      ],
+      "formTags": [],
+      "confidence": "MEDIUM",
+      "reasoning": "[language_literature] LCC P140 places this in historical linguistics. The title 'A History of Language' and subject headings 'Historical & Comparative' linguistics clearly indicate both general linguistics and historical focus. Synopsis confirms it charts the history of communication/language development.",
+      "status": "approved",
+      "warnings": [
+        "Identified by AI from partial spine read: Fischer is a linguist known for several books, but 'A History of Language' is his most prominent work, though he has other titles like 'A History of Writing' and 'Island at the End of the World'."
+      ],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "isbndb",
+      "inferredDomains": [
+        "language_literature"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9781780239460-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "A History of Language",
+      "allAuthors": [
+        "Steven Roger Fischer"
+      ],
+      "synopsis": "This second edition of Steven Roger Fischer’s fascinating book charts the history of communication from a time before human language was conceived of to the media explosion of the present day. Fischer begins by describing the modes of communication used by whales, birds, insects, and nonhuman primates, suggesting these are the first contexts in which the concept of “language” might be applied. He then moves from the early abilities of <i>Homo erectus</i> to the spread of languages worldwide, analyzing the effect of the development of writing along the way. With the advent of the science of linguistics in the nineteenth century, the nature of human languages first came to be studied and understood. Fischer follows the evolution of linguists’ insights and the relationship of language to social change into the mid-1900s. Taking into account the rise of pidgin, Creole, jargon, and slang, he goes on to raise provocative questions about literature’s—and literacy’s—relationship to language. Finally, touching on the effects of radio, television, propaganda, and advertising, Fischer looks to the future, asking how electronic media are daily reshaping the world’s languages and suggesting a radical reinterpretation of what language really is.",
+      "pageCount": 240,
+      "edition": "2nd ed.",
+      "binding": "Kindle Edition",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9781780239460-M.jpg?default=false",
+        "https://books.google.com/books/content?id=hJBiDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+        "https://images.isbndb.com/covers/23181013482821.jpg"
+      ],
+      "original": {
+        "title": "A History of Language",
+        "author": "Steven Roger Fischer",
+        "isbn": "9781780239460",
+        "publisher": "Reaktion Books",
+        "publicationYear": 2018,
+        "lcc": "P140 .F57 1999",
+        "genreTags": [
+          "Linguistics",
+          "History of language"
+        ],
+        "formTags": []
+      }
+    },
+    {
+      "id": "07584670-afbb-40e7-9c72-b1633ab2e2c4",
+      "spineRead": {
+        "position": 8,
+        "rawText": "Psychonauts — Mike Jay",
+        "title": "Psychonauts",
+        "author": "Mike Jay",
+        "publisher": "Yale",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 55,
+          "y": 0,
+          "width": 15,
+          "height": 100
+        }
+      },
+      "title": "Psychonauts",
+      "author": "Mike Jay",
+      "authorLF": "Jay, Mike",
+      "isbn": "",
+      "publisher": "Yale University Press",
+      "publicationYear": 0,
+      "lcc": "",
+      "genreTags": [
+        "[Proposed] Psychopharmacology",
+        "Medical history",
+        "Drugs",
+        "Counterculture"
+      ],
+      "formTags": [],
+      "confidence": "LOW",
+      "reasoning": "[medicine] LCC RC568.P75 places this in psychiatry/mental disorders, specifically substance-related disorders. The title 'Psychonauts' suggests exploration of consciousness-altering substances, which fits psychopharmacology. Yale University Press and publication date suggest scholarly treatment of the historical development of this field, warranting Medical history tag as well.",
+      "status": "approved",
+      "warnings": [
+        "No metadata match in Open Library or Google Books — verify title and author."
+      ],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "none",
+      "lccSource": "none",
+      "spineThumbnail": "",
+      "ocrModel": "o",
+      "original": {
+        "title": "Psychonauts",
+        "author": "Mike Jay",
+        "isbn": "9780300276091",
+        "publisher": "Yale University Press",
+        "publicationYear": 2023,
+        "lcc": "RC568.P75 J39 2023",
+        "genreTags": [
+          "[Proposed] Psychopharmacology",
+          "Medical history"
+        ],
+        "formTags": []
+      },
+      "rereading": false
+    },
+    {
+      "id": "6f95f61e-32ab-48ee-b0b2-620eec6d98ad",
+      "spineRead": {
+        "position": 9,
+        "rawText": "Can't Find My Way Home: America in the Great Stoned Age, 1945-2000 — Martin Torgoff",
+        "title": "Can't Find My Way Home: America in the Great Stoned Age, 1945-2000",
+        "author": "Martin Torgoff",
+        "publisher": "Simon & Schuster",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 70,
+          "y": 0,
+          "width": 14,
+          "height": 100
+        }
+      },
+      "title": "Can'T Find My Way Home: America in the Great Stoned Age, 1945-2000",
+      "author": "Martin Torgoff",
+      "authorLF": "Torgoff, Martin",
+      "isbn": "9780743230117",
+      "publisher": "Simon & Schuster",
+      "publicationYear": 2005,
+      "lcc": "HV-5825.00000000",
+      "genreTags": [
+        "Drugs",
+        "Counterculture"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[social_sciences] LCC HV5825 places this in substance abuse studies, and the synopsis explicitly focuses on illegal drugs' impact on American culture from 1945-2000. The 'Great Stoned Age' subtitle and detailed drug culture coverage make 'Drugs' the clear primary tag within Social sciences domain.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "isbndb",
+      "ddc": "306/.1",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780743230117-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "Can't Find My Way Home America in the Great Stoned Age, 1945-2000",
+      "subtitle": "America in the Great Stoned Age, 1945-2000",
+      "allAuthors": [
+        "Martin Torgoff"
+      ],
+      "synopsis": "<b>From the narcotic allure of the bebop and Beat generations to the psychedelic 1960s, Vietnam, the cocaine-fueled disco era, the crack epidemic, and the ecstasy-induced rave culture, illegal drugs have profoundly shaped America's cultural landscape.</b> In <i>Can't Find My Way Home,</i> journalist and filmmaker Martin Torgoff chronicles what a long strange trip it's been as the American Century became the Great Stoned Age. <br> Weaving together first-person accounts and historical background, <i>Can't Find My Way Home</i> is a narrative vast in scope yet rich in intimate detail. Torgoff tells the stories of those whose lives became synonymous with the drug culture, from Charlie Parker, Allen Ginsberg, Timothy Leary, and John Belushi to ordinary people who felt their consciousness \"expanded\" or who plumbed the depths of addiction. He also examines the broader impact of drugs on society and politics, from the war on drugs to the recovery movement, and the continuing debate over drug policy. A vivid work of cultural history that neither demonizes nor romanticizes its subject, <i>Can't Find My Way Home</i> is a provocative and fascinating look at how drugs have entered the American mainstream.",
+      "pageCount": 560,
+      "edition": "Revised ed.",
+      "binding": "Paperback",
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780743230117-M.jpg?default=false",
+        "https://books.google.com/books/content?id=tSKXPwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+        "https://images.isbndb.com/covers/16744093482452.jpg"
+      ],
+      "original": {
+        "title": "Can'T Find My Way Home America in the Great Stoned Age, 1945-2000",
+        "author": "Martin Torgoff",
+        "isbn": "9780743230117",
+        "publisher": "Simon & Schuster",
+        "publicationYear": 2005,
+        "lcc": "HV-5825.00000000",
+        "genreTags": [
+          "Drugs"
+        ],
+        "formTags": []
+      },
+      "rereading": false
+    },
+    {
+      "id": "8e9978c8-cc39-4eda-858a-88a02f6fe92e",
+      "spineRead": {
+        "position": 10,
+        "rawText": "The Subtle Art of Not Giving a F*ck — Mark Manson",
+        "title": "The Subtle Art of Not Giving a F*ck",
+        "author": "Mark Manson",
+        "publisher": "Harper",
+        "lcc": "",
+        "confidence": "HIGH",
+        "bbox": {
+          "x": 84,
+          "y": 0,
+          "width": 16,
+          "height": 100
+        }
+      },
+      "title": "The Subtle Art of Not Giving a F*ck",
+      "author": "Mark Manson",
+      "authorLF": "Manson, Mark",
+      "isbn": "9780063228252",
+      "publisher": "Macmillan",
+      "publicationYear": 2016,
+      "lcc": "BJ-1589.00000000",
+      "genreTags": [
+        "Self-improvement",
+        "Personal development",
+        "[Proposed] pop psychology"
+      ],
+      "formTags": [],
+      "confidence": "HIGH",
+      "reasoning": "[philosophy_psychology_religion] LCC BJ1589 places this in practical ethics/conduct of life. LCSH 'Self-realization' and 'Conduct of life' plus the interactive journal format and bestseller status clearly indicate self-improvement content with practical guidance approach.",
+      "status": "approved",
+      "warnings": [],
+      "sourcePhoto": "20260501_070442.cropped.jpg",
+      "batchLabel": "Shelf 2026-05-05",
+      "lookupSource": "openlibrary",
+      "inferredDomains": [
+        "philosophy_psychology_religion"
+      ],
+      "domainConfidence": "high",
+      "lccSource": "ol",
+      "spineThumbnail": "",
+      "coverUrl": "https://covers.openlibrary.org/b/isbn/9780063228252-M.jpg?default=false",
+      "ocrModel": "o",
+      "canonicalTitle": "The Subtle Art of Not Giving a F*ck",
+      "allAuthors": [
+        "Mark Manson"
+      ],
+      "synopsis": "From New York Times bestseller author Mark Manson, comes an irreverent, interactive journal based on the internationally bestselling phenomenon The Subtle Art of Not Giving A F*ck and the New York Times bestseller Everything is F*cked, providing questions and sharp insights in his inimitable voice. In classic Mark Manson style, this journal isn't a \"once a day\" or \"once a week\" thing. You can use it any time. Or not. Leave it and come back. Or not. The Subtle Art of Not Giving a F*ck Journal is divided into five sections that mirror the themes of The Subtle Art of Not Giving A F*ck and include guided prompts that help you consider the deepest questions around emotions, values and purpose. Manson's wisdom is complimented with exercises to make you laugh, think, and grow, and his in-your-face attitude is only matched by his sincerity in wanting you to really wrestle with yourself and the things that matter. When it comes to the big topics--things like happiness, values, and responsibility--life is punctuated by seemingly endless questions. Manson addresses these issues with his unique irreverence, offering insights and observations to help you find your own answers. The Subtle Art of Not Giving a F*ck Journal provides ample space for contemplating life's ups and downs and guides you to see how key moments in your life--both the tragic and the comic--are opportunities for growth (and sometimes just a good laugh). The Subtle Art of Not Giving a F*ck Journal is illustrated with color images throughout.",
+      "pageCount": 224,
+      "language": "en",
+      "coverUrlFallbacks": [
+        "https://covers.openlibrary.org/b/isbn/9780063228252-M.jpg?default=false",
+        "https://books.google.com/books/content?id=AbKWzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+      ],
+      "original": {
+        "title": "The Subtle Art of Not Giving a F*ck",
+        "author": "Mark Manson",
+        "isbn": "9780063228252",
+        "publisher": "Macmillan",
+        "publicationYear": 2016,
+        "lcc": "BJ-1589.00000000",
+        "genreTags": [
+          "Self-improvement",
+          "Personal development"
+        ],
+        "formTags": [
+          "How-to / guide"
+        ]
+      }
+    }
+  ]
+}
