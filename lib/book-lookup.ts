@@ -422,7 +422,24 @@ function pickIsbn(arr?: string[]): string {
   return cleaned[0] ?? '';
 }
 
-function scoreDoc(d: OpenLibraryDoc, title: string, author: string): number {
+/**
+ * Optional spine-extracted hints that influence Phase 1 candidate
+ * scoring. Both fields come from Pass-B OCR (`extractedEdition`,
+ * `extractedSeries`). When set, candidates whose title/edition or
+ * publisher match the spine value get a small additive bonus —
+ * tie-breakers, never overrides of strong matches.
+ */
+interface ScoreHints {
+  extractedEdition?: string;
+  extractedSeries?: string;
+}
+
+function scoreDoc(
+  d: OpenLibraryDoc,
+  title: string,
+  author: string,
+  hints?: ScoreHints
+): number {
   let s = 0;
   if (d.isbn && d.isbn.length > 0) s += 2;
   if ((d.lcc && d.lcc.length > 0) || (d.lc_classifications && d.lc_classifications.length > 0)) s += 3;
@@ -435,6 +452,31 @@ function scoreDoc(d: OpenLibraryDoc, title: string, author: string): number {
   else if (authorLastNameMatch(author, d.author_name)) s += 1;
   // KDP/self-published penalty
   if (d.isbn && d.isbn.some((i) => i.replace(/[^\d]/g, '').startsWith('9798'))) s -= 3;
+
+  // Spine-extracted edition: +1 when the spine's edition string appears
+  // in the candidate's title (OL doesn't expose a top-level edition
+  // field for search.json results, so the title is where edition
+  // markers like "First Edition" / "Annotated" / "Rev. ed." most often
+  // surface). Substring match, case-insensitive. Additive — never
+  // penalizes a candidate that lacks the field.
+  if (hints?.extractedEdition && d.title) {
+    const ed = hints.extractedEdition.toLowerCase();
+    if (ed.length >= 3 && d.title.toLowerCase().includes(ed)) s += 1;
+  }
+
+  // Spine-extracted series: +2 when the spine's series imprint appears
+  // in the candidate's publisher list. The Penguin-Classics-says-Penguin-
+  // Classics disambiguator. Bigger than the edition bonus because series
+  // imprints are stronger publisher-disambiguating signals — when a spine
+  // says "Library of America" and one candidate is from LoA while another
+  // is from Vintage, the spine evidence should tip the scale.
+  if (hints?.extractedSeries && d.publisher && d.publisher.length > 0) {
+    const series = hints.extractedSeries.toLowerCase();
+    if (series.length >= 3 && d.publisher.some((p) => p.toLowerCase().includes(series))) {
+      s += 2;
+    }
+  }
+
   return s;
 }
 
@@ -1138,7 +1180,8 @@ function parsePublishDateYear(arr?: string[]): number {
 export async function lookupSpecificEdition(
   title: string,
   author: string,
-  hints: { year?: number; publisher?: string; isbn?: string }
+  hints: { year?: number; publisher?: string; isbn?: string },
+  options?: { extractedEdition?: string; extractedSeries?: string }
 ): Promise<BookLookupResult> {
   const log = createLookupLogger(`edition:${title}`);
   log.start({ title, author, isbn: hints.isbn });
@@ -1282,10 +1325,17 @@ export async function lookupSpecificEdition(
         // Prefer publisher match if hint provided.
         const publisherHint = (hints.publisher ?? '').toLowerCase().trim();
         const cleanedAuthorForScore = cleanAuthorForQuery(effectiveAuthor);
+        const scoreHints: ScoreHints | undefined =
+          options?.extractedEdition || options?.extractedSeries
+            ? {
+                extractedEdition: options.extractedEdition || undefined,
+                extractedSeries: options.extractedSeries || undefined,
+              }
+            : undefined;
         const ranked = docs
           .filter((d) => !isStudyGuide(d))
           .map((d) => {
-            let score = scoreDoc(d, title, cleanedAuthorForScore);
+            let score = scoreDoc(d, title, cleanedAuthorForScore, scoreHints);
             if (publisherHint && d.publisher) {
               const pubMatch = d.publisher.some((p) =>
                 p.toLowerCase().includes(publisherHint) ||
@@ -1430,11 +1480,11 @@ export async function lookupSpecificEdition(
 
   // 4) Fall back to the unscoped chain. Pass effectiveAuthor — for
   // editor-attributed books that's empty (drops author from queries
-  // entirely); for normal books it's the cleaned queryAuthor.
-  // Without this, the fallback re-introduces editor or pre-strip
-  // values into lookupBook's cache key + downstream API queries.
+  // entirely); for normal books it's the cleaned queryAuthor. Forward
+  // the spine-extracted hints so lookupBook's Phase-1 scorer applies
+  // the same series/edition tie-breakers.
   log.tier('fallback', 'invoking unscoped lookupBook');
-  return lookupBook(title, effectiveAuthor);
+  return lookupBook(title, effectiveAuthor, options);
 }
 
 const OL_FIELDS =
@@ -2131,7 +2181,8 @@ async function fetchIsbndbCandidates(
 function pickBestCandidate(
   candidates: Candidate[],
   title: string,
-  author: string
+  author: string,
+  hints?: ScoreHints
 ): Candidate | undefined {
   if (candidates.length === 0) return undefined;
   // Filter out study guides + companion texts BEFORE ranking.
@@ -2147,7 +2198,7 @@ function pickBestCandidate(
   let best: Candidate | undefined;
   let bestScore = -Infinity;
   for (const d of pool) {
-    const s = scoreDoc(d, title, author);
+    const s = scoreDoc(d, title, author, hints);
     if (s > bestScore) {
       bestScore = s;
       best = d;
@@ -2187,7 +2238,8 @@ function cacheKeyForIsbn(isbn: string): string {
 
 export async function lookupBook(
   title: string,
-  author: string
+  author: string,
+  options?: { extractedEdition?: string; extractedSeries?: string }
 ): Promise<BookLookupResult & { tier?: string }> {
   const log = createLookupLogger(title);
   log.start({ title, author });
@@ -2286,7 +2338,17 @@ export async function lookupBook(
     `combined ${olCandidates.length} OL + ${isbndbCandidates.length} ISBNdb = ${candidates.length} candidate(s)`
   );
 
-  const winner = pickBestCandidate(candidates, searchTitle, cleanedAuthor);
+  // Spine-extracted hints from Pass-B OCR. Pass to the scorer so
+  // `extractedSeries` and `extractedEdition` tip ties toward the
+  // candidate that matches what's printed on the physical spine.
+  const scoreHints: ScoreHints | undefined =
+    options?.extractedEdition || options?.extractedSeries
+      ? {
+          extractedEdition: options.extractedEdition || undefined,
+          extractedSeries: options.extractedSeries || undefined,
+        }
+      : undefined;
+  const winner = pickBestCandidate(candidates, searchTitle, cleanedAuthor, scoreHints);
   if (winner) {
     log.tier(
       'phase-1',

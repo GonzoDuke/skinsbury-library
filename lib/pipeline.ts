@@ -105,6 +105,83 @@ function buildBookProvenance(args: {
 }
 
 /**
+ * Decide which LCC value lands on the BookRecord when both the spine
+ * and the lookup chain produced a value. The "more specific wins"
+ * rule applies symmetrically — never downgrade complete to partial.
+ *
+ * Returns the winning value, the corresponding lccSource for the
+ * BookRecord, and the loser as a provenance alternate (when the
+ * loser carried any value).
+ *
+ * Decision matrix:
+ *   spine state  |  lookup state  |  winner
+ *   ─────────────┼────────────────┼──────────────────────────
+ *   complete     |  complete (=)  |  lookup (idempotent; no alt)
+ *   complete     |  complete (≠)  |  lookup; spine → alt
+ *   complete     |  partial       |  spine; lookup → alt
+ *   complete     |  empty         |  spine
+ *   partial      |  complete      |  lookup; spine → alt
+ *   partial      |  partial       |  lookup; spine → alt (db preferred on ties)
+ *   partial      |  empty         |  spine
+ *   empty        |  complete      |  lookup
+ *   empty        |  partial       |  lookup
+ *   empty        |  empty         |  empty (caller falls through to Sonnet)
+ */
+function decideLccFromSources(args: {
+  spine: string;
+  lookup: string;
+  lookupSource: BookRecord['lccSource'];
+}): {
+  winner: string;
+  lccSource: BookRecord['lccSource'];
+  alternate?: { source: SourceTag; value: string };
+} {
+  const spine = (args.spine ?? '').trim();
+  const lookup = (args.lookup ?? '').trim();
+  if (!spine && !lookup) {
+    return { winner: '', lccSource: 'none' };
+  }
+  if (spine && !lookup) {
+    return { winner: spine, lccSource: 'spine' };
+  }
+  if (!spine && lookup) {
+    return { winner: lookup, lccSource: args.lookupSource };
+  }
+  // Both present.
+  const spineComplete = isCompleteLcc(spine);
+  const lookupComplete = isCompleteLcc(lookup);
+  if (spineComplete && !lookupComplete) {
+    // More specific wins; lookup partial demotes to alternate.
+    return {
+      winner: spine,
+      lccSource: 'spine',
+      alternate: {
+        source:
+          args.lookupSource === 'loc'
+            ? 'loc-sru'
+            : args.lookupSource === 'wikidata'
+              ? 'wikidata'
+              : args.lookupSource === 'inferred'
+                ? 'sonnet-infer-lcc'
+                : 'openlibrary',
+        value: lookup,
+      },
+    };
+  }
+  // Lookup wins (complete-vs-complete, complete-vs-partial, partial-vs-partial).
+  // Capture spine as alternate when its value differs.
+  const sameNormalized = normalizeLcc(spine) === normalizeLcc(lookup);
+  if (sameNormalized) {
+    return { winner: lookup, lccSource: args.lookupSource };
+  }
+  return {
+    winner: lookup,
+    lccSource: args.lookupSource,
+    alternate: { source: 'spine-read', value: spine },
+  };
+}
+
+/**
  * When true, prefer canonical title / author from the lookup chain
  * (OL/ISBNdb/MARC) over the spine OCR text on the displayed
  * BookRecord. The spine read is preserved on `spineRead.rawText`
@@ -313,6 +390,10 @@ export async function lookupBookClient(
   options?: {
     matchEdition?: boolean;
     hints?: { year?: number; publisher?: string; isbn?: string };
+    /** Spine-extracted edition / series strings forwarded to the lookup
+     *  pipeline's Phase-1 candidate scorer as additive tie-breakers. */
+    extractedEdition?: string;
+    extractedSeries?: string;
   }
 ): Promise<BookLookupResult> {
   const res = await fetch('/api/lookup-book', {
@@ -323,6 +404,8 @@ export async function lookupBookClient(
       author,
       matchEdition: options?.matchEdition,
       hints: options?.hints,
+      extractedEdition: options?.extractedEdition,
+      extractedSeries: options?.extractedSeries,
     }),
   });
   if (!res.ok) {
@@ -815,7 +898,14 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
 
   if (read.title) {
     try {
-      const r = await lookupBookClient(read.title, read.author);
+      // Forward spine-extracted series + edition to the lookup
+      // pipeline's Phase-1 scorer as additive tie-breakers (a Penguin
+      // Classics spine should bias toward the Penguin candidate; an
+      // edition-statement match nudges similarly).
+      const r = await lookupBookClient(read.title, read.author, {
+        extractedEdition: read.extractedEdition || undefined,
+        extractedSeries: read.extractedSeries || undefined,
+      });
       lookup = { ...r, publisher: r.publisher || read.publisher || '' };
       // We don't have the matched title from the lookup endpoint today; pass
       // undefined and rely on the gibberish + author-only checks.
@@ -852,8 +942,13 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
             ? await lookupBookClient(guess.title, guess.author, {
                 matchEdition: true,
                 hints: { isbn: guess.isbn },
+                extractedEdition: read.extractedEdition || undefined,
+                extractedSeries: read.extractedSeries || undefined,
               })
-            : await lookupBookClient(guess.title, guess.author);
+            : await lookupBookClient(guess.title, guess.author, {
+                extractedEdition: read.extractedEdition || undefined,
+                extractedSeries: read.extractedSeries || undefined,
+              });
           if (reRun.source !== 'none') {
             lookup = { ...reRun, publisher: reRun.publisher || read.publisher || '' };
             // Adopt the corrected title/author for the rest of the
@@ -899,12 +994,18 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     read.extractedCallNumber && read.extractedCallNumberSystem === 'lcc'
       ? read.extractedCallNumber
       : '';
-  let finalLcc = stickerLcc || read.lcc || lookup.lcc;
-  let lccSource: BookRecord['lccSource'] = stickerLcc || read.lcc
-    ? 'spine'
-    : lookup.lcc
-      ? lookup.lccSource ?? 'ol'
-      : 'none';
+  // Spine-side LCC: a sticker-extracted LCC outranks the printed-on-spine
+  // value. Either feeds the don't-downgrade decision below.
+  const spineLcc = stickerLcc || read.lcc || '';
+  const lccDecision = decideLccFromSources({
+    spine: spineLcc,
+    lookup: lookup.lcc || '',
+    lookupSource: lookup.lcc ? lookup.lccSource ?? 'ol' : 'none',
+  });
+  let finalLcc = lccDecision.winner;
+  let lccSource: BookRecord['lccSource'] = lccDecision.lccSource;
+  // Alternate captured for provenance.lcc.alternates after buildBookProvenance runs.
+  const lccAlternateForProvenance = lccDecision.alternate;
 
   // DDC override from a Dewey sticker. Same gap-fill semantics as the
   // network DDC tier: if the lookup found a DDC we keep it (the physical
@@ -922,6 +1023,11 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
   // statement from MARC 250 or ISBNdb; spine extraction is a fallback.
   if (read.extractedEdition && !lookup.edition) {
     lookup.edition = read.extractedEdition;
+  }
+  // Series gap-fill from the spine — Wikidata P179 sometimes carries
+  // this; the spine extraction is the better fallback when it doesn't.
+  if (read.extractedSeries && !lookup.series) {
+    lookup.series = read.extractedSeries;
   }
 
   // Author-pattern enrichment from the local ledger. Reads the user's
@@ -1080,6 +1186,39 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     finalLcc,
     lccSource,
   });
+
+  // Spine-source overrides for fields the spine actually filled. The
+  // heuristic in buildBookProvenance / inferProvenanceFromResult can't
+  // tell that ddc/edition/series came from the OCR'd spine vs. a
+  // network tier — explicitly tag those entries here.
+  const provTs = new Date().toISOString();
+  if (
+    read.extractedCallNumber &&
+    read.extractedCallNumberSystem === 'ddc' &&
+    lookup.ddc === read.extractedCallNumber
+  ) {
+    provenance.ddc = { source: 'spine-read', timestamp: provTs };
+  }
+  if (read.extractedEdition && lookup.edition === read.extractedEdition) {
+    provenance.edition = { source: 'spine-read', timestamp: provTs };
+  }
+  if (read.extractedSeries && lookup.series === read.extractedSeries) {
+    // BookRecordProvenance doesn't currently track `series` in the
+    // PROVENANCE_FIELDS list (see lib/provenance.ts). Stamp it anyway
+    // — the type is a Partial<Record<string, FieldProvenance>> so any
+    // string key is valid; surfacing this attribution costs nothing
+    // and lets a future series UI show provenance.
+    provenance.series = { source: 'spine-read', timestamp: provTs };
+  }
+  // LCC alternate captured by decideLccFromSources when the loser
+  // carried any value. Splice into provenance.lcc.alternates.
+  if (lccAlternateForProvenance && provenance.lcc) {
+    const existing = provenance.lcc.alternates ?? [];
+    provenance.lcc = {
+      ...provenance.lcc,
+      alternates: [...existing, lccAlternateForProvenance],
+    };
+  }
 
   const book: BookRecord = {
     id: makeId(),
@@ -1650,6 +1789,13 @@ export async function rereadBook(
 
   if (title) {
     try {
+      // Forward Reread's freshly-OCR'd extractedSeries / Edition (when
+      // a Pass-B re-read happened this run) so Phase-1 scoring uses
+      // the same tie-breakers as a fresh capture.
+      const rereadHints = {
+        extractedEdition: rereadExtractedEdition || undefined,
+        extractedSeries: rereadExtractedSeries || undefined,
+      };
       const r = useEditionScoping
         ? await lookupBookClient(title, author, {
             matchEdition: true,
@@ -1658,8 +1804,9 @@ export async function rereadBook(
               publisher: current.publisher || undefined,
               isbn: current.isbn || undefined,
             },
+            ...rereadHints,
           })
-        : await lookupBookClient(title, author);
+        : await lookupBookClient(title, author, rereadHints);
       lookup = { ...r, publisher: r.publisher || publisher };
     } catch {
       // ignore
@@ -1680,16 +1827,24 @@ export async function rereadBook(
     };
   }
 
-  let finalLcc = lccFromSpine || lookup.lcc;
-  let lccSource: BookRecord['lccSource'] = lccFromSpine
-    ? 'spine'
-    : lookup.lcc
-      ? lookup.lccSource ?? 'ol'
-      : 'none';
+  // Don't-downgrade LCC decision (mirrors buildBookFromCrop). The
+  // simple "lccFromSpine || lookup.lcc" rule used to fire would
+  // overwrite a complete database LCC with a partial spine LCC; the
+  // helper preserves the more-specific value and demotes the loser
+  // into the LCC provenance alternates.
+  const lccDecision = decideLccFromSources({
+    spine: lccFromSpine,
+    lookup: lookup.lcc || '',
+    lookupSource: lookup.lcc ? lookup.lccSource ?? 'ol' : 'none',
+  });
+  let finalLcc = lccDecision.winner;
+  let lccSource: BookRecord['lccSource'] = lccDecision.lccSource;
+  const rereadLccAlternateForProvenance = lccDecision.alternate;
 
-  // DDC + edition gap-fills from the reread's sticker extractions.
+  // DDC + edition + series gap-fills from the reread's sticker extractions.
   if (rereadExtractedDdc && !lookup.ddc) lookup.ddc = rereadExtractedDdc;
   if (rereadExtractedEdition && !lookup.edition) lookup.edition = rereadExtractedEdition;
+  if (rereadExtractedSeries && !lookup.series) lookup.series = rereadExtractedSeries;
 
   // Author-pattern enrichment from the local ledger. Same call as
   // buildBookFromCrop / addManualBook — runs BEFORE the model-LCC
@@ -1850,6 +2005,26 @@ export async function rereadBook(
     finalLcc,
     lccSource,
   });
+  // Spine-source overrides — same logic as buildBookFromCrop. Tag the
+  // ddc / edition / series provenance entries as 'spine-read' when the
+  // value on the lookup result actually came from the OCR'd spine.
+  const rereadProvTs = new Date().toISOString();
+  if (rereadExtractedDdc && lookup.ddc === rereadExtractedDdc) {
+    freshProv.ddc = { source: 'spine-read', timestamp: rereadProvTs };
+  }
+  if (rereadExtractedEdition && lookup.edition === rereadExtractedEdition) {
+    freshProv.edition = { source: 'spine-read', timestamp: rereadProvTs };
+  }
+  if (rereadExtractedSeries && lookup.series === rereadExtractedSeries) {
+    freshProv.series = { source: 'spine-read', timestamp: rereadProvTs };
+  }
+  if (rereadLccAlternateForProvenance && freshProv.lcc) {
+    const existing = freshProv.lcc.alternates ?? [];
+    freshProv.lcc = {
+      ...freshProv.lcc,
+      alternates: [...existing, rereadLccAlternateForProvenance],
+    };
+  }
   const mergedProv: BookRecordProvenance = { ...freshProv };
   const oldProv = current.provenance ?? {};
   for (const field of PROVENANCE_FIELDS) {

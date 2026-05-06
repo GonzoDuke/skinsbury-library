@@ -13,6 +13,11 @@ interface LookupRequest {
     publisher?: string;
     isbn?: string;
   };
+  /** Spine-extracted edition / series strings forwarded from Pass-B
+   *  OCR. The lookup pipeline uses them as Phase-1 candidate-scoring
+   *  tie-breakers — never as authoritative metadata.  */
+  extractedEdition?: string;
+  extractedSeries?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -41,13 +46,25 @@ export async function POST(req: NextRequest) {
   // pipeline expects a JSON body either way.
   try {
     const t0 = Date.now();
+    const lookupOpts =
+      body.extractedEdition || body.extractedSeries
+        ? {
+            extractedEdition: body.extractedEdition || undefined,
+            extractedSeries: body.extractedSeries || undefined,
+          }
+        : undefined;
     const result = body.matchEdition
-      ? await lookupSpecificEdition(title, author, {
-          year: body.hints?.year,
-          publisher: body.hints?.publisher,
-          isbn: body.hints?.isbn,
-        })
-      : await lookupBook(title, author);
+      ? await lookupSpecificEdition(
+          title,
+          author,
+          {
+            year: body.hints?.year,
+            publisher: body.hints?.publisher,
+            isbn: body.hints?.isbn,
+          },
+          lookupOpts
+        )
+      : await lookupBook(title, author, lookupOpts);
     const ms = Date.now() - t0;
     const tier = (result as { tier?: string }).tier;
     console.log(
