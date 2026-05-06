@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
 import { normalizeConfidence } from '@/lib/normalize-confidence';
+import { structuredErrorResponse } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -65,12 +66,14 @@ Publication year: ${body.publicationYear ?? ''}`;
 
   const client = new Anthropic({ apiKey });
   const t0 = Date.now();
+  const requestShape = `infer-lcc: title="${title}" author="${author}"`;
+  const model = 'claude-sonnet-4-20250514';
 
   try {
     const resp = await withAnthropicRetry(
       () =>
         client.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model,
           max_tokens: 256,
           system: PROMPT,
           messages: [{ role: 'user', content: userMsg }],
@@ -79,13 +82,21 @@ Publication year: ${body.publicationYear ?? ''}`;
     );
     const block = resp.content.find((b) => b.type === 'text');
     if (!block || block.type !== 'text') {
-      return NextResponse.json({ error: 'Empty model response' }, { status: 502 });
+      return structuredErrorResponse(new Error('Empty model response'), {
+        error: 'Empty model response',
+        model,
+        requestShape,
+      });
     }
     let parsed: any;
     try {
       parsed = extractJsonObject(block.text);
-    } catch {
-      return NextResponse.json({ error: 'Could not parse JSON', text: block.text }, { status: 502 });
+    } catch (err) {
+      return structuredErrorResponse(err, {
+        error: 'Could not parse JSON',
+        model,
+        requestShape,
+      });
     }
     const result = {
       lcc: String(parsed.lcc ?? '').trim(),
@@ -97,9 +108,10 @@ Publication year: ${body.publicationYear ?? ''}`;
     );
     return NextResponse.json(result);
   } catch (err: any) {
-    return NextResponse.json(
-      { error: 'Inference error', details: err?.message ?? String(err) },
-      { status: 502 }
-    );
+    return structuredErrorResponse(err, {
+      error: 'Inference error',
+      model,
+      requestShape,
+    });
   }
 }
