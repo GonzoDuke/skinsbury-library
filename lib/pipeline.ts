@@ -14,6 +14,7 @@ import {
   stringSimilarity,
 } from './lookup-utils';
 import { PROVENANCE_FIELDS } from './provenance';
+import { assembleBookRecord, resolveLcc } from './assemble';
 import type {
   BookRecordProvenance,
   FieldProvenance,
@@ -980,92 +981,29 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
   // came from an AI guess, not a direct OCR → search match.
   if (identifyWarning) grounded.warnings.push(identifyWarning);
 
-  // Spine-printed LCC wins over the lookup-derived one — it's the LoC's
-  // own classification for the exact physical edition the user owns.
-  // Provenance: spine (printed or stickered) > loc/ol (from lookup
-  // chain) > inferred (model best-guess).
-  //
-  // The Step 2 extractedCallNumber field is the strict-stickered
-  // form. When present and tagged 'lcc' it gets the same 'spine'
-  // provenance as read.lcc. When tagged 'ddc' it goes to lookup.ddc
-  // (still gap-fill — never overwriting an LCC) so the tag prompt
-  // rule on DDC kicks in.
+  // Author-pattern enrichment from the local ledger. Mutates `lookup`
+  // with `lccDerivedFromAuthorPattern` when applicable. Runs BEFORE
+  // resolveLcc so the personalized signal is in scope when Tier 6
+  // would fire.
+  const earlyAuthorLF = read.author ? toAuthorLastFirst(read.author) : '';
+  const authorPattern = applyAuthorPatternEnrichment(lookup, earlyAuthorLF);
+
+  // LCC resolution: spine (sticker outranks printed) vs lookup (don't-
+  // downgrade), then Sonnet inferLcc fallback when still partial/empty.
+  // Gated on grounded.keep so we don't burn tokens on a record we're
+  // about to drop.
   const stickerLcc =
     read.extractedCallNumber && read.extractedCallNumberSystem === 'lcc'
       ? read.extractedCallNumber
       : '';
-  // Spine-side LCC: a sticker-extracted LCC outranks the printed-on-spine
-  // value. Either feeds the don't-downgrade decision below.
   const spineLcc = stickerLcc || read.lcc || '';
-  const lccDecision = decideLccFromSources({
-    spine: spineLcc,
-    lookup: lookup.lcc || '',
-    lookupSource: lookup.lcc ? lookup.lccSource ?? 'ol' : 'none',
-  });
-  let finalLcc = lccDecision.winner;
-  let lccSource: BookRecord['lccSource'] = lccDecision.lccSource;
-  // Alternate captured for provenance.lcc.alternates after buildBookProvenance runs.
-  const lccAlternateForProvenance = lccDecision.alternate;
-
-  // DDC override from a Dewey sticker. Same gap-fill semantics as the
-  // network DDC tier: if the lookup found a DDC we keep it (the physical
-  // sticker and the cataloger DDC should agree, and the cataloger DDC
-  // tends to be more complete). If neither did, the sticker fills in.
-  if (
-    read.extractedCallNumber &&
-    read.extractedCallNumberSystem === 'ddc' &&
-    !lookup.ddc
-  ) {
-    lookup.ddc = read.extractedCallNumber;
-  }
-
-  // Edition gap-fill — the lookup chain may have produced an edition
-  // statement from MARC 250 or ISBNdb; spine extraction is a fallback.
-  if (read.extractedEdition && !lookup.edition) {
-    lookup.edition = read.extractedEdition;
-  }
-  // Series gap-fill from the spine — Wikidata P179 sometimes carries
-  // this; the spine extraction is the better fallback when it doesn't.
-  if (read.extractedSeries && !lookup.series) {
-    lookup.series = read.extractedSeries;
-  }
-
-  // Author-pattern enrichment from the local ledger. Reads the user's
-  // own previously-exported books by the same author to surface a
-  // dominant LCC class letter (when ≥3 sample) and frequent tags. Runs
-  // BEFORE the model-inferred LCC fallback so the personalized signal
-  // beats a Sonnet best-guess. Mutates `lookup` to fill
-  // `lccDerivedFromAuthorPattern` when applicable; the prompt-tier
-  // signals (frequentTags) come back via the returned pattern object.
-  const earlyAuthorLF = read.author ? toAuthorLastFirst(read.author) : '';
-  const authorPattern = applyAuthorPatternEnrichment(lookup, earlyAuthorLF);
-
-  // Tier 6: model-inferred LCC (final fallback). Only fires when the
-  // entire lookup chain (OL t1-t4 → GB → LoC SRU by ISBN → LoC SRU by
-  // title+author) returned nothing. Marked 'inferred' so the BookCard
-  // can show a clearly distinct badge — this is best-guess, not
-  // authoritative.
-  if (!isCompleteLcc(finalLcc) && grounded.keep && read.title && read.author) {
-    try {
-      const inferred = await inferLccClient({
-        title: read.title,
-        author: read.author,
-        publisher: lookup.publisher,
-        publicationYear: lookup.publicationYear,
-      });
-      if (inferred.lcc && inferred.confidence !== 'LOW') {
-        const normalized = normalizeLcc(inferred.lcc);
-        // Don't downgrade: only overwrite a partial LCC with a complete one,
-        // or fill an empty LCC with whatever the model returned.
-        if (isCompleteLcc(normalized) || !finalLcc) {
-          finalLcc = normalized;
-          lccSource = 'inferred';
-        }
-      }
-    } catch {
-      // ignore — leave LCC empty
-    }
-  }
+  const { finalLcc, lccSource, alternate: lccAlternateForProvenance } =
+    await resolveLcc({
+      spine: spineLcc,
+      lookup,
+      title: grounded.keep ? read.title : '',
+      author: grounded.keep ? (read.author || '') : '',
+    });
 
   // Tag inference — only if we're keeping the entry, have a title, AND
   // a successful metadata lookup. With no lookup match we'd be tagging
@@ -1120,167 +1058,40 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
     }
   }
 
-  // Deterministic Fiction tag — applied AFTER model inference so the
-  // model output stays subject/genre-only and Fiction is owned by the
-  // LCC+LCSH rule. lcshSubjects (when present) wins over the older
-  // generic subjects field for the LCSH check.
-  tags.formTags = applyFictionFormTag(
-    tags.formTags,
-    finalLcc,
-    lookup.lcshSubjects ?? lookup.subjects
-  );
-
-  // Combined confidence: take the worse of OCR confidence (post-grounding) and tag confidence.
-  const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
-  const combinedConfidence =
-    order[grounded.confidence] <= order[tags.confidence] ? grounded.confidence : tags.confidence;
-
-  const titleCased = toTitleCase(read.title);
-
-  // Canonical title / author override. When the lookup matched (any
-  // tier), the spine OCR can be replaced by the database's authoritative
-  // record. Spine OCR survives on spineRead.rawText / spineRead.title
-  // for diagnostic display. Flag-gated so the change is one-line
-  // revertible if a regression surfaces.
-  //
-  // Shorter-of-two rule: when both the spine read and the canonical
-  // title clearly refer to the same book (Levenshtein similarity
-  // > 0.6 between lowercased forms), prefer the SHORTER of the two
-  // for display. This stops "The Hobbit, Or, There and Back Again"
-  // from replacing "The Hobbit" while still letting clearly-better
-  // canonical titles (e.g. when the OCR caught a fragment) win when
-  // similarity is low — that's a different-titles signal that means
-  // the spine read was probably wrong.
-  const useCanonical = USE_CANONICAL_TITLES && lookup.source !== 'none';
-  const canonicalTitleCased =
-    useCanonical && lookup.canonicalTitle && lookup.canonicalTitle.trim()
-      ? toTitleCase(lookup.canonicalTitle)
-      : '';
-  let displayTitle = canonicalTitleCased || titleCased;
-  if (canonicalTitleCased && titleCased) {
-    const sim = stringSimilarity(canonicalTitleCased.toLowerCase(), titleCased.toLowerCase());
-    if (sim >= 0.6) {
-      displayTitle =
-        titleCased.length < canonicalTitleCased.length ? titleCased : canonicalTitleCased;
-    }
-  }
-  const displayAuthor =
-    useCanonical && lookup.canonicalAuthor && lookup.canonicalAuthor.trim()
-      ? lookup.canonicalAuthor
-      : read.author;
-  // Multi-author authorLF builder: when allAuthors is set, format every
-  // author as Last, First and join with "; " (LibraryThing's canonical
-  // multi-author delimiter). Single-author cases fall back to the
-  // existing toAuthorLastFirst path.
-  const authorLF =
-    useCanonical && lookup.allAuthors && lookup.allAuthors.length > 1
-      ? lookup.allAuthors.map(flipNameLastFirst).filter(Boolean).join('; ')
-      : toAuthorLastFirst(displayAuthor);
-
-  const provenance = buildBookProvenance({
+  // Delegate the back-half of assembly (Fiction tag, combined
+  // confidence, Title Case + canonical title rule, authorLF derivation,
+  // provenance map with spine-source overrides + LCC alternate, final
+  // BookRecord shape) to the shared assembleBookRecord helper. Every
+  // entry-point function uses the same call so a fix here applies
+  // uniformly — no more Reread-path blind spots.
+  const book = await assembleBookRecord({
     lookup,
-    displayTitle,
-    displayAuthor,
-    authorLF,
-    useCanonical,
+    spineRead,
+    spineFields: {
+      title: read.title,
+      author: read.author,
+      publisher: read.publisher,
+      lcc: read.lcc,
+      confidence: read.confidence,
+      extractedCallNumber: read.extractedCallNumber,
+      extractedCallNumberSystem: read.extractedCallNumberSystem,
+      extractedEdition: read.extractedEdition,
+      extractedSeries: read.extractedSeries,
+    },
     finalLcc,
     lccSource,
-  });
-
-  // Spine-source overrides for fields the spine actually filled. The
-  // heuristic in buildBookProvenance / inferProvenanceFromResult can't
-  // tell that ddc/edition/series came from the OCR'd spine vs. a
-  // network tier — explicitly tag those entries here.
-  const provTs = new Date().toISOString();
-  if (
-    read.extractedCallNumber &&
-    read.extractedCallNumberSystem === 'ddc' &&
-    lookup.ddc === read.extractedCallNumber
-  ) {
-    provenance.ddc = { source: 'spine-read', timestamp: provTs };
-  }
-  if (read.extractedEdition && lookup.edition === read.extractedEdition) {
-    provenance.edition = { source: 'spine-read', timestamp: provTs };
-  }
-  if (read.extractedSeries && lookup.series === read.extractedSeries) {
-    // BookRecordProvenance doesn't currently track `series` in the
-    // PROVENANCE_FIELDS list (see lib/provenance.ts). Stamp it anyway
-    // — the type is a Partial<Record<string, FieldProvenance>> so any
-    // string key is valid; surfacing this attribution costs nothing
-    // and lets a future series UI show provenance.
-    provenance.series = { source: 'spine-read', timestamp: provTs };
-  }
-  // LCC alternate captured by decideLccFromSources when the loser
-  // carried any value. Splice into provenance.lcc.alternates.
-  if (lccAlternateForProvenance && provenance.lcc) {
-    const existing = provenance.lcc.alternates ?? [];
-    provenance.lcc = {
-      ...provenance.lcc,
-      alternates: [...existing, lccAlternateForProvenance],
-    };
-  }
-
-  const book: BookRecord = {
-    id: makeId(),
-    spineRead,
-    title: displayTitle,
-    author: displayAuthor,
-    authorLF,
-    isbn: lookup.isbn,
-    publisher: lookup.publisher,
-    publicationYear: lookup.publicationYear,
-    lcc: finalLcc,
-    genreTags: tags.genreTags,
-    formTags: tags.formTags,
-    confidence: combinedConfidence,
-    reasoning: tags.reasoning,
-    status: 'pending',
+    lccAlternate: lccAlternateForProvenance,
+    tags,
+    groundedConfidence: grounded.confidence,
     warnings: grounded.warnings,
     sourcePhoto,
     batchLabel,
     batchNotes,
     manuallyAdded,
-    provenance,
-    lookupSource: lookup.source,
-    ddc: lookup.ddc,
-    lccDerivedFromDdc: lookup.lccDerivedFromDdc,
-    lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
-    inferredDomains: tags?.inferredDomains,
-    domainConfidence: tags?.domainConfidence,
-    lccSource,
-    spineThumbnail,
-    coverUrl: lookup.coverUrl,
     ocrImage: ocrCrop,
     ocrModel,
-    // Phase-3 enrichment passthrough. Each field is optional + lookup
-    // may not have set it; conditionals stop us from sticking
-    // `undefined` onto the record key explicitly.
-    canonicalTitle: lookup.canonicalTitle,
-    subtitle: lookup.subtitle,
-    allAuthors: lookup.allAuthors,
-    synopsis: lookup.synopsis,
-    pageCount: lookup.pageCount,
-    edition: lookup.edition,
-    binding: lookup.binding,
-    language: lookup.language,
-    series: lookup.series,
-    lcshSubjects: lookup.lcshSubjects,
-    marcGenres: lookup.marcGenres,
-    coverUrlFallbacks: lookup.coverUrlFallbacks,
-    original: {
-      // Snapshot the displayed (canonical when available) values so
-      // the BookCard's "edited" pip compares user edits against the
-      // version they actually saw, not the spine OCR text.
-      title: displayTitle,
-      author: displayAuthor,
-      isbn: lookup.isbn,
-      publisher: lookup.publisher,
-      publicationYear: lookup.publicationYear,
-      lcc: finalLcc,
-      genreTags: [...tags.genreTags],
-      formTags: [...tags.formTags],
-    },
-  };
+    spineThumbnail,
+  });
 
   return { book, kept: grounded.keep };
 }
