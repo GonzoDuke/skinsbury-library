@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lookupBook, lookupSpecificEdition } from '@/lib/book-lookup';
+import { structuredErrorResponse } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 
@@ -78,9 +79,13 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[lookup-book] failed:', message);
-    return NextResponse.json(
-      { error: 'Lookup failed', details: message },
-      { status: 502 }
-    );
+    return structuredErrorResponse(err, {
+      error: 'Lookup failed',
+      // No `model` — lookup-book calls external APIs (OL, ISBNdb,
+      // MARC), not Anthropic.
+      requestShape:
+        `lookup-book${body.matchEdition ? ' edition' : ''}: ` +
+        `title="${title}" author="${author}" isbn="${isbnHint}"`,
+    });
   }
 }

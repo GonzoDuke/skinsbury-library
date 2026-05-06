@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
 import { normalizeConfidence } from '@/lib/normalize-confidence';
+import { structuredErrorResponse } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -148,17 +149,22 @@ export async function POST(req: NextRequest) {
 
     const textBlock = resp.content.find((b) => b.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
-      return NextResponse.json({ error: 'Empty model response' }, { status: 502 });
+      return structuredErrorResponse(new Error('Empty model response'), {
+        error: 'Empty model response',
+        model: modelId,
+        requestShape: `read-spine: 1 image (${mediaType}, ${base64.length} bytes b64)`,
+      });
     }
 
     let parsed: any;
     try {
       parsed = extractJsonObject(textBlock.text);
     } catch (err) {
-      return NextResponse.json(
-        { error: 'Could not parse JSON from model', text: textBlock.text },
-        { status: 502 }
-      );
+      return structuredErrorResponse(err, {
+        error: 'Could not parse JSON from model',
+        model: modelId,
+        requestShape: `read-spine: 1 image (${mediaType}, ${base64.length} bytes b64)`,
+      });
     }
 
     const extractedCallNumber = parsed.extractedCallNumber
@@ -197,9 +203,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err: any) {
-    return NextResponse.json(
-      { error: 'Vision API error', details: err?.message ?? String(err) },
-      { status: 502 }
-    );
+    return structuredErrorResponse(err, {
+      error: 'Vision API error',
+      model: modelId,
+      requestShape: `read-spine: 1 image (${mediaType}, ${base64.length} bytes b64)`,
+    });
   }
 }

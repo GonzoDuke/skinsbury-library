@@ -7,6 +7,7 @@ import type { CorrectionEntry } from '@/lib/corrections-log';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
 import { VOCAB, type DomainKey } from '@/lib/tag-domains';
 import { normalizeConfidence } from '@/lib/normalize-confidence';
+import { structuredErrorResponse } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -416,10 +417,11 @@ export async function POST(req: NextRequest) {
       domainReasoning = result.reasoning;
     }
   } catch (err: any) {
-    return NextResponse.json(
-      { error: 'Domain inference error', details: err?.message ?? String(err) },
-      { status: 502 }
-    );
+    return structuredErrorResponse(err, {
+      error: 'Domain inference error',
+      model: 'claude-sonnet-4-20250514',
+      requestShape: `infer-tags (domain): title="${body.title ?? ''}" lcc="${body.lcc ?? ''}"`,
+    });
   }
 
   // No domain returned → empty result with LOW domain confidence so the

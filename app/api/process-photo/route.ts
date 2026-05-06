@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
+import { structuredErrorResponse } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -119,13 +120,17 @@ export async function POST(req: NextRequest) {
       'process-photo'
     );
 
+    const requestShape = `process-photo: 1 image (${mediaType}, ${imageBase64.length} bytes b64)`;
+    const model = 'claude-sonnet-4-20250514';
+
     const textBlock = resp.content.find((b) => b.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
       console.warn('[process-photo] empty model response', JSON.stringify(resp.content));
-      return NextResponse.json(
-        { error: 'Empty model response', rawContent: resp.content },
-        { status: 502 }
-      );
+      return structuredErrorResponse(new Error('Empty model response'), {
+        error: 'Empty model response',
+        model,
+        requestShape,
+      });
     }
 
     const rawText = textBlock.text;
@@ -135,17 +140,19 @@ export async function POST(req: NextRequest) {
       raw = extractJsonArray(rawText);
     } catch (err) {
       console.warn('[process-photo] JSON parse failed. raw text:\n' + rawText);
-      return NextResponse.json(
-        { error: 'Could not parse JSON from model', rawText },
-        { status: 502 }
-      );
+      return structuredErrorResponse(err, {
+        error: 'Could not parse JSON from model',
+        model,
+        requestShape,
+      });
     }
     if (!Array.isArray(raw)) {
       console.warn('[process-photo] non-array. raw text:\n' + rawText);
-      return NextResponse.json(
-        { error: 'Model did not return an array', rawText },
-        { status: 502 }
-      );
+      return structuredErrorResponse(new Error('Model did not return an array'), {
+        error: 'Model did not return an array',
+        model,
+        requestShape,
+      });
     }
 
     const detections: BboxDetection[] = raw
@@ -177,9 +184,10 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ detections, rawText });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: 'Vision API error', details: err?.message ?? String(err) },
-      { status: 502 }
-    );
+    return structuredErrorResponse(err, {
+      error: 'Vision API error',
+      model: 'claude-sonnet-4-20250514',
+      requestShape: `process-photo: 1 image (${mediaType}, ${imageBase64.length} bytes b64)`,
+    });
   }
 }

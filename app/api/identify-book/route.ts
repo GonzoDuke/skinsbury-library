@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
 import { normalizeConfidence } from '@/lib/normalize-confidence';
+import { structuredErrorResponse } from '@/lib/api-error';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -106,12 +107,15 @@ export async function POST(req: NextRequest) {
 
   const client = new Anthropic({ apiKey });
 
+  const requestShape = `identify-book: rawText="${rawText.slice(0, 60)}" partialTitle="${partialTitle}" partialAuthor="${partialAuthor}"`;
+  const model = 'claude-sonnet-4-20250514';
+
   try {
     const t0 = Date.now();
     const resp = await withAnthropicRetry(
       () =>
         client.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model,
           max_tokens: 512,
           system: IDENTIFY_PROMPT,
           messages: [{ role: 'user', content: userMessage }],
@@ -121,17 +125,22 @@ export async function POST(req: NextRequest) {
 
     const textBlock = resp.content.find((b) => b.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
-      return NextResponse.json({ error: 'Empty model response' }, { status: 502 });
+      return structuredErrorResponse(new Error('Empty model response'), {
+        error: 'Empty model response',
+        model,
+        requestShape,
+      });
     }
 
     let parsed: unknown;
     try {
       parsed = extractJsonObject(textBlock.text);
-    } catch {
-      return NextResponse.json(
-        { error: 'Could not parse JSON from model', text: textBlock.text },
-        { status: 502 }
-      );
+    } catch (err) {
+      return structuredErrorResponse(err, {
+        error: 'Could not parse JSON from model',
+        model,
+        requestShape,
+      });
     }
 
     const p = parsed as Partial<IdentifyResult>;
@@ -155,9 +164,10 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[identify-book] failed:', message);
-    return NextResponse.json(
-      { error: 'identify-book error', details: message },
-      { status: 502 }
-    );
+    return structuredErrorResponse(err, {
+      error: 'identify-book error',
+      model,
+      requestShape,
+    });
   }
 }
