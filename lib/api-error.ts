@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { RetryExhaustedError } from './anthropic-retry';
 
 /**
  * Structured error response for /api routes.
@@ -6,13 +7,18 @@ import { NextResponse } from 'next/server';
  * When an Anthropic call or external API call fails, the response
  * body should carry enough context for the next person debugging the
  * production trace to know:
- *   - error:        short error type, useful for log filtering
- *   - details:      the actual underlying error message
- *   - model:        the model identifier (when the route called one)
- *   - requestShape: a brief description of what was being requested
- *                   (e.g., 'spine read with 1 image', 'lookup-book
- *                   title="X" isbn="Y"'). Keep concise; no PII.
- *   - timestamp:    ISO timestamp of the failure
+ *   - error:         short error type, useful for log filtering
+ *   - details:       the actual underlying error message
+ *   - model:         the model identifier (when the route called one)
+ *   - requestShape:  a brief description of what was being requested
+ *                    (e.g., 'spine read with 1 image', 'lookup-book
+ *                    title="X" isbn="Y"'). Keep concise; no PII.
+ *   - retryAttempts: when the underlying error is a RetryExhaustedError,
+ *                    how many times we tried before giving up. Lets the
+ *                    debugger distinguish "instant failure" from "long
+ *                    wait then failure." Auto-detected from the error
+ *                    type — routes don't need to pass it explicitly.
+ *   - timestamp:     ISO timestamp of the failure
  *
  * The earlier temperature: 0 commit's 502 debugging took longer than
  * it should have because the response body was just `{ error, details }`
@@ -33,12 +39,14 @@ export function structuredErrorResponse(
   }
 ): NextResponse {
   const message = err instanceof Error ? err.message : String(err);
+  const retryAttempts = err instanceof RetryExhaustedError ? err.attempts : undefined;
   return NextResponse.json(
     {
       error: context.error ?? 'Internal error',
       details: message,
       model: context.model,
       requestShape: context.requestShape,
+      retryAttempts,
       timestamp: new Date().toISOString(),
     },
     { status: context.status ?? 502 }
