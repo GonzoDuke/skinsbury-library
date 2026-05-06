@@ -198,6 +198,39 @@ export function normalizeLcc(s: string | undefined | null): string {
 }
 
 /**
+ * Strip a leading "ed. " or "eds. " editor-marker prefix from an author
+ * string. The Pass-B spine-read prompt instructs the vision model to
+ * prefix anthology editors with "ed. " (e.g. "ed. Michael Schumacher")
+ * to mark editor attribution. That prefix has to be removed before the
+ * value is sent to ISBNdb / Open Library / Google Books / Wikidata —
+ * none of those APIs index editors as "ed. Name", and queries with the
+ * prefix attached return zero hits even for well-cataloged anthologies.
+ *
+ * Match rules:
+ * - Case-insensitive ("ed.", "ED.", "Ed." all match).
+ * - Leading-position only — anchored to start of string. The word "ed."
+ *   appearing mid-name (e.g. "Fred. Smith") MUST be left alone.
+ * - Whitespace-tolerant — leading whitespace before the prefix and any
+ *   amount of whitespace between the prefix and the name are normalized.
+ * - Both "ed." and "eds." (multi-editor) are stripped.
+ *
+ *   stripEditorPrefix("ed. Michael Schumacher") → { author: "Michael Schumacher", isEditor: true }
+ *   stripEditorPrefix("eds. Smith and Jones")   → { author: "Smith and Jones",  isEditor: true }
+ *   stripEditorPrefix("Fred. Smith")            → { author: "Fred. Smith",      isEditor: false }
+ *   stripEditorPrefix("Albert Camus")           → { author: "Albert Camus",     isEditor: false }
+ */
+export function stripEditorPrefix(
+  author: string | undefined | null
+): { author: string; isEditor: boolean } {
+  if (!author) return { author: '', isEditor: false };
+  const trimmed = author.trim();
+  if (!trimmed) return { author: '', isEditor: false };
+  const m = trimmed.match(/^eds?\.\s+(\S.*)$/i);
+  if (!m) return { author: trimmed, isEditor: false };
+  return { author: m[1].trim(), isEditor: true };
+}
+
+/**
  * True only when the LCC string carries both a class number AND a
  * cutter portion. Catches the "we got a class-number-only stub from
  * Open Library" case so the post-cascade LoC / Wikidata / Sonnet
@@ -566,6 +599,28 @@ if (process.env.NODE_ENV !== 'production') {
     if (got !== c.out) {
       throw new Error(
         `isCompleteLcc regression: ${JSON.stringify(c.in)} → ${got} (expected ${c.out})`
+      );
+    }
+  }
+
+  // stripEditorPrefix — same module-load gate. The leading-position
+  // regex anchor and the case-insensitive flag are both load-bearing;
+  // a regression on either would silently send "ed. Name" to APIs
+  // that don't index editors and re-break anthology lookups.
+  const stripCases: { in: string; author: string; isEditor: boolean }[] = [
+    { in: 'ed. Michael Schumacher', author: 'Michael Schumacher', isEditor: true },
+    { in: 'eds. Smith and Jones', author: 'Smith and Jones', isEditor: true },
+    { in: 'Albert Camus', author: 'Albert Camus', isEditor: false },
+    { in: 'Fred. Smith', author: 'Fred. Smith', isEditor: false },
+    { in: '  ed.   Jane Doe  ', author: 'Jane Doe', isEditor: true },
+    { in: 'ED. JOHN SMITH', author: 'JOHN SMITH', isEditor: true },
+    { in: '', author: '', isEditor: false },
+  ];
+  for (const c of stripCases) {
+    const got = stripEditorPrefix(c.in);
+    if (got.author !== c.author || got.isEditor !== c.isEditor) {
+      throw new Error(
+        `stripEditorPrefix regression: ${JSON.stringify(c.in)} → ${JSON.stringify(got)} (expected author=${JSON.stringify(c.author)}, isEditor=${c.isEditor})`
       );
     }
   }

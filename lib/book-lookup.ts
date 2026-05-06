@@ -11,6 +11,7 @@ import {
   lookupLccByTitleAuthor,
   lookupFullMarcByIsbn,
   sanitizeForSearch,
+  stripEditorPrefix,
   deriveLccFromDdc,
   type MarcResult,
 } from './lookup-utils';
@@ -1141,6 +1142,19 @@ export async function lookupSpecificEdition(
 ): Promise<BookLookupResult> {
   const log = createLookupLogger(`edition:${title}`);
   log.start({ title, author, isbn: hints.isbn });
+  // Strip a leading "ed. " / "eds. " editor-marker prefix before any
+  // downstream API query. None of OL / ISBNdb / GB / Wikidata index
+  // editors with that prefix, so anthology lookups silently failed
+  // when "ed. Michael Schumacher" reached them as the author. The
+  // displayed BookRecord author still keeps the prefix — this is a
+  // query-time strip only.
+  const { author: queryAuthor, isEditor } = stripEditorPrefix(author);
+  if (isEditor) {
+    log.tier(
+      'edit-prefix',
+      `stripped "ed./eds." editor prefix for queries: author=${JSON.stringify(queryAuthor)} (was ${JSON.stringify(author)})`
+    );
+  }
   // 1) ISBN path — by far the most specific signal.
   if (hints.isbn) {
     const cleaned = hints.isbn.replace(/[^\dxX]/g, '');
@@ -1241,7 +1255,7 @@ export async function lookupSpecificEdition(
   // 2) Year-scoped search (with publisher tie-breaker).
   if (title && hints.year) {
     try {
-      const cleanedAuthor = cleanAuthorForQuery(author);
+      const cleanedAuthor = cleanAuthorForQuery(queryAuthor);
       const shortTitle = stripSubtitle(title);
       const params = new URLSearchParams();
       params.set('title', shortTitle);
@@ -1262,7 +1276,7 @@ export async function lookupSpecificEdition(
         const docs = data.docs ?? [];
         // Prefer publisher match if hint provided.
         const publisherHint = (hints.publisher ?? '').toLowerCase().trim();
-        const cleanedAuthorForScore = cleanAuthorForQuery(author);
+        const cleanedAuthorForScore = cleanAuthorForQuery(queryAuthor);
         const ranked = docs
           .filter((d) => !isStudyGuide(d))
           .map((d) => {
@@ -1353,7 +1367,7 @@ export async function lookupSpecificEdition(
   if (hints.isbn) {
     const cleaned = hints.isbn.replace(/[^\dxX]/g, '');
     if (cleaned.length === 10 || cleaned.length === 13) {
-      const hit = await lookupIsbndb(title, author, cleaned, log);
+      const hit = await lookupIsbndb(title, queryAuthor, cleaned, log);
       if (hit && (hit.isbn || hit.publisher || hit.publicationYear)) {
         const sruLcc = await lookupLccByIsbn(cleaned);
         const isbndbTitle = hit.titleLong || hit.title || undefined;
@@ -2170,10 +2184,23 @@ export async function lookupBook(
     return cached;
   }
 
+  // Strip a leading "ed. " / "eds. " editor-marker prefix before any
+  // downstream API query. Anthology editors get tagged "ed. Name" by
+  // the Pass-B prompt; that prefix has to come off before queries hit
+  // OL / ISBNdb / GB / Wikidata, none of which index editors that way.
+  // The original `author` value still flows to the BookRecord display.
+  const { author: queryAuthor, isEditor } = stripEditorPrefix(author);
+  if (isEditor) {
+    log.tier(
+      'edit-prefix',
+      `stripped "ed./eds." editor prefix for queries: author=${JSON.stringify(queryAuthor)} (was ${JSON.stringify(author)})`
+    );
+  }
+
   // Sanitized search-only copies. Originals still flow downstream for
   // display / grounding.
   const searchTitle = sanitizeForSearch(title);
-  const searchAuthor = sanitizeForSearch(author);
+  const searchAuthor = sanitizeForSearch(queryAuthor);
   const cleanedAuthor = cleanAuthorForQuery(searchAuthor);
 
   let result: BookLookupResult = {
