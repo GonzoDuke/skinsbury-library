@@ -65,19 +65,58 @@ export function stringSimilarity(a: string, b: string): number {
 }
 
 /**
+ * Canonical subtitle separators. Splitting the title on the first
+ * occurrence of any of these (and using only the base title for the
+ * query) improves fuzzy match ranking on lookup APIs — particularly
+ * ISBNdb's title-search, which heavily prefers exact matches and
+ * therefore ranks the long-form title-plus-subtitle below the
+ * specific edition that happens to carry that exact subtitle in its
+ * record. The full title-plus-subtitle is preserved in the
+ * BookRecord; this is a query-time transform only.
+ *
+ * The list is intentionally narrow — punctuation other than these
+ * canonical separators (commas, parens, dots, etc.) shouldn't
+ * trigger stripping.
+ */
+const SUBTITLE_SEPARATORS = [': ', ' — ', ' -- ', ' – '];
+
+/**
  * Strip characters that mangle external API queries — wildcards (*),
  * mentions (@), hashes (#), shell-y money signs ($), exclamation
- * marks (!) — and collapse runs of whitespace. Used by lookupBook
- * to clean spine-read titles like "Holy Sh*t" before they hit OL,
- * Google Books, ISBNdb, or Wikidata, where a literal `*` becomes a
- * wildcard or breaks the SPARQL CONTAINS filter.
+ * marks (!) — collapse runs of whitespace, and split on the first
+ * subtitle separator (see SUBTITLE_SEPARATORS). Used by lookupBook
+ * to clean spine-read titles like "Holy Sh*t" or
+ * "Some Title: A Long Subtitle" before they hit OL, Google Books,
+ * ISBNdb, or Wikidata, where a literal `*` breaks the SPARQL CONTAINS
+ * filter and a long subtitle drags down fuzzy match ranking.
+ *
+ * The same logic also applies to author strings — uncommon but real
+ * (e.g., "Bell Hooks: Pseudonym for ..." in a freeform author field).
+ *
+ * Display values keep the full title-plus-subtitle; this transform
+ * is for query construction only.
  */
 export function sanitizeForSearch(text: string): string {
   if (!text) return '';
-  return text
+  let working = text
     .replace(/[\*@#\$!]/g, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
+  // Subtitle split: find the EARLIEST occurrence of any separator and
+  // keep only the base title. Iterating the list and tracking the
+  // smallest index handles cases where multiple separators appear
+  // (e.g., "Title: Sub1 — Sub2" → "Title").
+  let firstIdx = -1;
+  for (const sep of SUBTITLE_SEPARATORS) {
+    const idx = working.indexOf(sep);
+    if (idx >= 0 && (firstIdx === -1 || idx < firstIdx)) {
+      firstIdx = idx;
+    }
+  }
+  if (firstIdx > 0) {
+    working = working.slice(0, firstIdx).trim();
+  }
+  return working;
 }
 
 /**
