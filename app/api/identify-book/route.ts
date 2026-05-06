@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
+import { normalizeConfidence } from '@/lib/normalize-confidence';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -138,10 +139,7 @@ export async function POST(req: NextRequest) {
       title: typeof p.title === 'string' ? p.title : '',
       author: typeof p.author === 'string' ? p.author : '',
       isbn: typeof p.isbn === 'string' ? p.isbn.replace(/[^\dxX]/g, '') : '',
-      confidence:
-        p.confidence === 'HIGH' || p.confidence === 'MEDIUM' || p.confidence === 'LOW'
-          ? p.confidence
-          : 'LOW',
+      confidence: normalizeConfidence(p.confidence),
       reasoning: typeof p.reasoning === 'string' ? p.reasoning : '',
     };
     const ms = Date.now() - t0;
