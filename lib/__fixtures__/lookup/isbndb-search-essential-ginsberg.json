@@ -1,0 +1,18 @@
+{
+  "total": 1,
+  "books": [
+    {
+      "title": "The Essential Ginsberg",
+      "title_long": "The Essential Ginsberg",
+      "isbn": "0141398995",
+      "isbn13": "9780141398990",
+      "authors": ["Allen Ginsberg", "Michael Schumacher"],
+      "publisher": "Penguin Classics",
+      "date_published": "2015",
+      "binding": "Paperback",
+      "language": "en",
+      "pages": 432,
+      "subjects": ["American poetry", "Beat generation"]
+    }
+  ]
+}

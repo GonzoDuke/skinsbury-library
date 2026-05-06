@@ -1,0 +1,290 @@
+/**
+ * Smoke tests for the lookup pipeline (lib/book-lookup.ts).
+ *
+ * Coverage in v1 is deliberately narrow — four happy paths that lock
+ * in behavior the most recent commits depend on (editor-prefix strip,
+ * Phase 1 bail-out, gap-fill provenance, partial-LCC fallback). Future
+ * regressions on those paths will fail loudly here.
+ *
+ * Mock strategy:
+ *   - `@/lib/lookup-utils` is partially mocked: `lookupFullMarcByIsbn`,
+ *     `lookupLccByIsbn`, `lookupLccByTitleAuthor` become vi.fn()s the
+ *     tests configure per-scenario. Pure helpers (normalizeLcc,
+ *     isCompleteLcc, sanitizeForSearch, stripEditorPrefix, etc.) come
+ *     through unchanged via vi.importActual.
+ *   - `global.fetch` is spied per-test with a URL-pattern → response
+ *     route table. Cleaner module-boundary mocks for
+ *     fetchOpenLibraryCandidates / fetchIsbndbCandidates aren't
+ *     reachable in v1 because those helpers live inside book-lookup.ts
+ *     and ESM internal references don't resolve through replaced
+ *     exports. The Step 3 entry-point unification will extract them
+ *     into a separate module; at that point these tests can move to
+ *     module-level mocks.
+ *
+ * Note: tests run with VERBOSE_LOOKUP=0 to keep stdout quiet.
+ */
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import olSearchEssentialGinsberg from '../__fixtures__/lookup/ol-search-essential-ginsberg.json';
+import isbndbSearchEssentialGinsberg from '../__fixtures__/lookup/isbndb-search-essential-ginsberg.json';
+
+// Silence verbose tier logging for test runs.
+process.env.VERBOSE_LOOKUP = '0';
+
+// Partial mock of lookup-utils — replace network helpers, keep pure
+// helpers via vi.importActual.
+vi.mock('@/lib/lookup-utils', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/lookup-utils')>(
+    '@/lib/lookup-utils'
+  );
+  return {
+    ...actual,
+    lookupFullMarcByIsbn: vi.fn().mockResolvedValue(null),
+    lookupLccByIsbn: vi.fn().mockResolvedValue(''),
+    lookupLccByTitleAuthor: vi.fn().mockResolvedValue(''),
+  };
+});
+
+// Imports must come AFTER vi.mock() so the mocked module is in place
+// when book-lookup.ts evaluates its import bindings.
+const { lookupBook } = await import('@/lib/book-lookup');
+const lookupUtils = await import('@/lib/lookup-utils');
+
+// Cast the mocked exports back to vi.Mock for set-up convenience.
+const mockedMarc = lookupUtils.lookupFullMarcByIsbn as ReturnType<typeof vi.fn>;
+const mockedLccByIsbn = lookupUtils.lookupLccByIsbn as ReturnType<typeof vi.fn>;
+const mockedLccByTitleAuthor =
+  lookupUtils.lookupLccByTitleAuthor as ReturnType<typeof vi.fn>;
+
+// ---------------------------------------------------------------------------
+// fetch mock helper. Each test installs a route table mapping URL
+// substrings to fixture-style responses. Unmatched URLs return an
+// empty 200 so secondary calls (cover URLs, work-record fetches, etc.)
+// don't blow up the lookup pipeline.
+// ---------------------------------------------------------------------------
+
+type FetchHandler = (url: string) => unknown;
+
+function installFetchMock(routes: Array<[RegExp | string, FetchHandler]>) {
+  // Cast through `unknown` because vi.spyOn's overload set narrows
+  // strangely on `globalThis.fetch` under DOM lib types — the spy still
+  // wires up correctly at runtime; only the TypeScript signature of
+  // `mockImplementation` needs the loosening.
+  const spy = vi.spyOn(globalThis as unknown as { fetch: typeof fetch }, 'fetch');
+  spy.mockImplementation(async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input.toString();
+    for (const [pattern, handler] of routes) {
+      const matches =
+        typeof pattern === 'string' ? url.includes(pattern) : pattern.test(url);
+      if (matches) {
+        const body = handler(url);
+        return new Response(
+          typeof body === 'string' ? body : JSON.stringify(body),
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        ) as Response;
+      }
+    }
+    // Default: empty 200 — keeps cover-art and supplementary calls quiet.
+    return new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }) as Response;
+  });
+  return spy;
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  // Reset default mock returns each test resets explicitly anyway.
+  mockedMarc.mockResolvedValue(null);
+  mockedLccByIsbn.mockResolvedValue('');
+  mockedLccByTitleAuthor.mockResolvedValue('');
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+// ---------------------------------------------------------------------------
+// Test 1 — Editor-attributed lookup queries by title alone and finds
+//          the canonical edition. Locks in today's editor-prefix fix +
+//          editor-attributed empty-author behavior.
+// ---------------------------------------------------------------------------
+describe('lookupBook — editor-attributed', () => {
+  it('queries by title alone and finds canonical edition', async () => {
+    installFetchMock([
+      // OL title-search: returns the Penguin edition only when the
+      // query is title-only. If &author= leaked in, return empty —
+      // that's the regression guard for the editor-attributed-empty-
+      // author behavior.
+      [
+        /openlibrary\.org\/search\.json/,
+        (url) =>
+          /[?&]author=/.test(url) ? { docs: [] } : olSearchEssentialGinsberg,
+      ],
+      // ISBNdb title search — return the Penguin record (matches OL's pick).
+      [
+        /api2\.isbndb\.com\/books\//,
+        () => isbndbSearchEssentialGinsberg,
+      ],
+    ]);
+
+    const result = await lookupBook(
+      'The Essential Ginsberg',
+      'ed. Michael Schumacher'
+    );
+
+    expect(result.source).toBe('openlibrary');
+    expect(result.isbn).toBe('9780141398990');
+    expect(result.publicationYear).toBe(2015);
+    expect(result.lcc).toMatch(/^PS3513/);
+
+    // BookLookupResult provenance covers canonicalTitle / isbn / lcc /
+    // etc. but NOT title or author — those land on BookRecord at the
+    // pipeline-layer assembly (buildBookProvenance), out of scope for
+    // this lookup-pipeline test.
+    const prov = (result as unknown as {
+      __provenance?: Record<string, { source: string }>;
+    }).__provenance;
+    expect(prov?.canonicalTitle?.source).toBeTruthy();
+    expect(prov?.lcc?.source).toBeTruthy();
+    expect(prov?.isbn?.source).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 2 — Phase 1 returns no winner when both sources return empty.
+//          Locks in the bail-out behavior + gap-fill skip.
+// ---------------------------------------------------------------------------
+describe('lookupBook — no Phase-1 winner', () => {
+  it('returns source="none" when OL and ISBNdb both find nothing', async () => {
+    installFetchMock([
+      [/openlibrary\.org\/search\.json/, () => ({ docs: [] })],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupBook('Some Made Up Title', 'Nobody');
+
+    expect(result.source).toBe('none');
+    expect(result.isbn).toBe('');
+    expect(result.lcc).toBe('');
+    // gap-fill bails out cleanly when source === 'none'; MARC mock
+    // should NOT have been invoked at all in that path.
+    expect(mockedMarc).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 3 — Gap-fill fills empty fields from MARC. Locks in field-by-
+//          field provenance attribution to "marc".
+// ---------------------------------------------------------------------------
+describe('lookupBook — gap-fill from MARC', () => {
+  it('fills lcshSubjects + ddc from MARC and stamps provenance', async () => {
+    // Phase 1: OL returns a winner with empty lcsh/ddc.
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              key: '/works/OLAGNW',
+              title: 'Agnotology',
+              author_name: ['Robert N. Proctor'],
+              isbn: ['9780804759014'],
+              publisher: ['Stanford University Press'],
+              first_publish_year: 2008,
+              publish_year: [2008],
+              lcc: ['BD221 .A36 2008'],
+              subject: ['Knowledge, Theory of'],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    // MARC returns a complete record on gap-fill's MARC call.
+    mockedMarc.mockResolvedValue({
+      lcc: 'BD221 .A36 2008',
+      ddc: '001.4',
+      lcshSubjects: [
+        'Knowledge, Theory of',
+        'Ignorance (Theory of knowledge)',
+        'Agnoiology',
+        'Truthfulness and falsehood',
+        'Science — Social aspects',
+        'Information theory',
+        'Epistemics',
+      ],
+      marcGenres: [],
+      author: 'Proctor, Robert N.',
+      title: 'Agnotology',
+      publisher: 'Stanford University Press',
+      pageCount: 312,
+      edition: null,
+      coAuthors: [],
+    });
+
+    const result = await lookupBook('Agnotology', 'Robert N. Proctor');
+
+    expect(result.source).toBe('openlibrary');
+    expect(result.lcshSubjects?.length).toBe(7);
+    expect(result.ddc).toBe('001.4');
+
+    const prov = (result as unknown as {
+      __provenance?: Record<string, { source: string }>;
+    }).__provenance;
+    expect(prov?.lcshSubjects?.source).toBe('marc');
+    expect(prov?.ddc?.source).toBe('marc');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 4 — LCC fallback fires when Phase 1 returns partial LCC. Locks
+//          in the post-Phase-2 LoC SRU title+author upgrade.
+// ---------------------------------------------------------------------------
+describe('lookupBook — partial LCC upgrade', () => {
+  it('upgrades partial Phase-1 LCC to complete LoC SRU LCC and demotes loser to alternates', async () => {
+    // Phase 1 OL: winner with partial LCC ("HV5825" — no cutter).
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              key: '/works/OLPARTIALW',
+              title: "Can't Find My Way Home",
+              author_name: ['Martin Torgoff'],
+              isbn: ['9780743230117'],
+              publisher: ['Simon & Schuster'],
+              first_publish_year: 2005,
+              publish_year: [2005],
+              lcc: ['HV5825'],
+              subject: ['Drug abuse — United States'],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    // LoC SRU title+author returns the complete LCC.
+    mockedLccByTitleAuthor.mockResolvedValue('HV5825 .T67 2005');
+
+    const result = await lookupBook("Can't Find My Way Home", 'Martin Torgoff');
+
+    expect(result.lcc).toBe('HV5825 .T67 2005');
+
+    const prov = (result as unknown as {
+      __provenance?: {
+        lcc?: { source: string; alternates?: Array<{ source: string; value: unknown }> };
+      };
+    }).__provenance;
+    // Source upgraded to LoC SRU.
+    expect(prov?.lcc?.source).toBe('loc-sru');
+    // Original partial captured in alternates with its prior tier as source.
+    expect(prov?.lcc?.alternates?.length).toBeGreaterThan(0);
+    const altValues = prov?.lcc?.alternates?.map((a) => a.value) ?? [];
+    expect(altValues).toContain('HV5825');
+  });
+});

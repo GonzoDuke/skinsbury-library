@@ -1,0 +1,25 @@
+{
+  "numFound": 1,
+  "start": 0,
+  "numFoundExact": true,
+  "docs": [
+    {
+      "key": "/works/OL14904994W",
+      "title": "The Essential Ginsberg",
+      "author_name": ["Allen Ginsberg"],
+      "isbn": ["9780141398990", "0141398995"],
+      "publisher": ["Penguin Classics", "Penguin Books"],
+      "first_publish_year": 2015,
+      "publish_year": [2015],
+      "publish_date": ["2015"],
+      "lcc": ["PS3513.I74 A6 2015"],
+      "lc_classifications": ["PS3513.I74 A6 2015"],
+      "subject": [
+        "American poetry",
+        "20th century",
+        "Beat generation",
+        "Counterculture"
+      ]
+    }
+  ]
+}

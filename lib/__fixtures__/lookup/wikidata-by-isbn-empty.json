@@ -1,0 +1,4 @@
+{
+  "head": { "vars": ["item", "itemLabel", "lcc", "ddc", "isbn13"] },
+  "results": { "bindings": [] }
+}
