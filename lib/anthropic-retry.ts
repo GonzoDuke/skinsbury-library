@@ -6,6 +6,12 @@
  * caller's continuation) is rethrown immediately so non-transient
  * failures don't get re-tried into Vercel's maxDuration ceiling.
  *
+ * When all retries fail, the wrapper throws RetryExhaustedError with
+ * the attempts count attached. structuredErrorResponse picks that up
+ * automatically and surfaces `retryAttempts` in the API response body
+ * so production-trace readers can distinguish "instant failure" from
+ * "long wait then failure."
+ *
  * Usage:
  *   const resp = await withAnthropicRetry(() =>
  *     client.messages.create({ ... })
@@ -13,6 +19,29 @@
  */
 
 const RETRY_DELAYS_MS = [1000, 3000];
+
+/**
+ * Thrown by withAnthropicRetry when a retryable error (429 / 5xx)
+ * runs out of retries. Carries the attempts count and the last
+ * underlying error so the route's catch block can surface both.
+ *
+ * Non-retryable errors (4xx other than 429, parse errors, etc.) are
+ * rethrown unchanged — they're not "retry exhaustion," they're just
+ * failures on the first attempt.
+ */
+export class RetryExhaustedError extends Error {
+  readonly attempts: number;
+  readonly originalError: unknown;
+
+  constructor(attempts: number, originalError: unknown, label: string) {
+    const inner =
+      originalError instanceof Error ? originalError.message : String(originalError);
+    super(`[${label}] retries exhausted after ${attempts} attempts: ${inner}`);
+    this.name = 'RetryExhaustedError';
+    this.attempts = attempts;
+    this.originalError = originalError;
+  }
+}
 
 interface MaybeApiError {
   status?: number;
@@ -64,8 +93,15 @@ export async function withAnthropicRetry<T>(
       return await call();
     } catch (err) {
       lastErr = err;
-      if (!shouldRetry(err) || attempt === RETRY_DELAYS_MS.length) {
+      // Non-retryable: rethrow original error unchanged. Not "retry
+      // exhausted" — the wrapper never even tried to retry.
+      if (!shouldRetry(err)) {
         throw err;
+      }
+      // Retryable but no more retries left: wrap in RetryExhaustedError
+      // so the route's catch can surface the attempts count.
+      if (attempt === RETRY_DELAYS_MS.length) {
+        throw new RetryExhaustedError(attempt + 1, err, label);
       }
       const baseDelay = RETRY_DELAYS_MS[attempt];
       const delay = retryAfterMs(err, baseDelay);
