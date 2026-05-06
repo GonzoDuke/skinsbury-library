@@ -6,6 +6,7 @@ import type { InferTagsResult } from '@/lib/types';
 import type { CorrectionEntry } from '@/lib/corrections-log';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
 import { VOCAB, type DomainKey } from '@/lib/tag-domains';
+import { normalizeConfidence } from '@/lib/normalize-confidence';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -291,10 +292,7 @@ function parseDomainResponse(parsed: unknown): { domains: DomainPick[]; reasonin
         const dd = d as { domain?: unknown; confidence?: unknown };
         const domain = typeof dd.domain === 'string' ? (dd.domain.toLowerCase() as DomainKey) : null;
         if (!domain || !VALID_DOMAINS.has(domain)) continue;
-        const confidence =
-          dd.confidence === 'HIGH' || dd.confidence === 'MEDIUM' || dd.confidence === 'LOW'
-            ? dd.confidence
-            : 'LOW';
+        const confidence = normalizeConfidence(dd.confidence);
         out.push({ domain, confidence });
         if (out.length >= MAX_DOMAINS_PER_BOOK) break;
       }
@@ -348,12 +346,7 @@ async function runTagCallForDomain(
   return {
     genreTags: Array.isArray(parsed.genre_tags) ? parsed.genre_tags.map(String) : [],
     formTags: Array.isArray(parsed.form_tags) ? parsed.form_tags.map(String) : [],
-    confidence:
-      parsed.confidence === 'HIGH' ||
-      parsed.confidence === 'MEDIUM' ||
-      parsed.confidence === 'LOW'
-        ? parsed.confidence
-        : 'LOW',
+    confidence: normalizeConfidence(parsed.confidence),
     reasoning: String(parsed.reasoning ?? ''),
   };
 }

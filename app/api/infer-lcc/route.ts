@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
+import { normalizeConfidence } from '@/lib/normalize-confidence';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -88,10 +89,7 @@ Publication year: ${body.publicationYear ?? ''}`;
     }
     const result = {
       lcc: String(parsed.lcc ?? '').trim(),
-      confidence:
-        parsed.confidence === 'HIGH' || parsed.confidence === 'MEDIUM' || parsed.confidence === 'LOW'
-          ? parsed.confidence
-          : 'LOW',
+      confidence: normalizeConfidence(parsed.confidence),
       reasoning: String(parsed.reasoning ?? ''),
     };
     console.log(

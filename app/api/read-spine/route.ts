@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { withAnthropicRetry } from '@/lib/anthropic-retry';
+import { normalizeConfidence } from '@/lib/normalize-confidence';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -176,10 +177,7 @@ export async function POST(req: NextRequest) {
       author: String(parsed.author ?? '').trim(),
       publisher: String(parsed.publisher ?? '').trim(),
       lcc: String(parsed.lcc ?? '').trim(),
-      confidence:
-        parsed.confidence === 'HIGH' || parsed.confidence === 'MEDIUM' || parsed.confidence === 'LOW'
-          ? parsed.confidence
-          : 'LOW',
+      confidence: normalizeConfidence(parsed.confidence),
       note: parsed.note ? String(parsed.note) : undefined,
       extractedCallNumber: extractedCallNumber || undefined,
       extractedCallNumberSystem: extractedCallNumber ? extractedCallNumberSystem : undefined,
