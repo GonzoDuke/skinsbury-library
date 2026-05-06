@@ -1167,6 +1167,201 @@ function parsePublishDateYear(arr?: string[]): number {
   return earliest;
 }
 
+// ---------------------------------------------------------------------------
+// OL ISBN-direct helpers — used by lookupSpecificEdition tier 1.
+//
+// search.json?isbn= returns the WORK-level document, which means
+// `publisher` is a union array across every edition of the work.
+// `doc.publisher[0]` therefore reflects whichever edition happens to be
+// first in OL's internal order — frequently a different edition than
+// the one the user actually owns.
+//
+// /api/books?bibkeys=ISBN: returns the EDITION-level document for the
+// exact ISBN. `publishers[0].name` is the publisher of THAT edition.
+//
+// Empirically verified on ISBN 9781982156916 (Folger Shakespeare's
+// Cymbeline):
+//   - search.json?isbn=...        → publisher=["Signet Classics"]   (wrong)
+//   - api/books?bibkeys=ISBN:...  → publishers=[{name:"Simon & Schuster"}]  (correct)
+//
+// Both helpers normalize their respective response shapes into a
+// single OlIsbnResult so the caller doesn't care which endpoint won.
+// ---------------------------------------------------------------------------
+
+interface OlEditionDoc {
+  title?: string;
+  publishers?: { name?: string }[];
+  publish_date?: string;
+  number_of_pages?: number;
+  classifications?: { lc_classifications?: string[]; dewey_decimal_class?: string[] };
+  authors?: { name?: string }[];
+  subjects?: ({ name?: string } | string)[];
+}
+
+interface OlIsbnResult {
+  publisher: string;
+  publicationYear: number;
+  pageCount: number;
+  lcc: string;
+  title: string;
+  author: string;
+  allAuthors: string[];
+  subjects: string[];
+  /** True if lcc came directly from the OL response (vs empty). Drives
+   *  initialLccSource so the fan-out can record the right provenance. */
+  hadLcc: boolean;
+}
+
+async function fetchOlByIsbnEdition(
+  isbn: string,
+  log: LookupLogger
+): Promise<OlIsbnResult | null> {
+  const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${encodeURIComponent(isbn)}&jscmd=data&format=json`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      signal: AbortSignal.timeout(10000),
+      cache: 'no-store',
+      headers: DEFAULT_HEADERS,
+    });
+  } catch (err) {
+    log.tier(
+      'ol-by-isbn (edition)',
+      `error ${err instanceof Error ? err.message : String(err)}`
+    );
+    return null;
+  }
+  if (!res.ok) {
+    log.tier('ol-by-isbn (edition)', `GET ${url} → ${res.status} (skip)`);
+    return null;
+  }
+  let data: Record<string, OlEditionDoc>;
+  try {
+    data = (await res.json()) as Record<string, OlEditionDoc>;
+  } catch {
+    log.tier('ol-by-isbn (edition)', `GET ${url} → 200 → parse error`);
+    return null;
+  }
+  const doc = data[`ISBN:${isbn}`];
+  if (!doc) {
+    log.tier(
+      'ol-by-isbn (edition)',
+      `GET ${url} → 200 → 0 docs (falling back to search.json)`
+    );
+    return null;
+  }
+  const lcc =
+    (doc.classifications?.lc_classifications ?? []).find(
+      (s) => typeof s === 'string' && s.length > 0
+    ) ?? '';
+  const allAuthors = (doc.authors ?? [])
+    .map((a) => (typeof a?.name === 'string' ? a.name.trim() : ''))
+    .filter(Boolean);
+  const subjects = (doc.subjects ?? [])
+    .map((s) => {
+      if (typeof s === 'string') return s.trim();
+      return typeof s?.name === 'string' ? s.name.trim() : '';
+    })
+    .filter(Boolean)
+    .slice(0, 10);
+  const result: OlIsbnResult = {
+    publisher:
+      typeof doc.publishers?.[0]?.name === 'string'
+        ? doc.publishers[0].name.trim()
+        : '',
+    publicationYear: doc.publish_date ? parsePublishDateYear([doc.publish_date]) : 0,
+    pageCount:
+      typeof doc.number_of_pages === 'number' && doc.number_of_pages > 0
+        ? doc.number_of_pages
+        : 0,
+    lcc,
+    title: typeof doc.title === 'string' ? doc.title.trim() : '',
+    author: allAuthors[0] ?? '',
+    allAuthors,
+    subjects,
+    hadLcc: lcc.length > 0,
+  };
+  log.tier('ol-by-isbn (edition)', `GET ${url} → 200 → matched`);
+  log.tier(
+    'ol-by-isbn (edition)',
+    `publisher=${JSON.stringify(result.publisher)} pages=${result.pageCount || '-'} year=${result.publicationYear || '-'}`
+  );
+  return result;
+}
+
+async function fetchOlByIsbnSearch(
+  isbn: string,
+  log: LookupLogger
+): Promise<OlIsbnResult | null> {
+  const url =
+    `https://openlibrary.org/search.json?isbn=${encodeURIComponent(isbn)}` +
+    `&fields=key,title,author_name,isbn,publisher,first_publish_year,publish_year,publish_date,lcc,lc_classifications,subject,number_of_pages_median`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      signal: AbortSignal.timeout(10000),
+      cache: 'no-store',
+      headers: DEFAULT_HEADERS,
+    });
+  } catch (err) {
+    log.tier(
+      'ol-by-isbn (work-level fallback)',
+      `error ${err instanceof Error ? err.message : String(err)}`
+    );
+    return null;
+  }
+  if (!res.ok) {
+    log.tier(
+      'ol-by-isbn (work-level fallback)',
+      `GET ${url} → ${res.status} (skip)`
+    );
+    return null;
+  }
+  let data: { docs?: OpenLibraryDoc[] };
+  try {
+    data = (await res.json()) as { docs?: OpenLibraryDoc[] };
+  } catch {
+    log.tier(
+      'ol-by-isbn (work-level fallback)',
+      `GET ${url} → 200 → parse error`
+    );
+    return null;
+  }
+  const doc = data.docs?.[0];
+  if (!doc) {
+    log.tier(
+      'ol-by-isbn (work-level fallback)',
+      `GET ${url} → 200 → 0 docs (fall through to year-scoped)`
+    );
+    return null;
+  }
+  const lcc =
+    (doc.lcc && doc.lcc[0]) ||
+    (doc.lc_classifications && doc.lc_classifications[0]) ||
+    '';
+  const result: OlIsbnResult = {
+    publisher: typeof doc.publisher?.[0] === 'string' ? doc.publisher[0].trim() : '',
+    publicationYear:
+      doc.first_publish_year ||
+      parsePublishDateYear(doc.publish_date) ||
+      (doc.publish_year && doc.publish_year[0]) ||
+      0,
+    pageCount:
+      typeof doc.number_of_pages_median === 'number' && doc.number_of_pages_median > 0
+        ? doc.number_of_pages_median
+        : 0,
+    lcc,
+    title: doc.title?.trim() ?? '',
+    author: doc.author_name?.[0]?.trim() ?? '',
+    allAuthors:
+      doc.author_name && doc.author_name.length > 0 ? [...doc.author_name] : [],
+    subjects: doc.subject?.slice(0, 10) ?? [],
+    hadLcc: !!(doc.lcc?.[0] || doc.lc_classifications?.[0]),
+  };
+  log.tier('ol-by-isbn (work-level fallback)', `GET ${url} → 200 → matched`);
+  return result;
+}
+
 /**
  * Edition-specific lookup. Used by the "Match a specific edition" Reread
  * mode when the user has corrected year / publisher / ISBN to a specific
@@ -1203,97 +1398,72 @@ export async function lookupSpecificEdition(
   // cataloged under the editor in OL/ISBNdb/MARC/Wikidata. The cleaned
   // queryAuthor stays available for trace readability and provenance.
   const effectiveAuthor = isEditor ? '' : queryAuthor;
-  // 1) ISBN path — by far the most specific signal.
+  // 1) ISBN path — by far the most specific signal. Edition-level OL
+  //    endpoint first (publisher per ISBN), with the work-level
+  //    search.json as a fallback when the edition endpoint has no doc.
   if (hints.isbn) {
     const cleaned = hints.isbn.replace(/[^\dxX]/g, '');
     if (cleaned.length === 10 || cleaned.length === 13) {
-      try {
-        const url =
-          `https://openlibrary.org/search.json?isbn=${encodeURIComponent(cleaned)}` +
-          `&fields=key,title,author_name,isbn,publisher,first_publish_year,publish_year,publish_date,lcc,lc_classifications,subject`;
-        const res = await fetch(url, {
-          signal: AbortSignal.timeout(10000),
-          cache: 'no-store',
-          headers: DEFAULT_HEADERS,
-        });
-        if (!res.ok) {
-          log.tier('ol-by-isbn', `GET ${url} → ${res.status} (skip)`);
-        } else {
-          const data = (await res.json()) as { docs?: OpenLibraryDoc[] };
-          const doc = data.docs?.[0];
-          if (doc) {
-            const publicationYear =
-              doc.first_publish_year ||
-              parsePublishDateYear(doc.publish_date) ||
-              (doc.publish_year && doc.publish_year[0]) ||
-              hints.year ||
-              0;
-            const lcc = normalizeLcc(
-              (doc.lcc && doc.lcc[0]) ||
-                (doc.lc_classifications && doc.lc_classifications[0]) ||
-                ''
-            );
-            const finalLcc = lcc || normalizeLcc(await lookupLccByIsbn(cleaned));
-            // Initial provenance for LCC: OL doc was the primary source,
-            // SRU was the fallback. enrichWithIsbnFanout may upgrade to
-            // 'loc' or 'wikidata' if a stronger source fills an empty LCC.
-            const initialLccSource: 'ol' | 'loc' | 'wikidata' | 'none' =
-              doc.lcc?.[0] || doc.lc_classifications?.[0]
-                ? 'ol'
-                : finalLcc
-                  ? 'loc'
-                  : 'none';
-            const out: BookLookupResult = {
-              isbn: cleaned,
-              publisher: doc.publisher?.[0] ?? hints.publisher ?? '',
-              publicationYear,
-              lcc: finalLcc,
-              subjects: doc.subject?.slice(0, 10),
-              source: 'openlibrary',
-              // Title/author from the OL response — previously dropped
-              // (BookLookupResult has no `title`/`author`, only the
-              // canonical-* twins). Consumers (addManualBook,
-              // scan-pipeline's lookupViaServer) read these directly.
-              canonicalTitle: doc.title || undefined,
-              canonicalAuthor: doc.author_name?.[0] || undefined,
-              allAuthors:
-                doc.author_name && doc.author_name.length > 0
-                  ? [...doc.author_name]
-                  : undefined,
-            };
-            log.tier(
-              'ol-by-isbn',
-              `GET ${url} → ${res.status} → matched ${describeFilled(out)}`
-            );
-            // Phase-2 fan-out so MARC populates lcshSubjects, etc. The
-            // OL-by-ISBN tier alone never had this enrichment, which is
-            // why every Reread'd record was missing lcshSubjects.
-            const fanout = await enrichWithIsbnFanout(out, log, initialLccSource);
-            out.lccSource = fanout.lccSource;
-            const cover = buildCoverChain(
-              cleaned,
-              fanout.gbCoverUrl || undefined,
-              undefined,
-              out.coverUrlFallbacks
-            );
-            out.coverUrl = cover.primary || undefined;
-            out.coverUrlFallbacks =
-              cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
-            // Gap-fill on the Reread / matchEdition path. Without this,
-            // every Reread bypassed the post-Phase-2 gap-fill pass and
-            // landed records with empty lcshSubjects / pageCount / ddc /
-            // synopsis even when MARC and OL would have filled them.
-            const gapFillProv: BookRecordProvenance = {};
-            await runGapFill(out, log, gapFillProv);
-            const baseProv = inferProvenanceFromResult(out, out.lccSource ?? 'none');
-            attachProvenance(out, { ...baseProv, ...gapFillProv });
-            log.finish({ ...out, tier: 'ol-by-isbn' });
-            return out;
-          }
-          log.tier('ol-by-isbn', `GET ${url} → ${res.status} → 0 docs (fall through to year-scoped)`);
-        }
-      } catch (err) {
-        log.tier('ol-by-isbn', `error ${err instanceof Error ? err.message : String(err)}`);
+      let olResult = await fetchOlByIsbnEdition(cleaned, log);
+      if (!olResult) {
+        olResult = await fetchOlByIsbnSearch(cleaned, log);
+      }
+      if (olResult) {
+        const finalLcc =
+          normalizeLcc(olResult.lcc) || normalizeLcc(await lookupLccByIsbn(cleaned));
+        // Initial provenance for LCC: OL doc was the primary source,
+        // SRU was the fallback. enrichWithIsbnFanout may upgrade to
+        // 'loc' or 'wikidata' if a stronger source fills an empty LCC.
+        const initialLccSource: 'ol' | 'loc' | 'wikidata' | 'none' = olResult.hadLcc
+          ? 'ol'
+          : finalLcc
+            ? 'loc'
+            : 'none';
+        const out: BookLookupResult = {
+          isbn: cleaned,
+          publisher: olResult.publisher || hints.publisher || '',
+          publicationYear: olResult.publicationYear || hints.year || 0,
+          lcc: finalLcc,
+          subjects: olResult.subjects.length > 0 ? olResult.subjects : undefined,
+          source: 'openlibrary',
+          // Title/author from the OL response — previously dropped
+          // (BookLookupResult has no `title`/`author`, only the
+          // canonical-* twins). Consumers (addManualBook,
+          // scan-pipeline's lookupViaServer) read these directly.
+          canonicalTitle: olResult.title || undefined,
+          canonicalAuthor: olResult.author || undefined,
+          allAuthors:
+            olResult.allAuthors.length > 0 ? olResult.allAuthors : undefined,
+          // pageCount from edition endpoint when present; the work-level
+          // fallback can also surface number_of_pages_median. Either
+          // way, populating here saves the gap-fill pass a fetch.
+          pageCount: olResult.pageCount > 0 ? olResult.pageCount : undefined,
+        };
+        log.tier('ol-by-isbn', `matched ${describeFilled(out)}`);
+        // Phase-2 fan-out so MARC populates lcshSubjects, etc. The
+        // OL-by-ISBN tier alone never had this enrichment, which is
+        // why every Reread'd record was missing lcshSubjects.
+        const fanout = await enrichWithIsbnFanout(out, log, initialLccSource);
+        out.lccSource = fanout.lccSource;
+        const cover = buildCoverChain(
+          cleaned,
+          fanout.gbCoverUrl || undefined,
+          undefined,
+          out.coverUrlFallbacks
+        );
+        out.coverUrl = cover.primary || undefined;
+        out.coverUrlFallbacks =
+          cover.fallbacks.length > 0 ? cover.fallbacks : undefined;
+        // Gap-fill on the Reread / matchEdition path. Without this,
+        // every Reread bypassed the post-Phase-2 gap-fill pass and
+        // landed records with empty lcshSubjects / pageCount / ddc /
+        // synopsis even when MARC and OL would have filled them.
+        const gapFillProv: BookRecordProvenance = {};
+        await runGapFill(out, log, gapFillProv);
+        const baseProv = inferProvenanceFromResult(out, out.lccSource ?? 'none');
+        attachProvenance(out, { ...baseProv, ...gapFillProv });
+        log.finish({ ...out, tier: 'ol-by-isbn' });
+        return out;
       }
     } else {
       log.tier('ol-by-isbn', `skipped — hint ISBN length ${cleaned.length} not 10 or 13`);

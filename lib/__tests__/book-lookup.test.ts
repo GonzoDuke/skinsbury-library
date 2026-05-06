@@ -47,7 +47,7 @@ vi.mock('@/lib/lookup-utils', async () => {
 
 // Imports must come AFTER vi.mock() so the mocked module is in place
 // when book-lookup.ts evaluates its import bindings.
-const { lookupBook } = await import('@/lib/book-lookup');
+const { lookupBook, lookupSpecificEdition } = await import('@/lib/book-lookup');
 const lookupUtils = await import('@/lib/lookup-utils');
 
 // Cast the mocked exports back to vi.Mock for set-up convenience.
@@ -286,5 +286,145 @@ describe('lookupBook — partial LCC upgrade', () => {
     expect(prov?.lcc?.alternates?.length).toBeGreaterThan(0);
     const altValues = prov?.lcc?.alternates?.map((a) => a.value) ?? [];
     expect(altValues).toContain('HV5825');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 5 — Edition-level OL endpoint preferred over work-level for
+//          ISBN-direct lookup. Locks in the Cymbeline regression: the
+//          work-level search.json?isbn= returns the WORK's union-of-
+//          editions publisher list, where Signet Classics happens to
+//          be first; the edition-level /api/books?bibkeys=ISBN: returns
+//          the publisher of THAT specific ISBN's edition.
+// ---------------------------------------------------------------------------
+describe('lookupSpecificEdition — edition-level OL endpoint', () => {
+  it('prefers edition endpoint over search.json for ISBN-direct lookup', async () => {
+    // Track only the *tier-1 fallback* call to search.json. The
+    // Phase-2 fan-out also hits search.json?isbn= as part of its
+    // OL-by-ISBN gap-filler, but with a much narrower `&fields=` list.
+    // The tier-1 fallback URL includes `publisher` in its fields; the
+    // fan-out URL does not. Match on the discriminator.
+    let tier1SearchJsonCalled = false;
+    installFetchMock([
+      // Edition endpoint — the Folger publisher.
+      [
+        /openlibrary\.org\/api\/books\?bibkeys=ISBN:9781982156916/,
+        () => ({
+          'ISBN:9781982156916': {
+            title: 'Cymbeline',
+            authors: [{ name: 'William Shakespeare' }],
+            publishers: [{ name: 'Simon & Schuster' }],
+            publish_date: '2020',
+            number_of_pages: 384,
+            classifications: { lc_classifications: ['PR2807 .S5 2020'] },
+            subjects: [{ name: 'Drama, Renaissance' }],
+          },
+        }),
+      ],
+      // Tier-1 search.json fallback — what would be returned if the
+      // edition endpoint were skipped. Distinguished from the fan-out
+      // and gap-fill OL helpers by `author_name` appearing in the
+      // `&fields=` list (only tier-1's URL includes it).
+      [
+        /openlibrary\.org\/search\.json\?isbn=.+author_name/,
+        () => {
+          tier1SearchJsonCalled = true;
+          return {
+            docs: [
+              {
+                key: '/works/OLSIGNET',
+                title: 'Cymbeline',
+                author_name: ['William Shakespeare'],
+                isbn: ['9781982156916'],
+                publisher: ['Signet Classics'],
+                first_publish_year: 1998,
+                publish_year: [1998],
+                lcc: ['PR2807'],
+              },
+            ],
+          };
+        },
+      ],
+      // Phase-2 fan-out's OL gap-filler — narrower fields, returns
+      // empty so it doesn't poison anything.
+      [/openlibrary\.org\/search\.json\?isbn=/, () => ({ docs: [] })],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupSpecificEdition(
+      'Cymbeline',
+      'William Shakespeare',
+      { isbn: '9781982156916' }
+    );
+
+    // Most important assertion — the actual bug.
+    expect(result.publisher).toBe('Simon & Schuster');
+    expect(result.publisher).not.toBe('Signet Classics');
+    expect(result.isbn).toBe('9781982156916');
+    expect(result.publicationYear).toBe(2020);
+    expect(result.pageCount).toBe(384);
+    expect(result.lcc).toMatch(/^PR2807/);
+    // The work-level fallback was never consulted.
+    expect(tier1SearchJsonCalled).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 6 — Falls back to search.json when the edition endpoint
+//          returns no doc for the ISBN. Locks in the fallback path so
+//          ISBNs that exist in OL's work-level index but not its
+//          edition-level data still resolve.
+// ---------------------------------------------------------------------------
+describe('lookupSpecificEdition — work-level fallback', () => {
+  it('falls back to search.json when edition endpoint has no doc', async () => {
+    let editionEndpointCalled = false;
+    let searchJsonCalled = false;
+    installFetchMock([
+      // Edition endpoint — empty body (no `ISBN:...` key in the
+      // response object). Helper returns null and tier 1 falls through.
+      [
+        /openlibrary\.org\/api\/books\?bibkeys=ISBN:/,
+        () => {
+          editionEndpointCalled = true;
+          return {};
+        },
+      ],
+      // search.json fallback — returns a real doc.
+      [
+        /openlibrary\.org\/search\.json/,
+        () => {
+          searchJsonCalled = true;
+          return {
+            docs: [
+              {
+                key: '/works/OLFALLBACK',
+                title: 'Fallback Test Book',
+                author_name: ['Fallback Author'],
+                isbn: ['9780000000001'],
+                publisher: ['Fallback Press'],
+                first_publish_year: 2010,
+                publish_year: [2010],
+                lcc: ['PZ7'],
+                number_of_pages_median: 200,
+              },
+            ],
+          };
+        },
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupSpecificEdition(
+      'Fallback Test Book',
+      'Fallback Author',
+      { isbn: '9780000000001' }
+    );
+
+    expect(editionEndpointCalled).toBe(true);
+    expect(searchJsonCalled).toBe(true);
+    // Result built from search.json's doc.
+    expect(result.publisher).toBe('Fallback Press');
+    expect(result.publicationYear).toBe(2010);
+    expect(result.pageCount).toBe(200);
   });
 });
