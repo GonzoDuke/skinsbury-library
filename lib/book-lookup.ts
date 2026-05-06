@@ -1152,9 +1152,14 @@ export async function lookupSpecificEdition(
   if (isEditor) {
     log.tier(
       'edit-prefix',
-      `stripped "ed./eds." editor prefix for queries: author=${JSON.stringify(queryAuthor)} (was ${JSON.stringify(author)})`
+      `editor-attributed: dropping author from query params (was ${JSON.stringify(author)})`
     );
   }
+  // The author value sent to lookup APIs. For editor-attributed books
+  // the right thing is to query by title alone — anthologies aren't
+  // cataloged under the editor in OL/ISBNdb/MARC/Wikidata. The cleaned
+  // queryAuthor stays available for trace readability and provenance.
+  const effectiveAuthor = isEditor ? '' : queryAuthor;
   // 1) ISBN path — by far the most specific signal.
   if (hints.isbn) {
     const cleaned = hints.isbn.replace(/[^\dxX]/g, '');
@@ -1255,7 +1260,7 @@ export async function lookupSpecificEdition(
   // 2) Year-scoped search (with publisher tie-breaker).
   if (title && hints.year) {
     try {
-      const cleanedAuthor = cleanAuthorForQuery(queryAuthor);
+      const cleanedAuthor = cleanAuthorForQuery(effectiveAuthor);
       const shortTitle = stripSubtitle(title);
       const params = new URLSearchParams();
       params.set('title', shortTitle);
@@ -1276,7 +1281,7 @@ export async function lookupSpecificEdition(
         const docs = data.docs ?? [];
         // Prefer publisher match if hint provided.
         const publisherHint = (hints.publisher ?? '').toLowerCase().trim();
-        const cleanedAuthorForScore = cleanAuthorForQuery(queryAuthor);
+        const cleanedAuthorForScore = cleanAuthorForQuery(effectiveAuthor);
         const ranked = docs
           .filter((d) => !isStudyGuide(d))
           .map((d) => {
@@ -1367,7 +1372,7 @@ export async function lookupSpecificEdition(
   if (hints.isbn) {
     const cleaned = hints.isbn.replace(/[^\dxX]/g, '');
     if (cleaned.length === 10 || cleaned.length === 13) {
-      const hit = await lookupIsbndb(title, queryAuthor, cleaned, log);
+      const hit = await lookupIsbndb(title, effectiveAuthor, cleaned, log);
       if (hit && (hit.isbn || hit.publisher || hit.publicationYear)) {
         const sruLcc = await lookupLccByIsbn(cleaned);
         const isbndbTitle = hit.titleLong || hit.title || undefined;
@@ -1423,12 +1428,13 @@ export async function lookupSpecificEdition(
     }
   }
 
-  // 4) Fall back to the unscoped chain. Pass the editor-stripped
-  // queryAuthor — without this the fallback re-introduces "ed. Name"
-  // into lookupBook's cache key + downstream API queries, undoing
-  // the strip the entry-point did at top.
+  // 4) Fall back to the unscoped chain. Pass effectiveAuthor — for
+  // editor-attributed books that's empty (drops author from queries
+  // entirely); for normal books it's the cleaned queryAuthor.
+  // Without this, the fallback re-introduces editor or pre-strip
+  // values into lookupBook's cache key + downstream API queries.
   log.tier('fallback', 'invoking unscoped lookupBook');
-  return lookupBook(title, queryAuthor);
+  return lookupBook(title, effectiveAuthor);
 }
 
 const OL_FIELDS =
@@ -2049,6 +2055,11 @@ async function fetchOpenLibraryCandidates(
   p.set('limit', '10');
   p.set('fields', OL_FIELDS);
   const url = `https://openlibrary.org/search.json?${p.toString()}`;
+  // Marker for trace readers: when the author is deliberately omitted
+  // (editor-attributed lookup, or no spine author), the URL won't carry
+  // an &author= clause. Surfacing it here makes that intentional in the
+  // trace rather than ambiguous.
+  const noAuthorMarker = cleanedAuthor ? '' : ' (no author)';
   try {
     const res = await fetch(url, {
       signal: AbortSignal.timeout(12000),
@@ -2056,12 +2067,12 @@ async function fetchOpenLibraryCandidates(
       headers: DEFAULT_HEADERS,
     });
     if (!res.ok) {
-      log.tier('discover-ol', `GET ${url} → ${res.status} (skip)`);
+      log.tier('discover-ol', `GET ${url} → ${res.status} (skip)${noAuthorMarker}`);
       return [];
     }
     const data = (await res.json()) as { docs?: OpenLibraryDoc[] };
     const docs = data.docs ?? [];
-    log.tier('discover-ol', `GET ${url} → ${res.status} → ${docs.length} doc(s)`);
+    log.tier('discover-ol', `GET ${url} → ${res.status} → ${docs.length} doc(s)${noAuthorMarker}`);
     return docs.map<Candidate>((d) => ({ ...d, source: 'openlibrary' }));
   } catch (err) {
     log.tier('discover-ol', `error ${err instanceof Error ? err.message : String(err)}`);
@@ -2089,6 +2100,8 @@ async function fetchIsbndbCandidates(
     return [];
   }
   const url = `https://api2.isbndb.com/books/${encodeURIComponent(queryTokens)}`;
+  // See discover-ol for the noAuthor-marker rationale.
+  const noAuthorMarker = cleanedAuthor ? '' : ' (no author)';
   try {
     const res = await isbndbFetch(url, apiKey);
     if (!res) {
@@ -2096,12 +2109,12 @@ async function fetchIsbndbCandidates(
       return [];
     }
     if (!res.ok) {
-      log.tier('discover-isbndb', `GET ${url} → ${res.status} (skip)`);
+      log.tier('discover-isbndb', `GET ${url} → ${res.status} (skip)${noAuthorMarker}`);
       return [];
     }
     const data = (await res.json()) as { books?: IsbndbBook[] };
     const books = data.books ?? [];
-    log.tier('discover-isbndb', `GET ${url} → ${res.status} → ${books.length} book(s)`);
+    log.tier('discover-isbndb', `GET ${url} → ${res.status} → ${books.length} book(s)${noAuthorMarker}`);
     return books.map(isbndbToCandidate);
   } catch (err) {
     log.tier('discover-isbndb', `error ${err instanceof Error ? err.message : String(err)}`);
@@ -2157,6 +2170,17 @@ function cacheKeyForInput(title: string, author: string): string {
   const a = normalize(author);
   return `ta:${t}|${a}`;
 }
+
+/**
+ * Cache key for editor-attributed lookups — title only, no author
+ * component. Editor-attributed books are queried by title alone (the
+ * editor's name is not in any of the source databases as the work's
+ * author), so they share a single cache row with future title-only
+ * lookups of the same anthology rather than fragmenting per-editor.
+ */
+function cacheKeyForTitleOnly(title: string): string {
+  return `t:${normalize(title)}`;
+}
 function cacheKeyForIsbn(isbn: string): string {
   return `isbn:${isbn.replace(/[^\dxX]/g, '').toUpperCase()}`;
 }
@@ -2178,32 +2202,40 @@ export async function lookupBook(
   // Strip a leading "ed. " / "eds. " editor-marker prefix BEFORE any
   // cache lookup or downstream API query. Anthology editors get
   // tagged "ed. Name" by the Pass-B prompt; that prefix has to come
-  // off before queries hit OL / ISBNdb / GB / Wikidata, none of which
-  // index editors that way — and before the cache key is built, so
-  // pre-fix poisoned entries can't shadow a fresh attempt. The
-  // original `author` value still flows to the BookRecord display.
+  // off (and for editor-attributed books, the author has to be
+  // dropped from queries entirely) before queries hit OL / ISBNdb /
+  // GB / Wikidata. The original `author` value still flows to the
+  // BookRecord display.
   const { author: queryAuthor, isEditor } = stripEditorPrefix(author);
   if (isEditor) {
     log.tier(
       'edit-prefix',
-      `stripped "ed./eds." editor prefix for queries: author=${JSON.stringify(queryAuthor)} (was ${JSON.stringify(author)})`
+      `editor-attributed: dropping author from query params (was ${JSON.stringify(author)})`
     );
-    // Defensive: invalidate any cached failure stored under the
-    // un-stripped key from a pre-fix run. Without this, every
-    // subsequent Reread of an editor-attributed book re-finds the
-    // poisoned cache entry and returns the stale empty result before
-    // the strip-aware lookup ever fires.
-    const oldKey = cacheKeyForInput(title, author);
-    if (lookupCache.has(oldKey)) {
-      lookupCache.delete(oldKey);
-      log.tier('cache', `invalidated poisoned pre-strip entry under ${JSON.stringify(oldKey)}`);
+    // Defensive: invalidate poisoned cache entries from prior runs
+    // under either the raw "ed. Name" key or the cleaned-name `ta:`
+    // key. The new shape is `t:title` for editor-attributed lookups;
+    // any old entry would shadow a fresh attempt otherwise.
+    for (const candidate of [
+      cacheKeyForInput(title, author),
+      cacheKeyForInput(title, queryAuthor),
+    ]) {
+      if (lookupCache.has(candidate)) {
+        lookupCache.delete(candidate);
+        log.tier('cache', `invalidated poisoned entry under ${JSON.stringify(candidate)} (editor-attributed: keying as t:)`);
+      }
     }
   }
 
-  // Cache lookup. ISBN-keyed when we know one; otherwise title|author
-  // normalized — keyed off the cleaned queryAuthor so editor-prefixed
-  // and bare-author Rereads share a single cache row.
-  const taKey = cacheKeyForInput(title, queryAuthor);
+  // The author value sent to lookup APIs and used in the cache key.
+  // Empty for editor-attributed books so anthologies are queried by
+  // title alone; the cleaned name otherwise.
+  const effectiveAuthor = isEditor ? '' : queryAuthor;
+
+  // Cache lookup. Editor-attributed → title-only key; otherwise
+  // title|author. ISBN-keyed cache writes happen separately when a
+  // result lands (ISBN keys aren't author-dependent at all).
+  const taKey = isEditor ? cacheKeyForTitleOnly(title) : cacheKeyForInput(title, effectiveAuthor);
   const cached = lookupCache.get(taKey);
   if (cached) {
     log.tier('cache', `hit ${taKey} — returning cached result`);
@@ -2214,7 +2246,7 @@ export async function lookupBook(
   // Sanitized search-only copies. Originals still flow downstream for
   // display / grounding.
   const searchTitle = sanitizeForSearch(title);
-  const searchAuthor = sanitizeForSearch(queryAuthor);
+  const searchAuthor = sanitizeForSearch(effectiveAuthor);
   const cleanedAuthor = cleanAuthorForQuery(searchAuthor);
 
   let result: BookLookupResult = {
