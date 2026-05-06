@@ -85,7 +85,29 @@ Set in `.env.local` for local dev, in Vercel project settings for production. Se
 
 ## Deployment
 
-Pushing to `main` triggers a Vercel production deploy. Pull requests and other branches get preview URLs automatically. There's no `vercel.json` — `next.config.js` is the source of truth.
+Carnegie is wired to Vercel via the standard GitHub integration. There's no `vercel.json` — `next.config.js` is the source of truth.
+
+- **Production branch:** `main`. Every push to `main` updates [carnegielib.vercel.app](https://carnegielib.vercel.app).
+- **Preview deploys:** every push to any non-`main` branch gets its own preview URL automatically. PRs receive a comment from Vercel with the preview link; pushes without a PR are visible from the Vercel dashboard's Deployments tab.
+
+### Workflow
+
+Production should never receive an unverified change. Standard flow:
+
+1. Create a feature branch from `main` (`git checkout -b descriptive-name`).
+2. Commit and push the work to that branch.
+3. Vercel auto-deploys a preview at a branch-specific URL.
+4. Verify the change on the preview URL — visible behavior, dev-tools sanity, etc. The same `npx tsc --noEmit` + `npm run build` gate runs on Vercel; preview verification covers the runtime gap that local tests can't.
+5. Merge the branch into `main` (PR or fast-forward) only after the preview verification passes. The merge triggers the production deploy.
+
+One-shot config / documentation tweaks (this commit included) push directly to `main` because there's nothing to verify in a runtime preview. Anything that touches source code follows the branch-then-preview-then-merge flow.
+
+### Finding a preview URL
+
+- **Pushed to a branch with no PR:** Vercel dashboard → Carnegie project → Deployments. Newest deploy on the branch carries the URL.
+- **Opened a PR:** Vercel posts a comment on the PR within a minute or two of the push. Click the link.
+
+If a preview deploy fails, the Vercel dashboard shows the build log. Local `npm run build` should catch most failures before push.
 
 ## License
 
