@@ -434,36 +434,98 @@ interface ScoreHints {
   extractedSeries?: string;
 }
 
-function scoreDoc(
+/**
+ * Minimum total score a Phase 1 winner must reach to be returned as
+ * a confident match. Below this, the title-search candidate pool is
+ * weak enough that any "best" pick is more likely than not to be the
+ * wrong book — we'd rather bail out and let the no-Phase-1-winner
+ * fallbacks (or an explicit no-match return) take over.
+ *
+ * Calibration: the typical right answer scores 6+ (author full match
+ * = 3, exact title = 2, plus at least one of isbn/lcc/publisher).
+ * Wrong-edition picks for under-described books (no LCC, no ISBN,
+ * partial author match) tend to land in the 3–5 range. 6 catches
+ * the pathological cases without rejecting genuinely-good matches.
+ */
+const MIN_PHASE1_SCORE = 6;
+
+interface ScoreBreakdown {
+  total: number;
+  /** Per-rule contributions. Field names are short on purpose so the
+   *  trace line stays compact: e.g., "author:3 title:2 isbn:0 ...". */
+  rules: {
+    isbn: number;
+    lcc: number;
+    publisher: number;
+    year: number;
+    title: number;
+    author: number;
+    /** -3 when an ISBN starts with 9798 (KDP / self-published). */
+    kdp: number;
+    /** Combined spine-extracted edition (+1) and series (+2) bonuses. */
+    spine: number;
+    /** Tier-2 only: +4 when the user-provided publisher hint matches
+     *  the candidate's publisher list. Optional in the breakdown so
+     *  Phase 1 (which doesn't apply this rule) doesn't surface it. */
+    publisherHint?: number;
+  };
+}
+
+/** Format a ScoreBreakdown's rules into a trace-line-friendly string,
+ *  e.g., "author:3 title:2 isbn:1 publisher:1 year:1 lcc:0 kdp:0 spine:0". */
+function formatBreakdown(b: ScoreBreakdown): string {
+  const parts: string[] = [];
+  for (const [k, v] of Object.entries(b.rules)) {
+    if (typeof v === 'number') parts.push(`${k}:${v}`);
+  }
+  return parts.join(' ');
+}
+
+function scoreDocBreakdown(
   d: OpenLibraryDoc,
   title: string,
   author: string,
   hints?: ScoreHints
-): number {
-  let s = 0;
-  if (d.isbn && d.isbn.length > 0) s += 2;
-  if ((d.lcc && d.lcc.length > 0) || (d.lc_classifications && d.lc_classifications.length > 0)) s += 3;
-  if (d.publisher && d.publisher.length > 0) s += 1;
-  if (d.first_publish_year) s += 1;
-  if (titleExactMatch(title, d.title)) s += 2;
+): ScoreBreakdown {
+  const rules: ScoreBreakdown['rules'] = {
+    isbn: 0,
+    lcc: 0,
+    publisher: 0,
+    year: 0,
+    title: 0,
+    author: 0,
+    kdp: 0,
+    spine: 0,
+  };
+  if (d.isbn && d.isbn.length > 0) rules.isbn = 2;
+  if (
+    (d.lcc && d.lcc.length > 0) ||
+    (d.lc_classifications && d.lc_classifications.length > 0)
+  ) {
+    rules.lcc = 3;
+  }
+  if (d.publisher && d.publisher.length > 0) rules.publisher = 1;
+  if (d.first_publish_year) rules.year = 1;
+  if (titleExactMatch(title, d.title)) rules.title = 2;
   // Full-token author match is the strong signal; last-name match is a
   // coarser fallback worth a smaller bump.
-  if (authorMatches(author, d.author_name)) s += 3;
-  else if (authorLastNameMatch(author, d.author_name)) s += 1;
+  if (authorMatches(author, d.author_name)) rules.author = 3;
+  else if (authorLastNameMatch(author, d.author_name)) rules.author = 1;
   // KDP/self-published penalty
-  if (d.isbn && d.isbn.some((i) => i.replace(/[^\d]/g, '').startsWith('9798'))) s -= 3;
-
+  if (d.isbn && d.isbn.some((i) => i.replace(/[^\d]/g, '').startsWith('9798'))) {
+    rules.kdp = -3;
+  }
   // Spine-extracted edition: +1 when the spine's edition string appears
   // in the candidate's title (OL doesn't expose a top-level edition
   // field for search.json results, so the title is where edition
   // markers like "First Edition" / "Annotated" / "Rev. ed." most often
   // surface). Substring match, case-insensitive. Additive — never
   // penalizes a candidate that lacks the field.
+  let spineScore = 0;
   if (hints?.extractedEdition && d.title) {
     const ed = hints.extractedEdition.toLowerCase();
-    if (ed.length >= 3 && d.title.toLowerCase().includes(ed)) s += 1;
+    if (ed.length >= 3 && d.title.toLowerCase().includes(ed)) spineScore += 1;
   }
-
   // Spine-extracted series: +2 when the spine's series imprint appears
   // in the candidate's publisher list. The Penguin-Classics-says-Penguin-
   // Classics disambiguator. Bigger than the edition bonus because series
@@ -472,12 +534,37 @@ function scoreDoc(
   // is from Vintage, the spine evidence should tip the scale.
   if (hints?.extractedSeries && d.publisher && d.publisher.length > 0) {
     const series = hints.extractedSeries.toLowerCase();
-    if (series.length >= 3 && d.publisher.some((p) => p.toLowerCase().includes(series))) {
-      s += 2;
+    if (
+      series.length >= 3 &&
+      d.publisher.some((p) => p.toLowerCase().includes(series))
+    ) {
+      spineScore += 2;
     }
   }
+  rules.spine = spineScore;
 
-  return s;
+  const total =
+    rules.isbn +
+    rules.lcc +
+    rules.publisher +
+    rules.year +
+    rules.title +
+    rules.author +
+    rules.kdp +
+    rules.spine;
+  return { total, rules };
+}
+
+/** Thin wrapper preserved for legacy callers (pickBestDoc, the one
+ *  redundant winner-line log call). New code should prefer
+ *  scoreDocBreakdown for the per-rule trace. */
+function scoreDoc(
+  d: OpenLibraryDoc,
+  title: string,
+  author: string,
+  hints?: ScoreHints
+): number {
+  return scoreDocBreakdown(d, title, author, hints).total;
 }
 
 function pickBestDoc(
@@ -1502,21 +1589,67 @@ export async function lookupSpecificEdition(
                 extractedSeries: options.extractedSeries || undefined,
               }
             : undefined;
+        // Score each non-study-guide doc with full breakdown so the
+        // top-3 trace and threshold check work the same as Phase 1.
+        // Tier 2 adds a +4 publisherHint rule on top of the standard
+        // scoreDoc rules — that contribution is folded into the
+        // breakdown so it shows up in the trace line.
         const ranked = docs
           .filter((d) => !isStudyGuide(d))
           .map((d) => {
-            let score = scoreDoc(d, title, cleanedAuthorForScore, scoreHints);
+            const breakdown = scoreDocBreakdown(d, title, cleanedAuthorForScore, scoreHints);
             if (publisherHint && d.publisher) {
               const pubMatch = d.publisher.some((p) =>
                 p.toLowerCase().includes(publisherHint) ||
                 publisherHint.includes(p.toLowerCase())
               );
-              if (pubMatch) score += 4;
+              if (pubMatch) {
+                breakdown.rules.publisherHint = 4;
+                breakdown.total += 4;
+              }
             }
-            return { d, score };
+            return { d, breakdown };
           })
-          .sort((a, b) => b.score - a.score);
-        const best = ranked[0]?.d;
+          .sort((a, b) => b.breakdown.total - a.breakdown.total);
+
+        // Top-3 trace block — same format as Phase 1.
+        if (ranked.length > 0) {
+          log.tier('ol-year-scoped', 'top candidates considered:');
+          for (let i = 0; i < Math.min(3, ranked.length); i++) {
+            const { d, breakdown } = ranked[i];
+            log.tier(
+              'ol-year-scoped',
+              `  [${i + 1}] score=${breakdown.total} title=${JSON.stringify(d.title ?? '')} — ${formatBreakdown(breakdown)}`
+            );
+          }
+        }
+
+        const top = ranked[0];
+        // Below-threshold bail-out — fall through to tier 3 (unscoped
+        // lookupBook) rather than save a low-scoring wrong-edition
+        // year-scoped pick.
+        const belowThreshold = !!top && top.breakdown.total < MIN_PHASE1_SCORE;
+        // Relevance bail-out — see the matching block in
+        // pickBestCandidate. Same rule: a score that clears the floor
+        // entirely from metadata-presence rules with no title/author
+        // signal isn't a real match.
+        const noRelevance =
+          !!top &&
+          !belowThreshold &&
+          top.breakdown.rules.title === 0 &&
+          top.breakdown.rules.author === 0;
+        if (belowThreshold) {
+          log.tier(
+            'ol-year-scoped',
+            `highest score=${top.breakdown.total} below threshold=${MIN_PHASE1_SCORE} — returning no-match (fallbacks will run)`
+          );
+        } else if (noRelevance) {
+          log.tier(
+            'ol-year-scoped',
+            `winner score=${top.breakdown.total} title:0 author:0 — no relevance signal, returning no-match`
+          );
+        }
+        const best = top && !belowThreshold && !noRelevance ? top.d : undefined;
         if (best) {
           const isbn = pickIsbn(best.isbn);
           const publicationYear =
@@ -2352,8 +2485,9 @@ function pickBestCandidate(
   candidates: Candidate[],
   title: string,
   author: string,
-  hints?: ScoreHints
-): Candidate | undefined {
+  hints?: ScoreHints,
+  log?: LookupLogger
+): { winner: Candidate; score: number; breakdown: ScoreBreakdown } | undefined {
   if (candidates.length === 0) return undefined;
   // Filter out study guides + companion texts BEFORE ranking.
   const filtered = candidates.filter((d) => !isStudyGuide(d));
@@ -2365,16 +2499,62 @@ function pickBestCandidate(
       (author && authorMatches(author, d.author_name))
   );
   const pool = relevant.length > 0 ? relevant : filtered;
-  let best: Candidate | undefined;
-  let bestScore = -Infinity;
-  for (const d of pool) {
-    const s = scoreDoc(d, title, author, hints);
-    if (s > bestScore) {
-      bestScore = s;
-      best = d;
+
+  // Score every candidate with breakdown so the top-3 trace can show
+  // each rule's actual contribution.
+  const scored = pool
+    .map((d) => ({ d, breakdown: scoreDocBreakdown(d, title, author, hints) }))
+    .sort((a, b) => b.breakdown.total - a.breakdown.total);
+
+  // Top-3 trace block — primary observability for "why did this win?"
+  // and "what did it beat?" diagnoses.
+  if (log) {
+    log.tier('phase-1', 'top candidates considered:');
+    for (let i = 0; i < Math.min(3, scored.length); i++) {
+      const { d, breakdown } = scored[i];
+      log.tier(
+        'phase-1',
+        `  [${i + 1}] score=${breakdown.total} source=${d.source} title=${JSON.stringify(d.title ?? '')} — ${formatBreakdown(breakdown)}`
+      );
     }
   }
-  return best;
+
+  const top = scored[0];
+  if (!top) return undefined;
+
+  // Below-threshold bail-out — return undefined so the caller treats
+  // this as "no Phase 1 winner" and the no-Phase-1-winner fallbacks
+  // (or the caller's own no-match path) take over rather than us
+  // confidently saving a low-scoring wrong-edition pick.
+  if (top.breakdown.total < MIN_PHASE1_SCORE) {
+    log?.tier(
+      'phase-1',
+      `highest score=${top.breakdown.total} below threshold=${MIN_PHASE1_SCORE} — returning no-match (fallbacks will run)`
+    );
+    return undefined;
+  }
+
+  // Relevance bail-out — even when total >= MIN_PHASE1_SCORE, the
+  // winner must show at least one relevance signal (title-token or
+  // author-token). A score of 7 entirely from metadata-presence rules
+  // (isbn:2 lcc:3 publisher:1 year:1) with title:0 author:0 is a
+  // no-match in disguise — produced by under-described queries like
+  // "The Portable" with empty author, where any well-cataloged book
+  // with an isbn+lcc+publisher trips the threshold without actually
+  // matching what was searched.
+  if (top.breakdown.rules.title === 0 && top.breakdown.rules.author === 0) {
+    log?.tier(
+      'phase-1',
+      `winner score=${top.breakdown.total} title:0 author:0 — no relevance signal, returning no-match`
+    );
+    return undefined;
+  }
+
+  log?.tier(
+    'phase-1',
+    `winner [1] source=${top.d.source} score=${top.breakdown.total}`
+  );
+  return { winner: top.d, score: top.breakdown.total, breakdown: top.breakdown };
 }
 
 // ---------------------------------------------------------------------------
@@ -2518,16 +2698,15 @@ export async function lookupBook(
           extractedSeries: options.extractedSeries || undefined,
         }
       : undefined;
-  const winner = pickBestCandidate(candidates, searchTitle, cleanedAuthor, scoreHints);
-  if (winner) {
-    log.tier(
-      'phase-1',
-      `winner source=${winner.source} title=${JSON.stringify(winner.title ?? '')} score=${scoreDoc(
-        winner,
-        searchTitle,
-        cleanedAuthor
-      )}`
-    );
+  const pickResult = pickBestCandidate(
+    candidates,
+    searchTitle,
+    cleanedAuthor,
+    scoreHints,
+    log
+  );
+  if (pickResult) {
+    const winner = pickResult.winner;
 
     // Materialize the winner into the shared BookLookupResult shape.
     const isbn = pickIsbn(winner.isbn);
@@ -2589,7 +2768,11 @@ export async function lookupBook(
       }
     }
   } else {
-    log.tier('phase-1', `no winner across ${candidates.length} candidate(s)`);
+    // pickBestCandidate returns undefined for two cases — empty pool
+    // (no candidates at all) or all-below-threshold. In both cases
+    // we treat it as "no Phase 1 winner" and let the title-only
+    // fallbacks downstream attempt to recover.
+    log.tier('phase-1', `no Phase-1 winner across ${candidates.length} candidate(s)`);
   }
 
   // -------------------------------------------------------------------------
