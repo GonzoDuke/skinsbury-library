@@ -519,3 +519,118 @@ describe('lookupBook — Phase 1 above-threshold winner', () => {
     expect(result.lcc).toMatch(/^PZ7/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Test 9 — Phase 1 winner with score above threshold but title:0 and
+//          author:0 returns no match. Locks in the relevance
+//          requirement: even score=7+ candidates must show at least
+//          one of (title-token match, author-token match) to be
+//          adopted as a winner. Otherwise the score is entirely from
+//          metadata-presence rules and the candidate isn't actually
+//          related to the query.
+//
+// Production failure mode this guards against: a manual entry like
+// "The Portable" with empty author hits dozens of well-cataloged
+// "The Portable X" books, all scoring 7 from isbn+lcc+publisher+year
+// alone, none of them actually matching what was searched.
+// ---------------------------------------------------------------------------
+describe('lookupBook — Phase 1 relevance requirement', () => {
+  it('returns source="none" when winner has score >= threshold but title:0 and author:0', async () => {
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              key: '/works/OLNORELEVANCE',
+              // Title doesn't match the query at all (no substring,
+              // no exact). Author doesn't share any tokens with the
+              // query author. Score will be 7 from metadata only.
+              title: 'Random Unrelated Book',
+              author_name: ['Different Person'],
+              isbn: ['9780000000003'],
+              publisher: ['Some Press'],
+              first_publish_year: 2010,
+              publish_year: [2010],
+              lcc: ['PZ7 .R36 2010'],
+              subject: [],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupBook('Whozit Whatsit Query', 'Joe Schmoe');
+
+    // Relevance bail-out → no Phase-1 winner.
+    expect(result.source).toBe('none');
+    expect(result.isbn).toBe('');
+  });
+
+  it('returns the winner when score is above threshold and author>0 (even with title:0)', async () => {
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              key: '/works/OLAUTHORONLY',
+              // Title doesn't substring-match the query but author
+              // does. Score: isbn:2 + lcc:3 + publisher:1 + year:1 +
+              // title:0 + author:3 = 10. Relevance present via author.
+              title: 'A Different Book Name',
+              author_name: ['John Smith'],
+              isbn: ['9780000000004'],
+              publisher: ['Author Press'],
+              first_publish_year: 2017,
+              publish_year: [2017],
+              lcc: ['PZ7 .S56 2017'],
+              subject: [],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupBook('Some Lookup Query Title', 'John Smith');
+
+    expect(result.source).toBe('openlibrary');
+    expect(result.isbn).toBe('9780000000004');
+    expect(result.publisher).toBe('Author Press');
+  });
+
+  it('returns the winner when score is above threshold and title>0 (even with author:0)', async () => {
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              key: '/works/OLTITLEONLY',
+              // Title exact-matches the query but author doesn't.
+              // Score: isbn:2 + lcc:3 + publisher:1 + year:1 +
+              // title:2 + author:0 = 9. Relevance present via title.
+              title: 'Exact Match Title',
+              author_name: ['Some Different Person'],
+              isbn: ['9780000000005'],
+              publisher: ['Title Press'],
+              first_publish_year: 2019,
+              publish_year: [2019],
+              lcc: ['PZ7 .T58 2019'],
+              subject: [],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupBook('Exact Match Title', 'Mismatched Author');
+
+    expect(result.source).toBe('openlibrary');
+    expect(result.isbn).toBe('9780000000005');
+    expect(result.publisher).toBe('Title Press');
+  });
+});

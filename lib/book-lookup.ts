@@ -1628,13 +1628,28 @@ export async function lookupSpecificEdition(
         // Below-threshold bail-out — fall through to tier 3 (unscoped
         // lookupBook) rather than save a low-scoring wrong-edition
         // year-scoped pick.
-        if (top && top.breakdown.total < MIN_PHASE1_SCORE) {
+        const belowThreshold = !!top && top.breakdown.total < MIN_PHASE1_SCORE;
+        // Relevance bail-out — see the matching block in
+        // pickBestCandidate. Same rule: a score that clears the floor
+        // entirely from metadata-presence rules with no title/author
+        // signal isn't a real match.
+        const noRelevance =
+          !!top &&
+          !belowThreshold &&
+          top.breakdown.rules.title === 0 &&
+          top.breakdown.rules.author === 0;
+        if (belowThreshold) {
           log.tier(
             'ol-year-scoped',
             `highest score=${top.breakdown.total} below threshold=${MIN_PHASE1_SCORE} — returning no-match (fallbacks will run)`
           );
+        } else if (noRelevance) {
+          log.tier(
+            'ol-year-scoped',
+            `winner score=${top.breakdown.total} title:0 author:0 — no relevance signal, returning no-match`
+          );
         }
-        const best = top && top.breakdown.total >= MIN_PHASE1_SCORE ? top.d : undefined;
+        const best = top && !belowThreshold && !noRelevance ? top.d : undefined;
         if (best) {
           const isbn = pickIsbn(best.isbn);
           const publicationYear =
@@ -2515,6 +2530,22 @@ function pickBestCandidate(
     log?.tier(
       'phase-1',
       `highest score=${top.breakdown.total} below threshold=${MIN_PHASE1_SCORE} — returning no-match (fallbacks will run)`
+    );
+    return undefined;
+  }
+
+  // Relevance bail-out — even when total >= MIN_PHASE1_SCORE, the
+  // winner must show at least one relevance signal (title-token or
+  // author-token). A score of 7 entirely from metadata-presence rules
+  // (isbn:2 lcc:3 publisher:1 year:1) with title:0 author:0 is a
+  // no-match in disguise — produced by under-described queries like
+  // "The Portable" with empty author, where any well-cataloged book
+  // with an isbn+lcc+publisher trips the threshold without actually
+  // matching what was searched.
+  if (top.breakdown.rules.title === 0 && top.breakdown.rules.author === 0) {
+    log?.tier(
+      'phase-1',
+      `winner score=${top.breakdown.total} title:0 author:0 — no relevance signal, returning no-match`
     );
     return undefined;
   }
