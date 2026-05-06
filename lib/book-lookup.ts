@@ -1423,9 +1423,12 @@ export async function lookupSpecificEdition(
     }
   }
 
-  // 4) Fall back to the unscoped chain.
+  // 4) Fall back to the unscoped chain. Pass the editor-stripped
+  // queryAuthor — without this the fallback re-introduces "ed. Name"
+  // into lookupBook's cache key + downstream API queries, undoing
+  // the strip the entry-point did at top.
   log.tier('fallback', 'invoking unscoped lookupBook');
-  return lookupBook(title, author);
+  return lookupBook(title, queryAuthor);
 }
 
 const OL_FIELDS =
@@ -2172,29 +2175,40 @@ export async function lookupBook(
     return empty;
   }
 
-  // Cache lookup. ISBN-keyed when we know one; otherwise title|author
-  // normalized. Avoids hitting paid ISBNdb a second time for the same
-  // book inside a batch + survives across requests in a warm Vercel
-  // function instance.
-  const taKey = cacheKeyForInput(title, author);
-  const cached = lookupCache.get(taKey);
-  if (cached) {
-    log.tier('cache', `hit ${taKey} — returning cached result`);
-    log.finish(cached);
-    return cached;
-  }
-
-  // Strip a leading "ed. " / "eds. " editor-marker prefix before any
-  // downstream API query. Anthology editors get tagged "ed. Name" by
-  // the Pass-B prompt; that prefix has to come off before queries hit
-  // OL / ISBNdb / GB / Wikidata, none of which index editors that way.
-  // The original `author` value still flows to the BookRecord display.
+  // Strip a leading "ed. " / "eds. " editor-marker prefix BEFORE any
+  // cache lookup or downstream API query. Anthology editors get
+  // tagged "ed. Name" by the Pass-B prompt; that prefix has to come
+  // off before queries hit OL / ISBNdb / GB / Wikidata, none of which
+  // index editors that way — and before the cache key is built, so
+  // pre-fix poisoned entries can't shadow a fresh attempt. The
+  // original `author` value still flows to the BookRecord display.
   const { author: queryAuthor, isEditor } = stripEditorPrefix(author);
   if (isEditor) {
     log.tier(
       'edit-prefix',
       `stripped "ed./eds." editor prefix for queries: author=${JSON.stringify(queryAuthor)} (was ${JSON.stringify(author)})`
     );
+    // Defensive: invalidate any cached failure stored under the
+    // un-stripped key from a pre-fix run. Without this, every
+    // subsequent Reread of an editor-attributed book re-finds the
+    // poisoned cache entry and returns the stale empty result before
+    // the strip-aware lookup ever fires.
+    const oldKey = cacheKeyForInput(title, author);
+    if (lookupCache.has(oldKey)) {
+      lookupCache.delete(oldKey);
+      log.tier('cache', `invalidated poisoned pre-strip entry under ${JSON.stringify(oldKey)}`);
+    }
+  }
+
+  // Cache lookup. ISBN-keyed when we know one; otherwise title|author
+  // normalized — keyed off the cleaned queryAuthor so editor-prefixed
+  // and bare-author Rereads share a single cache row.
+  const taKey = cacheKeyForInput(title, queryAuthor);
+  const cached = lookupCache.get(taKey);
+  if (cached) {
+    log.tier('cache', `hit ${taKey} — returning cached result`);
+    log.finish(cached);
+    return cached;
   }
 
   // Sanitized search-only copies. Originals still flow downstream for
