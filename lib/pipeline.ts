@@ -1638,55 +1638,23 @@ export async function rereadBook(
     };
   }
 
-  // Don't-downgrade LCC decision (mirrors buildBookFromCrop). The
-  // simple "lccFromSpine || lookup.lcc" rule used to fire would
-  // overwrite a complete database LCC with a partial spine LCC; the
-  // helper preserves the more-specific value and demotes the loser
-  // into the LCC provenance alternates.
-  const lccDecision = decideLccFromSources({
-    spine: lccFromSpine,
-    lookup: lookup.lcc || '',
-    lookupSource: lookup.lcc ? lookup.lccSource ?? 'ol' : 'none',
-  });
-  let finalLcc = lccDecision.winner;
-  let lccSource: BookRecord['lccSource'] = lccDecision.lccSource;
-  const rereadLccAlternateForProvenance = lccDecision.alternate;
-
-  // DDC + edition + series gap-fills from the reread's sticker extractions.
-  if (rereadExtractedDdc && !lookup.ddc) lookup.ddc = rereadExtractedDdc;
-  if (rereadExtractedEdition && !lookup.edition) lookup.edition = rereadExtractedEdition;
-  if (rereadExtractedSeries && !lookup.series) lookup.series = rereadExtractedSeries;
-
-  // Author-pattern enrichment from the local ledger. Same call as
-  // buildBookFromCrop / addManualBook — runs BEFORE the model-LCC
-  // fallback so the personalized signal beats the Sonnet best-guess.
+  // Author-pattern enrichment runs FIRST so the personalized signal is
+  // in scope when resolveLcc fires its Sonnet Tier-6 fallback.
   const rereadAuthorLF = author
     ? toAuthorLastFirst(author)
     : current.authorLF || '';
   const rereadPattern = applyAuthorPatternEnrichment(lookup, rereadAuthorLF);
 
-  // Tier 6 inference (same fallback as buildBookFromCrop).
-  if (!isCompleteLcc(finalLcc) && title && author) {
-    try {
-      const inferred = await inferLccClient({
-        title,
-        author,
-        publisher: lookup.publisher,
-        publicationYear: lookup.publicationYear,
-      });
-      if (inferred.lcc && inferred.confidence !== 'LOW') {
-        const normalized = normalizeLcc(inferred.lcc);
-        // Don't downgrade: only overwrite a partial LCC with a complete one,
-        // or fill an empty LCC with whatever the model returned.
-        if (isCompleteLcc(normalized) || !finalLcc) {
-          finalLcc = normalized;
-          lccSource = 'inferred';
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }
+  // LCC resolution: spine vs lookup don't-downgrade + Sonnet fallback.
+  // Single shared helper so buildBookFromCrop / rereadBook produce
+  // identical outcomes from identical inputs.
+  const { finalLcc, lccSource, alternate: rereadLccAlternateForProvenance } =
+    await resolveLcc({
+      spine: lccFromSpine,
+      lookup,
+      title,
+      author,
+    });
 
   // Tag inference: ONLY when the user's current tag list is empty.
   // Otherwise their manual tag curation is authoritative — a reread is for
@@ -1734,118 +1702,105 @@ export async function rereadBook(
     }
   }
 
-  // Deterministic Fiction tag — only when fresh inference ran (tags
-  // is non-null). Reread paths that skipped inference because the user
-  // already had curated tags should leave their formTags alone.
-  if (tags) {
-    tags.formTags = applyFictionFormTag(
-      tags.formTags,
-      finalLcc,
-      lookup.lcshSubjects ?? lookup.subjects
-    );
-  }
-
-  const order = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const;
-  // If we ran tag inference, factor it in; otherwise use the grounded
-  // confidence directly (don't penalize the user just because we skipped
-  // tagging).
-  const combinedConfidence = tags
-    ? order[grounded.confidence] <= order[tags.confidence]
-      ? grounded.confidence
-      : tags.confidence
-    : grounded.confidence;
-
-  const titleCased = toTitleCase(title);
-
-  // Build the patch surgically: include tag fields ONLY when we actually
-  // ran fresh inference. Do NOT touch the `original` snapshot — that's the
-  // baseline the BookCard's "edited" detection compares against, and
-  // resetting it causes user edits to be lost on subsequent rereads (the
-  // edit no longer differs from the new "original", so the next reread
-  // overwrites it with the AI's stale read).
-  const patch: Partial<BookRecord> = {
-    title: titleCased,
-    author,
-    authorLF: toAuthorLastFirst(author),
-    isbn: lookup.isbn,
-    publisher: lookup.publisher,
-    publicationYear: lookup.publicationYear,
-    lcc: finalLcc,
-    confidence: combinedConfidence,
-    warnings: grounded.warnings,
-    lookupSource: lookup.source,
-    ddc: lookup.ddc,
-    lccDerivedFromDdc: lookup.lccDerivedFromDdc,
-    lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
-    inferredDomains: tags?.inferredDomains,
-    domainConfidence: tags?.domainConfidence,
-    lccSource,
-    coverUrl: lookup.coverUrl,
-    // Phase-3 enrichment passthrough — surgical, only sets what the
-    // lookup returned. undefined values won't overwrite existing data.
-    canonicalTitle: lookup.canonicalTitle,
-    subtitle: lookup.subtitle,
-    allAuthors: lookup.allAuthors,
-    synopsis: lookup.synopsis,
-    pageCount: lookup.pageCount,
-    edition: lookup.edition,
-    binding: lookup.binding,
-    language: lookup.language,
-    series: lookup.series,
-    lcshSubjects: lookup.lcshSubjects,
-    marcGenres: lookup.marcGenres,
-    coverUrlFallbacks: lookup.coverUrlFallbacks,
+  // Tag inference output for assembly. When fresh inference ran (tags
+  // non-null), pass it through so Fiction-tag derivation + combined
+  // confidence apply. When inference was skipped because the user
+  // already had curated tags, synthesize an InferTagsResult from the
+  // current record so assembleBookRecord doesn't overwrite formTags
+  // with an empty array.
+  const tagsForAssemble: InferTagsResult = tags ?? {
+    genreTags: current.genreTags,
+    formTags: current.formTags,
+    confidence: current.confidence,
+    reasoning: current.reasoning,
+    inferredDomains: current.inferredDomains,
+    domainConfidence: current.domainConfidence,
   };
-  if (tags) {
-    patch.genreTags = tags.genreTags;
-    patch.formTags = tags.formTags;
-    patch.reasoning = tags.reasoning;
-  }
 
-  // Reread provenance: a fresh determination replaces the prior map, but
-  // user-edited fields keep their value AND their 'user-edit' source. The
-  // patch drops any field key the old record had user-edited so the
-  // reducer's spread doesn't overwrite the user's value.
-  const rereadAuthorLFOut = patch.authorLF ?? current.authorLF ?? '';
-  const freshProv = buildBookProvenance({
+  // Delegate the back-half of assembly (Fiction tag, combined confidence,
+  // Title Case, canonical-title rule, authorLF, provenance with spine
+  // overrides + LCC alternate, user-edit-preserving merge against the
+  // prior record) to the shared helper.
+  const assembled = await assembleBookRecord({
     lookup,
-    displayTitle: titleCased,
-    displayAuthor: author,
-    authorLF: rereadAuthorLFOut,
-    useCanonical: USE_CANONICAL_TITLES && lookup.source !== 'none',
+    spineRead: current.spineRead,
+    spineFields: {
+      title,
+      author,
+      lcc: lccFromSpine,
+      confidence,
+      extractedCallNumber: rereadExtractedDdc
+        ? rereadExtractedDdc
+        : lccFromSpine === (current.spineRead.extractedCallNumber ?? '')
+          ? current.spineRead.extractedCallNumber
+          : undefined,
+      extractedCallNumberSystem: rereadExtractedDdc
+        ? 'ddc'
+        : current.spineRead.extractedCallNumberSystem,
+      extractedEdition: rereadExtractedEdition || undefined,
+      extractedSeries: rereadExtractedSeries || undefined,
+    },
     finalLcc,
     lccSource,
+    lccAlternate: rereadLccAlternateForProvenance,
+    tags: tagsForAssemble,
+    groundedConfidence: grounded.confidence,
+    warnings: grounded.warnings,
+    sourcePhoto: current.sourcePhoto,
+    priorRecord: current,
   });
-  // Spine-source overrides — same logic as buildBookFromCrop. Tag the
-  // ddc / edition / series provenance entries as 'spine-read' when the
-  // value on the lookup result actually came from the OCR'd spine.
-  const rereadProvTs = new Date().toISOString();
-  if (rereadExtractedDdc && lookup.ddc === rereadExtractedDdc) {
-    freshProv.ddc = { source: 'spine-read', timestamp: rereadProvTs };
+
+  // Cherry-pick patch fields. Reread doesn't touch `original`, status,
+  // sourcePhoto, batchLabel/Notes, manuallyAdded/scannedFromBarcode,
+  // duplicateGroup et al. — those stay on the prior record untouched.
+  const patch: Partial<BookRecord> = {
+    title: assembled.title,
+    author: assembled.author,
+    authorLF: assembled.authorLF,
+    isbn: assembled.isbn,
+    publisher: assembled.publisher,
+    publicationYear: assembled.publicationYear,
+    lcc: assembled.lcc,
+    confidence: assembled.confidence,
+    warnings: assembled.warnings,
+    lookupSource: assembled.lookupSource,
+    ddc: assembled.ddc,
+    lccDerivedFromDdc: assembled.lccDerivedFromDdc,
+    lccDerivedFromAuthorPattern: assembled.lccDerivedFromAuthorPattern,
+    inferredDomains: assembled.inferredDomains,
+    domainConfidence: assembled.domainConfidence,
+    lccSource: assembled.lccSource,
+    coverUrl: assembled.coverUrl,
+    canonicalTitle: assembled.canonicalTitle,
+    subtitle: assembled.subtitle,
+    allAuthors: assembled.allAuthors,
+    synopsis: assembled.synopsis,
+    pageCount: assembled.pageCount,
+    edition: assembled.edition,
+    binding: assembled.binding,
+    language: assembled.language,
+    series: assembled.series,
+    lcshSubjects: assembled.lcshSubjects,
+    marcGenres: assembled.marcGenres,
+    coverUrlFallbacks: assembled.coverUrlFallbacks,
+    provenance: assembled.provenance,
+  };
+  if (tags) {
+    patch.genreTags = assembled.genreTags;
+    patch.formTags = assembled.formTags;
+    patch.reasoning = assembled.reasoning;
   }
-  if (rereadExtractedEdition && lookup.edition === rereadExtractedEdition) {
-    freshProv.edition = { source: 'spine-read', timestamp: rereadProvTs };
-  }
-  if (rereadExtractedSeries && lookup.series === rereadExtractedSeries) {
-    freshProv.series = { source: 'spine-read', timestamp: rereadProvTs };
-  }
-  if (rereadLccAlternateForProvenance && freshProv.lcc) {
-    const existing = freshProv.lcc.alternates ?? [];
-    freshProv.lcc = {
-      ...freshProv.lcc,
-      alternates: [...existing, rereadLccAlternateForProvenance],
-    };
-  }
-  const mergedProv: BookRecordProvenance = { ...freshProv };
-  const oldProv = current.provenance ?? {};
+  // assembleBookRecord's merge step preserved user-edited fields from
+  // current.provenance — for those fields the assembled values equal
+  // the prior values, so dropping them from the patch keeps the
+  // reducer's spread idempotent. Without this, the patch would carry
+  // the (preserved) user value redundantly; the explicit delete makes
+  // the no-op visible to anyone diffing patches in dev tools.
   for (const field of PROVENANCE_FIELDS) {
-    const priorEntry = oldProv[field];
-    if (priorEntry?.source === 'user-edit') {
+    if (current.provenance?.[field]?.source === 'user-edit') {
       delete (patch as Record<string, unknown>)[field];
-      mergedProv[field] = priorEntry;
     }
   }
-  patch.provenance = mergedProv;
 
   return { ok: true, patch };
 }
