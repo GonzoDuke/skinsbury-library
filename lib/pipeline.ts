@@ -1181,16 +1181,85 @@ export async function retagBook(book: BookRecord): Promise<{
     ? mergeUnique(book.formTags, inferred.formTags)
     : inferred.formTags;
 
+  // Run the merged tags through the shared assembler so Fiction-tag
+  // derivation fires uniformly across all four entry points. retag
+  // previously skipped this step; aligning it means a book whose
+  // bulk-retag would otherwise lose its deterministic Fiction tag
+  // (because the model isn't asked for it) now keeps it. The lookup
+  // shape is synthesized from the prior record so assemble has the
+  // LCC + LCSH it needs for the Fiction rule.
+  const synthesizedLookup: BookLookupResult = {
+    isbn: book.isbn,
+    publisher: book.publisher,
+    publicationYear: book.publicationYear,
+    lcc: book.lcc,
+    source: book.lookupSource,
+    canonicalTitle: book.canonicalTitle,
+    canonicalAuthor: book.author,
+    allAuthors: book.allAuthors,
+    subjects: book.lcshSubjects,
+    lcshSubjects: book.lcshSubjects,
+    ddc: book.ddc,
+    edition: book.edition,
+    series: book.series,
+    binding: book.binding,
+    language: book.language,
+    pageCount: book.pageCount,
+    synopsis: book.synopsis,
+    coverUrl: book.coverUrl,
+    coverUrlFallbacks: book.coverUrlFallbacks,
+    marcGenres: book.marcGenres,
+    lccDerivedFromDdc: book.lccDerivedFromDdc,
+    lccDerivedFromAuthorPattern: book.lccDerivedFromAuthorPattern,
+    lccSource:
+      book.lccSource === 'spine'
+        ? 'ol' // assemble's lookup.lccSource is OL/LoC/Wikidata/Inferred only
+        : book.lccSource === 'inferred'
+          ? 'inferred'
+          : book.lccSource === 'loc'
+            ? 'loc'
+            : book.lccSource === 'wikidata'
+              ? 'wikidata'
+              : book.lccSource === 'lookup' || book.lccSource === 'ol'
+                ? 'ol'
+                : 'none',
+  };
+  const mergedTags: InferTagsResult = {
+    genreTags: finalGenre,
+    formTags: finalForm,
+    confidence: inferred.confidence,
+    reasoning: inferred.reasoning,
+    inferredDomains: inferred.inferredDomains,
+    domainConfidence: inferred.domainConfidence,
+  };
+  const assembled = await assembleBookRecord({
+    lookup: synthesizedLookup,
+    spineRead: book.spineRead,
+    spineFields: {
+      title: book.spineRead.title,
+      author: book.spineRead.author,
+    },
+    finalLcc: book.lcc,
+    lccSource: book.lccSource,
+    tags: mergedTags,
+    groundedConfidence: book.confidence,
+    warnings: book.warnings,
+    sourcePhoto: book.sourcePhoto,
+    priorRecord: book,
+  });
+
   return {
     ok: true,
     patch: {
-      genreTags: finalGenre,
-      formTags: finalForm,
-      reasoning: inferred.reasoning,
-      inferredDomains: inferred.inferredDomains,
-      domainConfidence: inferred.domainConfidence,
+      genreTags: assembled.genreTags,
+      formTags: assembled.formTags,
+      reasoning: assembled.reasoning,
+      inferredDomains: assembled.inferredDomains,
+      domainConfidence: assembled.domainConfidence,
       // Reset the tag baseline so subsequent re-tags compare against
       // this fresh inference, not the original from initial processing.
+      // Use inferred.* (pre-Fiction-derivation) as the baseline so the
+      // user-edit detection on the next retag stays consistent.
       original: {
         ...book.original,
         genreTags: [...inferred.genreTags],
