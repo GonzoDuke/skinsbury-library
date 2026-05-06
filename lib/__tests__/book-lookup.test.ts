@@ -134,7 +134,7 @@ describe('lookupBook — editor-attributed', () => {
       'ed. Michael Schumacher'
     );
 
-    expect(result.source).toBe('wikidata');
+    expect(result.source).toBe('openlibrary');
     expect(result.isbn).toBe('9780141398990');
     expect(result.publicationYear).toBe(2015);
     expect(result.lcc).toMatch(/^PS3513/);
