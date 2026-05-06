@@ -1329,131 +1329,70 @@ export async function addManualBook(opts: AddManualBookOptions): Promise<BookRec
 
   const titleCased = toTitleCase(title);
   const finalIsbn = lookup.isbn || isbn;
-  let finalLcc = lookup.lcc;
-  let lccSource: BookRecord['lccSource'] = finalLcc ? lookup.lccSource ?? 'ol' : 'none';
 
-  // Tier 6 inference for manual entries that come back without an LCC.
-  if (!isCompleteLcc(finalLcc) && title && author) {
-    try {
-      const inferred = await inferLccClient({
-        title,
-        author,
-        publisher: lookup.publisher,
-        publicationYear: lookup.publicationYear,
-      });
-      if (inferred.lcc && inferred.confidence !== 'LOW') {
-        const normalized = normalizeLcc(inferred.lcc);
-        // Don't downgrade: only overwrite a partial LCC with a complete one,
-        // or fill an empty LCC with whatever the model returned.
-        if (isCompleteLcc(normalized) || !finalLcc) {
-          finalLcc = normalized;
-          lccSource = 'inferred';
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  // Deterministic Fiction tag (manual-entry path). Same rule as the
-  // crop-pipeline path: LCC literary-fiction range AND LCSH lacks a
-  // poetry/drama signal. Runs AFTER the Tier-6 LCC fallback so the
-  // inferred LCC is in scope.
-  tags.formTags = applyFictionFormTag(
-    tags.formTags,
-    finalLcc,
-    lookup.lcshSubjects ?? lookup.subjects
-  );
-
-  // Manual-entry provenance: the user typed title/author/year/isbn, so
-  // those fields tag as 'user-edit' from the start. Lookup-derived
-  // enrichment fields (lcshSubjects, synopsis, etc.) keep the lookup's
-  // source attribution from buildBookProvenance.
-  const manualAuthorLFFinal = toAuthorLastFirst(author);
-  const manualProv = buildBookProvenance({
-    lookup,
-    displayTitle: titleCased,
-    displayAuthor: author,
-    authorLF: manualAuthorLFFinal,
-    useCanonical: false,
-    finalLcc,
-    lccSource,
-  });
-  const manualTs = new Date().toISOString();
-  if (titleCased) manualProv.title = { source: 'user-edit', timestamp: manualTs };
-  if (author) manualProv.author = { source: 'user-edit', timestamp: manualTs };
-  if (manualAuthorLFFinal) {
-    manualProv.authorLF = { source: 'user-edit', timestamp: manualTs };
-  }
-  // ISBN is the only other field the user typed (publisher / year come
-  // from the post-type lookup). Tag it 'user-edit' only when the user
-  // actually supplied one — finalIsbn falls back to the lookup's value.
-  if (opts.isbn && opts.isbn.trim()) {
-    manualProv.isbn = { source: 'user-edit', timestamp: manualTs };
-  }
-
-  return {
-    id: makeId(),
-    spineRead: {
-      position: 9999, // sort to the end of the batch
-      rawText: `${title}${author ? ' — ' + author : ''}`,
+  // LCC resolution. Manual entries don't carry a spine, so spine='' —
+  // the helper degenerates to "lookup wins (when present), otherwise
+  // Sonnet inferLcc fallback." Same don't-downgrade semantics.
+  const { finalLcc, lccSource, alternate: manualLccAlternate } =
+    await resolveLcc({
+      spine: '',
+      lookup,
       title,
       author,
-      confidence: 'HIGH', // user-supplied
-    },
-    title: titleCased,
+    });
+
+  // Manual-entry confidence: LOW when lookup missed, otherwise the
+  // tag-inference confidence. (Pre-refactor behavior preserved.)
+  const manualConfidence: 'HIGH' | 'MEDIUM' | 'LOW' =
+    lookup.source === 'none' ? 'LOW' : tags.confidence;
+
+  const manualWarnings: string[] =
+    lookup.source === 'none'
+      ? ['Manual entry — no metadata match. Verify title/author and edition fields.']
+      : [];
+
+  // Synthesized SpineRead — manual entries don't have a real one, but
+  // BookRecord.spineRead is required by the type and the Review surface
+  // reads from it (rawText for the diagnostic display).
+  const manualSpineRead: SpineRead = {
+    position: 9999, // sort to the end of the batch
+    rawText: `${title}${author ? ' — ' + author : ''}`,
+    title,
     author,
-    authorLF: manualAuthorLFFinal,
-    isbn: finalIsbn,
-    publisher: lookup.publisher,
-    publicationYear: lookup.publicationYear,
-    lcc: finalLcc,
-    genreTags: tags.genreTags,
-    formTags: tags.formTags,
-    confidence: lookup.source === 'none' ? 'LOW' : tags.confidence,
-    reasoning: tags.reasoning,
-    status: 'pending',
-    warnings:
-      lookup.source === 'none'
-        ? ['Manual entry — no metadata match. Verify title/author and edition fields.']
-        : [],
+    confidence: 'HIGH',
+  };
+
+  // Manual entries pass through the shared assembler with explicit
+  // user-edit overrides for the typed fields (title/author/isbn).
+  // assembleBookRecord handles Title Case (via the displayTitle path),
+  // user-edit provenance stamping, and the BookRecord shape.
+  const book = await assembleBookRecord({
+    lookup,
+    spineRead: manualSpineRead,
+    spineFields: { title, author },
+    finalLcc,
+    lccSource,
+    lccAlternate: manualLccAlternate,
+    tags,
+    groundedConfidence: manualConfidence,
+    warnings: manualWarnings,
     sourcePhoto: opts.sourcePhoto,
     batchLabel: opts.batchLabel,
     batchNotes: opts.batchNotes,
-    provenance: manualProv,
-    lookupSource: lookup.source,
-    ddc: lookup.ddc,
-    lccDerivedFromDdc: lookup.lccDerivedFromDdc,
-    lccDerivedFromAuthorPattern: lookup.lccDerivedFromAuthorPattern,
-    inferredDomains: tags?.inferredDomains,
-    domainConfidence: tags?.domainConfidence,
-    lccSource,
     manuallyAdded: true,
-    // Phase-3 enrichment passthrough — see addManualBook's sibling
-    // construction site in buildBookFromCrop for the same pattern.
-    canonicalTitle: lookup.canonicalTitle,
-    subtitle: lookup.subtitle,
-    allAuthors: lookup.allAuthors,
-    synopsis: lookup.synopsis,
-    pageCount: lookup.pageCount,
-    edition: lookup.edition,
-    binding: lookup.binding,
-    language: lookup.language,
-    series: lookup.series,
-    lcshSubjects: lookup.lcshSubjects,
-    marcGenres: lookup.marcGenres,
-    coverUrlFallbacks: lookup.coverUrlFallbacks,
-    original: {
+    manualOverrides: {
       title: titleCased,
       author,
-      isbn: finalIsbn,
-      publisher: lookup.publisher,
-      publicationYear: lookup.publicationYear,
-      lcc: finalLcc,
-      genreTags: [...tags.genreTags],
-      formTags: [...tags.formTags],
+      isbn: opts.isbn && opts.isbn.trim() ? opts.isbn.trim() : undefined,
     },
-  };
+  });
+
+  // Final-isbn override: when the user supplied no ISBN but the lookup
+  // returned one, the assembled record uses lookup.isbn (correct).
+  // When the user supplied one, manualOverrides forced it. Either way
+  // matches the pre-refactor finalIsbn semantics — no extra step.
+  void finalIsbn;
+  return book;
 }
 
 // ----- Reread an existing book -----
