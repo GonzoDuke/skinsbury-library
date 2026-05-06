@@ -428,3 +428,94 @@ describe('lookupSpecificEdition — work-level fallback', () => {
     expect(result.pageCount).toBe(200);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Test 7 — Below-threshold winner returns no match. Locks in the
+//          Phase 1 score floor: when the best candidate scores below
+//          MIN_PHASE1_SCORE (6), we treat Phase 1 as a miss and let
+//          the no-Phase-1-winner fallbacks take over rather than save
+//          a low-scoring wrong-edition pick.
+//
+// Crafted scoring: candidates have an exact title match (+2) but
+// almost nothing else — no LCC, no ISBN, no publisher hit, mismatched
+// authors. Total scores 2–4, all below the 6 floor. lookupBook should
+// return source='none' (no candidate adopted).
+// ---------------------------------------------------------------------------
+describe('lookupBook — Phase 1 below-threshold bail-out', () => {
+  it('returns source="none" when the best candidate scores below MIN_PHASE1_SCORE', async () => {
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              // Exact title match (+2) — that's it. No isbn, no lcc,
+              // no publisher, no year, mismatched author.
+              key: '/works/OLLOW1',
+              title: 'Weak Match Title',
+              author_name: ['Some Other Author'],
+              subject: [],
+            },
+            {
+              key: '/works/OLLOW2',
+              title: 'Weak Match Title',
+              author_name: ['Yet Another Author'],
+              subject: [],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupBook('Weak Match Title', 'Some Author');
+
+    // Below threshold → no Phase-1 winner.
+    expect(result.source).toBe('none');
+    expect(result.isbn).toBe('');
+    expect(result.lcc).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 8 — Above-threshold winner returns normally. Locks in the
+//          guarantee that the threshold doesn't break high-quality
+//          matches: a fully-described candidate (isbn + lcc +
+//          publisher + year + exact title + full author match) easily
+//          clears the 6 floor and is returned as before.
+// ---------------------------------------------------------------------------
+describe('lookupBook — Phase 1 above-threshold winner', () => {
+  it('returns the winner when its score is at or above MIN_PHASE1_SCORE', async () => {
+    installFetchMock([
+      [
+        /openlibrary\.org\/search\.json/,
+        () => ({
+          docs: [
+            {
+              // Strong match: isbn(+2) + lcc(+3) + publisher(+1) +
+              // year(+1) + title exact(+2) + author full(+3) = 12.
+              key: '/works/OLSTRONG',
+              title: 'Strong Match Title',
+              author_name: ['Strong Author'],
+              isbn: ['9780000000002'],
+              publisher: ['Strong Press'],
+              first_publish_year: 2015,
+              publish_year: [2015],
+              lcc: ['PZ7 .S767 2015'],
+              subject: ['Test fiction'],
+            },
+          ],
+        }),
+      ],
+      [/api2\.isbndb\.com\/books\//, () => ({ books: [] })],
+    ]);
+
+    const result = await lookupBook('Strong Match Title', 'Strong Author');
+
+    expect(result.source).toBe('openlibrary');
+    expect(result.isbn).toBe('9780000000002');
+    expect(result.publisher).toBe('Strong Press');
+    expect(result.publicationYear).toBe(2015);
+    expect(result.lcc).toMatch(/^PZ7/);
+  });
+});
