@@ -2806,6 +2806,19 @@ export async function lookupBook(
           extractedLccClass: spineLccClass,
         }
       : undefined;
+  // TEMPORARY DEBUG (revert before merge): trace what reached the
+  // scorer so we can find where extractedLccClass is being dropped
+  // on the Generation/Twenge case.
+  console.log('[lookup-book debug] scoreHints =', JSON.stringify(scoreHints));
+  console.log(
+    '[lookup-book debug] options =',
+    JSON.stringify({
+      extractedEdition: options?.extractedEdition,
+      extractedSeries: options?.extractedSeries,
+      extractedCallNumber: options?.extractedCallNumber,
+      extractedCallNumberSystem: options?.extractedCallNumberSystem,
+    })
+  );
   const pickResult = pickBestCandidate(
     candidates,
     searchTitle,
