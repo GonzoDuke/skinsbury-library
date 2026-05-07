@@ -135,6 +135,16 @@ export interface FieldProvenance {
   timestamp: string;
   /** Other sources' values for the same field, when they disagreed. */
   alternates?: Array<{ source: SourceTag; value: unknown }>;
+  /** When `source === 'spine-read'`, the specific spineRead field the
+   *  value came from (e.g., 'extractedCallNumber', 'extractedSeries',
+   *  'extractedEdition'). Lets the audit trail distinguish a sticker-
+   *  printed LCC from a series imprint pulled off the spine. Optional;
+   *  legacy spine-read stamps without this attribution still validate. */
+  extractedFrom?: string;
+  /** When `source === 'derived'`, the BookRecord field the value was
+   *  computed from (e.g., 'author' for authorLF). Lets a future debugger
+   *  trace a derived value back to its source field. Optional. */
+  derivedFrom?: string;
 }
 
 /**
