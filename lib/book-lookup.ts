@@ -577,8 +577,24 @@ export function scoreDocBreakdown(
       (d.lc_classifications && d.lc_classifications.length > 0
         ? d.lc_classifications[0]
         : '');
+    const candidateClass = candidateRawLcc ? lccClass(candidateRawLcc) : '';
+    // TEMPORARY DEBUG (revert before merge): inspect what the scorer
+    // actually sees on each candidate so we can confirm whether
+    // d.lcc is an array (as the type claims) or a string at runtime.
+    console.log(
+      '[scorer debug]',
+      JSON.stringify({
+        title: d.title,
+        lcc: d.lcc,
+        lccType: typeof d.lcc,
+        lccIsArray: Array.isArray(d.lcc),
+        lc_classifications: d.lc_classifications,
+        candidateRawLcc,
+        candidateClass,
+        hint: hints?.extractedLccClass,
+      })
+    );
     if (candidateRawLcc) {
-      const candidateClass = lccClass(candidateRawLcc);
       if (candidateClass) {
         rules.lccClass = candidateClass === hints.extractedLccClass ? 4 : -4;
       }
