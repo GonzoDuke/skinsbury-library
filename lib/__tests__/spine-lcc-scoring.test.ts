@@ -64,6 +64,20 @@ describe('lccClass — class extraction from raw call numbers', () => {
   it('uppercases lowercase input', () => {
     expect(lccClass('ps3521.e735')).toBe('PS3521');
   });
+
+  it('strips leading zeros from the class digits (OL data normalization)', () => {
+    // Production failure mode: OL stored "HM0721" with a zero-pad,
+    // spine sticker had "HM721" without — string-equality compare
+    // treated them as a mismatch and the lccClass rule silently
+    // fired with 0 on a record that actually agreed.
+    expect(lccClass('HM0721')).toBe('HM721');
+    expect(lccClass('HM721')).toBe('HM721');
+    expect(lccClass('PS03521')).toBe('PS3521');
+    expect(lccClass('PS00001')).toBe('PS1');
+    // Both normalized variants compare equal — the property the
+    // scorer's `=== ` check depends on.
+    expect(lccClass('HM0721')).toBe(lccClass('HM721'));
+  });
 });
 
 // ---------------------------------------------------------------------------

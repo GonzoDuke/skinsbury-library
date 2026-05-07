@@ -447,11 +447,20 @@ interface ScoreHints {
  * doesn't match an LCC pattern (e.g., DDC numbers like "973.7" have
  * no leading letters and produce empty).
  *
+ * Leading zeros on the class digits are stripped so OL records with
+ * zero-padded digits ("HM0721") compare equal to spine stickers
+ * without the padding ("HM721"). Without normalization, the string-
+ * equality compare in the scorer treated those as a class mismatch
+ * and the rule silently fired with lccClass:0 on a record that
+ * actually agreed with the sticker.
+ *
  * Examples:
  *   "PS3521.E735 A6 1995"   → "PS3521"
  *   "PS 3521 .E735 A6 1995" → "PS3521"
  *   "HV5825 .T67 2005"      → "HV5825"
  *   "PS3521.5.E735"         → "PS3521"  (decimal class collapses to integer)
+ *   "HM0721"                → "HM721"   (leading zero stripped)
+ *   "PS00001"               → "PS1"     (multiple leading zeros)
  *   "973.7"                 → ""        (no leading letters)
  *   ""                      → ""
  *
@@ -468,7 +477,14 @@ export function lccClass(raw: string): string {
   // because the regex only consumes letters and digits before them.
   const m = cleaned.match(/^([A-Z]{1,3})(\d+(\.\d+)?)/);
   if (!m) return '';
-  return m[1] + m[2].split('.')[0];
+  const letters = m[1];
+  // Take the integer portion of the class digits (drop any decimal
+  // sub-class). Strip leading zeros so zero-padded variants normalize
+  // to the same string. `|| '0'` preserves a single zero when the
+  // input was all zeros (defensive — real LCC class digits never are,
+  // but the normalization shouldn't produce an empty string).
+  const digits = m[2].split('.')[0].replace(/^0+/, '') || '0';
+  return letters + digits;
 }
 
 /**
