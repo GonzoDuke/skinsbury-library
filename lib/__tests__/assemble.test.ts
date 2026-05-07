@@ -309,3 +309,156 @@ describe('assembleBookRecord — retag path', () => {
     expect(book.original.genreTags).toEqual(['OldTag']);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Test 5 — Spine-extracted LCC carries provenance.lcc with both
+//          source='spine-read' AND extractedFrom='extractedCallNumber'.
+//          Audit Item 8 fix — distinguishes a printed-on-spine sticker
+//          LCC from any other 'spine-read' source the audit trail has.
+// ---------------------------------------------------------------------------
+describe('assembleBookRecord — provenance: spine-extracted LCC', () => {
+  it('stamps lcc provenance with extractedFrom: extractedCallNumber when LCC came from a spine sticker', async () => {
+    const lookup: BookLookupResult = {
+      isbn: '',
+      publisher: '',
+      publicationYear: 0,
+      lcc: '', // No lookup LCC — spine wins.
+      source: 'none',
+      lccSource: 'none',
+    };
+    const book = await assembleBookRecord({
+      lookup,
+      spineRead: { ...baseSpineRead, lcc: '' },
+      spineFields: {
+        title: baseSpineRead.title,
+        author: baseSpineRead.author,
+        confidence: 'HIGH',
+        extractedCallNumber: 'HV5825 .T67 2005',
+        extractedCallNumberSystem: 'lcc',
+      },
+      tags: { genreTags: [], formTags: [], confidence: 'LOW', reasoning: '' },
+      // Caller pre-resolves the LCC (spine winner).
+      finalLcc: 'HV5825 .T67 2005',
+      lccSource: 'spine',
+      groundedConfidence: 'MEDIUM',
+      warnings: [],
+      sourcePhoto: 'shelf-1.jpg',
+    });
+
+    expect(book.lcc).toBe('HV5825 .T67 2005');
+    expect(book.provenance?.lcc?.source).toBe('spine-read');
+    expect(book.provenance?.lcc?.extractedFrom).toBe('extractedCallNumber');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 6 — Derived authorLF carries provenance.authorLF with both
+//          source='derived' AND derivedFrom='author'. Audit Item 8 fix
+//          — surfaces which BookRecord field a derived value was
+//          computed from.
+// ---------------------------------------------------------------------------
+describe('assembleBookRecord — provenance: derived authorLF', () => {
+  it('stamps authorLF provenance with derivedFrom: author', async () => {
+    const book = await assembleBookRecord({
+      lookup: { ...baseLookup },
+      spineRead: baseSpineRead,
+      spineFields: {
+        title: baseSpineRead.title,
+        author: baseSpineRead.author,
+        publisher: baseSpineRead.publisher,
+        lcc: baseSpineRead.lcc,
+        confidence: baseSpineRead.confidence,
+      },
+      tags: baseTags,
+      finalLcc: 'PS3513.I74 A6 2015',
+      lccSource: 'ol',
+      groundedConfidence: 'HIGH',
+      warnings: [],
+      sourcePhoto: 'shelf-1.jpg',
+    });
+
+    expect(book.authorLF).toBe('Ginsberg, Allen');
+    expect(book.provenance?.authorLF?.source).toBe('derived');
+    expect(book.provenance?.authorLF?.derivedFrom).toBe('author');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 7 — Reread merge: user-edited fields keep both their value AND
+//          their 'user-edit' provenance, while non-edited fields get
+//          the fresh lookup's provenance. Locks in the merge contract
+//          so future Reread changes can't silently swap the
+//          attribution on a user-edited field.
+// ---------------------------------------------------------------------------
+describe('assembleBookRecord — provenance: Reread merge attribution', () => {
+  it('preserves user-edit provenance on edited fields and adopts fresh lookup provenance on others', async () => {
+    const priorRecord: BookRecord = {
+      id: 'prior-id',
+      spineRead: baseSpineRead,
+      title: 'My Custom Title',
+      author: 'Allen Ginsberg',
+      authorLF: 'Ginsberg, Allen',
+      isbn: '9780141398990',
+      publisher: 'Old Publisher',
+      publicationYear: 2015,
+      lcc: 'PS3513.I74 A6 2015',
+      genreTags: [],
+      formTags: [],
+      confidence: 'HIGH',
+      reasoning: '',
+      status: 'pending',
+      warnings: [],
+      sourcePhoto: 'shelf-1.jpg',
+      lookupSource: 'openlibrary',
+      lccSource: 'ol',
+      provenance: {
+        title: { source: 'user-edit', timestamp: '2026-04-01T00:00:00Z' },
+        publisher: { source: 'openlibrary', timestamp: '2026-04-01T00:00:00Z' },
+      },
+      original: {
+        title: 'The Essential Ginsberg',
+        author: 'Allen Ginsberg',
+        isbn: '9780141398990',
+        publisher: 'Old Publisher',
+        publicationYear: 2015,
+        lcc: 'PS3513.I74 A6 2015',
+      },
+    };
+
+    // Fresh lookup returns a different publisher; the user-edited
+    // title stays, the lookup publisher takes over.
+    const freshLookup: BookLookupResult = {
+      ...baseLookup,
+      publisher: 'Penguin Classics',
+      canonicalTitle: 'The Essential Ginsberg',
+    };
+
+    const book = await assembleBookRecord({
+      lookup: freshLookup,
+      spineRead: baseSpineRead,
+      spineFields: {
+        title: baseSpineRead.title,
+        author: baseSpineRead.author,
+        publisher: baseSpineRead.publisher,
+        lcc: baseSpineRead.lcc,
+        confidence: baseSpineRead.confidence,
+      },
+      tags: baseTags,
+      finalLcc: 'PS3513.I74 A6 2015',
+      lccSource: 'ol',
+      groundedConfidence: 'HIGH',
+      warnings: [],
+      sourcePhoto: 'shelf-1.jpg',
+      priorRecord,
+    });
+
+    // User-edited title preserved with user-edit provenance.
+    expect(book.title).toBe('My Custom Title');
+    expect(book.provenance?.title?.source).toBe('user-edit');
+    // Non-edited publisher refreshed from the fresh lookup, with
+    // openlibrary provenance.
+    expect(book.publisher).toBe('Penguin Classics');
+    expect(book.provenance?.publisher?.source).toBe('openlibrary');
+  });
+});
+

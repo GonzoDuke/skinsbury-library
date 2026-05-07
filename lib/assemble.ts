@@ -197,7 +197,7 @@ function buildBookProvenance(args: {
     prov.author = { source: authorSource, timestamp: ts };
   }
   if (args.authorLF) {
-    prov.authorLF = { source: 'derived', timestamp: ts };
+    prov.authorLF = { source: 'derived', timestamp: ts, derivedFrom: 'author' };
   }
 
   if (args.finalLcc && args.lccSource === 'spine') {
@@ -485,13 +485,41 @@ export async function assembleBookRecord(
     spine.extractedCallNumberSystem === 'ddc' &&
     lookup.ddc === spine.extractedCallNumber
   ) {
-    provenance.ddc = { source: 'spine-read', timestamp: provTs };
+    provenance.ddc = {
+      source: 'spine-read',
+      timestamp: provTs,
+      extractedFrom: 'extractedCallNumber',
+    };
   }
   if (spine.extractedEdition && lookup.edition === spine.extractedEdition) {
-    provenance.edition = { source: 'spine-read', timestamp: provTs };
+    provenance.edition = {
+      source: 'spine-read',
+      timestamp: provTs,
+      extractedFrom: 'extractedEdition',
+    };
   }
   if (spine.extractedSeries && lookup.series === spine.extractedSeries) {
-    provenance.series = { source: 'spine-read', timestamp: provTs };
+    provenance.series = {
+      source: 'spine-read',
+      timestamp: provTs,
+      extractedFrom: 'extractedSeries',
+    };
+  }
+  // When the resolved LCC came from the spine (and the spine read
+  // attributes it specifically to extractedCallNumber with system='lcc'),
+  // augment provenance.lcc with extractedFrom. Legacy spine-read.lcc
+  // stamps remain without extractedFrom (we can't distinguish at this
+  // call site).
+  if (
+    lccSource === 'spine' &&
+    spine.extractedCallNumber &&
+    spine.extractedCallNumberSystem === 'lcc' &&
+    provenance.lcc?.source === 'spine-read'
+  ) {
+    provenance.lcc = {
+      ...provenance.lcc,
+      extractedFrom: 'extractedCallNumber',
+    };
   }
   if (lccAlternateForProvenance && provenance.lcc) {
     const existing = provenance.lcc.alternates ?? [];
