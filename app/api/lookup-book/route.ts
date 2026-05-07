@@ -19,6 +19,11 @@ interface LookupRequest {
    *  tie-breakers — never as authoritative metadata.  */
   extractedEdition?: string;
   extractedSeries?: string;
+  /** Spine-extracted call number + system from a sticker. When the
+   *  system is 'lcc', the lookup pipeline derives an LCC class hint
+   *  from this and uses it as a decisive Phase-1 differentiator. */
+  extractedCallNumber?: string;
+  extractedCallNumberSystem?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -48,10 +53,14 @@ export async function POST(req: NextRequest) {
   try {
     const t0 = Date.now();
     const lookupOpts =
-      body.extractedEdition || body.extractedSeries
+      body.extractedEdition ||
+      body.extractedSeries ||
+      body.extractedCallNumber
         ? {
             extractedEdition: body.extractedEdition || undefined,
             extractedSeries: body.extractedSeries || undefined,
+            extractedCallNumber: body.extractedCallNumber || undefined,
+            extractedCallNumberSystem: body.extractedCallNumberSystem || undefined,
           }
         : undefined;
     const result = body.matchEdition

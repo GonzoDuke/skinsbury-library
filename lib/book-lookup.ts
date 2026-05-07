@@ -424,14 +424,51 @@ function pickIsbn(arr?: string[]): string {
 
 /**
  * Optional spine-extracted hints that influence Phase 1 candidate
- * scoring. Both fields come from Pass-B OCR (`extractedEdition`,
- * `extractedSeries`). When set, candidates whose title/edition or
- * publisher match the spine value get a small additive bonus —
- * tie-breakers, never overrides of strong matches.
+ * scoring. All fields come from Pass-B OCR. When set, candidates
+ * whose metadata matches the spine value get an additive bonus —
+ * tie-breakers (extractedEdition/Series) or stronger differentiators
+ * (extractedLccClass, which can be decisive enough to overcome a
+ * stronger title/author match because a physical sticker is the
+ * single most reliable signal we have about which book this is).
  */
 interface ScoreHints {
   extractedEdition?: string;
   extractedSeries?: string;
+  /** LCC class portion (letters + class digits before the cutter)
+   *  derived from a spine sticker, e.g. "PS3521" from "PS3521.E735".
+   *  See lccClass() for the parser. Only set when the spine read
+   *  attributed the call number to LCC (system === 'lcc'). */
+  extractedLccClass?: string;
+}
+
+/**
+ * Extract the LCC class portion (letters + class digits before the
+ * cutter or year) from a raw call number. Returns "" when the input
+ * doesn't match an LCC pattern (e.g., DDC numbers like "973.7" have
+ * no leading letters and produce empty).
+ *
+ * Examples:
+ *   "PS3521.E735 A6 1995"   → "PS3521"
+ *   "PS 3521 .E735 A6 1995" → "PS3521"
+ *   "HV5825 .T67 2005"      → "HV5825"
+ *   "PS3521.5.E735"         → "PS3521"  (decimal class collapses to integer)
+ *   "973.7"                 → ""        (no leading letters)
+ *   ""                      → ""
+ *
+ * Reused by both the scorer (to compare candidate LCC against the
+ * spine's class) and the hint-construction sites (to derive the
+ * extractedLccClass that's stuffed into ScoreHints). Single source
+ * of truth — exported so tests can assert directly against it.
+ */
+export function lccClass(raw: string): string {
+  if (!raw) return '';
+  const cleaned = raw.replace(/\s+/g, '').toUpperCase();
+  // Leading letters (1–3) + class digits (with optional decimal),
+  // anchored at start. The cutter (.X<digits>) and year don't match
+  // because the regex only consumes letters and digits before them.
+  const m = cleaned.match(/^([A-Z]{1,3})(\d+(\.\d+)?)/);
+  if (!m) return '';
+  return m[1] + m[2].split('.')[0];
 }
 
 /**
@@ -456,6 +493,13 @@ interface ScoreBreakdown {
   rules: {
     isbn: number;
     lcc: number;
+    /** +4 when the candidate's LCC class matches the spine sticker's
+     *  LCC class (PS3521 vs PS3521). -4 on disagreement (PS3521 vs
+     *  PS3568 = different author surname range). 0 when either side
+     *  is missing OR when no spine LCC hint was provided. Stronger
+     *  than the lcc-presence rule because a physical sticker is the
+     *  most reliable single signal we have about which book this is. */
+    lccClass: number;
     publisher: number;
     year: number;
     title: number;
@@ -481,7 +525,7 @@ function formatBreakdown(b: ScoreBreakdown): string {
   return parts.join(' ');
 }
 
-function scoreDocBreakdown(
+export function scoreDocBreakdown(
   d: OpenLibraryDoc,
   title: string,
   author: string,
@@ -490,6 +534,7 @@ function scoreDocBreakdown(
   const rules: ScoreBreakdown['rules'] = {
     isbn: 0,
     lcc: 0,
+    lccClass: 0,
     publisher: 0,
     year: 0,
     title: 0,
@@ -503,6 +548,29 @@ function scoreDocBreakdown(
     (d.lc_classifications && d.lc_classifications.length > 0)
   ) {
     rules.lcc = 3;
+  }
+  // Spine LCC class match — when the spine sticker carries an LCC and
+  // the candidate has an LCC, compare class portions (letters + class
+  // digits before the cutter). Match: +4. Disagreement: -4. Either
+  // side empty OR malformed: 0. Stronger than the lcc-presence rule
+  // because a physical sticker is the single most reliable signal we
+  // have about which book this actually is.
+  if (hints?.extractedLccClass) {
+    const candidateRawLcc =
+      (d.lcc && d.lcc.length > 0 ? d.lcc[0] : '') ||
+      (d.lc_classifications && d.lc_classifications.length > 0
+        ? d.lc_classifications[0]
+        : '');
+    if (candidateRawLcc) {
+      const candidateClass = lccClass(candidateRawLcc);
+      if (candidateClass) {
+        rules.lccClass = candidateClass === hints.extractedLccClass ? 4 : -4;
+      }
+      // Candidate has lcc but it didn't parse to a class (rare,
+      // malformed data) — leave rules.lccClass at 0.
+    }
+    // Candidate has no lcc at all — leave rules.lccClass at 0 (no
+    // penalty for missing data).
   }
   if (d.publisher && d.publisher.length > 0) rules.publisher = 1;
   if (d.first_publish_year) rules.year = 1;
@@ -546,6 +614,7 @@ function scoreDocBreakdown(
   const total =
     rules.isbn +
     rules.lcc +
+    rules.lccClass +
     rules.publisher +
     rules.year +
     rules.title +
@@ -1463,7 +1532,12 @@ export async function lookupSpecificEdition(
   title: string,
   author: string,
   hints: { year?: number; publisher?: string; isbn?: string },
-  options?: { extractedEdition?: string; extractedSeries?: string }
+  options?: {
+    extractedEdition?: string;
+    extractedSeries?: string;
+    extractedCallNumber?: string;
+    extractedCallNumberSystem?: string;
+  }
 ): Promise<BookLookupResult> {
   const log = createLookupLogger(`edition:${title}`);
   log.start({ title, author, isbn: hints.isbn });
@@ -1582,11 +1656,16 @@ export async function lookupSpecificEdition(
         // Prefer publisher match if hint provided.
         const publisherHint = (hints.publisher ?? '').toLowerCase().trim();
         const cleanedAuthorForScore = cleanAuthorForQuery(effectiveAuthor);
+        const spineLccClass =
+          options?.extractedCallNumberSystem === 'lcc' && options.extractedCallNumber
+            ? lccClass(options.extractedCallNumber) || undefined
+            : undefined;
         const scoreHints: ScoreHints | undefined =
-          options?.extractedEdition || options?.extractedSeries
+          options?.extractedEdition || options?.extractedSeries || spineLccClass
             ? {
-                extractedEdition: options.extractedEdition || undefined,
-                extractedSeries: options.extractedSeries || undefined,
+                extractedEdition: options?.extractedEdition || undefined,
+                extractedSeries: options?.extractedSeries || undefined,
+                extractedLccClass: spineLccClass,
               }
             : undefined;
         // Score each non-study-guide doc with full breakdown so the
@@ -2589,7 +2668,12 @@ function cacheKeyForIsbn(isbn: string): string {
 export async function lookupBook(
   title: string,
   author: string,
-  options?: { extractedEdition?: string; extractedSeries?: string }
+  options?: {
+    extractedEdition?: string;
+    extractedSeries?: string;
+    extractedCallNumber?: string;
+    extractedCallNumberSystem?: string;
+  }
 ): Promise<BookLookupResult & { tier?: string }> {
   const log = createLookupLogger(title);
   log.start({ title, author });
@@ -2689,13 +2773,21 @@ export async function lookupBook(
   );
 
   // Spine-extracted hints from Pass-B OCR. Pass to the scorer so
-  // `extractedSeries` and `extractedEdition` tip ties toward the
-  // candidate that matches what's printed on the physical spine.
+  // spine evidence (series imprint, edition statement, sticker LCC
+  // class) tips selection toward the candidate that matches the
+  // physical book. extractedCallNumber only contributes when the
+  // spine read attributed it to LCC (system === 'lcc'); DDC stickers
+  // don't go through this rule.
+  const spineLccClass =
+    options?.extractedCallNumberSystem === 'lcc' && options.extractedCallNumber
+      ? lccClass(options.extractedCallNumber) || undefined
+      : undefined;
   const scoreHints: ScoreHints | undefined =
-    options?.extractedEdition || options?.extractedSeries
+    options?.extractedEdition || options?.extractedSeries || spineLccClass
       ? {
-          extractedEdition: options.extractedEdition || undefined,
-          extractedSeries: options.extractedSeries || undefined,
+          extractedEdition: options?.extractedEdition || undefined,
+          extractedSeries: options?.extractedSeries || undefined,
+          extractedLccClass: spineLccClass,
         }
       : undefined;
   const pickResult = pickBestCandidate(

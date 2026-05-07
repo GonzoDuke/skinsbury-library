@@ -395,6 +395,11 @@ export async function lookupBookClient(
      *  pipeline's Phase-1 candidate scorer as additive tie-breakers. */
     extractedEdition?: string;
     extractedSeries?: string;
+    /** Spine-extracted call number + system. When system is 'lcc' the
+     *  scorer derives an LCC class hint from this and uses it as a
+     *  decisive Phase-1 differentiator (match: +4, mismatch: −4). */
+    extractedCallNumber?: string;
+    extractedCallNumberSystem?: string;
   }
 ): Promise<BookLookupResult> {
   const res = await fetch('/api/lookup-book', {
@@ -407,6 +412,8 @@ export async function lookupBookClient(
       hints: options?.hints,
       extractedEdition: options?.extractedEdition,
       extractedSeries: options?.extractedSeries,
+      extractedCallNumber: options?.extractedCallNumber,
+      extractedCallNumberSystem: options?.extractedCallNumberSystem,
     }),
   });
   if (!res.ok) {
@@ -899,13 +906,18 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
 
   if (read.title) {
     try {
-      // Forward spine-extracted series + edition to the lookup
-      // pipeline's Phase-1 scorer as additive tie-breakers (a Penguin
-      // Classics spine should bias toward the Penguin candidate; an
-      // edition-statement match nudges similarly).
+      // Forward spine-extracted series + edition + sticker LCC to
+      // the lookup pipeline's Phase-1 scorer. Series + edition act as
+      // additive tie-breakers (a Penguin Classics spine should bias
+      // toward the Penguin candidate). The sticker LCC class is a
+      // decisive differentiator (match: +4, mismatch: −4) — keeps
+      // Phase 1 from picking a wrong-author candidate whose database
+      // LCC disagrees with the physical sticker.
       const r = await lookupBookClient(read.title, read.author, {
         extractedEdition: read.extractedEdition || undefined,
         extractedSeries: read.extractedSeries || undefined,
+        extractedCallNumber: read.extractedCallNumber || undefined,
+        extractedCallNumberSystem: read.extractedCallNumberSystem || undefined,
       });
       lookup = { ...r, publisher: r.publisher || read.publisher || '' };
       // We don't have the matched title from the lookup endpoint today; pass
@@ -945,10 +957,14 @@ export async function buildBookFromCrop(opts: BuildBookOptions): Promise<BuiltBo
                 hints: { isbn: guess.isbn },
                 extractedEdition: read.extractedEdition || undefined,
                 extractedSeries: read.extractedSeries || undefined,
+                extractedCallNumber: read.extractedCallNumber || undefined,
+                extractedCallNumberSystem: read.extractedCallNumberSystem || undefined,
               })
             : await lookupBookClient(guess.title, guess.author, {
                 extractedEdition: read.extractedEdition || undefined,
                 extractedSeries: read.extractedSeries || undefined,
+                extractedCallNumber: read.extractedCallNumber || undefined,
+                extractedCallNumberSystem: read.extractedCallNumberSystem || undefined,
               });
           if (reRun.source !== 'none') {
             lookup = { ...reRun, publisher: reRun.publisher || read.publisher || '' };
@@ -1512,6 +1528,12 @@ export async function rereadBook(
   let rereadExtractedSeries = '';
   let rereadExtractedEdition = '';
   let rereadExtractedDdc = '';
+  // Spine sticker LCC captured this run, plumbed into Phase-1 scoring
+  // as the LCC-class hint. Empty when the reread used hint or
+  // matchEdition mode (Pass B didn't run) or when the spine had no
+  // sticker.
+  let rereadExtractedCallNumber = '';
+  let rereadExtractedCallNumberSystem = '';
 
   if (options.matchEdition) {
     // Trust the user's edited fields as ground truth. Skip Pass B.
@@ -1585,6 +1607,8 @@ export async function rereadBook(
     if (read.extractedCallNumber && read.extractedCallNumberSystem === 'ddc') {
       rereadExtractedDdc = read.extractedCallNumber;
     }
+    rereadExtractedCallNumber = read.extractedCallNumber ?? '';
+    rereadExtractedCallNumberSystem = read.extractedCallNumberSystem ?? '';
   }
 
   // Lookup
@@ -1608,12 +1632,14 @@ export async function rereadBook(
 
   if (title) {
     try {
-      // Forward Reread's freshly-OCR'd extractedSeries / Edition (when
-      // a Pass-B re-read happened this run) so Phase-1 scoring uses
-      // the same tie-breakers as a fresh capture.
+      // Forward Reread's freshly-OCR'd extractedSeries / Edition / LCC
+      // sticker (when a Pass-B re-read happened this run) so Phase-1
+      // scoring uses the same hints as a fresh capture.
       const rereadHints = {
         extractedEdition: rereadExtractedEdition || undefined,
         extractedSeries: rereadExtractedSeries || undefined,
+        extractedCallNumber: rereadExtractedCallNumber || undefined,
+        extractedCallNumberSystem: rereadExtractedCallNumberSystem || undefined,
       };
       const r = useEditionScoping
         ? await lookupBookClient(title, author, {
