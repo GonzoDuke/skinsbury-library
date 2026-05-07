@@ -78,6 +78,24 @@ describe('lccClass — class extraction from raw call numbers', () => {
     // scorer's `=== ` check depends on.
     expect(lccClass('HM0721')).toBe(lccClass('HM721'));
   });
+
+  it("handles OL's normalized sortable LCC format (hyphen + zero padding)", () => {
+    // Second production failure mode: OL stores LCCs in a sortable
+    // form with a hyphen between letters and digits and trailing-
+    // zero decimal padding. The scorer's lookup of d.lcc[0] returns
+    // values like "HM-0721.00000000" — without consuming the
+    // optional hyphen, the regex bailed and lccClass returned ""
+    // for every OL candidate (so the rule fired with 0 across the
+    // board on the Generations/Twenge case).
+    expect(lccClass('HM-0721.00000000')).toBe('HM721');
+    expect(lccClass('HQ-0799.70000000.T94 2006')).toBe('HQ799');
+    expect(lccClass('HM-721')).toBe('HM721');
+    // The decisive equality: an OL candidate's stored value should
+    // compare equal to the typical spine-sticker form after
+    // normalization. This is the property the scorer's `===` check
+    // depends on.
+    expect(lccClass('HM-0721.00000000')).toBe(lccClass('HM721 .T94 2023'));
+  });
 });
 
 // ---------------------------------------------------------------------------

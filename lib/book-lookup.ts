@@ -447,22 +447,28 @@ interface ScoreHints {
  * doesn't match an LCC pattern (e.g., DDC numbers like "973.7" have
  * no leading letters and produce empty).
  *
- * Leading zeros on the class digits are stripped so OL records with
- * zero-padded digits ("HM0721") compare equal to spine stickers
- * without the padding ("HM721"). Without normalization, the string-
- * equality compare in the scorer treated those as a class mismatch
- * and the rule silently fired with lccClass:0 on a record that
- * actually agreed with the sticker.
+ * Three normalizations make values from different sources compare
+ * equal:
+ *   1. Whitespace stripped, letters uppercased.
+ *   2. An optional hyphen between letters and digits is consumed —
+ *      Open Library stores LCCs in normalized sortable form
+ *      ("HM-0721.00000000") with that hyphen present. Without this,
+ *      OL candidates wouldn't match the typical spine-sticker form.
+ *   3. Leading zeros on the class digits are stripped so OL records
+ *      with zero-padded digits ("HM0721") compare equal to stickers
+ *      without the padding ("HM721").
  *
  * Examples:
- *   "PS3521.E735 A6 1995"   → "PS3521"
- *   "PS 3521 .E735 A6 1995" → "PS3521"
- *   "HV5825 .T67 2005"      → "HV5825"
- *   "PS3521.5.E735"         → "PS3521"  (decimal class collapses to integer)
- *   "HM0721"                → "HM721"   (leading zero stripped)
- *   "PS00001"               → "PS1"     (multiple leading zeros)
- *   "973.7"                 → ""        (no leading letters)
- *   ""                      → ""
+ *   "PS3521.E735 A6 1995"          → "PS3521"
+ *   "PS 3521 .E735 A6 1995"        → "PS3521"
+ *   "HV5825 .T67 2005"             → "HV5825"
+ *   "PS3521.5.E735"                → "PS3521"  (decimal class → integer)
+ *   "HM0721"                       → "HM721"   (leading zero stripped)
+ *   "PS00001"                      → "PS1"     (multiple leading zeros)
+ *   "HM-0721.00000000"             → "HM721"   (OL sortable form)
+ *   "HQ-0799.70000000.T94 2006"    → "HQ799"   (OL sortable + cutter)
+ *   "973.7"                        → ""        (no leading letters)
+ *   ""                             → ""
  *
  * Reused by both the scorer (to compare candidate LCC against the
  * spine's class) and the hint-construction sites (to derive the
@@ -472,10 +478,11 @@ interface ScoreHints {
 export function lccClass(raw: string): string {
   if (!raw) return '';
   const cleaned = raw.replace(/\s+/g, '').toUpperCase();
-  // Leading letters (1–3) + class digits (with optional decimal),
-  // anchored at start. The cutter (.X<digits>) and year don't match
+  // Leading letters (1–3), an optional hyphen separator (OL sortable
+  // form), then class digits with optional decimal sub-class.
+  // Anchored at start. The cutter (.X<digits>) and year don't match
   // because the regex only consumes letters and digits before them.
-  const m = cleaned.match(/^([A-Z]{1,3})(\d+(\.\d+)?)/);
+  const m = cleaned.match(/^([A-Z]{1,3})-?(\d+(\.\d+)?)/);
   if (!m) return '';
   const letters = m[1];
   // Take the integer portion of the class digits (drop any decimal
@@ -577,24 +584,8 @@ export function scoreDocBreakdown(
       (d.lc_classifications && d.lc_classifications.length > 0
         ? d.lc_classifications[0]
         : '');
-    const candidateClass = candidateRawLcc ? lccClass(candidateRawLcc) : '';
-    // TEMPORARY DEBUG (revert before merge): inspect what the scorer
-    // actually sees on each candidate so we can confirm whether
-    // d.lcc is an array (as the type claims) or a string at runtime.
-    console.log(
-      '[scorer debug]',
-      JSON.stringify({
-        title: d.title,
-        lcc: d.lcc,
-        lccType: typeof d.lcc,
-        lccIsArray: Array.isArray(d.lcc),
-        lc_classifications: d.lc_classifications,
-        candidateRawLcc,
-        candidateClass,
-        hint: hints?.extractedLccClass,
-      })
-    );
     if (candidateRawLcc) {
+      const candidateClass = lccClass(candidateRawLcc);
       if (candidateClass) {
         rules.lccClass = candidateClass === hints.extractedLccClass ? 4 : -4;
       }
@@ -2822,19 +2813,6 @@ export async function lookupBook(
           extractedLccClass: spineLccClass,
         }
       : undefined;
-  // TEMPORARY DEBUG (revert before merge): trace what reached the
-  // scorer so we can find where extractedLccClass is being dropped
-  // on the Generation/Twenge case.
-  console.log('[lookup-book debug] scoreHints =', JSON.stringify(scoreHints));
-  console.log(
-    '[lookup-book debug] options =',
-    JSON.stringify({
-      extractedEdition: options?.extractedEdition,
-      extractedSeries: options?.extractedSeries,
-      extractedCallNumber: options?.extractedCallNumber,
-      extractedCallNumberSystem: options?.extractedCallNumberSystem,
-    })
-  );
   const pickResult = pickBestCandidate(
     candidates,
     searchTitle,
